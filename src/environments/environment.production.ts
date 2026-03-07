@@ -4,5 +4,6 @@ export const environment: AppEnvironment = {
   production: true,
   apiBaseUrl: 'http://localhost:8080',
   microsoftAuthPath: '/oauth2/authorization/microsoft',
+  authSessionPath: '/api/v1/auth/session',
   defaultUniversityId: 1
 };
