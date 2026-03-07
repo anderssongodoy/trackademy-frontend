@@ -1,20 +1,33 @@
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
   AccountInfo,
   AuthenticationResult,
   PublicClientApplication
 } from '@azure/msal-browser';
+import { firstValueFrom } from 'rxjs';
 
 import { APP_ENV } from '../config/app-environment.token';
 
+interface MicrosoftExchangeResponse {
+  token: string;
+  tokenType: string;
+  expiresIn: number;
+  email: string;
+  name: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+  private static readonly APP_TOKEN_KEY = 'trackademy.appToken';
+
   private readonly env = inject(APP_ENV);
+  private readonly http = inject(HttpClient);
   private readonly msal = new PublicClientApplication({
     auth: {
       clientId: this.env.azureFrontendClientId,
       authority: `https://login.microsoftonline.com/${this.env.azureTenantId}`,
-      redirectUri: `${window.location.origin}/auth/sign-in`
+      redirectUri: `${window.location.origin}/auth/callback`
     },
     cache: {
       cacheLocation: 'localStorage'
@@ -42,10 +55,35 @@ export class AuthService {
     }
   }
 
+  private storeAppToken(token: string): void {
+    localStorage.setItem(AuthService.APP_TOKEN_KEY, token);
+  }
+
+  private getStoredAppToken(): string | null {
+    return localStorage.getItem(AuthService.APP_TOKEN_KEY);
+  }
+
+  private async exchangeMicrosoftIdentity(idToken: string): Promise<void> {
+    const response = await firstValueFrom(
+      this.http.post<MicrosoftExchangeResponse>(
+        `${this.env.apiBaseUrl}${this.env.authMicrosoftExchangePath}`,
+        {
+          idToken
+        }
+      )
+    );
+
+    this.storeAppToken(response.token);
+  }
+
   async completeMicrosoftLogin(): Promise<string | null> {
     await this.initialize();
     const result = await this.msal.handleRedirectPromise();
     this.setActiveAccount(result);
+
+    if (result?.idToken) {
+      await this.exchangeMicrosoftIdentity(result.idToken);
+    }
 
     if (result?.state) {
       return result.state;
@@ -58,7 +96,7 @@ export class AuthService {
     await this.initialize();
 
     await this.msal.loginRedirect({
-      scopes: ['openid', 'profile', 'email', this.env.azureApiScope],
+      scopes: ['openid', 'profile', 'email'],
       state: redirectPath
     });
   }
@@ -68,27 +106,10 @@ export class AuthService {
   }
 
   async getAccessToken(): Promise<string | null> {
-    await this.initialize();
-    const account = this.getCurrentAccount();
-
-    if (!account) {
-      return null;
-    }
-
-    try {
-      const response = await this.msal.acquireTokenSilent({
-        account,
-        scopes: [this.env.azureApiScope]
-      });
-
-      return response.accessToken;
-    } catch {
-      return null;
-    }
+    return this.getStoredAppToken();
   }
 
   async isSignedIn(): Promise<boolean> {
-    await this.initialize();
-    return this.getCurrentAccount() !== null;
+    return this.getStoredAppToken() !== null;
   }
 }

@@ -12,6 +12,11 @@ export const routes: Routes = [
 			import('./features/auth/sign-in/sign-in.page').then((m) => m.SignInPage)
 	},
 	{
+		path: 'auth/callback',
+		loadComponent: () =>
+			import('./features/auth/sign-in/sign-in.page').then((m) => m.SignInPage)
+	},
+	{
 		path: 'app/onboarding',
 		canActivate: [authGuard],
 		loadComponent: () => import('./features/onboarding/onboarding.page').then((m) => m.OnboardingPage)
