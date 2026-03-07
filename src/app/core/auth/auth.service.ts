@@ -8,8 +8,17 @@ import {
 import { firstValueFrom } from 'rxjs';
 
 import { APP_ENV } from '../config/app-environment.token';
+import { GoogleApi, GoogleCredentialResponse } from './google-identity.types';
 
 interface MicrosoftExchangeResponse {
+  token: string;
+  tokenType: string;
+  expiresIn: number;
+  email: string;
+  name: string;
+}
+
+interface GoogleExchangeResponse {
   token: string;
   tokenType: string;
   expiresIn: number;
@@ -63,10 +72,28 @@ export class AuthService {
     return localStorage.getItem(AuthService.APP_TOKEN_KEY);
   }
 
+  private getGoogleApi(): GoogleApi | null {
+    const w = window as Window & { google?: GoogleApi };
+    return w.google ?? null;
+  }
+
   private async exchangeMicrosoftIdentity(idToken: string): Promise<void> {
     const response = await firstValueFrom(
       this.http.post<MicrosoftExchangeResponse>(
         `${this.env.apiBaseUrl}${this.env.authMicrosoftExchangePath}`,
+        {
+          idToken
+        }
+      )
+    );
+
+    this.storeAppToken(response.token);
+  }
+
+  private async exchangeGoogleIdentity(idToken: string): Promise<void> {
+    const response = await firstValueFrom(
+      this.http.post<GoogleExchangeResponse>(
+        `${this.env.apiBaseUrl}${this.env.authGoogleExchangePath}`,
         {
           idToken
         }
@@ -99,6 +126,46 @@ export class AuthService {
       scopes: ['openid', 'profile', 'email'],
       state: redirectPath
     });
+  }
+
+  async setupGoogleSignIn(containerId: string, redirectPath: string): Promise<boolean> {
+    if (!this.env.googleClientId || this.env.googleClientId.trim().length === 0) {
+      return false;
+    }
+
+    const google = this.getGoogleApi();
+    if (!google?.accounts?.id) {
+      return false;
+    }
+
+    const container = document.getElementById(containerId);
+    if (!container) {
+      return false;
+    }
+
+    google.accounts.id.initialize({
+      client_id: this.env.googleClientId,
+      callback: async (response: GoogleCredentialResponse) => {
+        if (!response.credential) {
+          return;
+        }
+
+        await this.exchangeGoogleIdentity(response.credential);
+        window.location.assign(redirectPath);
+      }
+    });
+
+    container.innerHTML = '';
+    google.accounts.id.renderButton(container, {
+      type: 'standard',
+      theme: 'outline',
+      size: 'large',
+      shape: 'pill',
+      text: 'continue_with',
+      width: 360
+    });
+
+    return true;
   }
 
   private getCurrentAccount(): AccountInfo | null {

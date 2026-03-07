@@ -64,6 +64,19 @@ h1 {
   cursor: pointer;
 }
 
+.separator {
+  margin: 1rem 0 0.75rem;
+  color: var(--text-secondary);
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+.google-signin-slot {
+  display: flex;
+  justify-content: center;
+  min-height: 44px;
+}
+
 .ms-logo {
   width: 1.3rem;
   height: 1.3rem;

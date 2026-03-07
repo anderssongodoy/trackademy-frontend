@@ -9,8 +9,15 @@
 
     <button type="button" class="ms-btn" (click)="signInWithMicrosoft()">
       <span class="ms-logo" aria-hidden="true">M</span>
-      Iniciar sesión
+      Continuar con Microsoft
     </button>
+
+    <div class="separator" role="separator" aria-label="Separador">o</div>
+
+    <div id="google-signin-button" class="google-signin-slot"></div>
+    @if (googleUnavailable()) {
+      <p class="help-text">Google Sign-In no esta disponible. Configura `googleClientId` en el environment.</p>
+    }
 
     <p class="help-text">Métodos adicionales de autenticación podrán agregarse en una fase posterior.</p>
   </section>

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../../core/auth/auth.service';
@@ -10,6 +10,8 @@ import { AuthService } from '../../../core/auth/auth.service';
   styleUrl: './sign-in.page.scss'
 })
 export class SignInPage implements OnInit {
+  protected readonly googleUnavailable = signal(false);
+
   private readonly authService = inject(AuthService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -26,7 +28,12 @@ export class SignInPage implements OnInit {
     if (alreadySignedIn) {
       const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/app/dashboard';
       await this.router.navigateByUrl(redirect);
+      return;
     }
+
+    const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/app/dashboard';
+    const googleReady = await this.authService.setupGoogleSignIn('google-signin-button', redirect);
+    this.googleUnavailable.set(!googleReady);
   }
 
   async signInWithMicrosoft(): Promise<void> {
