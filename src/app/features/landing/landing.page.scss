@@ -1,0 +1,104 @@
+:host {
+  display: block;
+}
+
+.landing {
+  min-height: 100dvh;
+  padding: 2rem;
+  background:
+    radial-gradient(circle at 10% 10%, color-mix(in srgb, var(--brand-accent) 14%, transparent), transparent 45%),
+    radial-gradient(circle at 85% 80%, color-mix(in srgb, var(--brand-primary) 20%, transparent), transparent 42%),
+    var(--surface-background);
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  color: var(--text-primary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.brand__dot {
+  width: 0.9rem;
+  height: 0.9rem;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-accent));
+}
+
+.hero {
+  max-width: 56rem;
+  margin: 12vh auto 0;
+}
+
+.kicker {
+  color: var(--brand-primary);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+}
+
+h1 {
+  margin: 0.7rem 0;
+  font-size: clamp(2rem, 4.6vw, 4rem);
+  line-height: 1.03;
+  color: var(--text-primary);
+}
+
+.subtitle {
+  max-width: 42rem;
+  color: var(--text-secondary);
+  font-size: 1.06rem;
+  line-height: 1.6;
+}
+
+.actions {
+  margin-top: 2.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+}
+
+.primary-btn,
+.secondary-btn,
+.ghost-btn {
+  text-decoration: none;
+  border-radius: 999px;
+  font-weight: 700;
+  transition: transform 140ms ease, box-shadow 140ms ease, background-color 140ms ease;
+}
+
+.primary-btn {
+  background: linear-gradient(135deg, var(--brand-primary), #0c6f86);
+  color: #fff;
+  padding: 0.85rem 1.3rem;
+  box-shadow: 0 10px 24px color-mix(in srgb, var(--brand-primary) 35%, transparent);
+}
+
+.secondary-btn {
+  border: 1px solid var(--line-strong);
+  color: var(--text-primary);
+  padding: 0.85rem 1.3rem;
+  background: color-mix(in srgb, #fff 70%, transparent);
+}
+
+.ghost-btn {
+  border: 1px solid var(--line-soft);
+  color: var(--text-primary);
+  background: color-mix(in srgb, #fff 88%, transparent);
+  padding: 0.6rem 0.95rem;
+}
+
+.primary-btn:hover,
+.secondary-btn:hover,
+.ghost-btn:hover {
+  transform: translateY(-1px);
+}
