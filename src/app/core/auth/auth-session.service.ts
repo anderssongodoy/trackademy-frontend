@@ -15,9 +15,7 @@ export class AuthSessionService {
 
   isAuthenticated(): Observable<boolean> {
     return this.http
-      .get<SessionResponse>(`${this.env.apiBaseUrl}${this.env.authSessionPath}`, {
-        withCredentials: true
-      })
+      .get<SessionResponse>(`${this.env.apiBaseUrl}${this.env.authSessionPath}`)
       .pipe(map((response) => response.authenticated === true));
   }
 }

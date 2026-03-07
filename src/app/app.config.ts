@@ -5,6 +5,7 @@ import { provideRouter } from '@angular/router';
 import { routes } from './app.routes';
 import { APP_ENV } from './core/config/app-environment.token';
 import { apiErrorInterceptor } from './core/http/api-error.interceptor';
+import { authTokenInterceptor } from './core/http/auth-token.interceptor';
 import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
@@ -15,7 +16,7 @@ export const appConfig: ApplicationConfig = {
     },
     provideBrowserGlobalErrorListeners(),
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideHttpClient(withInterceptors([apiErrorInterceptor])),
+    provideHttpClient(withInterceptors([authTokenInterceptor, apiErrorInterceptor])),
     provideRouter(routes)
   ]
 };
