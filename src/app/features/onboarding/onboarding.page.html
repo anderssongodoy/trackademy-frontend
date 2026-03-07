@@ -1,0 +1,130 @@
+<main class="onboarding">
+  <header class="onboarding__header">
+    <div>
+      <p class="kicker">Onboarding</p>
+      <h1>Configura tu periodo académico</h1>
+      <p class="subtitle">Sin mocks: el formulario usa catálogos reales del backend.</p>
+    </div>
+    <a class="outline-btn" routerLink="/app/dashboard">Volver al dashboard</a>
+  </header>
+
+  @if (isLoading) {
+    <p class="notice">Cargando catálogos...</p>
+  }
+
+  @if (loadingError) {
+    <p class="error">{{ loadingError }}</p>
+  }
+
+  @if (!isLoading && !loadingError) {
+    <form class="form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+      <section class="card card--double">
+        <h2>Datos base</h2>
+        <div class="grid">
+          <label>
+            Correo
+            <input type="email" formControlName="email" placeholder="u2020xxxxx@utp.edu.pe" />
+          </label>
+          <label>
+            Nombre
+            <input type="text" formControlName="nombre" placeholder="Nombre completo" />
+          </label>
+          <label>
+            Campus
+            <select formControlName="campusId">
+              <option [ngValue]="null">Selecciona campus</option>
+              @for (campus of campuses; track campus.id) {
+                <option [ngValue]="campus.id">{{ campus.nombre }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            Carrera
+            <select formControlName="carreraId">
+              <option [ngValue]="null">Selecciona carrera</option>
+              @for (career of careers; track career.id) {
+                <option [ngValue]="career.id">{{ career.nombre }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            Periodo
+            <select formControlName="periodoId">
+              <option [ngValue]="null">Selecciona periodo</option>
+              @for (period of periods; track period.id) {
+                <option [ngValue]="period.id">{{ period.etiqueta }}</option>
+              }
+            </select>
+          </label>
+          <label>
+            Ciclo actual
+            <input type="number" formControlName="cicloActual" min="1" max="12" />
+          </label>
+          <label>
+            Meta promedio
+            <input type="number" formControlName="metaPromedioCiclo" min="0" max="20" step="0.1" />
+          </label>
+          <label>
+            Horas estudio / semana
+            <input type="number" formControlName="horasEstudioSemanaObjetivo" min="1" max="80" />
+          </label>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Cursos del periodo</h2>
+        <div class="course-list">
+          @for (course of courses; track course.id) {
+            <label class="course-item">
+              <input
+                type="checkbox"
+                [checked]="selectedCourseIds.has(course.id)"
+                (change)="toggleCourse(course, $any($event.target).checked)"
+              />
+              <span>{{ course.codigo }} - {{ course.nombre }}</span>
+            </label>
+          }
+        </div>
+      </section>
+
+      @if (selectedCourseIds.size > 0) {
+        <section class="card" [formGroup]="courseDetailForm">
+          <h2>Detalle por curso seleccionado</h2>
+          <div class="course-detail-list">
+            @for (course of courses; track course.id) {
+              @if (selectedCourseIds.has(course.id)) {
+                <div class="course-detail" [formGroupName]="'' + course.id">
+                  <h3>{{ course.codigo }} - {{ course.nombre }}</h3>
+                  <div class="grid grid--3">
+                    <label>
+                      Sección
+                      <input type="text" formControlName="seccion" placeholder="A" />
+                    </label>
+                    <label>
+                      Profesor
+                      <input type="text" formControlName="profesor" placeholder="Docente" />
+                    </label>
+                    <label>
+                      Modalidad
+                      <input type="text" formControlName="modalidad" placeholder="Presencial" />
+                    </label>
+                  </div>
+                </div>
+              }
+            }
+          </div>
+        </section>
+      }
+
+      @if (submitError) {
+        <p class="error">{{ submitError }}</p>
+      }
+
+      <div class="actions">
+        <button type="submit" class="primary-btn" [disabled]="isSubmitting">
+          {{ isSubmitting ? 'Guardando...' : 'Guardar onboarding' }}
+        </button>
+      </div>
+    </form>
+  }
+</main>
