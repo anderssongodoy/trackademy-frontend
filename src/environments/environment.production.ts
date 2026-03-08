@@ -9,5 +9,5 @@ export const environment: AppEnvironment = {
   defaultUniversityId: 1,
   azureTenantId: 'consumers',
   azureFrontendClientId: '3036277a-1052-4e6a-a0d9-64fec65b3f5e',
-  googleClientId: '496878262671-jogi085juorc5035r4sca3q460movofo.apps.googleusercontent.com'
+  googleClientId: '496878262671-c2s5gs872s9u1acnbfc1c8ac6j9c1un3.apps.googleusercontent.com'
 };
