@@ -2,7 +2,7 @@ import { AppEnvironment } from '../app/core/config/app-environment';
 
 export const environment: AppEnvironment = {
   production: false,
-  apiBaseUrl: '',
+  apiBaseUrl: 'http://localhost:8080',
   authSessionPath: '/api/v1/auth/session',
   authMicrosoftExchangePath: '/api/v1/auth/microsoft',
   authGoogleExchangePath: '/api/v1/auth/google',
