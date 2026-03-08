@@ -165,6 +165,8 @@ export class AuthService {
       width: 360
     });
 
+    google.accounts.id.prompt();
+
     return true;
   }
 
