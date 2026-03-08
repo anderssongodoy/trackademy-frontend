@@ -7,9 +7,9 @@
       Accede a Trackademy para continuar con tu configuración académica.
     </p>
 
-    <button type="button" class="ms-btn" (click)="signInWithMicrosoft()">
+    <button type="button" class="ms-btn" (click)="signInWithMicrosoft()" [disabled]="microsoftLoading()">
       <span class="ms-logo" aria-hidden="true">M</span>
-      Continuar con Microsoft
+      {{ microsoftLoading() ? 'Conectando...' : 'Continuar con Microsoft' }}
     </button>
 
     <div class="separator" role="separator" aria-label="Separador">o</div>
@@ -17,6 +17,9 @@
     <div id="google-signin-button" class="google-signin-slot"></div>
     @if (googleUnavailable()) {
       <p class="help-text">Google Sign-In no esta disponible. Configura `googleClientId` en el environment.</p>
+    }
+    @if (authError()) {
+      <p class="help-text help-text--error">{{ authError() }}</p>
     }
 
     <p class="help-text">Métodos adicionales de autenticación podrán agregarse en una fase posterior.</p>

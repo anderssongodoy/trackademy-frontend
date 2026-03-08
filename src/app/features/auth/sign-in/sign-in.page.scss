@@ -62,6 +62,11 @@ h1 {
   background: linear-gradient(135deg, #105892, #117989);
   color: #fff;
   cursor: pointer;
+
+  &:disabled {
+    opacity: 0.75;
+    cursor: not-allowed;
+  }
 }
 
 .separator {
@@ -93,4 +98,9 @@ h1 {
   margin-top: 1rem;
   color: var(--text-secondary);
   font-size: 0.9rem;
+}
+
+.help-text--error {
+  color: #9f1239;
+  font-weight: 600;
 }
