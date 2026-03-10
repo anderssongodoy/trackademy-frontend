@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { SessionService } from '../../../shared/session/session.service';
+import { SessionService } from '../../../../shared/session/session.service';
 
 interface LandingFeature {
   title: string;
@@ -35,7 +35,7 @@ export class LandingPage implements OnInit {
       icon: '??'
     },
     {
-      title: 'GestiÛn de tareas',
+      title: 'Gesti√≥n de tareas',
       description: 'Organiza entregas con prioridad, recordatorios y estados claros de avance.',
       tone: 'violet',
       icon: '?'
@@ -48,19 +48,19 @@ export class LandingPage implements OnInit {
     },
     {
       title: 'Recordatorios',
-      description: 'Alertas personalizadas para ex·menes, entregas y fechas institucionales.',
+      description: 'Alertas personalizadas para ex√°menes, entregas y fechas institucionales.',
       tone: 'teal',
       icon: '??'
     },
     {
-      title: 'AnalÌtica acadÈmica',
-      description: 'Rendimiento, tendencias y carga acadÈmica para mejores decisiones.',
+      title: 'Anal√≠tica acad√©mica',
+      description: 'Rendimiento, tendencias y carga acad√©mica para mejores decisiones.',
       tone: 'amber',
       icon: '??'
     },
     {
-      title: 'SÌlabos integrados',
-      description: 'InformaciÛn completa del curso y cronograma en un solo lugar.',
+      title: 'S√≠labos integrados',
+      description: 'Informaci√≥n completa del curso y cronograma en un solo lugar.',
       tone: 'blue',
       icon: '??'
     }
@@ -68,12 +68,12 @@ export class LandingPage implements OnInit {
 
   readonly benefits: LandingBenefit[] = [
     {
-      title: 'Mejor organizaciÛn',
-      description: 'Toda tu vida acadÈmica en un solo espacio.'
+      title: 'Mejor organizaci√≥n',
+      description: 'Toda tu vida acad√©mica en un solo espacio.'
     },
     {
       title: 'Ahorra tiempo',
-      description: 'Menos pasos manuales y m·s foco en estudiar.'
+      description: 'Menos pasos manuales y m√°s foco en estudiar.'
     },
     {
       title: 'Decisiones con data',
