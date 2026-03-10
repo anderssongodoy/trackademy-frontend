@@ -19,7 +19,11 @@
     </div>
     <div class="step" [class.step--active]="currentStep === 3">
       <span class="step__index">3</span>
-      <span>Detalles</span>
+      <span>Preferencias</span>
+    </div>
+    <div class="step" [class.step--active]="currentStep === 4">
+      <span class="step__index">4</span>
+      <span>Horarios</span>
     </div>
   </div>
 
@@ -179,8 +183,8 @@
           <section class="card" [formGroup]="courseDetailForm">
             <div class="card__header">
               <div>
-                <h2>Detalle por curso seleccionado</h2>
-                <p>Opcional. Puedes completar esta información más adelante.</p>
+                <h2>Preferencias por curso</h2>
+                <p>Opcional. Sirve para recomendaciones y alertas inteligentes.</p>
               </div>
               <p class="hint">La modalidad se define desde el catálogo.</p>
             </div>
@@ -206,58 +210,13 @@
 
                     <div class="grid grid--3">
                       <label>
-                        <span class="label-text">Nivel de confianza (1-5)</span>
+                        <span class="label-text">Nivel de confianza (1-5) <span class="hint-icon" title="1 = baja confianza, 5 = alta confianza">?</span></span>
                         <input type="number" min="1" max="5" formControlName="nivelConfianza" />
                       </label>
                       <label class="grid-span-2">
                         <span class="label-text">Comentario (opcional)</span>
                         <input type="text" formControlName="comentarioConfianza" placeholder="Qué te preocupa o te ayuda" />
                       </label>
-                    </div>
-
-                    <div class="horarios" formArrayName="horarios">
-                      <div class="horarios__header">
-                        <p class="label-text">Horario del curso (opcional)</p>
-                        <button type="button" class="ghost-btn" (click)="addHorario(course.id)">Agregar horario</button>
-                      </div>
-                      @for (horario of getHorariosFormArray(course.id).controls; track $index) {
-                        <div class="horario" [formGroupName]="$index">
-                          <label>
-                            <span class="label-text">Día</span>
-                            <select formControlName="diaSemana">
-                              <option [ngValue]="null">Selecciona</option>
-                              <option [ngValue]="1">Lunes</option>
-                              <option [ngValue]="2">Martes</option>
-                              <option [ngValue]="3">Miércoles</option>
-                              <option [ngValue]="4">Jueves</option>
-                              <option [ngValue]="5">Viernes</option>
-                              <option [ngValue]="6">Sábado</option>
-                              <option [ngValue]="7">Domingo</option>
-                            </select>
-                          </label>
-                          <label>
-                            <span class="label-text">Inicio</span>
-                            <input type="time" formControlName="horaInicio" />
-                          </label>
-                          <label>
-                            <span class="label-text">Fin</span>
-                            <input type="time" formControlName="horaFin" />
-                          </label>
-                          <label>
-                            <span class="label-text">Tipo sesión</span>
-                            <input type="text" formControlName="tipoSesion" placeholder="Teoría" />
-                          </label>
-                          <label>
-                            <span class="label-text">Ubicación</span>
-                            <input type="text" formControlName="ubicacion" placeholder="Aula" />
-                          </label>
-                          <label>
-                            <span class="label-text">URL virtual</span>
-                            <input type="url" formControlName="urlVirtual" placeholder="https://" />
-                          </label>
-                          <button type="button" class="ghost-btn" (click)="removeHorario(course.id, $index)">Quitar</button>
-                        </div>
-                      }
                     </div>
                   </div>
                 }
@@ -268,14 +227,21 @@
           <section class="card" formArrayName="franjasPreferidasEstudio">
             <div class="card__header">
               <div>
-                <h2>Franjas preferidas de estudio</h2>
-                <p>Opcional. Ayuda a recomendarte mejores horarios.</p>
+                <h2>Franjas de estudio o trabajo</h2>
+                <p>Opcional. Indica cuándo sueles estudiar o trabajar.</p>
               </div>
               <button type="button" class="ghost-btn" (click)="addFranja()">Agregar franja</button>
             </div>
             <div class="franjas">
               @for (franja of franjasForm.controls; track $index) {
                 <div class="franja" [formGroupName]="$index">
+                  <label>
+                    <span class="label-text">Tipo</span>
+                    <select formControlName="tipo">
+                      <option value="estudio">Estudio</option>
+                      <option value="trabajo">Trabajo</option>
+                    </select>
+                  </label>
                   <label>
                     <span class="label-text">Día</span>
                     <select formControlName="diaSemana">
@@ -308,6 +274,83 @@
           </section>
         }
 
+        @if (currentStep === 4) {
+          <section class="card" [formGroup]="courseDetailForm">
+            <div class="card__header">
+              <div>
+                <h2>Horarios por curso</h2>
+                <p>Usa bloques de 45 minutos desde las 07:00 hasta las 24:00.</p>
+              </div>
+            </div>
+            <div class="course-detail-list">
+              @for (course of courses; track course.id) {
+                @if (selectedCourseIds.has(course.id)) {
+                  <div class="course-detail" [formGroupName]="'' + course.id">
+                    <h3>{{ course.codigo }} - {{ course.nombre }}</h3>
+                    <div class="horarios" formArrayName="horarios">
+                      <div class="horarios__header">
+                        <p class="label-text">Bloques disponibles: {{ course.horasSemanales }} horas (45 min cada una)</p>
+                        <button type="button" class="ghost-btn" (click)="addHorario(course.id)">Agregar bloque</button>
+                      </div>
+                      @for (horario of getHorariosFormArray(course.id).controls; track $index) {
+                        <div class="horario" [formGroupName]="$index">
+                          <label>
+                            <span class="label-text">Día</span>
+                            <select formControlName="diaSemana">
+                              <option [ngValue]="null">Selecciona</option>
+                              <option [ngValue]="1">Lunes</option>
+                              <option [ngValue]="2">Martes</option>
+                              <option [ngValue]="3">Miércoles</option>
+                              <option [ngValue]="4">Jueves</option>
+                              <option [ngValue]="5">Viernes</option>
+                              <option [ngValue]="6">Sábado</option>
+                              <option [ngValue]="7">Domingo</option>
+                            </select>
+                          </label>
+                          <label>
+                            <span class="label-text">Inicio</span>
+                            <select formControlName="horaInicio">
+                              <option [ngValue]="null">Selecciona</option>
+                              @for (option of timeOptions; track option) {
+                                <option [ngValue]="option">{{ option }}</option>
+                              }
+                            </select>
+                          </label>
+                          <label>
+                            <span class="label-text">Bloques (45 min)</span>
+                            <select formControlName="bloques">
+                              @for (option of blockOptions; track option) {
+                                <option [ngValue]="option">{{ option }}</option>
+                              }
+                            </select>
+                          </label>
+                          <label>
+                            <span class="label-text">Fin</span>
+                            <input type="text" [value]="getHoraFinPreview(horario.get('horaInicio')?.value, horario.get('bloques')?.value)" readonly />
+                          </label>
+                          <label>
+                            <span class="label-text">Tipo sesión</span>
+                            <input type="text" formControlName="tipoSesion" placeholder="Teoría" />
+                          </label>
+                          <label>
+                            <span class="label-text">Ubicación</span>
+                            <input type="text" formControlName="ubicacion" placeholder="Aula" />
+                          </label>
+                          <label>
+                            <span class="label-text">URL virtual</span>
+                            <input type="url" formControlName="urlVirtual" placeholder="https://" />
+                          </label>
+                          <button type="button" class="ghost-btn" (click)="removeHorario(course.id, $index)">Quitar</button>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                }
+              }
+            </div>
+          </section>
+        }
+
         @if (submitError) {
           <div class="state state--error">{{ submitError }}</div>
         }
@@ -316,10 +359,10 @@
           @if (currentStep > 1) {
             <button type="button" class="ghost-btn" (click)="prevStep()">Atrás</button>
           }
-          @if (currentStep < 3) {
+          @if (currentStep < 4) {
             <button type="button" class="primary-btn" (click)="nextStep()">Continuar</button>
           }
-          @if (currentStep === 3) {
+          @if (currentStep === 4) {
             <button type="submit" class="primary-btn" [disabled]="isSubmitting">
               {{ isSubmitting ? 'Guardando...' : 'Guardar onboarding' }}
             </button>

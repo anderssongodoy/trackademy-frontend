@@ -32,6 +32,7 @@ export interface OnboardingStudySlotRequest {
   horaInicio?: string | null;
   horaFin?: string | null;
   prioridad?: number | null;
+  tipo?: string | null;
 }
 
 export interface OnboardingRequest {

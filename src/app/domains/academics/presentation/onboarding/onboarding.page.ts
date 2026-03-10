@@ -22,7 +22,7 @@ interface CourseDetailForm {
   horarios: {
     diaSemana: number | null;
     horaInicio: string | null;
-    horaFin: string | null;
+    bloques: number | null;
     tipoSesion: string | null;
     ubicacion: string | null;
     urlVirtual: string | null;
@@ -80,6 +80,9 @@ export class OnboardingPage implements OnInit {
   isSubmitting = false;
   loadingError = '';
   submitError = '';
+
+  timeOptions = this.buildTimeOptions();
+  blockOptions = [1, 2, 3, 4, 5, 6, 7, 8];
 
   ngOnInit(): void {
     this.isLoading = true;
@@ -212,8 +215,8 @@ export class OnboardingPage implements OnInit {
     horarios.push(
       this.fb.group({
         diaSemana: [null],
-        horaInicio: [''],
-        horaFin: [''],
+        horaInicio: [null],
+        bloques: [1],
         tipoSesion: [''],
         ubicacion: [''],
         urlVirtual: ['']
@@ -236,13 +239,43 @@ export class OnboardingPage implements OnInit {
         diaSemana: [null],
         horaInicio: [''],
         horaFin: [''],
-        prioridad: [1]
+        prioridad: [1],
+        tipo: ['estudio']
       })
     );
   }
 
   removeFranja(index: number): void {
     this.franjasForm.removeAt(index);
+  }
+
+  getHoraFinPreview(horaInicio: string | null, bloques: number | null): string {
+    const computed = this.computeHoraFin(horaInicio, bloques);
+    return computed ?? '--:--';
+  }
+
+  private computeHoraFin(horaInicio: string | null, bloques: number | null): string | null {
+    if (!horaInicio || !bloques) {
+      return null;
+    }
+    const [h, m] = horaInicio.split(':').map(Number);
+    const total = h * 60 + m + bloques * 45;
+    const endHours = Math.floor(total / 60) % 24;
+    const endMinutes = total % 60;
+    return `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
+  }
+
+  private buildTimeOptions(): string[] {
+    const options: string[] = [];
+    let minutes = 7 * 60;
+    const end = 24 * 60;
+    while (minutes < end) {
+      const h = Math.floor(minutes / 60);
+      const m = minutes % 60;
+      options.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
+      minutes += 45;
+    }
+    return options;
   }
 
   private resetCourseSelection(): void {
@@ -267,6 +300,11 @@ export class OnboardingPage implements OnInit {
         return;
       }
       this.currentStep = 3;
+      return;
+    }
+
+    if (this.currentStep === 3) {
+      this.currentStep = 4;
     }
   }
 
@@ -305,7 +343,7 @@ export class OnboardingPage implements OnInit {
         horarios: (detail.horarios || []).map((h) => ({
           diaSemana: h.diaSemana ?? null,
           horaInicio: h.horaInicio || null,
-          horaFin: h.horaFin || null,
+          horaFin: this.computeHoraFin(h.horaInicio, h.bloques),
           tipoSesion: h.tipoSesion || null,
           ubicacion: h.ubicacion || null,
           urlVirtual: h.urlVirtual || null
@@ -319,7 +357,8 @@ export class OnboardingPage implements OnInit {
         diaSemana: f.diaSemana ?? null,
         horaInicio: f.horaInicio || null,
         horaFin: f.horaFin || null,
-        prioridad: f.prioridad ?? 1
+        prioridad: f.prioridad ?? 1,
+        tipo: f.tipo || 'estudio'
       }));
 
     const confianzaPorCurso = Array.from(this.selectedCourseIds)
