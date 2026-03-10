@@ -3,7 +3,7 @@
     <div class="header__copy">
       <p class="kicker">Onboarding académico</p>
       <h1>Configura tu periodo académico</h1>
-      <p class="subtitle">Usamos datos reales del backend para que tu ciclo quede listo desde el primer día.</p>
+      <p class="subtitle">Arranca con lo esencial. El resto lo puedes completar luego desde el dashboard.</p>
     </div>
     <a class="ghost-btn" routerLink="/app/dashboard">Volver al dashboard</a>
   </header>
@@ -16,14 +16,6 @@
     <div class="step" [class.step--active]="currentStep === 2">
       <span class="step__index">2</span>
       <span>Cursos</span>
-    </div>
-    <div class="step" [class.step--active]="currentStep === 3">
-      <span class="step__index">3</span>
-      <span>Preferencias</span>
-    </div>
-    <div class="step" [class.step--active]="currentStep === 4">
-      <span class="step__index">4</span>
-      <span>Horarios</span>
     </div>
   </div>
 
@@ -179,178 +171,6 @@
           </section>
         }
 
-        @if (currentStep === 3) {
-          <section class="card" [formGroup]="courseDetailForm">
-            <div class="card__header">
-              <div>
-                <h2>Preferencias por curso</h2>
-                <p>Opcional. Sirve para recomendaciones y alertas inteligentes.</p>
-              </div>
-              <p class="hint">La modalidad se define desde el catálogo.</p>
-            </div>
-            <div class="course-detail-list">
-              @for (course of courses; track course.id) {
-                @if (selectedCourseIds.has(course.id)) {
-                  <div class="course-detail" [formGroupName]="'' + course.id">
-                    <h3>{{ course.codigo }} - {{ course.nombre }}</h3>
-                    <div class="grid grid--3">
-                      <label>
-                        <span class="label-text">Sección (opcional)</span>
-                        <input type="text" formControlName="seccion" placeholder="A" />
-                      </label>
-                      <label>
-                        <span class="label-text">Profesor (opcional)</span>
-                        <input type="text" formControlName="profesor" placeholder="Docente" />
-                      </label>
-                      <label>
-                        <span class="label-text">Modalidad</span>
-                        <input type="text" formControlName="modalidad" readonly />
-                      </label>
-                    </div>
-
-                    <div class="grid grid--3">
-                      <label>
-                        <span class="label-text">Nivel de confianza (1-5) <span class="hint-icon" title="1 = baja confianza, 5 = alta confianza">?</span></span>
-                        <input type="number" min="1" max="5" formControlName="nivelConfianza" />
-                      </label>
-                      <label class="grid-span-2">
-                        <span class="label-text">Comentario (opcional)</span>
-                        <input type="text" formControlName="comentarioConfianza" placeholder="Qué te preocupa o te ayuda" />
-                      </label>
-                    </div>
-                  </div>
-                }
-              }
-            </div>
-          </section>
-
-          <section class="card" formArrayName="franjasPreferidasEstudio">
-            <div class="card__header">
-              <div>
-                <h2>Franjas de estudio o trabajo</h2>
-                <p>Opcional. Indica cuándo sueles estudiar o trabajar.</p>
-              </div>
-              <button type="button" class="ghost-btn" (click)="addFranja()">Agregar franja</button>
-            </div>
-            <div class="franjas">
-              @for (franja of franjasForm.controls; track $index) {
-                <div class="franja" [formGroupName]="$index">
-                  <label>
-                    <span class="label-text">Tipo</span>
-                    <select formControlName="tipo">
-                      <option value="estudio">Estudio</option>
-                      <option value="trabajo">Trabajo</option>
-                    </select>
-                  </label>
-                  <label>
-                    <span class="label-text">Día</span>
-                    <select formControlName="diaSemana">
-                      <option [ngValue]="null">Selecciona</option>
-                      <option [ngValue]="1">Lunes</option>
-                      <option [ngValue]="2">Martes</option>
-                      <option [ngValue]="3">Miércoles</option>
-                      <option [ngValue]="4">Jueves</option>
-                      <option [ngValue]="5">Viernes</option>
-                      <option [ngValue]="6">Sábado</option>
-                      <option [ngValue]="7">Domingo</option>
-                    </select>
-                  </label>
-                  <label>
-                    <span class="label-text">Inicio</span>
-                    <input type="time" formControlName="horaInicio" />
-                  </label>
-                  <label>
-                    <span class="label-text">Fin</span>
-                    <input type="time" formControlName="horaFin" />
-                  </label>
-                  <label>
-                    <span class="label-text">Prioridad</span>
-                    <input type="number" min="1" max="5" formControlName="prioridad" />
-                  </label>
-                  <button type="button" class="ghost-btn" (click)="removeFranja($index)">Quitar</button>
-                </div>
-              }
-            </div>
-          </section>
-        }
-
-        @if (currentStep === 4) {
-          <section class="card" [formGroup]="courseDetailForm">
-            <div class="card__header">
-              <div>
-                <h2>Horarios por curso</h2>
-                <p>Usa bloques de 45 minutos desde las 07:00 hasta las 24:00.</p>
-              </div>
-            </div>
-            <div class="course-detail-list">
-              @for (course of courses; track course.id) {
-                @if (selectedCourseIds.has(course.id)) {
-                  <div class="course-detail" [formGroupName]="'' + course.id">
-                    <h3>{{ course.codigo }} - {{ course.nombre }}</h3>
-                    <div class="horarios" formArrayName="horarios">
-                      <div class="horarios__header">
-                        <p class="label-text">Bloques disponibles: {{ course.horasSemanales }} horas (45 min cada una)</p>
-                        <button type="button" class="ghost-btn" (click)="addHorario(course.id)">Agregar bloque</button>
-                      </div>
-                      @for (horario of getHorariosFormArray(course.id).controls; track $index) {
-                        <div class="horario" [formGroupName]="$index">
-                          <label>
-                            <span class="label-text">Día</span>
-                            <select formControlName="diaSemana">
-                              <option [ngValue]="null">Selecciona</option>
-                              <option [ngValue]="1">Lunes</option>
-                              <option [ngValue]="2">Martes</option>
-                              <option [ngValue]="3">Miércoles</option>
-                              <option [ngValue]="4">Jueves</option>
-                              <option [ngValue]="5">Viernes</option>
-                              <option [ngValue]="6">Sábado</option>
-                              <option [ngValue]="7">Domingo</option>
-                            </select>
-                          </label>
-                          <label>
-                            <span class="label-text">Inicio</span>
-                            <select formControlName="horaInicio">
-                              <option [ngValue]="null">Selecciona</option>
-                              @for (option of timeOptions; track option) {
-                                <option [ngValue]="option">{{ option }}</option>
-                              }
-                            </select>
-                          </label>
-                          <label>
-                            <span class="label-text">Bloques (45 min)</span>
-                            <select formControlName="bloques">
-                              @for (option of blockOptions; track option) {
-                                <option [ngValue]="option">{{ option }}</option>
-                              }
-                            </select>
-                          </label>
-                          <label>
-                            <span class="label-text">Fin</span>
-                            <input type="text" [value]="getHoraFinPreview(horario.get('horaInicio')?.value, horario.get('bloques')?.value)" readonly />
-                          </label>
-                          <label>
-                            <span class="label-text">Tipo sesión</span>
-                            <input type="text" formControlName="tipoSesion" placeholder="Teoría" />
-                          </label>
-                          <label>
-                            <span class="label-text">Ubicación</span>
-                            <input type="text" formControlName="ubicacion" placeholder="Aula" />
-                          </label>
-                          <label>
-                            <span class="label-text">URL virtual</span>
-                            <input type="url" formControlName="urlVirtual" placeholder="https://" />
-                          </label>
-                          <button type="button" class="ghost-btn" (click)="removeHorario(course.id, $index)">Quitar</button>
-                        </div>
-                      }
-                    </div>
-                  </div>
-                }
-              }
-            </div>
-          </section>
-        }
-
         @if (submitError) {
           <div class="state state--error">{{ submitError }}</div>
         }
@@ -359,10 +179,10 @@
           @if (currentStep > 1) {
             <button type="button" class="ghost-btn" (click)="prevStep()">Atrás</button>
           }
-          @if (currentStep < 4) {
+          @if (currentStep < 2) {
             <button type="button" class="primary-btn" (click)="nextStep()">Continuar</button>
           }
-          @if (currentStep === 4) {
+          @if (currentStep === 2) {
             <button type="submit" class="primary-btn" [disabled]="isSubmitting">
               {{ isSubmitting ? 'Guardando...' : 'Guardar onboarding' }}
             </button>
@@ -376,13 +196,12 @@
           <ul>
             <li>Selecciona tu campus y periodo actual.</li>
             <li>Marca los cursos que llevas este ciclo.</li>
-            <li>Completa sección y profesor por curso.</li>
           </ul>
         </div>
         <div class="side__card highlight">
           <p class="side__title">Cursos seleccionados</p>
           <p class="side__value">{{ selectedCourseIds.size }}</p>
-          <p class="side__subtitle">Puedes editarlos luego desde el dashboard.</p>
+          <p class="side__subtitle">Horarios y preferencias se completan luego.</p>
         </div>
       </aside>
     </div>
