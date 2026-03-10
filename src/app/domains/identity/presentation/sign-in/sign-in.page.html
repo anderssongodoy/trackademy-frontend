@@ -1,23 +1,69 @@
-<section class="page">
-  <div class="card">
-    <a class="back" routerLink="/">Regresar</a>
-    <p class="eyebrow">Acceso seguro</p>
-    <h1>Iniciar sesiÛn</h1>
-    <p class="muted">Accede a Trackademy para continuar con tu configuraciÛn acadÈmica.</p>
+Ôªø<section class="signin">
+  <div class="signin__shell">
+    <div class="signin__card">
+      <a class="back" routerLink="/">Regresar</a>
 
-    <button class="btn microsoft" type="button" (click)="signInWithMicrosoft()" [disabled]="microsoftLoading()">
-      <span class="icon">M</span>
-      <span *ngIf="!microsoftLoading()">Continuar con Microsoft</span>
-      <span *ngIf="microsoftLoading()">Conectando...</span>
-    </button>
+      <div class="header">
+        <div class="logo">T</div>
+        <p class="eyebrow">Acceso seguro</p>
+        <h1>Bienvenido a Trackademy</h1>
+        <p class="muted">Accede con tu cuenta institucional o personal para continuar tu configuraci√≥n acad√©mica.</p>
+      </div>
 
-    <div id="google-signin-button" class="google"></div>
+      <div class="providers">
+        <button class="provider microsoft" type="button" (click)="signInWithMicrosoft()" [disabled]="microsoftLoading()">
+          <span class="provider__icon">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <rect x="2" y="2" width="9" height="9" fill="#f25022"></rect>
+              <rect x="13" y="2" width="9" height="9" fill="#7fba00"></rect>
+              <rect x="2" y="13" width="9" height="9" fill="#00a4ef"></rect>
+              <rect x="13" y="13" width="9" height="9" fill="#ffb900"></rect>
+            </svg>
+          </span>
+          <span *ngIf="!microsoftLoading()">Continuar con Microsoft</span>
+          <span *ngIf="microsoftLoading()">Conectando...</span>
+        </button>
 
-    <p class="hint" *ngIf="googleUnavailable()">Google no est· disponible. Usa Microsoft o intenta m·s tarde.</p>
-    <p class="error" *ngIf="authError()">{{ authError() }}</p>
+        <div class="divider"><span>O contin√∫a con</span></div>
 
-    <p class="footnote">
-      MÈtodos adicionales de autenticaciÛn podr·n agregarse en una fase posterior.
-    </p>
+        <div id="google-signin-button" class="google"></div>
+
+        <p class="hint" *ngIf="googleUnavailable()">Google no est√° disponible. Usa Microsoft o intenta m√°s tarde.</p>
+        <p class="error" *ngIf="authError()">{{ authError() }}</p>
+      </div>
+
+      <p class="footnote">No almacenamos tus credenciales. Todo el acceso es v√≠a OAuth.</p>
+    </div>
+
+    <aside class="signin__panel">
+      <div class="panel__header">
+        <h2>Tu ciclo acad√©mico bajo control</h2>
+        <p>Trackademy concentra cursos, tareas, notas y eventos institucionales en un solo flujo.</p>
+      </div>
+      <div class="panel__stats">
+        <div class="stat">
+          <p class="stat__value">+30%</p>
+          <p class="stat__label">Menos tiempo planificando</p>
+        </div>
+        <div class="stat">
+          <p class="stat__value">24/7</p>
+          <p class="stat__label">Acceso desde cualquier dispositivo</p>
+        </div>
+        <div class="stat">
+          <p class="stat__value">1</p>
+          <p class="stat__label">Panel central para todo tu ciclo</p>
+        </div>
+      </div>
+      <div class="panel__cards">
+        <div class="panel-card">
+          <p class="panel-card__title">Onboarding guiado</p>
+          <p class="panel-card__text">Carga tu carrera, ciclo y cursos en minutos.</p>
+        </div>
+        <div class="panel-card">
+          <p class="panel-card__title">Sincronizaci√≥n Outlook</p>
+          <p class="panel-card__text">Convierte tus horarios en eventos reales.</p>
+        </div>
+      </div>
+    </aside>
   </div>
 </section>
