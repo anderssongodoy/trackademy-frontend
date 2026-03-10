@@ -1,4 +1,4 @@
-﻿import { HttpClient } from '@angular/common/http';
+﻿import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -59,7 +59,10 @@ export class CatalogApiService {
   }
 
   getCourses(carreraId?: number): Observable<CatalogCourse[]> {
-    const params = carreraId ? { carreraId: carreraId.toString() } : {};
+    const params = new HttpParams({
+      fromObject: carreraId ? { carreraId: carreraId.toString() } : {}
+    });
+
     return this.http.get<CatalogCourse[]>(`${this.env.apiBaseUrl}/api/v1/catalog/cursos`, { params });
   }
 }
