@@ -1,21 +1,90 @@
-<main class="dashboard">
-  <header class="dashboard__header">
-    <h1>Dashboard</h1>
-    <a class="outline-btn" routerLink="/app/onboarding">Completar Onboarding</a>
+﻿<main class="dashboard">
+  <header class="dashboard__hero">
+    <div class="hero__copy">
+      <p class="eyebrow">Resumen académico</p>
+      <h1>Hola, tu ciclo está listo para despegar</h1>
+      <p class="subtitle">Centraliza cursos, horarios y tareas en un solo lugar. Completa lo esencial y ajusta detalles luego.</p>
+      <div class="hero__chips">
+        <span class="chip">Periodo activo</span>
+        <span class="chip chip--accent">2026-1 Marzo</span>
+      </div>
+    </div>
+    <div class="hero__actions">
+      <a class="btn btn--primary" routerLink="/app/onboarding">Actualizar cursos</a>
+      <button class="btn btn--ghost" type="button">Agregar horarios</button>
+    </div>
   </header>
 
-  <section class="dashboard__cards" aria-label="Resumen">
-    <article class="card">
-      <h2>Estado del periodo</h2>
-      <p>Conecta tu usuario y completa onboarding para cargar tu data académica real.</p>
+  <section class="stats" aria-label="Resumen">
+    <article class="stat">
+      <p class="stat__label">Cursos activos</p>
+      <h2>3</h2>
+      <span>Registra horarios y evaluación</span>
     </article>
-    <article class="card">
-      <h2>Catálogo de cursos</h2>
-      <p>El onboarding consume directamente los endpoints de catálogo del backend.</p>
+    <article class="stat">
+      <p class="stat__label">Horas/semana</p>
+      <h2>8</h2>
+      <span>Meta de estudio</span>
     </article>
-    <article class="card">
-      <h2>Seguridad</h2>
-      <p>La autenticación está orientada a Microsoft OAuth sin login custom.</p>
+    <article class="stat">
+      <p class="stat__label">Recordatorios</p>
+      <h2>0</h2>
+      <span>Configura alertas</span>
+    </article>
+    <article class="stat">
+      <p class="stat__label">Progreso de ciclo</p>
+      <h2>0%</h2>
+      <span>Sin avances cargados</span>
     </article>
   </section>
+
+  <div class="dashboard__grid">
+    <section class="panel">
+      <div class="panel__header">
+        <h3>Agenda de hoy</h3>
+        <button class="btn btn--ghost" type="button">Ver calendario</button>
+      </div>
+      <div class="panel__body">
+        <div class="empty">Aún no hay horarios registrados. Puedes agregarlos cuando quieras.</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel__header">
+        <h3>Próximas entregas</h3>
+        <button class="btn btn--ghost" type="button">Crear recordatorio</button>
+      </div>
+      <div class="panel__body">
+        <div class="empty">Sin entregas próximas. Crea tareas o importa eventos.</div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel__header">
+        <h3>Progreso del periodo</h3>
+      </div>
+      <div class="panel__body">
+        <div class="progress">
+          <div class="progress__bar"></div>
+        </div>
+        <p class="muted">Completa horarios, notas y tareas para ver el avance real.</p>
+      </div>
+    </section>
+
+    <aside class="side">
+      <div class="side__card">
+        <h4>Checklist</h4>
+        <ul>
+          <li>Completa tus cursos activos.</li>
+          <li>Registra horarios cuando tengas la sección.</li>
+          <li>Configura alertas y tareas.</li>
+        </ul>
+      </div>
+      <div class="side__card accent">
+        <h4>Estado de conexión</h4>
+        <p>Microsoft / Google OK</p>
+        <button class="btn btn--ghost" type="button">Sincronizar calendario</button>
+      </div>
+    </aside>
+  </div>
 </main>
