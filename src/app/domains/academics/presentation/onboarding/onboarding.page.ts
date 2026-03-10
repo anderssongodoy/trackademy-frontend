@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -48,8 +48,11 @@ export class OnboardingPage implements OnInit {
   careers: CatalogCareer[] = [];
   periods: CatalogPeriod[] = [];
   courses: CatalogCourse[] = [];
+  filteredCourses: CatalogCourse[] = [];
 
   selectedCourseIds = new Set<number>();
+
+  courseQuery = '';
 
   isLoading = true;
   isSubmitting = false;
@@ -63,15 +66,14 @@ export class OnboardingPage implements OnInit {
     forkJoin({
       campuses: this.catalogUseCase.getCampuses(),
       careers: this.catalogUseCase.getCareers(),
-      periods: this.catalogUseCase.getPeriods(),
-      courses: this.catalogUseCase.getCourses()
+      periods: this.catalogUseCase.getPeriods()
     }).subscribe({
-      next: ({ campuses, careers, periods, courses }) => {
+      next: ({ campuses, careers, periods }) => {
         this.campuses = campuses;
         this.careers = careers;
         this.periods = periods;
-        this.courses = courses;
         this.isLoading = false;
+        this.bindCareerChanges();
       },
       error: () => {
         this.loadingError =
@@ -79,6 +81,44 @@ export class OnboardingPage implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  private bindCareerChanges(): void {
+    this.form.get('carreraId')?.valueChanges.subscribe((value) => {
+      const carreraId = value ?? null;
+      this.resetCourseSelection();
+      if (!carreraId) {
+        this.courses = [];
+        this.applyCourseFilter();
+        return;
+      }
+      this.catalogUseCase.getCourses(carreraId).subscribe({
+        next: (courses) => {
+          this.courses = courses;
+          this.applyCourseFilter();
+        },
+        error: () => {
+          this.courses = [];
+          this.applyCourseFilter();
+        }
+      });
+    });
+  }
+
+  onCourseQueryChange(value: string): void {
+    this.courseQuery = value;
+    this.applyCourseFilter();
+  }
+
+  private applyCourseFilter(): void {
+    const query = this.courseQuery.trim().toLowerCase();
+    if (!query) {
+      this.filteredCourses = this.courses;
+      return;
+    }
+    this.filteredCourses = this.courses.filter((course) =>
+      course.nombre.toLowerCase().includes(query) || course.codigo.toLowerCase().includes(query)
+    );
   }
 
   toggleCourse(course: CatalogCourse, enabled: boolean): void {
@@ -99,6 +139,11 @@ export class OnboardingPage implements OnInit {
 
     this.selectedCourseIds.delete(course.id);
     this.courseDetailForm.removeControl(controlName);
+  }
+
+  private resetCourseSelection(): void {
+    this.selectedCourseIds.clear();
+    Object.keys(this.courseDetailForm.controls).forEach((key) => this.courseDetailForm.removeControl(key));
   }
 
   submit(): void {
@@ -161,6 +206,3 @@ export class OnboardingPage implements OnInit {
       });
   }
 }
-
-
-

@@ -26,11 +26,11 @@
           </div>
           <div class="grid">
             <label>
-              Correo
+              Correo de acceso
               <input type="email" formControlName="email" placeholder="u2020xxxxx@utp.edu.pe" />
             </label>
             <label>
-              Nombre
+              Nombre preferido
               <input type="text" formControlName="nombre" placeholder="Nombre completo" />
             </label>
             <label>
@@ -77,24 +77,48 @@
 
         <section class="card">
           <div class="card__header">
-            <h2>Cursos del periodo</h2>
-            <p>Selecciona los cursos que llevas actualmente.</p>
+            <div>
+              <h2>Cursos del periodo</h2>
+              <p>Selecciona los cursos que llevas actualmente.</p>
+            </div>
+            <div class="course-meta">
+              <span>{{ filteredCourses.length }} cursos</span>
+            </div>
           </div>
-          <div class="course-list">
-            @for (course of courses; track course.id) {
-              <label class="course-item">
-                <input
-                  type="checkbox"
-                  [checked]="selectedCourseIds.has(course.id)"
-                  (change)="toggleCourse(course, $any($event.target).checked)"
-                />
-                <div class="course-item__info">
-                  <span class="course-item__code">{{ course.codigo }}</span>
-                  <span class="course-item__name">{{ course.nombre }}</span>
-                </div>
-              </label>
-            }
+
+          <div class="course-tools">
+            <label class="search">
+              <span>Buscar curso</span>
+              <input
+                type="text"
+                [value]="courseQuery"
+                (input)="onCourseQueryChange($any($event.target).value)"
+                placeholder="Código o nombre"
+              />
+            </label>
           </div>
+
+          @if (!form.get('carreraId')?.value) {
+            <div class="empty">Selecciona una carrera para ver los cursos.</div>
+          }
+
+          @if (form.get('carreraId')?.value) {
+            <div class="course-list">
+              @for (course of filteredCourses; track course.id) {
+                <label class="course-item">
+                  <input
+                    type="checkbox"
+                    [checked]="selectedCourseIds.has(course.id)"
+                    (change)="toggleCourse(course, $any($event.target).checked)"
+                  />
+                  <div class="course-item__info">
+                    <span class="course-item__code">{{ course.codigo }}</span>
+                    <span class="course-item__name">{{ course.nombre }}</span>
+                  </div>
+                </label>
+              }
+            </div>
+          }
         </section>
 
         @if (selectedCourseIds.size > 0) {
