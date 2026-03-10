@@ -25,8 +25,8 @@ export class CatalogUseCase {
     return this.api.getPeriods(universityId);
   }
 
-  getCourses(carreraId?: number): Observable<CatalogCourse[]> {
-    return this.api.getCourses(carreraId);
+  getCourses(carreraId?: number, query?: string, limit?: number, offset?: number): Observable<CatalogCourse[]> {
+    return this.api.getCourses(carreraId, query, limit, offset);
   }
 }
 

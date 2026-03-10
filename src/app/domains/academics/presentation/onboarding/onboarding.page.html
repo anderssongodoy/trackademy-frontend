@@ -8,6 +8,21 @@
     <a class="ghost-btn" routerLink="/app/dashboard">Volver al dashboard</a>
   </header>
 
+  <div class="steps">
+    <div class="step" [class.step--active]="currentStep === 1">
+      <span class="step__index">1</span>
+      <span>Datos base</span>
+    </div>
+    <div class="step" [class.step--active]="currentStep === 2">
+      <span class="step__index">2</span>
+      <span>Cursos</span>
+    </div>
+    <div class="step" [class.step--active]="currentStep === 3">
+      <span class="step__index">3</span>
+      <span>Detalles</span>
+    </div>
+  </div>
+
   @if (isLoading) {
     <div class="state state--loading">Cargando catálogos...</div>
   }
@@ -19,113 +34,155 @@
   @if (!isLoading && !loadingError) {
     <div class="layout">
       <form class="form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
-        <section class="card">
-          <div class="card__header">
-            <h2>Datos base</h2>
-            <p>Confirma tu campus, carrera y periodo activo.</p>
-          </div>
-          <div class="grid">
-            <label>
-              Correo de acceso
-              <input type="email" formControlName="email" placeholder="u2020xxxxx@utp.edu.pe" />
-            </label>
-            <label>
-              Nombre preferido
-              <input type="text" formControlName="nombre" placeholder="Nombre completo" />
-            </label>
-            <label>
-              Campus
-              <select formControlName="campusId">
-                <option [ngValue]="null">Selecciona campus</option>
-                @for (campus of campuses; track campus.id) {
-                  <option [ngValue]="campus.id">{{ campus.nombre }}</option>
-                }
-              </select>
-            </label>
-            <label>
-              Carrera
-              <select formControlName="carreraId">
-                <option [ngValue]="null">Selecciona carrera</option>
-                @for (career of careers; track career.id) {
-                  <option [ngValue]="career.id">{{ career.nombre }}</option>
-                }
-              </select>
-            </label>
-            <label>
-              Periodo
-              <select formControlName="periodoId">
-                <option [ngValue]="null">Selecciona periodo</option>
-                @for (period of periods; track period.id) {
-                  <option [ngValue]="period.id">{{ period.etiqueta }}</option>
-                }
-              </select>
-            </label>
-            <label>
-              Ciclo actual
-              <input type="number" formControlName="cicloActual" min="1" max="12" />
-            </label>
-            <label>
-              Meta de promedio
-              <input type="number" formControlName="metaPromedioCiclo" min="0" max="20" step="0.1" />
-            </label>
-            <label>
-              Horas de estudio / semana
-              <input type="number" formControlName="horasEstudioSemanaObjetivo" min="1" max="80" />
-            </label>
-          </div>
-        </section>
-
-        <section class="card">
-          <div class="card__header">
-            <div>
-              <h2>Cursos del periodo</h2>
-              <p>Selecciona los cursos que llevas actualmente.</p>
+        @if (currentStep === 1) {
+          <section class="card">
+            <div class="card__header">
+              <h2>Datos base</h2>
+              <p>Confirma tu campus, carrera y periodo activo.</p>
             </div>
-            <div class="course-meta">
-              <span>{{ filteredCourses.length }} cursos</span>
+            <div class="grid">
+              <label>
+                <span class="label-text">Nombre completo</span>
+                <input type="text" formControlName="nombre" placeholder="Nombre completo" />
+              </label>
+              <label>
+                <span class="label-text">Nombre preferido (opcional)</span>
+                <input type="text" formControlName="nombrePreferido" placeholder="Cómo te llamamos" />
+              </label>
+              <label>
+                <span class="label-text">Correo institucional (opcional)</span>
+                <input type="email" formControlName="emailInstitucional" placeholder="u2020xxxxx@utp.edu.pe" />
+              </label>
+              <label>
+                <span class="label-text">Campus</span>
+                <select formControlName="campusId">
+                  <option [ngValue]="null">Selecciona campus</option>
+                  @for (campus of campuses; track campus.id) {
+                    <option [ngValue]="campus.id">{{ campus.nombre }}</option>
+                  }
+                </select>
+              </label>
+              <label>
+                <span class="label-text">Carrera</span>
+                <select formControlName="carreraId">
+                  <option [ngValue]="null">Selecciona carrera</option>
+                  @for (career of careers; track career.id) {
+                    <option [ngValue]="career.id">{{ career.nombre }}</option>
+                  }
+                </select>
+              </label>
+              <label>
+                <span class="label-text">Periodo</span>
+                <select formControlName="periodoId">
+                  <option [ngValue]="null">Selecciona periodo</option>
+                  @for (period of periods; track period.id) {
+                    <option [ngValue]="period.id">{{ period.etiqueta }}</option>
+                  }
+                </select>
+              </label>
+              <label>
+                <span class="label-text">Ciclo actual</span>
+                <input type="number" formControlName="cicloActual" min="1" max="12" />
+              </label>
+              <label>
+                <span class="label-text">Meta de promedio</span>
+                <input type="number" formControlName="metaPromedioCiclo" min="0" max="20" step="0.1" />
+              </label>
+              <label>
+                <span class="label-text">Horas de estudio / semana</span>
+                <input type="number" formControlName="horasEstudioSemanaObjetivo" min="1" max="80" />
+              </label>
             </div>
-          </div>
+          </section>
+        }
 
-          <div class="course-tools">
-            <label class="search">
-              <span>Buscar curso</span>
-              <input
-                type="text"
-                [value]="courseQuery"
-                (input)="onCourseQueryChange($any($event.target).value)"
-                placeholder="Código o nombre"
-              />
-            </label>
-          </div>
+        @if (currentStep === 2) {
+          <section class="card">
+            <div class="card__header">
+              <div>
+                <h2>Cursos del periodo</h2>
+                <p>Selecciona los cursos que llevas actualmente.</p>
+              </div>
+              <div class="course-meta">
+                <span>{{ filteredCourses.length }} cursos</span>
+              </div>
+            </div>
 
-          @if (!form.get('carreraId')?.value) {
-            <div class="empty">Selecciona una carrera para ver los cursos.</div>
-          }
-
-          @if (form.get('carreraId')?.value) {
-            <div class="course-list">
-              @for (course of filteredCourses; track course.id) {
-                <label class="course-item">
+            <div class="course-tools">
+              <div class="course-tools__row">
+                <label class="search">
+                  <span class="label-text">Buscar curso</span>
+                  <input
+                    type="text"
+                    [value]="courseQuery"
+                    (input)="onCourseQueryChange($any($event.target).value)"
+                    placeholder="Código o nombre"
+                  />
+                </label>
+                <label class="toggle">
                   <input
                     type="checkbox"
-                    [checked]="selectedCourseIds.has(course.id)"
-                    (change)="toggleCourse(course, $any($event.target).checked)"
+                    [checked]="showSelectedOnly"
+                    (change)="toggleShowSelected($any($event.target).checked)"
                   />
-                  <div class="course-item__info">
-                    <span class="course-item__code">{{ course.codigo }}</span>
-                    <span class="course-item__name">{{ course.nombre }}</span>
-                  </div>
+                  <span>Solo seleccionados</span>
                 </label>
-              }
+              </div>
+              <div class="course-tools__summary">
+                Mostrando {{ filteredCourses.length }} cursos
+              </div>
             </div>
-          }
-        </section>
 
-        @if (selectedCourseIds.size > 0) {
+            @if (!form.get('carreraId')?.value) {
+              <div class="empty">Selecciona una carrera para ver los cursos.</div>
+            }
+
+            @if (courseError) {
+              <div class="state state--error">{{ courseError }}</div>
+            }
+
+            @if (form.get('carreraId')?.value && !courseError && filteredCourses.length === 0) {
+              <div class="empty">No se encontraron cursos con ese filtro.</div>
+            }
+
+            @if (form.get('carreraId')?.value && !courseError && filteredCourses.length > 0) {
+              <div class="course-list-wrapper">
+                <div class="course-list">
+                  @for (course of visibleCourses; track course.id) {
+                    <label class="course-item">
+                      <input
+                        type="checkbox"
+                        [checked]="selectedCourseIds.has(course.id)"
+                        (change)="toggleCourse(course, $any($event.target).checked)"
+                      />
+                      <div class="course-item__info">
+                        <span class="course-item__code">{{ course.codigo }}</span>
+                        <span class="course-item__name">{{ course.nombre }}</span>
+                      </div>
+                    </label>
+                  }
+                </div>
+              </div>
+              <div class="course-actions">
+                @if (isCourseLoading) {
+                  <span class="course-loading">Cargando cursos...</span>
+                }
+                @if (hasMoreCourses && !isCourseLoading) {
+                  <button type="button" class="secondary-btn" (click)="showMoreCourses()">Ver más cursos</button>
+                }
+              </div>
+            }
+          </section>
+        }
+
+        @if (currentStep === 3) {
           <section class="card" [formGroup]="courseDetailForm">
             <div class="card__header">
-              <h2>Detalle por curso seleccionado</h2>
-              <p>Completa sección, profesor y modalidad.</p>
+              <div>
+                <h2>Detalle por curso seleccionado</h2>
+                <p>Opcional. Puedes completar esta información más adelante.</p>
+              </div>
+              <p class="hint">La modalidad se define desde el catálogo.</p>
             </div>
             <div class="course-detail-list">
               @for (course of courses; track course.id) {
@@ -134,16 +191,16 @@
                     <h3>{{ course.codigo }} - {{ course.nombre }}</h3>
                     <div class="grid grid--3">
                       <label>
-                        Sección
+                        <span class="label-text">Sección (opcional)</span>
                         <input type="text" formControlName="seccion" placeholder="A" />
                       </label>
                       <label>
-                        Profesor
+                        <span class="label-text">Profesor (opcional)</span>
                         <input type="text" formControlName="profesor" placeholder="Docente" />
                       </label>
                       <label>
-                        Modalidad
-                        <input type="text" formControlName="modalidad" placeholder="Presencial" />
+                        <span class="label-text">Modalidad</span>
+                        <input type="text" formControlName="modalidad" readonly />
                       </label>
                     </div>
                   </div>
@@ -158,9 +215,17 @@
         }
 
         <div class="actions">
-          <button type="submit" class="primary-btn" [disabled]="isSubmitting">
-            {{ isSubmitting ? 'Guardando...' : 'Guardar onboarding' }}
-          </button>
+          @if (currentStep > 1) {
+            <button type="button" class="ghost-btn" (click)="prevStep()">Atrás</button>
+          }
+          @if (currentStep < 3) {
+            <button type="button" class="primary-btn" (click)="nextStep()">Continuar</button>
+          }
+          @if (currentStep === 3) {
+            <button type="submit" class="primary-btn" [disabled]="isSubmitting">
+              {{ isSubmitting ? 'Guardando...' : 'Guardar onboarding' }}
+            </button>
+          }
         </div>
       </form>
 

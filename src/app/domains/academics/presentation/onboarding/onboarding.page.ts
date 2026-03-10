@@ -32,8 +32,9 @@ export class OnboardingPage implements OnInit {
   private readonly router = inject(Router);
 
   readonly form = this.fb.group({
-    email: ['', [Validators.required, Validators.email]],
     nombre: ['', [Validators.required, Validators.minLength(3)]],
+    nombrePreferido: [''],
+    emailInstitucional: ['', [Validators.email]],
     campusId: [null as number | null, [Validators.required]],
     carreraId: [null as number | null, [Validators.required]],
     periodoId: [null as number | null, [Validators.required]],
@@ -53,6 +54,14 @@ export class OnboardingPage implements OnInit {
   selectedCourseIds = new Set<number>();
 
   courseQuery = '';
+  coursePageSize = 12;
+  courseOffset = 0;
+  hasMoreCourses = false;
+  isCourseLoading = false;
+  courseError = '';
+  showSelectedOnly = false;
+
+  currentStep = 1;
 
   isLoading = true;
   isSubmitting = false;
@@ -92,33 +101,72 @@ export class OnboardingPage implements OnInit {
         this.applyCourseFilter();
         return;
       }
-      this.catalogUseCase.getCourses(carreraId).subscribe({
-        next: (courses) => {
-          this.courses = courses;
-          this.applyCourseFilter();
-        },
-        error: () => {
-          this.courses = [];
-          this.applyCourseFilter();
-        }
-      });
+      this.loadCourses(true);
     });
   }
 
   onCourseQueryChange(value: string): void {
     this.courseQuery = value;
+    this.loadCourses(true);
+  }
+
+  toggleShowSelected(value: boolean): void {
+    this.showSelectedOnly = value;
     this.applyCourseFilter();
   }
 
-  private applyCourseFilter(): void {
-    const query = this.courseQuery.trim().toLowerCase();
-    if (!query) {
-      this.filteredCourses = this.courses;
+  get visibleCourses(): CatalogCourse[] {
+    return this.filteredCourses;
+  }
+
+  showMoreCourses(): void {
+    if (!this.hasMoreCourses || this.isCourseLoading) {
       return;
     }
-    this.filteredCourses = this.courses.filter((course) =>
-      course.nombre.toLowerCase().includes(query) || course.codigo.toLowerCase().includes(query)
-    );
+    this.loadCourses(false);
+  }
+
+  private loadCourses(reset: boolean): void {
+    const carreraId = this.form.get('carreraId')?.value ?? null;
+    if (!carreraId) {
+      return;
+    }
+
+    if (reset) {
+      this.courseOffset = 0;
+      this.courses = [];
+      this.filteredCourses = [];
+      this.hasMoreCourses = false;
+    }
+
+    this.isCourseLoading = true;
+    this.courseError = '';
+
+    this.catalogUseCase.getCourses(carreraId, this.courseQuery, this.coursePageSize, this.courseOffset).subscribe({
+      next: (courses) => {
+        if (reset) {
+          this.courses = courses;
+        } else {
+          this.courses = [...this.courses, ...courses];
+        }
+        this.courseOffset += courses.length;
+        this.hasMoreCourses = courses.length === this.coursePageSize;
+        this.applyCourseFilter();
+        this.isCourseLoading = false;
+      },
+      error: () => {
+        this.courseError = 'No se pudo cargar los cursos. Intenta nuevamente.';
+        this.isCourseLoading = false;
+      }
+    });
+  }
+
+  private applyCourseFilter(): void {
+    if (this.showSelectedOnly) {
+      this.filteredCourses = this.courses.filter((course) => this.selectedCourseIds.has(course.id));
+      return;
+    }
+    this.filteredCourses = this.courses;
   }
 
   toggleCourse(course: CatalogCourse, enabled: boolean): void {
@@ -129,16 +177,18 @@ export class OnboardingPage implements OnInit {
       this.courseDetailForm.addControl(
         controlName,
         this.fb.group({
-          seccion: ['', [Validators.required]],
-          profesor: ['', [Validators.required]],
-          modalidad: [course.modalidad ?? '', [Validators.required]]
+          seccion: [''],
+          profesor: [''],
+          modalidad: [course.modalidad ?? '']
         })
       );
+      this.applyCourseFilter();
       return;
     }
 
     this.selectedCourseIds.delete(course.id);
     this.courseDetailForm.removeControl(controlName);
+    this.applyCourseFilter();
   }
 
   private resetCourseSelection(): void {
@@ -146,18 +196,42 @@ export class OnboardingPage implements OnInit {
     Object.keys(this.courseDetailForm.controls).forEach((key) => this.courseDetailForm.removeControl(key));
   }
 
+  nextStep(): void {
+    this.submitError = '';
+    if (this.currentStep === 1) {
+      if (this.form.invalid) {
+        this.form.markAllAsTouched();
+        return;
+      }
+      this.currentStep = 2;
+      return;
+    }
+
+    if (this.currentStep === 2) {
+      if (this.selectedCourseIds.size === 0) {
+        this.submitError = 'Selecciona al menos un curso para continuar.';
+        return;
+      }
+      this.currentStep = 3;
+    }
+  }
+
+  prevStep(): void {
+    this.submitError = '';
+    this.currentStep = Math.max(1, this.currentStep - 1);
+  }
+
   submit(): void {
     this.submitError = '';
 
-    if (this.form.invalid || this.courseDetailForm.invalid) {
+    if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.courseDetailForm.markAllAsTouched();
       return;
     }
 
     const value = this.form.getRawValue();
 
-    if (!value.campusId || !value.carreraId || !value.periodoId || !value.email || !value.nombre) {
+    if (!value.campusId || !value.carreraId || !value.periodoId || !value.nombre) {
       this.submitError = 'Faltan campos obligatorios para completar el onboarding.';
       return;
     }
@@ -171,9 +245,9 @@ export class OnboardingPage implements OnInit {
 
       return {
         cursoId: courseId,
-        seccion: detail.seccion,
-        profesor: detail.profesor,
-        modalidad: detail.modalidad,
+        seccion: detail.seccion || null,
+        profesor: detail.profesor || null,
+        modalidad: detail.modalidad || null,
         horarios: []
       };
     });
@@ -182,8 +256,9 @@ export class OnboardingPage implements OnInit {
 
     this.onboardingUseCase
       .submitBasicOnboarding({
-        email: value.email,
         nombre: value.nombre,
+        nombrePreferido: value.nombrePreferido || null,
+        emailInstitucional: value.emailInstitucional || null,
         campusId: value.campusId,
         carreraId: value.carreraId,
         periodoId: value.periodoId,

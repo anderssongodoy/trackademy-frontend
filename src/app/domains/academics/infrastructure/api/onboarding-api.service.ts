@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+﻿import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -15,15 +15,16 @@ export interface OnboardingCourseScheduleRequest {
 
 export interface OnboardingCourseRequest {
   cursoId: number;
-  seccion: string;
-  profesor: string;
-  modalidad: string;
+  seccion?: string | null;
+  profesor?: string | null;
+  modalidad?: string | null;
   horarios: OnboardingCourseScheduleRequest[];
 }
 
 export interface OnboardingRequest {
-  email: string;
   nombre: string;
+  nombrePreferido?: string | null;
+  emailInstitucional?: string | null;
   campusId: number;
   periodoId: number;
   carreraId: number;

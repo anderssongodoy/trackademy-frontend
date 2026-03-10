@@ -58,10 +58,20 @@ export class CatalogApiService {
     });
   }
 
-  getCourses(carreraId?: number): Observable<CatalogCourse[]> {
-    const params = new HttpParams({
-      fromObject: carreraId ? { carreraId: carreraId.toString() } : {}
-    });
+  getCourses(carreraId?: number, query?: string, limit?: number, offset?: number): Observable<CatalogCourse[]> {
+    let params = new HttpParams();
+    if (carreraId) {
+      params = params.set('carreraId', carreraId.toString());
+    }
+    if (query) {
+      params = params.set('q', query);
+    }
+    if (limit != null) {
+      params = params.set('limit', limit.toString());
+    }
+    if (offset != null) {
+      params = params.set('offset', offset.toString());
+    }
 
     return this.http.get<CatalogCourse[]>(`${this.env.apiBaseUrl}/api/v1/catalog/cursos`, { params });
   }
