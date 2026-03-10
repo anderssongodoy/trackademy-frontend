@@ -1,22 +1,68 @@
-<main class="landing">
-  <header class="topbar">
+<section class="landing">
+  <nav class="topbar">
     <a class="brand" routerLink="/">
-      <span class="brand__dot"></span>
+      <span class="brand__icon">??</span>
       <span>Trackademy</span>
     </a>
-    <a class="ghost-btn" routerLink="/auth/sign-in">Iniciar sesi贸n</a>
+    <div class="nav-actions">
+      <ng-container *ngIf="!signedIn(); else signedInActions">
+        <a class="ghost-btn" routerLink="/auth/sign-in">Iniciar sesi髇</a>
+        <a class="primary-btn" routerLink="/auth/sign-in">Comenzar gratis</a>
+      </ng-container>
+      <ng-template #signedInActions>
+        <a class="primary-btn" routerLink="/app/onboarding">Ir a onboarding</a>
+      </ng-template>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero__badge">Para estudiantes de Ing. Sistemas - UTP</div>
+    <h1>
+      Organiza tu vida acad閙ica
+      <span>con claridad real</span>
+    </h1>
+    <p class="hero__subtitle">
+      Trackademy centraliza cursos, tareas, notas y eventos acad閙icos para que tengas control total del ciclo.
+    </p>
+    <div class="hero__actions">
+      <ng-container *ngIf="!signedIn(); else signedInHero">
+        <a class="primary-btn" routerLink="/auth/sign-in">Empezar ahora</a>
+        <a class="secondary-btn" routerLink="/auth/sign-in">Ver demo</a>
+      </ng-container>
+      <ng-template #signedInHero>
+        <a class="primary-btn" routerLink="/app/onboarding">Completar onboarding</a>
+      </ng-template>
+    </div>
   </header>
 
-  <section class="hero">
-    <p class="kicker">Trackademy</p>
-    <h1>Gesti贸n acad茅mica profesional para estudiantes universitarios</h1>
-    <p class="subtitle">
-      Centraliza cursos, onboarding acad茅mico y seguimiento de periodo con una experiencia limpia,
-      r谩pida y enfocada en ejecuci贸n.
-    </p>
-    <div class="actions">
-      <a class="primary-btn" routerLink="/auth/sign-in">Iniciar sesi贸n</a>
-      <a class="secondary-btn" routerLink="/app/onboarding">Ir a Onboarding</a>
+  <section class="benefits">
+    <article class="benefit" *ngFor="let benefit of benefits">
+      <h3>{{ benefit.title }}</h3>
+      <p>{{ benefit.description }}</p>
+    </article>
+  </section>
+
+  <section class="features">
+    <div class="features__header">
+      <h2>Dise馻do para el ritmo universitario real</h2>
+      <p>Herramientas claras para planificar, ejecutar y medir tu progreso acad閙ico.</p>
+    </div>
+    <div class="features__grid">
+      <article class="feature-card" *ngFor="let feature of features" [attr.data-tone]="feature.tone">
+        <div class="feature-card__icon">{{ feature.icon }}</div>
+        <h3>{{ feature.title }}</h3>
+        <p>{{ feature.description }}</p>
+      </article>
     </div>
   </section>
-</main>
+
+  <section class="cta">
+    <div class="cta__content">
+      <h2>Empieza el ciclo con todo bajo control</h2>
+      <p>Activa Trackademy y prepara tu ruta acad閙ica antes de que empiecen las entregas.</p>
+    </div>
+    <a class="primary-btn" routerLink="/auth/sign-in" *ngIf="!signedIn()">Crear cuenta</a>
+    <a class="primary-btn" routerLink="/app/onboarding" *ngIf="signedIn()">Ir a onboarding</a>
+  </section>
+</section>
+
