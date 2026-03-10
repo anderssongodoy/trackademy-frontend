@@ -5,12 +5,12 @@ import { Observable } from 'rxjs';
 import { APP_ENV } from '../../../identity/infrastructure/config/app-environment.token';
 
 export interface OnboardingCourseScheduleRequest {
-  diaSemana: number;
-  horaInicio: string;
-  horaFin: string;
-  tipoSesion: string;
-  ubicacion: string;
-  urlVirtual: string;
+  diaSemana?: number | null;
+  horaInicio?: string | null;
+  horaFin?: string | null;
+  tipoSesion?: string | null;
+  ubicacion?: string | null;
+  urlVirtual?: string | null;
 }
 
 export interface OnboardingCourseRequest {
@@ -19,6 +19,19 @@ export interface OnboardingCourseRequest {
   profesor?: string | null;
   modalidad?: string | null;
   horarios: OnboardingCourseScheduleRequest[];
+}
+
+export interface OnboardingConfidenceRequest {
+  cursoId: number;
+  nivelConfianza: number;
+  comentario?: string | null;
+}
+
+export interface OnboardingStudySlotRequest {
+  diaSemana?: number | null;
+  horaInicio?: string | null;
+  horaFin?: string | null;
+  prioridad?: number | null;
 }
 
 export interface OnboardingRequest {
@@ -32,8 +45,8 @@ export interface OnboardingRequest {
   metaPromedioCiclo: number;
   horasEstudioSemanaObjetivo: number;
   cursos: OnboardingCourseRequest[];
-  franjasPreferidasEstudio: [];
-  confianzaPorCurso: [];
+  franjasPreferidasEstudio: OnboardingStudySlotRequest[];
+  confianzaPorCurso: OnboardingConfidenceRequest[];
 }
 
 export interface OnboardingResponse {

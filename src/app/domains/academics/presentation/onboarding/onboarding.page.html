@@ -215,13 +215,13 @@
                       </label>
                     </div>
 
-                    <div class="horarios">
+                    <div class="horarios" formArrayName="horarios">
                       <div class="horarios__header">
                         <p class="label-text">Horario del curso (opcional)</p>
                         <button type="button" class="ghost-btn" (click)="addHorario(course.id)">Agregar horario</button>
                       </div>
                       @for (horario of getHorariosFormArray(course.id).controls; track $index) {
-                        <div class="horario" [formGroup]="horario">
+                        <div class="horario" [formGroupName]="$index">
                           <label>
                             <span class="label-text">Día</span>
                             <select formControlName="diaSemana">
@@ -265,7 +265,7 @@
             </div>
           </section>
 
-          <section class="card" [formGroup]="franjasForm">
+          <section class="card" formArrayName="franjasPreferidasEstudio">
             <div class="card__header">
               <div>
                 <h2>Franjas preferidas de estudio</h2>
@@ -275,7 +275,7 @@
             </div>
             <div class="franjas">
               @for (franja of franjasForm.controls; track $index) {
-                <div class="franja" [formGroup]="franja">
+                <div class="franja" [formGroupName]="$index">
                   <label>
                     <span class="label-text">Día</span>
                     <select formControlName="diaSemana">

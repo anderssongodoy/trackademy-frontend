@@ -41,6 +41,8 @@ export class OnboardingPage implements OnInit {
   private readonly onboardingUseCase = inject(OnboardingUseCase);
   private readonly router = inject(Router);
 
+  readonly franjasForm: UntypedFormArray = this.fb.array([]);
+
   readonly form = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(3)]],
     nombrePreferido: [''],
@@ -50,11 +52,11 @@ export class OnboardingPage implements OnInit {
     periodoId: [null as number | null, [Validators.required]],
     cicloActual: [1, [Validators.required, Validators.min(1), Validators.max(12)]],
     metaPromedioCiclo: [14, [Validators.required, Validators.min(0), Validators.max(20)]],
-    horasEstudioSemanaObjetivo: [8, [Validators.required, Validators.min(1), Validators.max(80)]]
+    horasEstudioSemanaObjetivo: [8, [Validators.required, Validators.min(1), Validators.max(80)]],
+    franjasPreferidasEstudio: this.franjasForm
   });
 
   readonly courseDetailForm: UntypedFormGroup = this.fb.group({});
-  readonly franjasForm: UntypedFormArray = this.fb.array([]);
 
   campuses: CatalogCampus[] = [];
   careers: CatalogCareer[] = [];
@@ -332,7 +334,7 @@ export class OnboardingPage implements OnInit {
           comentario: detail.comentarioConfianza || null
         };
       })
-      .filter(Boolean);
+      .filter((item): item is { cursoId: number; nivelConfianza: number; comentario: string | null } => item !== null);
 
     this.isSubmitting = true;
 
