@@ -1,13 +1,12 @@
 <section class="landing">
   <nav class="topbar">
     <a class="brand" routerLink="/">
-      <span class="brand__icon">??</span>
+      <span class="brand__icon">T</span>
       <span>Trackademy</span>
     </a>
     <div class="nav-actions">
       <ng-container *ngIf="!signedIn(); else signedInActions">
         <a class="ghost-btn" routerLink="/auth/sign-in">Iniciar sesión</a>
-        <a class="primary-btn" routerLink="/auth/sign-in">Comenzar gratis</a>
       </ng-container>
       <ng-template #signedInActions>
         <a class="primary-btn" routerLink="/app/onboarding">Ir a onboarding</a>
@@ -26,8 +25,7 @@
     </p>
     <div class="hero__actions">
       <ng-container *ngIf="!signedIn(); else signedInHero">
-        <a class="primary-btn" routerLink="/auth/sign-in">Empezar ahora</a>
-        <a class="secondary-btn" routerLink="/auth/sign-in">Ver demo</a>
+        <a class="primary-btn" routerLink="/auth/sign-in">Iniciar sesión</a>
       </ng-container>
       <ng-template #signedInHero>
         <a class="primary-btn" routerLink="/app/onboarding">Completar onboarding</a>
@@ -61,8 +59,7 @@
       <h2>Empieza el ciclo con todo bajo control</h2>
       <p>Activa Trackademy y prepara tu ruta académica antes de que empiecen las entregas.</p>
     </div>
-    <a class="primary-btn" routerLink="/auth/sign-in" *ngIf="!signedIn()">Crear cuenta</a>
+    <a class="primary-btn" routerLink="/auth/sign-in" *ngIf="!signedIn()">Iniciar sesión</a>
     <a class="primary-btn" routerLink="/app/onboarding" *ngIf="signedIn()">Ir a onboarding</a>
   </section>
 </section>
-
