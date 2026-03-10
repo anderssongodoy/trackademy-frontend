@@ -59,7 +59,7 @@ export class CatalogApiService {
   }
 
   getCourses(carreraId?: number): Observable<CatalogCourse[]> {
-    const params = carreraId ? { carreraId } : {};
+    const params = carreraId ? { carreraId: carreraId.toString() } : {};
     return this.http.get<CatalogCourse[]>(`${this.env.apiBaseUrl}/api/v1/catalog/cursos`, { params });
   }
 }
