@@ -2,6 +2,23 @@
 
 Frontend de Trackademy en Angular con arquitectura DDD aplicada a frontend.
 
+## Proyecto
+
+Trackademy es una plataforma académica para estudiantes universitarios que centraliza su organización del ciclo: onboarding guiado, catálogo de cursos, calendario académico y seguimiento del progreso. El objetivo del producto es reducir fricción operativa y ofrecer una base de datos estructurada para futuras analíticas, recomendaciones y automatización de estudio.
+
+Metas del proyecto:
+- Consolidar información académica dispersa en una sola experiencia.
+- Reducir el tiempo de planificación semanal del estudiante.
+- Preparar data consistente para analítica/ML sin pedir más pasos de los necesarios.
+
+## Stack (Frontend)
+
+- Angular (standalone components + Angular Router)
+- TypeScript
+- RxJS
+- Angular Forms (Reactive Forms)
+- SCSS
+
 ## Arquitectura
 
 El frontend se organiza por dominios (bounded contexts). Cada dominio tiene capas explícitas:
