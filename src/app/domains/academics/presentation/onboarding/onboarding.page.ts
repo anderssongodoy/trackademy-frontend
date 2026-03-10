@@ -1,6 +1,6 @@
 ﻿import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
@@ -17,6 +17,16 @@ interface CourseDetailForm {
   seccion: string;
   profesor: string;
   modalidad: string;
+  nivelConfianza?: number | null;
+  comentarioConfianza?: string | null;
+  horarios: {
+    diaSemana: number | null;
+    horaInicio: string | null;
+    horaFin: string | null;
+    tipoSesion: string | null;
+    ubicacion: string | null;
+    urlVirtual: string | null;
+  }[];
 }
 
 @Component({
@@ -44,6 +54,7 @@ export class OnboardingPage implements OnInit {
   });
 
   readonly courseDetailForm: UntypedFormGroup = this.fb.group({});
+  readonly franjasForm: UntypedFormArray = this.fb.array([]);
 
   campuses: CatalogCampus[] = [];
   careers: CatalogCareer[] = [];
@@ -179,7 +190,10 @@ export class OnboardingPage implements OnInit {
         this.fb.group({
           seccion: [''],
           profesor: [''],
-          modalidad: [course.modalidad ?? '']
+          modalidad: [course.modalidad ?? ''],
+          nivelConfianza: [null],
+          comentarioConfianza: [''],
+          horarios: this.fb.array([])
         })
       );
       this.applyCourseFilter();
@@ -189,6 +203,44 @@ export class OnboardingPage implements OnInit {
     this.selectedCourseIds.delete(course.id);
     this.courseDetailForm.removeControl(controlName);
     this.applyCourseFilter();
+  }
+
+  addHorario(courseId: number): void {
+    const horarios = this.getHorariosFormArray(courseId);
+    horarios.push(
+      this.fb.group({
+        diaSemana: [null],
+        horaInicio: [''],
+        horaFin: [''],
+        tipoSesion: [''],
+        ubicacion: [''],
+        urlVirtual: ['']
+      })
+    );
+  }
+
+  removeHorario(courseId: number, index: number): void {
+    const horarios = this.getHorariosFormArray(courseId);
+    horarios.removeAt(index);
+  }
+
+  getHorariosFormArray(courseId: number): UntypedFormArray {
+    return this.courseDetailForm.get(`${courseId}`)?.get('horarios') as UntypedFormArray;
+  }
+
+  addFranja(): void {
+    this.franjasForm.push(
+      this.fb.group({
+        diaSemana: [null],
+        horaInicio: [''],
+        horaFin: [''],
+        prioridad: [1]
+      })
+    );
+  }
+
+  removeFranja(index: number): void {
+    this.franjasForm.removeAt(index);
   }
 
   private resetCourseSelection(): void {
@@ -248,9 +300,39 @@ export class OnboardingPage implements OnInit {
         seccion: detail.seccion || null,
         profesor: detail.profesor || null,
         modalidad: detail.modalidad || null,
-        horarios: []
+        horarios: (detail.horarios || []).map((h) => ({
+          diaSemana: h.diaSemana ?? null,
+          horaInicio: h.horaInicio || null,
+          horaFin: h.horaFin || null,
+          tipoSesion: h.tipoSesion || null,
+          ubicacion: h.ubicacion || null,
+          urlVirtual: h.urlVirtual || null
+        }))
       };
     });
+
+    const franjasPreferidasEstudio = this.franjasForm.value
+      .filter((f: any) => f.diaSemana || f.horaInicio || f.horaFin)
+      .map((f: any) => ({
+        diaSemana: f.diaSemana ?? null,
+        horaInicio: f.horaInicio || null,
+        horaFin: f.horaFin || null,
+        prioridad: f.prioridad ?? 1
+      }));
+
+    const confianzaPorCurso = Array.from(this.selectedCourseIds)
+      .map((courseId) => {
+        const detail = this.courseDetailForm.get(`${courseId}`)?.value as CourseDetailForm | undefined;
+        if (!detail || detail.nivelConfianza == null) {
+          return null;
+        }
+        return {
+          cursoId: courseId,
+          nivelConfianza: detail.nivelConfianza,
+          comentario: detail.comentarioConfianza || null
+        };
+      })
+      .filter(Boolean);
 
     this.isSubmitting = true;
 
@@ -266,8 +348,8 @@ export class OnboardingPage implements OnInit {
         metaPromedioCiclo: value.metaPromedioCiclo ?? 14,
         horasEstudioSemanaObjetivo: value.horasEstudioSemanaObjetivo ?? 8,
         cursos,
-        franjasPreferidasEstudio: [],
-        confianzaPorCurso: []
+        franjasPreferidasEstudio,
+        confianzaPorCurso
       })
       .subscribe({
         next: () => {

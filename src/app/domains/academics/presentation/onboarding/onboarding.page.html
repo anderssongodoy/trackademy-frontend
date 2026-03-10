@@ -203,8 +203,106 @@
                         <input type="text" formControlName="modalidad" readonly />
                       </label>
                     </div>
+
+                    <div class="grid grid--3">
+                      <label>
+                        <span class="label-text">Nivel de confianza (1-5)</span>
+                        <input type="number" min="1" max="5" formControlName="nivelConfianza" />
+                      </label>
+                      <label class="grid-span-2">
+                        <span class="label-text">Comentario (opcional)</span>
+                        <input type="text" formControlName="comentarioConfianza" placeholder="Qué te preocupa o te ayuda" />
+                      </label>
+                    </div>
+
+                    <div class="horarios">
+                      <div class="horarios__header">
+                        <p class="label-text">Horario del curso (opcional)</p>
+                        <button type="button" class="ghost-btn" (click)="addHorario(course.id)">Agregar horario</button>
+                      </div>
+                      @for (horario of getHorariosFormArray(course.id).controls; track $index) {
+                        <div class="horario" [formGroup]="horario">
+                          <label>
+                            <span class="label-text">Día</span>
+                            <select formControlName="diaSemana">
+                              <option [ngValue]="null">Selecciona</option>
+                              <option [ngValue]="1">Lunes</option>
+                              <option [ngValue]="2">Martes</option>
+                              <option [ngValue]="3">Miércoles</option>
+                              <option [ngValue]="4">Jueves</option>
+                              <option [ngValue]="5">Viernes</option>
+                              <option [ngValue]="6">Sábado</option>
+                              <option [ngValue]="7">Domingo</option>
+                            </select>
+                          </label>
+                          <label>
+                            <span class="label-text">Inicio</span>
+                            <input type="time" formControlName="horaInicio" />
+                          </label>
+                          <label>
+                            <span class="label-text">Fin</span>
+                            <input type="time" formControlName="horaFin" />
+                          </label>
+                          <label>
+                            <span class="label-text">Tipo sesión</span>
+                            <input type="text" formControlName="tipoSesion" placeholder="Teoría" />
+                          </label>
+                          <label>
+                            <span class="label-text">Ubicación</span>
+                            <input type="text" formControlName="ubicacion" placeholder="Aula" />
+                          </label>
+                          <label>
+                            <span class="label-text">URL virtual</span>
+                            <input type="url" formControlName="urlVirtual" placeholder="https://" />
+                          </label>
+                          <button type="button" class="ghost-btn" (click)="removeHorario(course.id, $index)">Quitar</button>
+                        </div>
+                      }
+                    </div>
                   </div>
                 }
+              }
+            </div>
+          </section>
+
+          <section class="card" [formGroup]="franjasForm">
+            <div class="card__header">
+              <div>
+                <h2>Franjas preferidas de estudio</h2>
+                <p>Opcional. Ayuda a recomendarte mejores horarios.</p>
+              </div>
+              <button type="button" class="ghost-btn" (click)="addFranja()">Agregar franja</button>
+            </div>
+            <div class="franjas">
+              @for (franja of franjasForm.controls; track $index) {
+                <div class="franja" [formGroup]="franja">
+                  <label>
+                    <span class="label-text">Día</span>
+                    <select formControlName="diaSemana">
+                      <option [ngValue]="null">Selecciona</option>
+                      <option [ngValue]="1">Lunes</option>
+                      <option [ngValue]="2">Martes</option>
+                      <option [ngValue]="3">Miércoles</option>
+                      <option [ngValue]="4">Jueves</option>
+                      <option [ngValue]="5">Viernes</option>
+                      <option [ngValue]="6">Sábado</option>
+                      <option [ngValue]="7">Domingo</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span class="label-text">Inicio</span>
+                    <input type="time" formControlName="horaInicio" />
+                  </label>
+                  <label>
+                    <span class="label-text">Fin</span>
+                    <input type="time" formControlName="horaFin" />
+                  </label>
+                  <label>
+                    <span class="label-text">Prioridad</span>
+                    <input type="number" min="1" max="5" formControlName="prioridad" />
+                  </label>
+                  <button type="button" class="ghost-btn" (click)="removeFranja($index)">Quitar</button>
+                </div>
               }
             </div>
           </section>
