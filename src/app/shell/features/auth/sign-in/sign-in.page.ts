@@ -1,7 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import { AuthService } from '../../../core/auth/auth.service';
+import { AuthService } from '../../../../domains/identity/infrastructure/auth/auth.service';
 
 @Component({
   selector: 'app-sign-in-page',

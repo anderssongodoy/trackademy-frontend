@@ -10,8 +10,8 @@ import {
   CatalogCareer,
   CatalogCourse,
   CatalogPeriod
-} from '../../core/api/catalog-api.service';
-import { OnboardingApiService } from '../../core/api/onboarding-api.service';
+} from '../../../domains/academics/infrastructure/api/catalog-api.service';
+import { OnboardingApiService } from '../../../domains/academics/infrastructure/api/onboarding-api.service';
 
 interface CourseDetailForm {
   seccion: string;

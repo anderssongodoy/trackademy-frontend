@@ -3,10 +3,10 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
-import { APP_ENV } from './core/config/app-environment.token';
-import { RuntimeConfigService } from './core/config/runtime-config.service';
-import { apiErrorInterceptor } from './core/http/api-error.interceptor';
-import { authTokenInterceptor } from './core/http/auth-token.interceptor';
+import { APP_ENV } from './domains/identity/infrastructure/config/app-environment.token';
+import { RuntimeConfigService } from './domains/identity/infrastructure/config/runtime-config.service';
+import { apiErrorInterceptor } from './domains/identity/infrastructure/http/api-error.interceptor';
+import { authTokenInterceptor } from './domains/identity/infrastructure/http/auth-token.interceptor';
 import { environment } from '../environments/environment';
 
 export const appConfig: ApplicationConfig = {
