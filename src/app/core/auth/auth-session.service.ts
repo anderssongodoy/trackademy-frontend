@@ -1,8 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { map, Observable } from 'rxjs';
+import { catchError, from, map, Observable, of, switchMap } from 'rxjs';
 
 import { APP_ENV } from '../config/app-environment.token';
+import { AuthService } from './auth.service';
 
 interface SessionResponse {
   authenticated: boolean;
@@ -12,10 +13,20 @@ interface SessionResponse {
 export class AuthSessionService {
   private readonly http = inject(HttpClient);
   private readonly env = inject(APP_ENV);
-
-  isAuthenticated(): Observable<boolean> {
-    return this.http
-      .get<SessionResponse>(`${this.env.apiBaseUrl}${this.env.authSessionPath}`)
-      .pipe(map((response) => response.authenticated === true));
+  private readonly authService = inject(AuthService);
+\n  isAuthenticated(): Observable<boolean> {
+    return from(this.authService.getAccessToken()).pipe(
+      switchMap((token) => {
+        if (!token) {
+          return of(false);
+        }
+        return this.http
+          .get<SessionResponse>(`${this.env.apiBaseUrl}${this.env.authSessionPath}`)
+          .pipe(
+            map((response) => response.authenticated === true),
+            catchError(() => of(false))
+          );
+      })
+    );
   }
 }
