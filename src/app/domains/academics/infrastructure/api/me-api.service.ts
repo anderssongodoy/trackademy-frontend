@@ -34,15 +34,11 @@ export class MeApiService {
   private readonly http = inject(HttpClient);
   private readonly env = inject(APP_ENV);
 
-  getCurrentPeriod(email: string): Observable<MyCurrentPeriod> {
-    return this.http.get<MyCurrentPeriod>(`${this.env.apiBaseUrl}/api/v1/me/periodo-actual`, {
-      params: { email }
-    });
+  getCurrentPeriod(): Observable<MyCurrentPeriod> {
+    return this.http.get<MyCurrentPeriod>(`${this.env.apiBaseUrl}/api/v1/me/periodo-actual`);
   }
 
-  getMyCourses(email: string): Observable<MyCourse[]> {
-    return this.http.get<MyCourse[]>(`${this.env.apiBaseUrl}/api/v1/me/cursos`, {
-      params: { email }
-    });
+  getMyCourses(): Observable<MyCourse[]> {
+    return this.http.get<MyCourse[]>(`${this.env.apiBaseUrl}/api/v1/me/cursos`);
   }
 }

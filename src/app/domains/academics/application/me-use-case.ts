@@ -7,12 +7,12 @@ import { MeApiService, MyCourse, MyCurrentPeriod } from '../infrastructure/api/m
 export class MeUseCase {
   private readonly api = inject(MeApiService);
 
-  getCurrentPeriod(email?: string): Observable<MyCurrentPeriod> {
-    return this.api.getCurrentPeriod(email ?? '');
+  getCurrentPeriod(): Observable<MyCurrentPeriod> {
+    return this.api.getCurrentPeriod();
   }
 
-  getMyCourses(email?: string): Observable<MyCourse[]> {
-    return this.api.getMyCourses(email ?? '');
+  getMyCourses(): Observable<MyCourse[]> {
+    return this.api.getMyCourses();
   }
 }
 

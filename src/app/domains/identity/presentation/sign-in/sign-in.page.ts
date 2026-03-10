@@ -1,6 +1,7 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
 import { AuthUseCase } from '../../application/auth-use-case';
@@ -21,7 +22,6 @@ export class SignInPage implements OnInit {
   private readonly authUseCase = inject(AuthUseCase);
   private readonly sessionUseCase = inject(AuthSessionUseCase);
   private readonly meUseCase = inject(MeUseCase);
-  private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
   async ngOnInit(): Promise<void> {
@@ -39,8 +39,7 @@ export class SignInPage implements OnInit {
         return;
       }
 
-      const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/app/dashboard';
-      const googleReady = await this.authUseCase.setupGoogleSignIn('google-signin-button', redirect);
+      const googleReady = await this.authUseCase.setupGoogleSignIn('google-signin-button', '/auth/sign-in');
       this.googleUnavailable.set(!googleReady);
     } catch {
       this.authError.set('No se pudo completar la autenticacion. Intenta de nuevo y revisa que tu cuenta este permitida.');
@@ -48,11 +47,10 @@ export class SignInPage implements OnInit {
   }
 
   async signInWithMicrosoft(): Promise<void> {
-    const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/app/dashboard';
     this.authError.set(null);
     this.microsoftLoading.set(true);
     try {
-      await this.authUseCase.beginMicrosoftLogin(redirect);
+      await this.authUseCase.beginMicrosoftLogin('/auth/sign-in');
     } catch {
       this.microsoftLoading.set(false);
       this.authError.set('No se pudo iniciar sesion con Microsoft. Verifica popups/cookies y vuelve a intentar.');
@@ -76,8 +74,13 @@ export class SignInPage implements OnInit {
       }
 
       await this.router.navigateByUrl('/app/onboarding');
-    } catch {
-      await this.router.navigateByUrl('/app/onboarding');
+    } catch (error) {
+      if (error instanceof HttpErrorResponse && error.status === 404) {
+        await this.router.navigateByUrl('/app/onboarding');
+        return;
+      }
+      this.authError.set('No pudimos validar tu periodo. Intenta nuevamente.');
     }
   }
 }
+
