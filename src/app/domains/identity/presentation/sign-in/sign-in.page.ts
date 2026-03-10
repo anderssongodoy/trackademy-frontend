@@ -1,8 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 
 import { AuthUseCase } from '../../application/auth-use-case';
+import { AuthSessionUseCase } from '../../application/auth-session-use-case';
+import { MeUseCase } from '../../../academics/application/me-use-case';
 
 @Component({
   selector: 'app-sign-in-page',
@@ -16,6 +19,8 @@ export class SignInPage implements OnInit {
   protected readonly authError = signal<string | null>(null);
 
   private readonly authUseCase = inject(AuthUseCase);
+  private readonly sessionUseCase = inject(AuthSessionUseCase);
+  private readonly meUseCase = inject(MeUseCase);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
@@ -24,14 +29,13 @@ export class SignInPage implements OnInit {
       const redirectState = await this.authUseCase.completeMicrosoftLogin();
 
       if (redirectState) {
-        await this.router.navigateByUrl(redirectState);
+        await this.navigateAfterAuth();
         return;
       }
 
       const alreadySignedIn = await this.authUseCase.isSignedIn();
       if (alreadySignedIn) {
-        const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/app/dashboard';
-        await this.router.navigateByUrl(redirect);
+        await this.navigateAfterAuth();
         return;
       }
 
@@ -54,6 +58,26 @@ export class SignInPage implements OnInit {
       this.authError.set('No se pudo iniciar sesion con Microsoft. Verifica popups/cookies y vuelve a intentar.');
     }
   }
+
+  private async navigateAfterAuth(): Promise<void> {
+    const authenticated = await firstValueFrom(this.sessionUseCase.isAuthenticated());
+    if (!authenticated) {
+      this.authError.set('No pudimos validar tu sesion. Intenta de nuevo.');
+      return;
+    }
+
+    try {
+      const currentPeriod = await firstValueFrom(this.meUseCase.getCurrentPeriod());
+      const isOnboardingComplete = currentPeriod?.onboardingEstado?.toLowerCase() === 'completado';
+
+      if (isOnboardingComplete) {
+        await this.router.navigateByUrl('/app/dashboard');
+        return;
+      }
+
+      await this.router.navigateByUrl('/app/onboarding');
+    } catch {
+      await this.router.navigateByUrl('/app/onboarding');
+    }
+  }
 }
-
-
