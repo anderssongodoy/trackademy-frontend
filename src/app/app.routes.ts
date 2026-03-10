@@ -4,30 +4,31 @@ import { authGuard } from './domains/identity/infrastructure/auth/auth.guard';
 export const routes: Routes = [
 	{
 		path: '',
-		loadComponent: () => import('./shell/features/landing/landing.page').then((m) => m.LandingPage)
+		loadComponent: () => import('./domains/marketing/presentation/landing/landing.page').then((m) => m.LandingPage)
 	},
 	{
 		path: 'auth/sign-in',
 		loadComponent: () =>
-			import('./shell/features/auth/sign-in/sign-in.page').then((m) => m.SignInPage)
+			import('./domains/identity/presentation/sign-in/sign-in.page').then((m) => m.SignInPage)
 	},
 	{
 		path: 'auth/callback',
 		loadComponent: () =>
-			import('./shell/features/auth/sign-in/sign-in.page').then((m) => m.SignInPage)
+			import('./domains/identity/presentation/sign-in/sign-in.page').then((m) => m.SignInPage)
 	},
 	{
 		path: 'app/onboarding',
 		canActivate: [authGuard],
-		loadComponent: () => import('./shell/features/onboarding/onboarding.page').then((m) => m.OnboardingPage)
+		loadComponent: () => import('./domains/academics/presentation/onboarding/onboarding.page').then((m) => m.OnboardingPage)
 	},
 	{
 		path: 'app/dashboard',
 		canActivate: [authGuard],
-		loadComponent: () => import('./shell/features/dashboard/dashboard.page').then((m) => m.DashboardPage)
+		loadComponent: () => import('./domains/academics/presentation/dashboard/dashboard.page').then((m) => m.DashboardPage)
 	},
 	{
 		path: '**',
 		redirectTo: ''
 	}
 ];
+

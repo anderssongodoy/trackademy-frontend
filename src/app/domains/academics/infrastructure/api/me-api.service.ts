@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
-import { APP_ENV } from '../../identity/infrastructure/config/app-environment.token';
+import { APP_ENV } from '../../../identity/infrastructure/config/app-environment.token';
 
 export interface MyCurrentPeriod {
   usuarioId: number;

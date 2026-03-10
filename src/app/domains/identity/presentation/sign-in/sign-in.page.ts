@@ -1,11 +1,12 @@
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import { AuthService } from '../../../../domains/identity/infrastructure/auth/auth.service';
+import { AuthUseCase } from '../../application/auth-use-case';
 
 @Component({
   selector: 'app-sign-in-page',
-  imports: [RouterLink],
+  imports: [CommonModule, RouterLink],
   templateUrl: './sign-in.page.html',
   styleUrl: './sign-in.page.scss'
 })
@@ -14,20 +15,20 @@ export class SignInPage implements OnInit {
   protected readonly microsoftLoading = signal(false);
   protected readonly authError = signal<string | null>(null);
 
-  private readonly authService = inject(AuthService);
+  private readonly authUseCase = inject(AuthUseCase);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
 
   async ngOnInit(): Promise<void> {
     try {
-      const redirectState = await this.authService.completeMicrosoftLogin();
+      const redirectState = await this.authUseCase.completeMicrosoftLogin();
 
       if (redirectState) {
         await this.router.navigateByUrl(redirectState);
         return;
       }
 
-      const alreadySignedIn = await this.authService.isSignedIn();
+      const alreadySignedIn = await this.authUseCase.isSignedIn();
       if (alreadySignedIn) {
         const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/app/dashboard';
         await this.router.navigateByUrl(redirect);
@@ -35,7 +36,7 @@ export class SignInPage implements OnInit {
       }
 
       const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/app/dashboard';
-      const googleReady = await this.authService.setupGoogleSignIn('google-signin-button', redirect);
+      const googleReady = await this.authUseCase.setupGoogleSignIn('google-signin-button', redirect);
       this.googleUnavailable.set(!googleReady);
     } catch {
       this.authError.set('No se pudo completar la autenticacion. Intenta de nuevo y revisa que tu cuenta este permitida.');
@@ -47,10 +48,12 @@ export class SignInPage implements OnInit {
     this.authError.set(null);
     this.microsoftLoading.set(true);
     try {
-      await this.authService.beginMicrosoftLogin(redirect);
+      await this.authUseCase.beginMicrosoftLogin(redirect);
     } catch {
       this.microsoftLoading.set(false);
       this.authError.set('No se pudo iniciar sesion con Microsoft. Verifica popups/cookies y vuelve a intentar.');
     }
   }
 }
+
+

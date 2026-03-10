@@ -1,0 +1,23 @@
+<section class="page">
+  <div class="card">
+    <a class="back" routerLink="/">Regresar</a>
+    <p class="eyebrow">Acceso seguro</p>
+    <h1>Iniciar sesión</h1>
+    <p class="muted">Accede a Trackademy para continuar con tu configuración académica.</p>
+
+    <button class="btn microsoft" type="button" (click)="signInWithMicrosoft()" [disabled]="microsoftLoading()">
+      <span class="icon">M</span>
+      <span *ngIf="!microsoftLoading()">Continuar con Microsoft</span>
+      <span *ngIf="microsoftLoading()">Conectando...</span>
+    </button>
+
+    <div id="google-signin-button" class="google"></div>
+
+    <p class="hint" *ngIf="googleUnavailable()">Google no está disponible. Usa Microsoft o intenta más tarde.</p>
+    <p class="error" *ngIf="authError()">{{ authError() }}</p>
+
+    <p class="footnote">
+      Métodos adicionales de autenticación podrán agregarse en una fase posterior.
+    </p>
+  </div>
+</section>

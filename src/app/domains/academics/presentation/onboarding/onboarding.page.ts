@@ -5,13 +5,13 @@ import { Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
 import {
-  CatalogApiService,
+  CatalogUseCase,
   CatalogCampus,
   CatalogCareer,
   CatalogCourse,
   CatalogPeriod
-} from '../../../domains/academics/infrastructure/api/catalog-api.service';
-import { OnboardingApiService } from '../../../domains/academics/infrastructure/api/onboarding-api.service';
+} from '../../application/catalog-use-case';
+import { OnboardingUseCase } from '../../application/onboarding-use-case';
 
 interface CourseDetailForm {
   seccion: string;
@@ -27,8 +27,8 @@ interface CourseDetailForm {
 })
 export class OnboardingPage implements OnInit {
   private readonly fb = inject(UntypedFormBuilder);
-  private readonly catalogApi = inject(CatalogApiService);
-  private readonly onboardingApi = inject(OnboardingApiService);
+  private readonly catalogUseCase = inject(CatalogUseCase);
+  private readonly onboardingUseCase = inject(OnboardingUseCase);
   private readonly router = inject(Router);
 
   readonly form = this.fb.group({
@@ -61,10 +61,10 @@ export class OnboardingPage implements OnInit {
     this.loadingError = '';
 
     forkJoin({
-      campuses: this.catalogApi.getCampuses(),
-      careers: this.catalogApi.getCareers(),
-      periods: this.catalogApi.getPeriods(),
-      courses: this.catalogApi.getCourses()
+      campuses: this.catalogUseCase.getCampuses(),
+      careers: this.catalogUseCase.getCareers(),
+      periods: this.catalogUseCase.getPeriods(),
+      courses: this.catalogUseCase.getCourses()
     }).subscribe({
       next: ({ campuses, careers, periods, courses }) => {
         this.campuses = campuses;
@@ -135,7 +135,7 @@ export class OnboardingPage implements OnInit {
 
     this.isSubmitting = true;
 
-    this.onboardingApi
+    this.onboardingUseCase
       .submitBasicOnboarding({
         email: value.email,
         nombre: value.nombre,
@@ -161,3 +161,6 @@ export class OnboardingPage implements OnInit {
       });
   }
 }
+
+
+

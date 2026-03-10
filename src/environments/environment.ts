@@ -1,4 +1,4 @@
-import { AppEnvironment } from '../app/core/config/app-environment';
+import { AppEnvironment } from '../app/domains/identity/infrastructure/config/app-environment';
 
 export const environment: AppEnvironment = {
   production: false,
