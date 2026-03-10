@@ -1,0 +1,10 @@
+{
+  "apiBaseUrl": "https://api.tu-dominio.com",
+  "authSessionPath": "/api/v1/auth/session",
+  "authMicrosoftExchangePath": "/api/v1/auth/microsoft",
+  "authGoogleExchangePath": "/api/v1/auth/google",
+  "defaultUniversityId": 1,
+  "azureTenantId": "common",
+  "azureFrontendClientId": "",
+  "googleClientId": ""
+}

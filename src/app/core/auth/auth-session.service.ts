@@ -14,7 +14,8 @@ export class AuthSessionService {
   private readonly http = inject(HttpClient);
   private readonly env = inject(APP_ENV);
   private readonly authService = inject(AuthService);
-\n  isAuthenticated(): Observable<boolean> {
+
+  isAuthenticated(): Observable<boolean> {
     return from(this.authService.getAccessToken()).pipe(
       switchMap((token) => {
         if (!token) {
