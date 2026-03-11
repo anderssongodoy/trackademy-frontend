@@ -5,86 +5,120 @@
       <h1>Hola, tu ciclo está listo para despegar</h1>
       <p class="subtitle">Centraliza cursos, horarios y tareas en un solo lugar. Completa lo esencial y ajusta detalles luego.</p>
       <div class="hero__chips">
-        <span class="chip">Periodo activo</span>
-        <span class="chip chip--accent">2026-1 Marzo</span>
+        <span class="chip">Estado onboarding</span>
+        <span class="chip chip--accent">{{ currentPeriod?.onboardingEstado || 'pendiente' }}</span>
       </div>
     </div>
     <div class="hero__actions">
       <a class="btn btn--primary" routerLink="/app/onboarding">Actualizar cursos</a>
-      <button class="btn btn--ghost" type="button">Agregar horarios</button>
     </div>
   </header>
 
-  <section class="stats" aria-label="Resumen">
-    <article class="stat">
-      <p class="stat__label">Cursos activos</p>
-      <h2>3</h2>
-      <span>Registra horarios y evaluación</span>
-    </article>
-    <article class="stat">
-      <p class="stat__label">Horas/semana</p>
-      <h2>8</h2>
-      <span>Meta de estudio</span>
-    </article>
-    <article class="stat">
-      <p class="stat__label">Recordatorios</p>
-      <h2>0</h2>
-      <span>Configura alertas</span>
-    </article>
-    <article class="stat">
-      <p class="stat__label">Progreso de ciclo</p>
-      <h2>0%</h2>
-      <span>Sin avances cargados</span>
-    </article>
-  </section>
+  @if (isLoading) {
+    <div class="state state--loading">Cargando tu información...</div>
+  }
 
-  <div class="dashboard__grid">
-    <section class="panel">
-      <div class="panel__header">
-        <h3>Agenda de hoy</h3>
-        <button class="btn btn--ghost" type="button">Ver calendario</button>
-      </div>
-      <div class="panel__body">
-        <div class="empty">Aún no hay horarios registrados. Puedes agregarlos cuando quieras.</div>
-      </div>
+  @if (loadError) {
+    <div class="state state--error">{{ loadError }}</div>
+  }
+
+  @if (!isLoading && !loadError) {
+    <section class="stats" aria-label="Resumen">
+      <article class="stat">
+        <p class="stat__label">Cursos activos</p>
+        <h2>{{ courses.length }}</h2>
+        <span>Actualizados en este periodo</span>
+      </article>
+      <article class="stat">
+        <p class="stat__label">Horas/semana</p>
+        <h2>{{ currentPeriod?.horasEstudioSemanaObjetivo ?? '—' }}</h2>
+        <span>Meta de estudio</span>
+      </article>
+      <article class="stat">
+        <p class="stat__label">Meta de promedio</p>
+        <h2>{{ currentPeriod?.metaPromedioCiclo ?? '—' }}</h2>
+        <span>Objetivo del ciclo</span>
+      </article>
+      <article class="stat">
+        <p class="stat__label">Progreso de ciclo</p>
+        <h2>0%</h2>
+        <span>Sin avances cargados</span>
+      </article>
     </section>
 
-    <section class="panel">
-      <div class="panel__header">
-        <h3>Próximas entregas</h3>
-        <button class="btn btn--ghost" type="button">Crear recordatorio</button>
-      </div>
-      <div class="panel__body">
-        <div class="empty">Sin entregas próximas. Crea tareas o importa eventos.</div>
-      </div>
-    </section>
-
-    <section class="panel">
-      <div class="panel__header">
-        <h3>Progreso del periodo</h3>
-      </div>
-      <div class="panel__body">
-        <div class="progress">
-          <div class="progress__bar"></div>
+    <div class="dashboard__grid">
+      <section class="panel">
+        <div class="panel__header">
+          <h3>Tus cursos</h3>
+          <button class="btn btn--ghost" type="button">Ver todos</button>
         </div>
-        <p class="muted">Completa horarios, notas y tareas para ver el avance real.</p>
-      </div>
-    </section>
+        <div class="panel__body">
+          @if (courses.length === 0) {
+            <div class="empty">Aún no tienes cursos activos. Vuelve al onboarding para agregarlos.</div>
+          }
+          @if (courses.length > 0) {
+            <div class="course-list">
+              @for (course of courses; track course.usuarioPeriodoCursoId) {
+                <article class="course-card">
+                  <div>
+                    <p class="course-code">{{ course.codigo }}</p>
+                    <p class="course-name">{{ course.nombre }}</p>
+                  </div>
+                  <span class="course-status">{{ course.modalidad || '—' }}</span>
+                </article>
+              }
+            </div>
+          }
+        </div>
+      </section>
 
-    <aside class="side">
-      <div class="side__card">
-        <h4>Checklist</h4>
-        <ul>
-          <li>Completa tus cursos activos.</li>
-          <li>Registra horarios cuando tengas la sección.</li>
-          <li>Configura alertas y tareas.</li>
-        </ul>
-      </div>
-      <div class="side__card accent">
-        <h4>Estado de conexión</h4>
-        <p>Microsoft / Google OK</p>
-        <button class="btn btn--ghost" type="button">Sincronizar calendario</button>
-      </div>
-    </aside>
-  </div>
+      <section class="panel">
+        <div class="panel__header">
+          <h3>Agenda de hoy</h3>
+          <button class="btn btn--ghost" type="button">Ver calendario</button>
+        </div>
+        <div class="panel__body">
+          <div class="empty">Aún no hay horarios registrados. Puedes agregarlos cuando quieras.</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel__header">
+          <h3>Próximas entregas</h3>
+          <button class="btn btn--ghost" type="button">Crear recordatorio</button>
+        </div>
+        <div class="panel__body">
+          <div class="empty">Sin entregas próximas. Crea tareas o importa eventos.</div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel__header">
+          <h3>Progreso del periodo</h3>
+        </div>
+        <div class="panel__body">
+          <div class="progress">
+            <div class="progress__bar"></div>
+          </div>
+          <p class="muted">Completa horarios, notas y tareas para ver el avance real.</p>
+        </div>
+      </section>
+
+      <aside class="side">
+        <div class="side__card">
+          <h4>Checklist</h4>
+          <ul>
+            <li>Completa tus cursos activos.</li>
+            <li>Registra horarios cuando tengas la sección.</li>
+            <li>Configura alertas y tareas.</li>
+          </ul>
+        </div>
+        <div class="side__card accent">
+          <h4>Estado de conexión</h4>
+          <p>Microsoft / Google OK</p>
+          <button class="btn btn--ghost" type="button">Sincronizar calendario</button>
+        </div>
+      </aside>
+    </div>
+  }
 </main>
