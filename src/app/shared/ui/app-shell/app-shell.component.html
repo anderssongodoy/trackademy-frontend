@@ -1,0 +1,45 @@
+﻿<div class="app-shell" [class.app-shell--menu-open]="mobileOpen()">
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+      <span class="brand__mark">T</span>
+      <div>
+        <p class="brand__title">Trackademy</p>
+        <p class="brand__subtitle">Panel académico</p>
+      </div>
+    </div>
+    <nav class="sidebar__nav">
+      <a class="nav-link" routerLink="/app/dashboard" routerLinkActive="is-active">Dashboard</a>
+      <a class="nav-link" routerLink="/app/cursos" routerLinkActive="is-active">Cursos</a>
+      <a class="nav-link" routerLink="/app/horario" routerLinkActive="is-active">Horario</a>
+      <a class="nav-link" routerLink="/app/onboarding" routerLinkActive="is-active">Onboarding</a>
+    </nav>
+    <div class="sidebar__footer">
+      <a class="nav-cta" routerLink="/app/onboarding">Completar onboarding</a>
+    </div>
+  </aside>
+
+  <div class="app-shell__main">
+    <header class="topbar">
+      <button class="icon-button" type="button" (click)="toggleMobile()" aria-label="Abrir menú">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="topbar__title">
+        <span>Resumen</span>
+        <strong>Trackademy</strong>
+      </div>
+      <div class="topbar__actions">
+        <a class="topbar__link" routerLink="/app/horario">Ver horario</a>
+        <a class="topbar__primary" routerLink="/app/onboarding">Actualizar cursos</a>
+      </div>
+    </header>
+    <div class="app-shell__content">
+      <router-outlet></router-outlet>
+    </div>
+  </div>
+</div>
+
+@if (mobileOpen()) {
+  <div class="scrim" (click)="closeMobile()"></div>
+}

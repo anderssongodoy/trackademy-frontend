@@ -40,9 +40,9 @@
         <span>Objetivo del ciclo</span>
       </article>
       <article class="stat">
-        <p class="stat__label">Progreso de ciclo</p>
-        <h2>0%</h2>
-        <span>Sin avances cargados</span>
+        <p class="stat__label">Semana actual</p>
+        <h2>—</h2>
+        <span>Sin fechas del periodo</span>
       </article>
     </section>
 
@@ -50,7 +50,7 @@
       <section class="panel">
         <div class="panel__header">
           <h3>Tus cursos</h3>
-          <button class="btn btn--ghost" type="button">Ver todos</button>
+          <a class="btn btn--ghost" routerLink="/app/cursos">Ver todos</a>
         </div>
         <div class="panel__body">
           @if (courses.length === 0) {
@@ -64,7 +64,10 @@
                     <p class="course-code">{{ course.codigo }}</p>
                     <p class="course-name">{{ course.nombre }}</p>
                   </div>
-                  <span class="course-status">{{ course.modalidad || '—' }}</span>
+                  <div class="course-actions">
+                    <span class="course-status">{{ course.modalidad || '—' }}</span>
+                    <a class="btn btn--ghost" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId]">Registrar nota</a>
+                  </div>
                 </article>
               }
             </div>
@@ -75,7 +78,7 @@
       <section class="panel">
         <div class="panel__header">
           <h3>Agenda de hoy</h3>
-          <button class="btn btn--ghost" type="button">Ver calendario</button>
+          <a class="btn btn--ghost" routerLink="/app/horario">Ver calendario</a>
         </div>
         <div class="panel__body">
           <div class="empty">Aún no hay horarios registrados. Puedes agregarlos cuando quieras.</div>
@@ -94,13 +97,25 @@
 
       <section class="panel">
         <div class="panel__header">
-          <h3>Progreso del periodo</h3>
+          <h3>Notas rápidas</h3>
         </div>
         <div class="panel__body">
-          <div class="progress">
-            <div class="progress__bar"></div>
-          </div>
-          <p class="muted">Completa horarios, notas y tareas para ver el avance real.</p>
+          @if (courses.length === 0) {
+            <div class="empty">Agrega cursos para registrar notas.</div>
+          }
+          @if (courses.length > 0) {
+            <div class="course-list">
+              @for (course of courses.slice(0, 3); track course.usuarioPeriodoCursoId) {
+                <article class="course-card">
+                  <div>
+                    <p class="course-code">{{ course.codigo }}</p>
+                    <p class="course-name">{{ course.nombre }}</p>
+                  </div>
+                  <a class="btn btn--ghost" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId]">Abrir</a>
+                </article>
+              }
+            </div>
+          }
         </div>
       </section>
 

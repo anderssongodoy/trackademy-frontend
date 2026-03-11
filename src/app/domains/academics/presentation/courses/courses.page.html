@@ -1,0 +1,52 @@
+﻿<main class="courses">
+  <header class="courses__hero">
+    <div>
+      <p class="eyebrow">Cursos activos</p>
+      <h1>Tu mapa académico del ciclo</h1>
+      <p class="subtitle">Accede rápido al detalle de cada curso y registra avances cuando quieras.</p>
+    </div>
+    <div class="hero__actions">
+      <a class="btn btn--ghost" routerLink="/app/horario">Ver horario</a>
+      <a class="btn btn--primary" routerLink="/app/onboarding">Actualizar cursos</a>
+    </div>
+  </header>
+
+  @if (isLoading) {
+    <div class="state state--loading">Cargando cursos...</div>
+  }
+
+  @if (loadError) {
+    <div class="state state--error">{{ loadError }}</div>
+  }
+
+  @if (!isLoading && !loadError) {
+    <section class="courses__controls">
+      <div>
+        <label class="label" for="course-search">Buscar curso</label>
+        <input id="course-search" type="text" [formControl]="searchControl" placeholder="Código o nombre" />
+      </div>
+      <div class="summary">
+        <span>{{ filteredCourses.length }} cursos</span>
+      </div>
+    </section>
+
+    <section class="courses__grid">
+      @if (filteredCourses.length === 0) {
+        <div class="empty">No encontramos cursos con ese filtro.</div>
+      }
+      @for (course of filteredCourses; track course.usuarioPeriodoCursoId) {
+        <article class="course-card">
+          <div>
+            <p class="course-code">{{ course.codigo }}</p>
+            <h3>{{ course.nombre }}</h3>
+            <p class="course-meta">Modalidad: {{ course.modalidad || '—' }}</p>
+          </div>
+          <div class="course-actions">
+            <span class="course-status">{{ course.activo ? 'Activo' : 'Inactivo' }}</span>
+            <a class="btn btn--ghost" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId]">Ver detalle</a>
+          </div>
+        </article>
+      }
+    </section>
+  }
+</main>

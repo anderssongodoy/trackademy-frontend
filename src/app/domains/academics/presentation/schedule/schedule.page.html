@@ -1,0 +1,47 @@
+﻿<main class="schedule">
+  <header class="schedule__hero">
+    <div>
+      <p class="eyebrow">Horario semanal</p>
+      <h1>Construye tu agenda en minutos</h1>
+      <p class="subtitle">Cuando registres horarios por curso, la vista semanal se llenará automáticamente.</p>
+    </div>
+    <div class="hero__actions">
+      <a class="btn btn--ghost" routerLink="/app/cursos">Ver cursos</a>
+      <a class="btn btn--primary" routerLink="/app/onboarding">Actualizar cursos</a>
+    </div>
+  </header>
+
+  @if (isLoading) {
+    <div class="state state--loading">Cargando horario...</div>
+  }
+
+  @if (loadError) {
+    <div class="state state--error">{{ loadError }}</div>
+  }
+
+  @if (!isLoading && !loadError) {
+    <section class="schedule__panel">
+      <h2>Vista semanal</h2>
+      <div class="empty">Aún no hay horarios registrados. Completa cada curso para activar el calendario.</div>
+    </section>
+
+    <section class="schedule__courses">
+      <h3> Cursos activos</h3>
+      <div class="course-grid">
+        @if (courses.length === 0) {
+          <div class="empty">No hay cursos activos para mostrar.</div>
+        }
+        @for (course of courses; track course.usuarioPeriodoCursoId) {
+          <article class="course-card">
+            <div>
+              <p class="course-code">{{ course.codigo }}</p>
+              <h4>{{ course.nombre }}</h4>
+              <p class="course-meta">{{ course.modalidad || '—' }}</p>
+            </div>
+            <a class="btn btn--ghost" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId]">Agregar horario</a>
+          </article>
+        }
+      </div>
+    </section>
+  }
+</main>

@@ -1,0 +1,51 @@
+﻿<main class="course-detail">
+  <header class="course-detail__hero">
+    <div>
+      <a class="back" routerLink="/app/cursos">Volver a cursos</a>
+      <h1>Detalle del curso</h1>
+      <p class="subtitle">Revisa la información disponible y registra avances cuando estén listos.</p>
+    </div>
+    <div class="hero__actions">
+      <a class="btn btn--ghost" routerLink="/app/dashboard">Ir al dashboard</a>
+    </div>
+  </header>
+
+  @if (isLoading) {
+    <div class="state state--loading">Cargando curso...</div>
+  }
+
+  @if (loadError) {
+    <div class="state state--error">{{ loadError }}</div>
+  }
+
+  @if (!isLoading && !loadError && course) {
+    <section class="course-card">
+      <div>
+        <p class="course-code">{{ course.codigo }}</p>
+        <h2>{{ course.nombre }}</h2>
+        <p class="course-meta">Modalidad: {{ course.modalidad || '—' }}</p>
+      </div>
+      <div class="course-tags">
+        <span class="tag">Estado: {{ course.activo ? 'Activo' : 'Inactivo' }}</span>
+        <span class="tag">Sección: {{ course.seccion || '—' }}</span>
+        <span class="tag">Profesor: {{ course.profesor || '—' }}</span>
+      </div>
+    </section>
+
+    <section class="panel-grid">
+      <article class="panel">
+        <h3>Evaluaciones</h3>
+        <p class="muted">Las evaluaciones aparecerán cuando estén sincronizadas con el sílabo.</p>
+      </article>
+      <article class="panel">
+        <h3>Notas</h3>
+        <p class="muted">Registra tus notas desde el dashboard o cuando tengas la evaluación lista.</p>
+      </article>
+      <article class="panel">
+        <h3>Horario</h3>
+        <p class="muted">Agrega el horario del curso para construir tu calendario automático.</p>
+        <a class="btn btn--primary" routerLink="/app/horario">Configurar horario</a>
+      </article>
+    </section>
+  }
+</main>
