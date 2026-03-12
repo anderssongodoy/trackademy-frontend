@@ -1,7 +1,7 @@
 ﻿import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subscription, forkJoin } from 'rxjs';
 
 import { CatalogCourse, CatalogUseCase } from '../../application/catalog-use-case';
@@ -20,6 +20,7 @@ interface DayOption {
 })
 export class CourseSchedulePage implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly formBuilder = inject(UntypedFormBuilder);
   private readonly meUseCase = inject(MeUseCase);
   private readonly catalogUseCase = inject(CatalogUseCase);
@@ -289,7 +290,10 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
     this.meUseCase.updateCourseSchedule(course.usuarioPeriodoCursoId, payload).subscribe({
       next: () => {
         this.isSaving.set(false);
-        this.saveSuccess.set('Horario guardado correctamente.');
+        this.saveSuccess.set('Horario guardado correctamente. Redirigiendo al horario general...');
+        setTimeout(() => {
+          void this.router.navigate(['/app/horario']);
+        }, 900);
       },
       error: (error) => {
         this.isSaving.set(false);
@@ -455,3 +459,4 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
     this.formRevision.update((value) => value + 1);
   }
 }
+
