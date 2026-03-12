@@ -3,14 +3,14 @@
     <div>
       <a class="back" routerLink="/app/cursos">Volver a cursos</a>
       <p class="eyebrow">Detalle del curso</p>
-      <h1>Un solo lugar para seguir tu progreso</h1>
-      <p class="subtitle">Revisa evaluaciones, mant�n tu horario al d�a y deja el registro listo para notas reales.</p>
+      <h1>Un solo lugar para seguir tu progreso académico</h1>
+      <p class="subtitle">Revisa el sílabo real, organiza tu horario y deja listo el camino para registrar notas por evaluación.</p>
     </div>
     <div class="hero__actions">
-      <a class="btn btn--ghost" routerLink="/app/dashboard">Ir al dashboard</a>
       @if (course) {
-        <a class="btn btn--primary" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Configurar horario</a>
+        <a class="btn btn--ghost" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Configurar horario</a>
       }
+      <a class="btn btn--primary" routerLink="/app/horario">Ver horario semanal</a>
     </div>
   </header>
 
@@ -22,40 +22,66 @@
     <div class="state state--error">{{ loadError }}</div>
   }
 
-  @if (!isLoading && !loadError && course) {
+  @if (!isLoading && !loadError && course && courseDetail) {
     <section class="course-card">
       <div class="course-card__copy">
         <p class="course-code">{{ course.codigo }}</p>
         <h2>{{ course.nombre }}</h2>
-        <p class="course-meta">Modalidad {{ course.modalidad || '�' }}</p>
+        <p class="course-meta">{{ course.modalidad || 'Modalidad no definida' }}</p>
       </div>
       <div class="course-tags">
         <span class="tag">{{ course.activo ? 'Activo' : 'Inactivo' }}</span>
-        <span class="tag">Secci�n {{ course.seccion || 'Pendiente' }}</span>
+        <span class="tag">Sección {{ course.seccion || 'Pendiente' }}</span>
         <span class="tag">Profesor {{ course.profesor || 'Pendiente' }}</span>
+        <span class="tag">Nota mínima {{ minimumPassingGrade }}</span>
       </div>
+    </section>
+
+    <section class="overview-grid">
+      <article class="overview-card">
+        <span class="label">Versión</span>
+        <strong>{{ courseDetail.version || '—' }}</strong>
+      </article>
+      <article class="overview-card">
+        <span class="label">Periodo del sílabo</span>
+        <strong>{{ courseDetail.periodoTexto || '—' }}</strong>
+      </article>
+      <article class="overview-card">
+        <span class="label">Evaluaciones</span>
+        <strong>{{ pendingEvaluationsCount }}</strong>
+      </article>
+      <article class="overview-card">
+        <span class="label">Bloques reales</span>
+        <strong>{{ configuredBlocksCount }}</strong>
+      </article>
     </section>
 
     <section class="panel-grid">
       <article class="panel panel--wide">
         <div class="panel__header">
           <h3>Evaluaciones sincronizadas</h3>
-          <span>{{ evaluations.length }} items</span>
+          <span>{{ evaluations.length }} eventos</span>
         </div>
+
         @if (evaluations.length === 0) {
-          <p class="muted">Las evaluaciones aparecer�n cuando el s�labo del curso tenga estructura utilizable.</p>
+          <div class="empty-card">
+            <p>No encontramos evaluaciones vinculadas a este curso todavía.</p>
+          </div>
         }
+
         @if (evaluations.length > 0) {
           <div class="evaluation-list">
-            @for (item of evaluations; track item.evaluacionCodigo) {
+            @for (item of evaluations; track item.evaluacionCodigo + (item.semana ?? 0)) {
               <div class="evaluation-row">
                 <div>
                   <p class="evaluation-code">{{ item.evaluacionCodigo }}</p>
-                  <p class="evaluation-desc">{{ item.descripcion || item.tipo || 'Evaluaci�n' }}</p>
+                  <p class="evaluation-desc">{{ item.descripcion || item.tipo || 'Evaluación' }}</p>
+                  <p class="evaluation-status">Nota pendiente</p>
                 </div>
                 <div class="evaluation-meta">
-                  <span>Semana {{ item.semana ?? '�' }}</span>
-                  <span>{{ item.fechaEstimada || 'Fecha por definir' }}</span>
+                  <span>Semana {{ item.semana ?? '—' }}</span>
+                  <span>{{ item.fechaEstimada || 'Fecha por estimar' }}</span>
+                  <button class="inline-button" type="button" disabled>Registrar nota</button>
                 </div>
               </div>
             }
@@ -63,15 +89,99 @@
         }
       </article>
 
-      <article class="panel">
-        <h3>Notas</h3>
-        <p class="muted">La siguiente iteraci�n conectar� el registro de nota por evaluaci�n. Este curso ya qued� listo para esa integraci�n.</p>
+      <article class="panel panel--tall">
+        <h3>Notas y cálculo</h3>
+        <p class="muted">La próxima iteración conectará el registro real de notas por evaluación y la calculadora de promedio del curso.</p>
+        <div class="note-card">
+          <span>Nota mínima aprobatoria</span>
+          <strong>{{ minimumPassingGrade }}</strong>
+        </div>
+        <div class="note-card note-card--soft">
+          <span>Estado actual</span>
+          <strong>Pendiente</strong>
+        </div>
       </article>
 
-      <article class="panel accent-panel">
-        <h3>Horario</h3>
-        <p class="muted">Cuando definas tus bloques, las evaluaciones podr�n ubicarse mejor dentro de la semana real.</p>
-        <a class="btn btn--primary" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Editar horario</a>
+      <article class="panel panel--wide">
+        <div class="panel__header">
+          <h3>Horario real del curso</h3>
+          <a class="inline-link" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Editar bloques</a>
+        </div>
+
+        @if (scheduleEntries.length === 0) {
+          <div class="empty-card empty-card--cta">
+            <div>
+              <strong>Aún no registraste bloques de clase.</strong>
+              <p>Cuando definas tu horario real, las evaluaciones podrán ubicarse mejor dentro de cada semana.</p>
+            </div>
+            <a class="btn btn--primary" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Crear horario</a>
+          </div>
+        }
+
+        @if (scheduleEntries.length > 0) {
+          <div class="schedule-list">
+            @for (entry of scheduleEntries; track entry.bloqueNro) {
+              <div class="schedule-item">
+                <div>
+                  <p class="schedule-title">{{ formatBlock(entry) }}</p>
+                  <p class="muted">{{ entry.tipoSesion || 'Clase' }}</p>
+                </div>
+                <div class="schedule-meta">
+                  <span>{{ entry.ubicacion || 'Ubicación pendiente' }}</span>
+                  <span>{{ entry.urlVirtual || 'Sin enlace virtual' }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </article>
+
+      <article class="panel panel--wide">
+        <div class="panel__header">
+          <h3>Base del sílabo</h3>
+          <span>{{ courseDetail.anio || '—' }}</span>
+        </div>
+        <div class="content-grid">
+          <div class="content-card">
+            <h4>Sumilla</h4>
+            <p>{{ courseDetail.sumilla || 'No disponible.' }}</p>
+          </div>
+          <div class="content-card">
+            <h4>Logro general</h4>
+            <p>{{ courseDetail.logroGeneral || 'No disponible.' }}</p>
+          </div>
+          <div class="content-card">
+            <h4>Metodología</h4>
+            <p>{{ courseDetail.metodologia || 'No disponible.' }}</p>
+          </div>
+          <div class="content-card">
+            <h4>Fundamentación</h4>
+            <p>{{ courseDetail.fundamentacion || 'No disponible.' }}</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel panel--wide">
+        <div class="panel__header">
+          <h3>Unidades del curso</h3>
+          <span>{{ courseDetail.unidades.length }} unidades</span>
+        </div>
+        <div class="units-list">
+          @for (unit of courseDetail.unidades; track unit.nro) {
+            <div class="unit-card">
+              <p class="unit-title">Unidad {{ unit.nro }} · {{ unit.titulo }}</p>
+              <p class="unit-meta">Semanas {{ unit.semanaInicio ?? '—' }} a {{ unit.semanaFin ?? '—' }}</p>
+              <p>{{ unit.logroEspecifico || 'Sin logro específico disponible.' }}</p>
+              @if (unit.temario.length > 0) {
+                <ul>
+                  @for (topic of unit.temario.slice(0, 5); track topic) {
+                    <li>{{ topic }}</li>
+                  }
+                </ul>
+              }
+            </div>
+          }
+        </div>
       </article>
     </section>
   }

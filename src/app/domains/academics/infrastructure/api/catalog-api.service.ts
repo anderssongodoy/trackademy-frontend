@@ -35,6 +35,37 @@ export interface CatalogCourse {
   modalidad: string;
 }
 
+export interface CatalogCourseUnit {
+  nro: number;
+  titulo: string;
+  semanaInicio: number | null;
+  semanaFin: number | null;
+  logroEspecifico: string | null;
+  temario: string[];
+}
+
+export interface CatalogCourseEvaluation {
+  codigo: string;
+  tipo: string | null;
+  descripcion: string | null;
+  porcentaje: number | null;
+  semana: number | null;
+  observacion: string | null;
+}
+
+export interface CatalogCourseDetail {
+  curso: CatalogCourse;
+  version: string | null;
+  anio: number | null;
+  periodoTexto: string | null;
+  sumilla: string | null;
+  fundamentacion: string | null;
+  metodologia: string | null;
+  logroGeneral: string | null;
+  unidades: CatalogCourseUnit[];
+  evaluaciones: CatalogCourseEvaluation[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class CatalogApiService {
   private readonly http = inject(HttpClient);
@@ -78,5 +109,9 @@ export class CatalogApiService {
 
   getCourseByCode(codigo: string): Observable<CatalogCourse> {
     return this.http.get<CatalogCourse>(`${this.env.apiBaseUrl}/api/v1/catalog/cursos/${codigo}`);
+  }
+
+  getCourseDetailByCode(codigo: string): Observable<CatalogCourseDetail> {
+    return this.http.get<CatalogCourseDetail>(`${this.env.apiBaseUrl}/api/v1/catalog/cursos/${codigo}/detalle`);
   }
 }

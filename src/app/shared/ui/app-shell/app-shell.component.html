@@ -4,27 +4,27 @@
       <span class="brand__mark">T</span>
       <div class="brand__text">
         <p class="brand__title">Trackademy</p>
-        <p class="brand__subtitle">Panel académico</p>
+        <p class="brand__subtitle">Panel acadÃ©mico</p>
       </div>
     </div>
 
     <nav class="sidebar__nav">
-      <a class="nav-link" routerLink="/app/dashboard" routerLinkActive="is-active" data-short="D" (click)="closeMobile()"><span>Dashboard</span></a>
-      <a class="nav-link" routerLink="/app/cursos" routerLinkActive="is-active" data-short="C" (click)="closeMobile()"><span>Cursos</span></a>
-      <a class="nav-link" routerLink="/app/horario" routerLinkActive="is-active" data-short="H" (click)="closeMobile()"><span>Horario</span></a>
+      <a class="nav-link" routerLink="/app/dashboard" routerLinkActive="is-active" data-short="D" title="Dashboard" (click)="closeMobile()"><span>Dashboard</span></a>
+      <a class="nav-link" routerLink="/app/cursos" routerLinkActive="is-active" data-short="C" title="Cursos" (click)="closeMobile()"><span>Cursos</span></a>
+      <a class="nav-link" routerLink="/app/horario" routerLinkActive="is-active" data-short="H" title="Horario" (click)="closeMobile()"><span>Horario</span></a>
     </nav>
 
     <div class="sidebar__footer">
-      <button class="nav-cta" type="button" (click)="signOut()" aria-label="Cerrar sesión">
-        <span class="nav-cta__icon">X</span>
-        <span class="nav-cta__label">Cerrar sesión</span>
+      <button class="nav-cta" type="button" (click)="signOut()" aria-label="Cerrar sesiÃ³n" title="Cerrar sesiÃ³n">
+        <span class="nav-cta__icon">â‡ </span>
+        <span class="nav-cta__label">Cerrar sesiÃ³n</span>
       </button>
     </div>
   </aside>
 
   <div class="app-shell__main">
     <header class="topbar">
-      <button class="icon-button" type="button" (click)="toggleMenu()" aria-label="Abrir menú">
+      <button class="icon-button" type="button" (click)="toggleMenu()" aria-label="Abrir menÃº">
         <span></span>
         <span></span>
         <span></span>
@@ -35,7 +35,7 @@
       </div>
       <div class="topbar__actions">
         <a class="topbar__link" routerLink="/app/horario">Ver horario</a>
-        <button class="topbar__secondary" type="button" (click)="signOut()">Cerrar sesión</button>
+        <button class="topbar__secondary" type="button" (click)="signOut()">Cerrar sesiÃ³n</button>
       </div>
     </header>
     <div class="app-shell__content">

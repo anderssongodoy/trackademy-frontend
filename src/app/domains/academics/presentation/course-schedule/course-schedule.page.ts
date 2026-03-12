@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
 import { CatalogCourse, CatalogUseCase } from '../../application/catalog-use-case';
@@ -12,6 +12,12 @@ interface DayOption {
   label: string;
 }
 
+interface PreviewBlock {
+  title: string;
+  time: string;
+  type: string;
+}
+
 @Component({
   selector: 'app-course-schedule-page',
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
@@ -20,7 +26,6 @@ interface DayOption {
 })
 export class CourseSchedulePage implements OnInit {
   private readonly route = inject(ActivatedRoute);
-  readonly router = inject(Router);
   private readonly formBuilder = inject(FormBuilder);
   private readonly meUseCase = inject(MeUseCase);
   private readonly catalogUseCase = inject(CatalogUseCase);
@@ -28,14 +33,13 @@ export class CourseSchedulePage implements OnInit {
   readonly dayOptions: DayOption[] = [
     { value: 1, label: 'Lunes' },
     { value: 2, label: 'Martes' },
-    { value: 3, label: 'MiÈrcoles' },
+    { value: 3, label: 'Mi√©rcoles' },
     { value: 4, label: 'Jueves' },
     { value: 5, label: 'Viernes' },
-    { value: 6, label: 'S·bado' },
-    { value: 7, label: 'Domingo' }
+    { value: 6, label: 'S√°bado' }
   ];
 
-  readonly sessionTypes = ['TeorÌa', 'Pr·ctica', 'Laboratorio', 'AsesorÌa'];
+  readonly sessionTypes = ['Teor√≠a', 'Pr√°ctica', 'Laboratorio', 'Asesor√≠a'];
   readonly timeOptions = this.buildTimeOptions();
 
   readonly form = this.formBuilder.group({
@@ -55,6 +59,13 @@ export class CourseSchedulePage implements OnInit {
     this.blockControls.controls.reduce((total, control) => total + Number(control.get('bloques')?.value ?? 0), 0)
   );
   readonly remainingBlocks = computed(() => Math.max(this.totalBlocks() - this.assignedBlocks(), 0));
+  readonly completionPercent = computed(() => {
+    const total = this.totalBlocks();
+    if (!total) {
+      return 0;
+    }
+    return Math.min(Math.round((this.assignedBlocks() / total) * 100), 100);
+  });
 
   get blockControls(): FormArray {
     return this.form.controls.bloques as FormArray;
@@ -84,32 +95,55 @@ export class CourseSchedulePage implements OnInit {
         this.catalogUseCase.getCourseByCode(course.codigo).subscribe({
           next: (catalogCourse) => {
             this.catalogCourse.set(catalogCourse);
-            this.hydrateSchedule(course, schedules.filter((item) => item.usuarioPeriodoCursoId === id));
+            this.hydrateSchedule(id, schedules);
             this.isLoading.set(false);
           },
           error: () => {
-            this.hydrateSchedule(course, schedules.filter((item) => item.usuarioPeriodoCursoId === id));
+            this.hydrateSchedule(id, schedules);
             this.isLoading.set(false);
           }
         });
       },
       error: () => {
         this.isLoading.set(false);
-        this.loadError.set('No se pudo cargar la configuraciÛn del curso.');
+        this.loadError.set('No se pudo cargar la configuraci√≥n del curso.');
       }
     });
   }
 
-  addBlock(): void {
-    const start = this.remainingBlocks() > 0 ? this.remainingBlocks() : 1;
-    this.blockControls.push(this.createBlockGroup({ bloques: Math.min(start, 2) }));
+  addBlock(day = 1): void {
+    this.blockControls.push(this.createBlockGroup({ diaSemana: day }));
   }
 
   removeBlock(index: number): void {
     this.blockControls.removeAt(index);
-    if (this.blockControls.length === 0) {
-      this.addBlock();
-    }
+  }
+
+  blockIndexesForDay(day: number): number[] {
+    return this.blockControls.controls
+      .map((control, index) => ({ control, index }))
+      .filter((item) => Number(item.control.get('diaSemana')?.value) === day)
+      .map((item) => item.index);
+  }
+
+  blocksLabelForDay(day: number): string {
+    const total = this.blockIndexesForDay(day)
+      .reduce((sum, index) => sum + Number(this.blockControls.at(index).get('bloques')?.value ?? 0), 0);
+
+    return total === 0 ? 'Sin bloques' : `${total} bloque${total === 1 ? '' : 's'} asignados`;
+  }
+
+  previewForDay(day: number): PreviewBlock[] {
+    return this.blockIndexesForDay(day).map((index) => {
+      const control = this.blockControls.at(index);
+      const start = control.get('horaInicio')?.value as string;
+      const blocks = Number(control.get('bloques')?.value ?? 1);
+      return {
+        title: `Bloque ${index + 1}`,
+        time: `${start} - ${this.calculateEndTime(start, blocks)}`,
+        type: (control.get('tipoSesion')?.value as string) || 'Clase'
+      };
+    });
   }
 
   availableBlockOptions(index: number): number[] {
@@ -134,7 +168,7 @@ export class CourseSchedulePage implements OnInit {
     if (!course) {
       return;
     }
-    this.router.navigate(['/app/cursos', course.usuarioPeriodoCursoId]);
+    history.length > 1 ? history.back() : location.assign(`/app/cursos/${course.usuarioPeriodoCursoId}`);
   }
 
   save(): void {
@@ -147,7 +181,7 @@ export class CourseSchedulePage implements OnInit {
     this.saveSuccess.set('');
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.saveError.set('Completa todos los bloques con dÌa y hora v·lida.');
+      this.saveError.set('Completa los bloques con d√≠a y hora v√°lidos.');
       return;
     }
 
@@ -174,21 +208,23 @@ export class CourseSchedulePage implements OnInit {
     });
   }
 
-  private hydrateSchedule(course: MyCourse, schedules: MyScheduleEntry[]): void {
+  private hydrateSchedule(usuarioPeriodoCursoId: number, schedules: MyScheduleEntry[]): void {
     this.blockControls.clear();
-    if (schedules.length === 0) {
-      this.blockControls.push(this.createBlockGroup());
+    const selected = schedules
+      .filter((item) => item.usuarioPeriodoCursoId === usuarioPeriodoCursoId)
+      .sort((a, b) => (a.diaSemana ?? 0) - (b.diaSemana ?? 0) || (a.bloqueNro ?? 0) - (b.bloqueNro ?? 0));
+
+    if (selected.length === 0) {
+      this.addBlock(1);
       return;
     }
 
-    const sorted = [...schedules].sort((a, b) => (a.bloqueNro ?? 0) - (b.bloqueNro ?? 0));
-    sorted.forEach((entry) => {
-      const blocks = this.blocksBetween(entry.horaInicio, entry.horaFin, entry.duracionMin ?? 45);
+    selected.forEach((entry) => {
       this.blockControls.push(this.createBlockGroup({
         diaSemana: entry.diaSemana ?? 1,
         horaInicio: entry.horaInicio ?? '07:00',
-        bloques: blocks,
-        tipoSesion: entry.tipoSesion ?? '',
+        bloques: this.blocksBetween(entry.horaInicio, entry.horaFin, entry.duracionMin ?? 45),
+        tipoSesion: entry.tipoSesion ?? 'Teor√≠a',
         ubicacion: entry.ubicacion ?? '',
         urlVirtual: entry.urlVirtual ?? ''
       }));
@@ -197,10 +233,10 @@ export class CourseSchedulePage implements OnInit {
 
   private createBlockGroup(value?: Partial<{ diaSemana: number; horaInicio: string; bloques: number; tipoSesion: string; ubicacion: string; urlVirtual: string }>) {
     return this.formBuilder.group({
-      diaSemana: [value?.diaSemana ?? 1, [Validators.required, Validators.min(1), Validators.max(7)]],
+      diaSemana: [value?.diaSemana ?? 1, [Validators.required, Validators.min(1), Validators.max(6)]],
       horaInicio: [value?.horaInicio ?? '07:00', Validators.required],
       bloques: [value?.bloques ?? 1, [Validators.required, Validators.min(1)]],
-      tipoSesion: [value?.tipoSesion ?? 'TeorÌa'],
+      tipoSesion: [value?.tipoSesion ?? 'Teor√≠a'],
       ubicacion: [value?.ubicacion ?? ''],
       urlVirtual: [value?.urlVirtual ?? '']
     });
@@ -254,4 +290,3 @@ export class CourseSchedulePage implements OnInit {
     return trimmed ? trimmed : null;
   }
 }
-

@@ -24,7 +24,7 @@
 }
 
 .app-shell--collapsed .sidebar {
-  width: 92px;
+  width: 96px;
   padding: 28px 14px;
 }
 
@@ -32,7 +32,7 @@
   display: flex;
   gap: 14px;
   align-items: center;
-  min-height: 42px;
+  min-height: 44px;
 }
 
 .app-shell--collapsed .sidebar__brand {
@@ -41,13 +41,18 @@
 
 .brand__mark {
   width: 42px;
+  min-width: 42px;
   height: 42px;
+  min-height: 42px;
   border-radius: 14px;
   display: grid;
   place-items: center;
   background: linear-gradient(135deg, #22d3ee, #6366f1);
-  font-weight: 700;
+  font-weight: 800;
+  font-size: 16px;
+  line-height: 1;
   flex: 0 0 auto;
+  overflow: hidden;
 }
 
 .brand__text {
@@ -85,22 +90,24 @@
   border-radius: 14px;
   color: rgba(248, 250, 252, 0.82);
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 700;
   transition: background 0.2s ease, color 0.2s ease;
   display: flex;
   align-items: center;
   gap: 10px;
+  white-space: nowrap;
 }
 
 .nav-link::before {
   content: attr(data-short);
   width: 34px;
   height: 34px;
+  min-width: 34px;
   border-radius: 12px;
   display: grid;
   place-items: center;
   background: rgba(255, 255, 255, 0.08);
-  font-weight: 700;
+  font-weight: 800;
   flex: 0 0 auto;
 }
 
@@ -125,6 +132,7 @@
 
 .nav-cta {
   width: 100%;
+  min-height: 44px;
   padding: 10px 14px;
   border-radius: 14px;
   background: #f8fafc;
@@ -136,15 +144,20 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
+  white-space: nowrap;
 }
 
 .nav-cta__icon {
   display: none;
+  font-size: 16px;
+  line-height: 1;
 }
 
 .app-shell--collapsed .nav-cta {
-  width: 100%;
-  padding: 10px 0;
+  width: 44px;
+  margin: 0 auto;
+  padding: 0;
+  border-radius: 14px;
 }
 
 .app-shell--collapsed .nav-cta__label {
@@ -215,7 +228,7 @@
 .topbar__link {
   color: #0f172a;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .topbar__secondary {
@@ -224,7 +237,7 @@
   background: #fff;
   border: 1px solid rgba(148, 163, 184, 0.4);
   color: #0f172a;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .app-shell__content {
@@ -264,6 +277,12 @@
     opacity: 1;
     width: auto;
     transform: none;
+  }
+
+  .app-shell--collapsed .nav-cta {
+    width: 100%;
+    margin: 0;
+    padding: 10px 14px;
   }
 
   .app-shell--collapsed .nav-cta__icon {

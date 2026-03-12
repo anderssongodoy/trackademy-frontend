@@ -3,11 +3,11 @@
     <div>
       <a class="back" [routerLink]="['/app/cursos', course()?.usuarioPeriodoCursoId]">Volver al curso</a>
       <p class="eyebrow">Horario del curso</p>
-      <h1>Configura bloques reales de clase</h1>
-      <p class="subtitle">Registra solo los bloques que ya conoces. El resto lo podrás ajustar más adelante.</p>
+      <h1>Arma tu semana como realmente llevas la clase</h1>
+      <p class="subtitle">Distribuye bloques de 45 minutos por día. Si hoy solo conoces una parte del horario, puedes guardar eso y completar el resto después.</p>
     </div>
     <div class="hero__actions">
-      <a class="btn btn--ghost" routerLink="/app/horario">Ver horario semanal</a>
+      <a class="btn btn--ghost" routerLink="/app/horario">Ver horario global</a>
     </div>
   </header>
 
@@ -28,8 +28,8 @@
       </div>
       <div class="summary-grid">
         <div>
-          <span class="label">Horas semanales</span>
-          <strong>{{ catalogCourse()?.horasSemanales ?? '—' }}</strong>
+          <span class="label">Bloques esperados</span>
+          <strong>{{ totalBlocks() }}</strong>
         </div>
         <div>
           <span class="label">Bloques asignados</span>
@@ -42,71 +42,129 @@
       </div>
     </section>
 
-    <section class="editor-card" [formGroup]="form">
-      <div class="editor-card__header">
-        <div>
-          <h3>Bloques de clase</h3>
-          <p>Usamos bloques de 45 minutos desde las 07:00. Puedes dejar un solo bloque hoy y volver luego.</p>
+    <section class="planner-layout">
+      <section class="editor-card" [formGroup]="form">
+        <div class="editor-card__header">
+          <div>
+            <h3>Semana editable</h3>
+            <p>Agrega bloques directamente en el día correcto. Cada curso puede repartirse entre varios días sin volver a empezar.</p>
+          </div>
+          <div class="planner-chip">
+            <span>Avance</span>
+            <strong>{{ completionPercent() }}%</strong>
+          </div>
         </div>
-        <button class="btn btn--ghost" type="button" (click)="addBlock()">Agregar bloque</button>
-      </div>
 
-      <div class="block-list" formArrayName="bloques">
-        @for (block of blockControls.controls; track $index) {
-          <article class="block-card" [formGroupName]="$index">
-            <div class="block-card__top">
-              <strong>Bloque {{ $index + 1 }}</strong>
-              <button class="link-button" type="button" (click)="removeBlock($index)">Quitar</button>
-            </div>
-            <div class="block-grid">
-              <label>
-                <span>Día</span>
-                <select formControlName="diaSemana">
-                  @for (day of dayOptions; track day.value) {
-                    <option [value]="day.value">{{ day.label }}</option>
+        <div class="week-grid" formArrayName="bloques">
+          @for (day of dayOptions; track day.value) {
+            <section class="day-column">
+              <header class="day-column__header">
+                <div>
+                  <strong>{{ day.label }}</strong>
+                  <span>{{ blocksLabelForDay(day.value) }}</span>
+                </div>
+                <button class="mini-button" type="button" (click)="addBlock(day.value)">Agregar</button>
+              </header>
+
+              @if (blockIndexesForDay(day.value).length === 0) {
+                <div class="day-empty">
+                  <p>Sin bloques todavía.</p>
+                  <button class="day-empty__button" type="button" (click)="addBlock(day.value)">Crear primer bloque</button>
+                </div>
+              }
+
+              @for (index of blockIndexesForDay(day.value); track index) {
+                <article class="block-card" [formGroupName]="index">
+                  <div class="block-card__top">
+                    <strong>Bloque {{ index + 1 }}</strong>
+                    <button class="link-button" type="button" (click)="removeBlock(index)">Quitar</button>
+                  </div>
+
+                  <div class="block-grid">
+                    <label>
+                      <span>Inicio</span>
+                      <select formControlName="horaInicio">
+                        @for (time of timeOptions; track time) {
+                          <option [value]="time">{{ time }}</option>
+                        }
+                      </select>
+                    </label>
+                    <label>
+                      <span>Bloques</span>
+                      <select formControlName="bloques">
+                        @for (option of availableBlockOptions(index); track option) {
+                          <option [value]="option">{{ option }}</option>
+                        }
+                      </select>
+                    </label>
+                    <label>
+                      <span>Fin</span>
+                      <input type="text" [value]="endTimeFor(index)" readonly />
+                    </label>
+                    <label>
+                      <span>Tipo</span>
+                      <select formControlName="tipoSesion">
+                        @for (type of sessionTypes; track type) {
+                          <option [value]="type">{{ type }}</option>
+                        }
+                      </select>
+                    </label>
+                    <label>
+                      <span>Ubicación</span>
+                      <input type="text" formControlName="ubicacion" placeholder="Aula o laboratorio" />
+                    </label>
+                    <label>
+                      <span>URL virtual</span>
+                      <input type="text" formControlName="urlVirtual" placeholder="https://..." />
+                    </label>
+                  </div>
+                </article>
+              }
+            </section>
+          }
+        </div>
+      </section>
+
+      <aside class="preview-card">
+        <div class="preview-card__header">
+          <div>
+            <h3>Lectura rápida</h3>
+            <p>Esto resume cómo quedará la semana antes de guardar.</p>
+          </div>
+        </div>
+
+        <div class="progress-card">
+          <span>Progreso del horario</span>
+          <strong>{{ assignedBlocks() }} / {{ totalBlocks() || '—' }}</strong>
+          <div class="progress-bar">
+            <div class="progress-bar__fill" [style.width.%]="completionPercent()"></div>
+          </div>
+        </div>
+
+        <div class="preview-grid">
+          @for (day of dayOptions; track day.value) {
+            <section class="preview-day">
+              <header>
+                <strong>{{ day.label }}</strong>
+                <span>{{ blocksLabelForDay(day.value) }}</span>
+              </header>
+              @if (previewForDay(day.value).length === 0) {
+                <p>Sin clases registradas.</p>
+              }
+              @if (previewForDay(day.value).length > 0) {
+                <div class="preview-list">
+                  @for (item of previewForDay(day.value); track item.title + item.time) {
+                    <article class="preview-item">
+                      <strong>{{ item.time }}</strong>
+                      <span>{{ item.type }}</span>
+                    </article>
                   }
-                </select>
-              </label>
-              <label>
-                <span>Inicio</span>
-                <select formControlName="horaInicio">
-                  @for (time of timeOptions; track time) {
-                    <option [value]="time">{{ time }}</option>
-                  }
-                </select>
-              </label>
-              <label>
-                <span>Bloques</span>
-                <select formControlName="bloques">
-                  @for (option of availableBlockOptions($index); track option) {
-                    <option [value]="option">{{ option }}</option>
-                  }
-                </select>
-              </label>
-              <label>
-                <span>Fin</span>
-                <input type="text" [value]="endTimeFor($index)" readonly />
-              </label>
-              <label>
-                <span>Tipo</span>
-                <select formControlName="tipoSesion">
-                  @for (type of sessionTypes; track type) {
-                    <option [value]="type">{{ type }}</option>
-                  }
-                </select>
-              </label>
-              <label>
-                <span>Ubicación</span>
-                <input type="text" formControlName="ubicacion" placeholder="Aula o laboratorio" />
-              </label>
-              <label class="block-grid__full">
-                <span>URL virtual</span>
-                <input type="text" formControlName="urlVirtual" placeholder="https://..." />
-              </label>
-            </div>
-          </article>
-        }
-      </div>
+                </div>
+              }
+            </section>
+          }
+        </div>
+      </aside>
     </section>
 
     @if (saveError()) {

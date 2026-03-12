@@ -6,6 +6,7 @@ import {
   CatalogCampus,
   CatalogCareer,
   CatalogCourse,
+  CatalogCourseDetail,
   CatalogPeriod
 } from '../infrastructure/api/catalog-api.service';
 
@@ -32,6 +33,10 @@ export class CatalogUseCase {
   getCourseByCode(codigo: string): Observable<CatalogCourse> {
     return this.api.getCourseByCode(codigo);
   }
+
+  getCourseDetailByCode(codigo: string): Observable<CatalogCourseDetail> {
+    return this.api.getCourseDetailByCode(codigo);
+  }
 }
 
-export type { CatalogCampus, CatalogCareer, CatalogCourse, CatalogPeriod };
+export type { CatalogCampus, CatalogCareer, CatalogCourse, CatalogCourseDetail, CatalogPeriod };
