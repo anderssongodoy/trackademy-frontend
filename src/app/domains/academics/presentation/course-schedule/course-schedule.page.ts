@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+﻿import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
@@ -138,10 +138,14 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
       this.addPlan(day);
     }
 
-    if (this.currentStep() > 1 && this.selectedDays().length === 0) {
+    if (this.selectedDays().length === 0) {
       this.currentStep.set(1);
+      this.bumpRevision();
+      return;
     }
 
+    this.rebalanceBlocks();
+    this.currentStep.set(1);
     this.bumpRevision();
   }
 
@@ -149,44 +153,7 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
     if (step === 2 && this.selectedDays().length === 0) {
       return;
     }
-
-    if (step === 3 && !this.canAdvanceToTimeStep()) {
-      return;
-    }
-
     this.currentStep.set(step);
-  }
-
-  canAdvanceToTimeStep(): boolean {
-    return this.selectedDays().length > 0 && this.missingBlocks() === 0 && this.extraBlocks() === 0;
-  }
-
-  applySuggestedDistribution(): void {
-    const days = this.selectedDays();
-    const total = this.totalBlocks();
-
-    if (days.length === 0 || total === 0) {
-      return;
-    }
-
-    const base = Math.floor(total / days.length);
-    let remainder = total % days.length;
-
-    days.forEach((day) => {
-      const plan = this.getPlan(day);
-      if (!plan) {
-        return;
-      }
-
-      const blocks = base + (remainder > 0 ? 1 : 0);
-      if (remainder > 0) {
-        remainder -= 1;
-      }
-
-      plan.get('bloques')?.setValue(blocks);
-    });
-
-    this.bumpRevision();
   }
 
   increaseBlocks(day: number): void {
@@ -243,11 +210,32 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
     return `${blocks} bloque${blocks === 1 ? '' : 's'} de 45 min`;
   }
 
-  exampleRange(blocks: number): string {
-    if (blocks <= 0) {
-      return '--:-- a --:--';
+  durationLabel(day: number): string {
+    const plan = this.getPlan(day);
+    const blocks = Number(plan?.get('bloques')?.value ?? 0);
+    const minutes = blocks * 45;
+    if (!minutes) {
+      return 'Sin duracion definida';
     }
-    return `20:15 a ${this.calculateEndTime('20:15', blocks)}`;
+    return `${minutes} min en total`;
+  }
+
+  optionalSummary(day: number): string {
+    const plan = this.getPlan(day);
+    if (!plan) {
+      return 'Sin datos extra';
+    }
+
+    const type = this.cleanText(plan.get('tipoSesion')?.value as string);
+    const location = this.cleanText(plan.get('ubicacion')?.value as string);
+    const url = this.cleanText(plan.get('urlVirtual')?.value as string);
+
+    const parts = [type, location, url ? 'URL lista' : null].filter(Boolean);
+    return parts.length ? parts.join(' · ') : 'Sin datos extra';
+  }
+
+  resetSuggestedBlocks(): void {
+    this.rebalanceBlocks();
   }
 
   goBack(): void {
@@ -273,14 +261,14 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.canAdvanceToTimeStep()) {
-      this.saveError.set('La distribucion de bloques debe coincidir exactamente con las horas semanales del curso.');
+    if (this.missingBlocks() > 0 || this.extraBlocks() > 0) {
+      this.saveError.set('Los bloques asignados deben coincidir con las horas semanales del curso.');
       return;
     }
 
     if (this.form.invalid) {
       this.planControls.markAllAsTouched();
-      this.saveError.set('Completa la hora de inicio y los datos visibles antes de guardar.');
+      this.saveError.set('Completa la hora de inicio en todos los dias seleccionados antes de guardar.');
       return;
     }
 
@@ -347,13 +335,13 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
         diaSemana: day,
         bloques: Math.max(totalBlocks, 1),
         horaInicio: first?.horaInicio ?? '07:00',
-        tipoSesion: first?.tipoSesion ?? 'Teoria',
+        tipoSesion: first?.tipoSesion ?? '',
         ubicacion: first?.ubicacion ?? '',
         urlVirtual: first?.urlVirtual ?? ''
       }));
     });
 
-    this.currentStep.set(this.canAdvanceToTimeStep() ? 3 : 2);
+    this.currentStep.set(2);
     this.bumpRevision();
   }
 
@@ -379,12 +367,40 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
     this.bumpRevision();
   }
 
+  private rebalanceBlocks(): void {
+    const days = this.selectedDays();
+    const total = this.totalBlocks();
+
+    if (days.length === 0 || total === 0) {
+      return;
+    }
+
+    const base = Math.floor(total / days.length);
+    let remainder = total % days.length;
+
+    days.forEach((day) => {
+      const plan = this.getPlan(day);
+      if (!plan) {
+        return;
+      }
+
+      const blocks = base + (remainder > 0 ? 1 : 0);
+      if (remainder > 0) {
+        remainder -= 1;
+      }
+
+      plan.get('bloques')?.setValue(Math.max(blocks, 1));
+    });
+
+    this.bumpRevision();
+  }
+
   private createPlanGroup(value?: Partial<{ diaSemana: number; bloques: number; horaInicio: string; tipoSesion: string; ubicacion: string; urlVirtual: string }>): UntypedFormGroup {
     return this.formBuilder.group({
       diaSemana: [value?.diaSemana ?? 1, [Validators.required, Validators.min(1), Validators.max(7)]],
       bloques: [value?.bloques ?? 1, [Validators.required, Validators.min(1)]],
       horaInicio: [value?.horaInicio ?? '07:00', Validators.required],
-      tipoSesion: [value?.tipoSesion ?? 'Teoria'],
+      tipoSesion: [value?.tipoSesion ?? ''],
       ubicacion: [value?.ubicacion ?? ''],
       urlVirtual: [value?.urlVirtual ?? '']
     });
@@ -393,9 +409,9 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
   private buildTimeOptions(): string[] {
     const options: string[] = [];
     let totalMinutes = 7 * 60;
-    while (totalMinutes <= 23 * 60 + 15) {
+    while (totalMinutes <= 23 * 60 + 45) {
       options.push(this.minutesToTime(totalMinutes));
-      totalMinutes += 45;
+      totalMinutes += 15;
     }
     return options;
   }
@@ -424,8 +440,9 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
   }
 
   private minutesToTime(totalMinutes: number): string {
-    const hours = Math.floor(totalMinutes / 60);
-    const minutes = totalMinutes % 60;
+    const safeMinutes = ((totalMinutes % (24 * 60)) + (24 * 60)) % (24 * 60);
+    const hours = Math.floor(safeMinutes / 60);
+    const minutes = safeMinutes % 60;
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
   }
 

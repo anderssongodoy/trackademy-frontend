@@ -1,4 +1,4 @@
-.course-schedule {
+﻿.course-schedule {
   display: grid;
   gap: 24px;
 }
@@ -38,8 +38,12 @@ h1 {
 .preview-card__header p,
 .step-panel__header p,
 .preview-day p,
-.distribution-card p,
-.time-card__header span {
+.preview-day small,
+.time-card__header span,
+.time-card__explanation small,
+.block-adjuster p,
+.schedule-status,
+.time-card__end small {
   margin: 0;
   color: #475569;
 }
@@ -71,7 +75,8 @@ h1 {
 
 .btn--ghost,
 .day-chip,
-.step {
+.step,
+.counter button {
   background: #fff;
   border-color: rgba(148, 163, 184, 0.45);
   color: #0f172a;
@@ -81,10 +86,11 @@ h1 {
 .editor-card,
 .preview-card,
 .step,
-.distribution-card,
 .time-card,
 .progress-card,
-.preview-day {
+.preview-day,
+.schedule-status,
+.time-card__explanation {
   background: rgba(255, 255, 255, 0.92);
   border: 1px solid rgba(226, 232, 240, 0.95);
   border-radius: 24px;
@@ -135,6 +141,14 @@ h1 {
   color: #64748b;
 }
 
+.label-inline {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #475569;
+}
+
 .summary-grid strong,
 .progress-card strong {
   font-size: 28px;
@@ -143,7 +157,7 @@ h1 {
 
 .steps {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -190,16 +204,16 @@ h1 {
 .time-grid,
 .preview-grid,
 .day-selector,
-.distribution-grid {
+.optional-grid {
   display: grid;
   gap: 16px;
 }
 
 .step-panel__header,
 .preview-card__header,
-.distribution-card,
 .time-card__header,
-.preview-day header {
+.preview-day header,
+.block-adjuster {
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -220,15 +234,15 @@ h1 {
   border-color: transparent;
 }
 
-.distribution-grid,
 .time-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
-.distribution-card,
 .time-card,
 .progress-card,
-.preview-day {
+.preview-day,
+.schedule-status,
+.time-card__explanation {
   padding: 18px;
 }
 
@@ -242,8 +256,6 @@ h1 {
   width: 34px;
   height: 34px;
   border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.45);
-  background: #fff;
   font-weight: 700;
 }
 
@@ -253,37 +265,66 @@ h1 {
   font-size: 20px;
 }
 
-.distribution-status {
-  padding: 14px 16px;
-  border-radius: 18px;
-  background: #f8fafc;
-  color: #475569;
-  border: 1px solid rgba(226, 232, 240, 0.95);
-}
-
-.distribution-status.is-valid {
+.schedule-status.is-valid {
   color: #166534;
   border-color: rgba(74, 222, 128, 0.4);
 }
 
-.distribution-status.is-error {
+.schedule-status.is-error {
   color: #b91c1c;
   border-color: rgba(248, 113, 113, 0.4);
 }
 
-.time-card__badge {
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(99, 102, 241, 0.12);
-  color: #4f46e5;
-  font-size: 12px;
-  font-weight: 700;
+.block-adjuster {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(255, 255, 255, 0.98));
+  border: 1px solid rgba(226, 232, 240, 0.95);
+}
+
+.time-card__end {
+  text-align: right;
+}
+
+.time-card__end strong,
+.time-card__explanation strong {
+  display: block;
+  font-size: 20px;
+  color: #0f172a;
 }
 
 .time-card__body {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.9fr);
   gap: 12px;
+  align-items: stretch;
+}
+
+.time-card__explanation {
+  display: grid;
+  gap: 6px;
+  align-content: center;
+  background: linear-gradient(180deg, rgba(238, 242, 255, 0.9), rgba(255, 255, 255, 0.95));
+}
+
+.optional-details {
+  border-top: 1px solid rgba(226, 232, 240, 0.95);
+  padding-top: 14px;
+}
+
+.optional-details summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.optional-grid {
+  margin-top: 14px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.optional-grid__full {
+  grid-column: 1 / -1;
 }
 
 label {
@@ -357,8 +398,8 @@ select {
   .summary-card,
   .planner-layout,
   .day-selector,
-  .distribution-grid,
-  .time-grid {
+  .time-grid,
+  .optional-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -376,5 +417,13 @@ select {
 
   .step-actions .btn {
     flex: 1;
+  }
+
+  .block-adjuster,
+  .time-card__header,
+  .preview-day header,
+  .step-panel__header {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
