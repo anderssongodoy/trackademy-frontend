@@ -37,4 +37,51 @@ export class DashboardPage implements OnInit {
       }
     });
   }
+
+  get currentWeekLabel(): string {
+    const start = this.parseDate(this.currentPeriod?.periodoFechaInicio);
+    if (!start) {
+      return '—';
+    }
+    const now = new Date();
+    const diffDays = Math.floor((now.getTime() - start.getTime()) / 86400000);
+    if (diffDays < 0) {
+      return '—';
+    }
+    const week = Math.floor(diffDays / 7) + 1;
+    return `Semana ${week}`;
+  }
+
+  get cycleProgressPercent(): number {
+    const start = this.parseDate(this.currentPeriod?.periodoFechaInicio);
+    const end = this.parseDate(this.currentPeriod?.periodoFechaFin);
+    if (!start || !end) {
+      return 0;
+    }
+    const total = end.getTime() - start.getTime();
+    if (total <= 0) {
+      return 0;
+    }
+    const now = new Date();
+    const elapsed = Math.min(Math.max(now.getTime() - start.getTime(), 0), total);
+    return Math.round((elapsed / total) * 100);
+  }
+
+  get cycleProgressLabel(): string {
+    if (!this.currentPeriod?.periodoFechaInicio || !this.currentPeriod?.periodoFechaFin) {
+      return 'Sin fechas del periodo';
+    }
+    return `${this.cycleProgressPercent}% del ciclo`;
+  }
+
+  private parseDate(value?: string | null): Date | null {
+    if (!value) {
+      return null;
+    }
+    const parsed = new Date(`${value}T00:00:00`);
+    if (Number.isNaN(parsed.getTime())) {
+      return null;
+    }
+    return parsed;
+  }
 }

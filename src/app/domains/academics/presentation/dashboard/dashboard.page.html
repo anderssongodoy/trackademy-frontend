@@ -41,8 +41,8 @@
       </article>
       <article class="stat">
         <p class="stat__label">Semana actual</p>
-        <h2>—</h2>
-        <span>Sin fechas del periodo</span>
+        <h2>{{ currentWeekLabel }}</h2>
+        <span>{{ currentPeriod?.periodoEtiqueta || 'Sin fechas del periodo' }}</span>
       </article>
     </section>
 
@@ -116,6 +116,18 @@
               }
             </div>
           }
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel__header">
+          <h3>Progreso del periodo</h3>
+        </div>
+        <div class="panel__body">
+          <div class="progress">
+            <div class="progress__bar" [style.width.%]="cycleProgressPercent"></div>
+          </div>
+          <p class="muted">{{ cycleProgressLabel }}</p>
         </div>
       </section>
 

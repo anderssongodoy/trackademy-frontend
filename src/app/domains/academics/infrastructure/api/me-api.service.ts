@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+﻿import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -15,6 +15,9 @@ export interface MyCurrentPeriod {
   onboardingCompletadoAt: string;
   metaPromedioCiclo: number;
   horasEstudioSemanaObjetivo: number;
+  periodoEtiqueta: string | null;
+  periodoFechaInicio: string | null;
+  periodoFechaFin: string | null;
 }
 
 export interface MyCourse {
