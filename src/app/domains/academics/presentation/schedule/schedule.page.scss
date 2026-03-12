@@ -108,16 +108,39 @@ h1 {
   padding: 12px;
   background: #f8fafc;
   border: 1px dashed rgba(148, 163, 184, 0.5);
+  display: grid;
+  gap: 8px;
 }
 
 .day-card h4 {
-  margin: 0 0 6px;
+  margin: 0;
   font-size: 14px;
 }
 
 .day-card p {
   margin: 0;
   color: #94a3b8;
+  font-size: 12px;
+}
+
+.day-card ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.day-card li {
+  display: grid;
+  gap: 2px;
+  font-size: 12px;
+  color: #475569;
+}
+
+.day-card .time {
+  color: #6366f1;
+  font-weight: 600;
   font-size: 12px;
 }
 
@@ -147,6 +170,11 @@ h1 {
   justify-content: space-between;
   gap: 16px;
   flex-wrap: wrap;
+  align-items: center;
+}
+
+.course-card .btn--ghost {
+  white-space: nowrap;
 }
 
 .course-code {

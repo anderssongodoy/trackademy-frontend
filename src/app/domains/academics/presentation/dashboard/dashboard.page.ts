@@ -2,7 +2,7 @@
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
-import { MeUseCase, MyCourse, MyCurrentPeriod } from '../../application/me-use-case';
+import { MeUseCase, MyCourse, MyCurrentPeriod, MyEvaluation } from '../../application/me-use-case';
 
 @Component({
   selector: 'app-dashboard-page',
@@ -17,6 +17,7 @@ export class DashboardPage implements OnInit {
   loadError = '';
   currentPeriod: MyCurrentPeriod | null = null;
   courses: MyCourse[] = [];
+  evaluations: MyEvaluation[] = [];
 
   ngOnInit(): void {
     this.isLoading = true;
@@ -24,11 +25,13 @@ export class DashboardPage implements OnInit {
 
     forkJoin({
       period: this.meUseCase.getCurrentPeriod(),
-      courses: this.meUseCase.getMyCourses()
+      courses: this.meUseCase.getMyCourses(),
+      evaluations: this.meUseCase.getMyEvaluations()
     }).subscribe({
-      next: ({ period, courses }) => {
+      next: ({ period, courses, evaluations }) => {
         this.currentPeriod = period;
         this.courses = courses;
+        this.evaluations = evaluations;
         this.isLoading = false;
       },
       error: () => {
@@ -36,6 +39,13 @@ export class DashboardPage implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  get upcomingEvaluations(): MyEvaluation[] {
+    return this.evaluations
+      .filter((item) => item.fechaEstimada)
+      .sort((a, b) => (a.fechaEstimada || '').localeCompare(b.fechaEstimada || ''))
+      .slice(0, 4);
   }
 
   get currentWeekLabel(): string {

@@ -2,7 +2,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
-import { MeUseCase, MyCourse } from '../../application/me-use-case';
+import { MeUseCase, MyCourse, MyEvaluation } from '../../application/me-use-case';
 
 @Component({
   selector: 'app-course-detail-page',
@@ -15,6 +15,7 @@ export class CourseDetailPage implements OnInit {
   private readonly meUseCase = inject(MeUseCase);
 
   course: MyCourse | null = null;
+  evaluations: MyEvaluation[] = [];
   isLoading = true;
   loadError = '';
 
@@ -32,8 +33,20 @@ export class CourseDetailPage implements OnInit {
         this.course = courses.find((item) => item.usuarioPeriodoCursoId === id) ?? null;
         if (!this.course) {
           this.loadError = 'No encontramos el curso solicitado.';
+          this.isLoading = false;
+          return;
         }
-        this.isLoading = false;
+
+        this.meUseCase.getMyEvaluations(this.course.cursoId).subscribe({
+          next: (evaluations) => {
+            this.evaluations = evaluations;
+            this.isLoading = false;
+          },
+          error: () => {
+            this.loadError = 'No se pudo cargar las evaluaciones del curso.';
+            this.isLoading = false;
+          }
+        });
       },
       error: () => {
         this.loadError = 'No se pudo cargar el detalle del curso.';

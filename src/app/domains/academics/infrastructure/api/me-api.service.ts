@@ -32,6 +32,36 @@ export interface MyCourse {
   modalidad: string;
 }
 
+export interface MyScheduleEntry {
+  usuarioPeriodoCursoId: number;
+  cursoId: number;
+  codigo: string;
+  nombre: string;
+  modalidad: string;
+  bloqueNro: number;
+  diaSemana: number | null;
+  horaInicio: string | null;
+  horaFin: string | null;
+  duracionMin: number | null;
+  tipoSesion: string | null;
+  ubicacion: string | null;
+  urlVirtual: string | null;
+}
+
+export interface MyEvaluation {
+  usuarioPeriodoCursoId: number;
+  cursoId: number;
+  codigoCurso: string;
+  nombreCurso: string;
+  evaluacionCodigo: string;
+  tipo: string | null;
+  descripcion: string | null;
+  porcentaje: number | null;
+  semana: number | null;
+  fechaEstimada: string | null;
+  observacion: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class MeApiService {
   private readonly http = inject(HttpClient);
@@ -43,5 +73,14 @@ export class MeApiService {
 
   getMyCourses(): Observable<MyCourse[]> {
     return this.http.get<MyCourse[]>(`${this.env.apiBaseUrl}/api/v1/me/cursos`);
+  }
+
+  getMySchedule(): Observable<MyScheduleEntry[]> {
+    return this.http.get<MyScheduleEntry[]>(`${this.env.apiBaseUrl}/api/v1/me/horarios`);
+  }
+
+  getMyEvaluations(cursoId?: number): Observable<MyEvaluation[]> {
+    const params = cursoId ? { cursoId: cursoId.toString() } : {};
+    return this.http.get<MyEvaluation[]>(`${this.env.apiBaseUrl}/api/v1/me/evaluaciones`, { params });
   }
 }

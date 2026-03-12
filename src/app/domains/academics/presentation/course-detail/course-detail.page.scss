@@ -126,7 +126,52 @@
   margin: 0;
 }
 
+.evaluation-list {
+  display: grid;
+  gap: 10px;
+}
+
+.evaluation-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.evaluation-code {
+  margin: 0 0 4px;
+  font-size: 12px;
+  color: #4f46e5;
+  font-weight: 600;
+}
+
+.evaluation-desc {
+  margin: 0;
+  color: #475569;
+  font-size: 13px;
+}
+
+.evaluation-meta {
+  display: grid;
+  gap: 4px;
+  font-size: 12px;
+  color: #64748b;
+  text-align: right;
+}
+
 .muted {
   margin: 0;
   color: #64748b;
+}
+
+@media (max-width: 700px) {
+  .evaluation-row {
+    flex-direction: column;
+  }
+
+  .evaluation-meta {
+    text-align: left;
+  }
 }

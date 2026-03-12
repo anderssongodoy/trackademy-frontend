@@ -35,7 +35,25 @@
     <section class="panel-grid">
       <article class="panel">
         <h3>Evaluaciones</h3>
-        <p class="muted">Las evaluaciones aparecerán cuando estén sincronizadas con el sílabo.</p>
+        @if (evaluations.length === 0) {
+          <p class="muted">Las evaluaciones aparecerán cuando estén sincronizadas con el sílabo.</p>
+        }
+        @if (evaluations.length > 0) {
+          <div class="evaluation-list">
+            @for (item of evaluations; track item.evaluacionCodigo) {
+              <div class="evaluation-row">
+                <div>
+                  <p class="evaluation-code">{{ item.evaluacionCodigo }}</p>
+                  <p class="evaluation-desc">{{ item.descripcion || item.tipo || 'Evaluación' }}</p>
+                </div>
+                <div class="evaluation-meta">
+                  <span>Semana {{ item.semana ?? '—' }}</span>
+                  <span>{{ item.fechaEstimada || '—' }}</span>
+                </div>
+              </div>
+            }
+          </div>
+        }
       </article>
       <article class="panel">
         <h3>Notas</h3>

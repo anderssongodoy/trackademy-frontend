@@ -179,12 +179,14 @@ h1 {
   gap: 12px;
 }
 
-.course-list {
+.course-list,
+.evaluation-list {
   display: grid;
   gap: 12px;
 }
 
-.course-card {
+.course-card,
+.evaluation-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -221,6 +223,12 @@ h1 {
   background: rgba(99, 102, 241, 0.12);
   padding: 6px 10px;
   border-radius: 999px;
+}
+
+.evaluation-meta {
+  margin: 0;
+  color: #64748b;
+  font-size: 12px;
 }
 
 .empty {

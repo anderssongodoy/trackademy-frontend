@@ -91,6 +91,17 @@
   font-weight: 700;
 }
 
+.app-shell--collapsed .nav-link {
+  justify-content: center;
+  padding: 10px 8px;
+}
+
+.app-shell--collapsed .nav-link::before {
+  width: 36px;
+  height: 36px;
+  border-radius: 14px;
+}
+
 .app-shell--collapsed .nav-link span {
   display: none;
 }
@@ -116,6 +127,27 @@
   font-weight: 600;
   border: none;
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.nav-cta::before {
+  content: attr(data-short);
+  font-weight: 700;
+  display: none;
+}
+
+.app-shell--collapsed .nav-cta {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 16px;
+  color: transparent;
+}
+
+.app-shell--collapsed .nav-cta::before {
+  display: block;
+  color: #0b1f2a;
 }
 
 .app-shell__main {

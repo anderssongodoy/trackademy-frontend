@@ -87,11 +87,27 @@
 
       <section class="panel">
         <div class="panel__header">
-          <h3>Próximas entregas</h3>
-          <button class="btn btn--ghost" type="button">Crear recordatorio</button>
+          <h3>Próximas evaluaciones</h3>
+          <a class="btn btn--ghost" routerLink="/app/cursos">Ver detalle</a>
         </div>
         <div class="panel__body">
-          <div class="empty">Sin entregas próximas. Crea tareas o importa eventos.</div>
+          @if (upcomingEvaluations.length === 0) {
+            <div class="empty">Sin evaluaciones sincronizadas todavía.</div>
+          }
+          @if (upcomingEvaluations.length > 0) {
+            <div class="evaluation-list">
+              @for (item of upcomingEvaluations; track item.evaluacionCodigo) {
+                <article class="evaluation-card">
+                  <div>
+                    <p class="course-code">{{ item.codigoCurso }}</p>
+                    <p class="course-name">{{ item.nombreCurso }}</p>
+                    <p class="evaluation-meta">{{ item.evaluacionCodigo }} · Semana {{ item.semana ?? '—' }}</p>
+                  </div>
+                  <span class="course-status">{{ item.fechaEstimada || '—' }}</span>
+                </article>
+              }
+            </div>
+          }
         </div>
       </section>
 

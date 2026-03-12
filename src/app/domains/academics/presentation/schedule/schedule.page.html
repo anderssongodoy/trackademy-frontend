@@ -23,13 +23,25 @@
     <section class="schedule__panel">
       <div class="panel__header">
         <h2>Vista semanal</h2>
-        <span>Sin horarios registrados</span>
+        <span>{{ schedule.length === 0 ? 'Sin horarios registrados' : 'Actualizado' }}</span>
       </div>
       <div class="week-grid">
-        @for (day of days; track day) {
+        @for (day of scheduleByDay; track day.day) {
           <div class="day-card">
-            <h4>{{ day }}</h4>
-            <p>Sin sesiones registradas.</p>
+            <h4>{{ day.day }}</h4>
+            @if (day.entries.length === 0) {
+              <p>Sin sesiones registradas.</p>
+            }
+            @if (day.entries.length > 0) {
+              <ul>
+                @for (entry of day.entries; track entry.usuarioPeriodoCursoId + '-' + entry.bloqueNro + '-' + entry.diaSemana) {
+                  <li>
+                    <span class="time">{{ entry.horaInicio || '—' }} - {{ entry.horaFin || '—' }}</span>
+                    <strong>{{ entry.nombre }}</strong>
+                  </li>
+                }
+              </ul>
+            }
           </div>
         }
       </div>

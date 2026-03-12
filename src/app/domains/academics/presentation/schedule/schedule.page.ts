@@ -2,7 +2,12 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { MeUseCase, MyCourse } from '../../application/me-use-case';
+import { MeUseCase, MyCourse, MyScheduleEntry } from '../../application/me-use-case';
+
+interface DaySchedule {
+  day: string;
+  entries: MyScheduleEntry[];
+}
 
 @Component({
   selector: 'app-schedule-page',
@@ -16,6 +21,8 @@ export class SchedulePage implements OnInit {
   readonly days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
 
   courses: MyCourse[] = [];
+  schedule: MyScheduleEntry[] = [];
+  scheduleByDay: DaySchedule[] = [];
   isLoading = true;
   loadError = '';
 
@@ -26,12 +33,35 @@ export class SchedulePage implements OnInit {
     this.meUseCase.getMyCourses().subscribe({
       next: (courses) => {
         this.courses = courses;
+        this.loadSchedule();
+      },
+      error: () => {
+        this.loadError = 'No se pudo cargar tu horario. Verifica la conexión con el backend.';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private loadSchedule(): void {
+    this.meUseCase.getMySchedule().subscribe({
+      next: (schedule) => {
+        this.schedule = schedule;
+        this.scheduleByDay = this.buildScheduleByDay(schedule);
         this.isLoading = false;
       },
       error: () => {
         this.loadError = 'No se pudo cargar tu horario. Verifica la conexión con el backend.';
         this.isLoading = false;
       }
+    });
+  }
+
+  private buildScheduleByDay(entries: MyScheduleEntry[]): DaySchedule[] {
+    return this.days.map((day, index) => {
+      const dayEntries = entries
+        .filter((entry) => entry.diaSemana === index + 1)
+        .sort((a, b) => (a.horaInicio || '').localeCompare(b.horaInicio || ''));
+      return { day, entries: dayEntries };
     });
   }
 }
