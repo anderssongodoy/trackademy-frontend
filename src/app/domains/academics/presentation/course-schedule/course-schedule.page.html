@@ -3,8 +3,8 @@
     <div>
       <a class="back" [routerLink]="['/app/cursos', course()?.usuarioPeriodoCursoId]">Volver al curso</a>
       <p class="eyebrow">Horario del curso</p>
-      <h1>Arma tu semana como realmente llevas la clase</h1>
-      <p class="subtitle">Distribuye bloques de 45 minutos por día. Si hoy solo conoces una parte del horario, puedes guardar eso y completar el resto después.</p>
+      <h1>Primero elige los dÃ­as, luego acomoda la hora</h1>
+      <p class="subtitle">Este curso tiene {{ totalBlocks() || 'â€”' }} bloques semanales de 45 minutos. El flujo te guÃ­a paso a paso para que no llenes de mÃ¡s.</p>
     </div>
     <div class="hero__actions">
       <a class="btn btn--ghost" routerLink="/app/horario">Ver horario global</a>
@@ -12,7 +12,7 @@
   </header>
 
   @if (isLoading()) {
-    <div class="state state--loading">Cargando configuración...</div>
+    <div class="state state--loading">Cargando configuraciÃ³n...</div>
   }
 
   @if (loadError()) {
@@ -32,74 +32,137 @@
           <strong>{{ totalBlocks() }}</strong>
         </div>
         <div>
-          <span class="label">Bloques asignados</span>
+          <span class="label">Asignados</span>
           <strong>{{ assignedBlocks() }}</strong>
         </div>
         <div>
           <span class="label">Pendientes</span>
-          <strong>{{ remainingBlocks() }}</strong>
+          <strong>{{ missingBlocks() }}</strong>
         </div>
       </div>
     </section>
 
+    <section class="steps">
+      <button class="step" type="button" [class.is-active]="currentStep() === 1" (click)="goToStep(1)">
+        <span>1</span>
+        <strong>DÃ­as</strong>
+      </button>
+      <button class="step" type="button" [class.is-active]="currentStep() === 2" [disabled]="selectedDays().length === 0" (click)="goToStep(2)">
+        <span>2</span>
+        <strong>DistribuciÃ³n</strong>
+      </button>
+      <button class="step" type="button" [class.is-active]="currentStep() === 3" [disabled]="!canAdvanceToTimeStep()" (click)="goToStep(3)">
+        <span>3</span>
+        <strong>Horario</strong>
+      </button>
+    </section>
+
     <section class="planner-layout">
-      <section class="editor-card" [formGroup]="form">
-        <div class="editor-card__header">
-          <div>
-            <h3>Semana editable</h3>
-            <p>Agrega bloques directamente en el día correcto. Cada curso puede repartirse entre varios días sin volver a empezar.</p>
-          </div>
-          <div class="planner-chip">
-            <span>Avance</span>
-            <strong>{{ completionPercent() }}%</strong>
-          </div>
-        </div>
+      <section class="editor-card">
+        @if (currentStep() === 1) {
+          <div class="step-panel">
+            <div class="step-panel__header">
+              <div>
+                <h3>Â¿QuÃ© dÃ­as llevas este curso?</h3>
+                <p>Elige solo los dÃ­as en los que realmente tienes esta clase. Si luego cambia, lo editas sin rehacer todo.</p>
+              </div>
+            </div>
 
-        <div class="week-grid" formArrayName="bloques">
-          @for (day of dayOptions; track day.value) {
-            <section class="day-column">
-              <header class="day-column__header">
-                <div>
-                  <strong>{{ day.label }}</strong>
-                  <span>{{ blocksLabelForDay(day.value) }}</span>
-                </div>
-                <button class="mini-button" type="button" (click)="addBlock(day.value)">Agregar</button>
-              </header>
-
-              @if (blockIndexesForDay(day.value).length === 0) {
-                <div class="day-empty">
-                  <p>Sin bloques todavía.</p>
-                  <button class="day-empty__button" type="button" (click)="addBlock(day.value)">Crear primer bloque</button>
-                </div>
+            <div class="day-selector">
+              @for (day of dayOptions; track day.value) {
+                <button
+                  class="day-chip"
+                  type="button"
+                  [class.is-selected]="isDaySelected(day.value)"
+                  (click)="toggleDay(day.value)">
+                  {{ day.label }}
+                </button>
               }
+            </div>
 
-              @for (index of blockIndexesForDay(day.value); track index) {
-                <article class="block-card" [formGroupName]="index">
-                  <div class="block-card__top">
-                    <strong>Bloque {{ index + 1 }}</strong>
-                    <button class="link-button" type="button" (click)="removeBlock(index)">Quitar</button>
+            <div class="step-actions">
+              <button class="btn btn--primary" type="button" [disabled]="selectedDays().length === 0" (click)="goToStep(2)">
+                Continuar
+              </button>
+            </div>
+          </div>
+        }
+
+        @if (currentStep() === 2) {
+          <div class="step-panel">
+            <div class="step-panel__header">
+              <div>
+                <h3>Reparte los bloques entre esos dÃ­as</h3>
+                <p>Puedes usar una propuesta automÃ¡tica y luego corregir solo lo necesario.</p>
+              </div>
+              <button class="btn btn--ghost" type="button" (click)="applySuggestedDistribution()">Sugerir distribuciÃ³n</button>
+            </div>
+
+            <div class="distribution-grid">
+              @for (day of selectedDays(); track day) {
+                <article class="distribution-card">
+                  <div>
+                    <strong>{{ dayLabel(day) }}</strong>
+                    <p>{{ distributionLabel(day) }}</p>
+                  </div>
+                  <div class="counter">
+                    <button type="button" (click)="decreaseBlocks(day)">-</button>
+                    <strong>{{ getPlan(day)?.get('bloques')?.value || 0 }}</strong>
+                    <button type="button" (click)="increaseBlocks(day)">+</button>
+                  </div>
+                </article>
+              }
+            </div>
+
+            <div class="distribution-status" [class.is-valid]="canAdvanceToTimeStep()" [class.is-error]="extraBlocks() > 0 || missingBlocks() > 0">
+              @if (missingBlocks() > 0) {
+                <span>Faltan {{ missingBlocks() }} bloques por asignar.</span>
+              }
+              @if (extraBlocks() > 0) {
+                <span>Te pasaste por {{ extraBlocks() }} bloques.</span>
+              }
+              @if (canAdvanceToTimeStep()) {
+                <span>La distribuciÃ³n ya coincide con las horas semanales del curso.</span>
+              }
+            </div>
+
+            <div class="step-actions">
+              <button class="btn btn--ghost" type="button" (click)="goToStep(1)">AtrÃ¡s</button>
+              <button class="btn btn--primary" type="button" [disabled]="!canAdvanceToTimeStep()" (click)="goToStep(3)">
+                Definir horario
+              </button>
+            </div>
+          </div>
+        }
+
+        @if (currentStep() === 3) {
+          <div class="step-panel">
+            <div class="step-panel__header">
+              <div>
+                <h3>Elige la hora de cada dÃ­a</h3>
+                <p>Ahora solo completas los dÃ­as seleccionados. La hora final se calcula automÃ¡ticamente.</p>
+              </div>
+            </div>
+
+            <div class="time-grid" [formGroup]="form">
+              @for (day of selectedDays(); track day) {
+                <article class="time-card" [formGroup]="planForDay(day)">
+                  <div class="time-card__header">
+                    <div>
+                      <strong>{{ dayLabel(day) }}</strong>
+                      <span>{{ distributionLabel(day) }}</span>
+                    </div>
+                    <div class="time-card__badge">{{ endTimeFor(day) }}</div>
                   </div>
 
-                  <div class="block-grid">
+                  <div class="time-card__body">
                     <label>
-                      <span>Inicio</span>
+                      <span>Hora de inicio</span>
                       <select formControlName="horaInicio">
                         @for (time of timeOptions; track time) {
                           <option [value]="time">{{ time }}</option>
                         }
                       </select>
-                    </label>
-                    <label>
-                      <span>Bloques</span>
-                      <select formControlName="bloques">
-                        @for (option of availableBlockOptions(index); track option) {
-                          <option [value]="option">{{ option }}</option>
-                        }
-                      </select>
-                    </label>
-                    <label>
-                      <span>Fin</span>
-                      <input type="text" [value]="endTimeFor(index)" readonly />
                     </label>
                     <label>
                       <span>Tipo</span>
@@ -110,7 +173,7 @@
                       </select>
                     </label>
                     <label>
-                      <span>Ubicación</span>
+                      <span>UbicaciÃ³n</span>
                       <input type="text" formControlName="ubicacion" placeholder="Aula o laboratorio" />
                     </label>
                     <label>
@@ -120,47 +183,58 @@
                   </div>
                 </article>
               }
-            </section>
-          }
-        </div>
+            </div>
+
+            <div class="step-actions">
+              <button class="btn btn--ghost" type="button" (click)="goToStep(2)">AtrÃ¡s</button>
+              <button class="btn btn--primary" type="button" (click)="save()" [disabled]="isSaving()">
+                {{ isSaving() ? 'Guardando...' : 'Guardar horario' }}
+              </button>
+            </div>
+          </div>
+        }
       </section>
 
       <aside class="preview-card">
         <div class="preview-card__header">
           <div>
-            <h3>Lectura rápida</h3>
-            <p>Esto resume cómo quedará la semana antes de guardar.</p>
+            <h3>Resumen rÃ¡pido</h3>
+            <p>AsÃ­ queda el curso antes de guardar.</p>
           </div>
         </div>
 
         <div class="progress-card">
-          <span>Progreso del horario</span>
-          <strong>{{ assignedBlocks() }} / {{ totalBlocks() || '—' }}</strong>
+          <span>Progreso</span>
+          <strong>{{ assignedBlocks() }} / {{ totalBlocks() || 'â€”' }}</strong>
           <div class="progress-bar">
             <div class="progress-bar__fill" [style.width.%]="completionPercent()"></div>
           </div>
         </div>
 
         <div class="preview-grid">
-          @for (day of dayOptions; track day.value) {
+          @for (day of selectedDays(); track day) {
             <section class="preview-day">
               <header>
-                <strong>{{ day.label }}</strong>
-                <span>{{ blocksLabelForDay(day.value) }}</span>
+                <strong>{{ dayLabel(day) }}</strong>
+                <span>{{ distributionLabel(day) }}</span>
               </header>
-              @if (previewForDay(day.value).length === 0) {
-                <p>Sin clases registradas.</p>
-              }
-              @if (previewForDay(day.value).length > 0) {
-                <div class="preview-list">
-                  @for (item of previewForDay(day.value); track item.title + item.time) {
-                    <article class="preview-item">
-                      <strong>{{ item.time }}</strong>
-                      <span>{{ item.type }}</span>
-                    </article>
-                  }
-                </div>
-              }
+              <p>
+                @if (currentStep() === 3) {
+                  {{ getPlan(day)?.get('horaInicio')?.value || '--:--' }} - {{ endTimeFor(day) }}
+                }
+                @if (currentStep() !== 3) {
+                  Hora pendiente
+                }
+              </p>
+            </section>
+          }
+
+          @if (selectedDays().length === 0) {
+            <section class="preview-day">
+              <header>
+                <strong>AÃºn no elegiste dÃ­as</strong>
+              </header>
+              <p>Primero define quÃ© dÃ­as llevas este curso.</p>
             </section>
           }
         </div>
@@ -174,12 +248,5 @@
     @if (saveSuccess()) {
       <div class="state state--success">{{ saveSuccess() }}</div>
     }
-
-    <div class="page-actions">
-      <button class="btn btn--ghost" type="button" (click)="goBack()">Cancelar</button>
-      <button class="btn btn--primary" type="button" (click)="save()" [disabled]="isSaving()">
-        {{ isSaving() ? 'Guardando...' : 'Guardar horario' }}
-      </button>
-    </div>
   }
 </main>

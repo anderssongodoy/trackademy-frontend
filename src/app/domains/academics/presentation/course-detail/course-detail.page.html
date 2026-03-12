@@ -168,18 +168,25 @@
         </div>
         <div class="units-list">
           @for (unit of courseDetail.unidades; track unit.nro) {
-            <div class="unit-card">
-              <p class="unit-title">Unidad {{ unit.nro }} · {{ unit.titulo }}</p>
-              <p class="unit-meta">Semanas {{ unit.semanaInicio ?? '—' }} a {{ unit.semanaFin ?? '—' }}</p>
-              <p>{{ unit.logroEspecifico || 'Sin logro específico disponible.' }}</p>
-              @if (unit.temario.length > 0) {
-                <ul>
-                  @for (topic of unit.temario.slice(0, 5); track topic) {
-                    <li>{{ topic }}</li>
-                  }
-                </ul>
-              }
-            </div>
+            <details class="unit-card" [attr.open]="unit.nro === 1 ? '' : null">
+              <summary class="unit-summary">
+                <div>
+                  <p class="unit-title">Unidad {{ unit.nro }} · {{ unit.titulo }}</p>
+                  <p class="unit-meta">Semanas {{ unit.semanaInicio ?? '—' }} a {{ unit.semanaFin ?? '—' }}</p>
+                </div>
+                <span class="unit-badge">{{ topicsFor(unit).length }} temas</span>
+              </summary>
+              <div class="unit-body">
+                <p>{{ unit.logroEspecifico || 'Sin logro específico disponible.' }}</p>
+                @if (topicsFor(unit).length > 0) {
+                  <ul>
+                    @for (topic of topicsFor(unit); track topic) {
+                      <li>{{ topic }}</li>
+                    }
+                  </ul>
+                }
+              </div>
+            </details>
           }
         </div>
       </article>

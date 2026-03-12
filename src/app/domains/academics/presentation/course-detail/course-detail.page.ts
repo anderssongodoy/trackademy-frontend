@@ -3,7 +3,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
-import { CatalogCourseDetail, CatalogUseCase } from '../../application/catalog-use-case';
+import { CatalogCourseDetail, CatalogCourseUnit, CatalogUseCase } from '../../application/catalog-use-case';
 import { MeUseCase, MyCourse, MyEvaluation, MyScheduleEntry } from '../../application/me-use-case';
 
 @Component({
@@ -87,6 +87,10 @@ export class CourseDetailPage implements OnInit {
     return `${day} · ${start} - ${end}`;
   }
 
+  topicsFor(unit: CatalogCourseUnit): string[] {
+    return unit.temas ?? unit.temario ?? [];
+  }
+
   private dayLabel(day: number | null): string {
     switch (day) {
       case 1:
@@ -101,6 +105,8 @@ export class CourseDetailPage implements OnInit {
         return 'Viernes';
       case 6:
         return 'Sábado';
+      case 7:
+        return 'Domingo';
       default:
         return 'Sin día';
     }

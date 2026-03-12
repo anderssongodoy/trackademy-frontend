@@ -293,6 +293,39 @@ h1 {
   gap: 10px;
 }
 
+
+.unit-card {
+  overflow: hidden;
+}
+
+.unit-summary {
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+  cursor: pointer;
+}
+
+.unit-summary::-webkit-details-marker {
+  display: none;
+}
+
+.unit-badge {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.12);
+  color: #4f46e5;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.unit-body {
+  display: grid;
+  gap: 12px;
+  margin-top: 14px;
+}
 .unit-card ul {
   margin: 10px 0 0;
   padding-left: 18px;

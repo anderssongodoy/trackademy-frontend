@@ -7,6 +7,8 @@ import {
   CatalogCareer,
   CatalogCourse,
   CatalogCourseDetail,
+  CatalogCourseEvaluation,
+  CatalogCourseUnit,
   CatalogPeriod
 } from '../infrastructure/api/catalog-api.service';
 
@@ -39,4 +41,12 @@ export class CatalogUseCase {
   }
 }
 
-export type { CatalogCampus, CatalogCareer, CatalogCourse, CatalogCourseDetail, CatalogPeriod };
+export type {
+  CatalogCampus,
+  CatalogCareer,
+  CatalogCourse,
+  CatalogCourseDetail,
+  CatalogCourseEvaluation,
+  CatalogCourseUnit,
+  CatalogPeriod
+};

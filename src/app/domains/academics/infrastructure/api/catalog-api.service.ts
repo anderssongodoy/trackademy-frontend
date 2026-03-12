@@ -41,7 +41,8 @@ export interface CatalogCourseUnit {
   semanaInicio: number | null;
   semanaFin: number | null;
   logroEspecifico: string | null;
-  temario: string[];
+  temas?: string[];
+  temario?: string[];
 }
 
 export interface CatalogCourseEvaluation {
