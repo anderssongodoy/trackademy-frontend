@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { Subscription, forkJoin } from 'rxjs';
 
 import { CatalogCourse, CatalogUseCase } from '../../application/catalog-use-case';
 import { MeUseCase, MyCourse, MyScheduleEntry, ScheduleBlockRequest } from '../../application/me-use-case';
@@ -18,23 +18,25 @@ interface DayOption {
   templateUrl: './course-schedule.page.html',
   styleUrl: './course-schedule.page.scss'
 })
-export class CourseSchedulePage implements OnInit {
+export class CourseSchedulePage implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(UntypedFormBuilder);
   private readonly meUseCase = inject(MeUseCase);
   private readonly catalogUseCase = inject(CatalogUseCase);
+  private readonly formRevision = signal(0);
+  private readonly subscriptions = new Subscription();
 
   readonly dayOptions: DayOption[] = [
     { value: 1, label: 'Lunes' },
     { value: 2, label: 'Martes' },
-    { value: 3, label: 'Miércoles' },
+    { value: 3, label: 'Miercoles' },
     { value: 4, label: 'Jueves' },
     { value: 5, label: 'Viernes' },
-    { value: 6, label: 'Sábado' },
+    { value: 6, label: 'Sabado' },
     { value: 7, label: 'Domingo' }
   ];
 
-  readonly sessionTypes = ['Teoría', 'Práctica', 'Laboratorio', 'Asesoría'];
+  readonly sessionTypes = ['Teoria', 'Practica', 'Laboratorio', 'Asesoria'];
   readonly timeOptions = this.buildTimeOptions();
   readonly currentStep = signal(1);
   readonly selectedDays = signal<number[]>([]);
@@ -52,9 +54,10 @@ export class CourseSchedulePage implements OnInit {
   readonly catalogCourse = signal<CatalogCourse | null>(null);
 
   readonly totalBlocks = computed(() => this.catalogCourse()?.horasSemanales ?? 0);
-  readonly assignedBlocks = computed(() =>
-    this.planControls.controls.reduce((total, control) => total + Number(control.get('bloques')?.value ?? 0), 0)
-  );
+  readonly assignedBlocks = computed(() => {
+    this.formRevision();
+    return this.planControls.controls.reduce((total, control) => total + Number(control.get('bloques')?.value ?? 0), 0);
+  });
   readonly missingBlocks = computed(() => Math.max(this.totalBlocks() - this.assignedBlocks(), 0));
   readonly extraBlocks = computed(() => Math.max(this.assignedBlocks() - this.totalBlocks(), 0));
   readonly completionPercent = computed(() => {
@@ -70,6 +73,10 @@ export class CourseSchedulePage implements OnInit {
   }
 
   ngOnInit(): void {
+    this.subscriptions.add(
+      this.form.valueChanges.subscribe(() => this.bumpRevision())
+    );
+
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (Number.isNaN(id)) {
       this.isLoading.set(false);
@@ -104,9 +111,13 @@ export class CourseSchedulePage implements OnInit {
       },
       error: () => {
         this.isLoading.set(false);
-        this.loadError.set('No se pudo cargar la configuración del curso.');
+        this.loadError.set('No se pudo cargar la configuracion del curso.');
       }
     });
+  }
+
+  ngOnDestroy(): void {
+    this.subscriptions.unsubscribe();
   }
 
   isDaySelected(day: number): boolean {
@@ -130,6 +141,8 @@ export class CourseSchedulePage implements OnInit {
     if (this.currentStep() > 1 && this.selectedDays().length === 0) {
       this.currentStep.set(1);
     }
+
+    this.bumpRevision();
   }
 
   goToStep(step: number): void {
@@ -172,6 +185,8 @@ export class CourseSchedulePage implements OnInit {
 
       plan.get('bloques')?.setValue(blocks);
     });
+
+    this.bumpRevision();
   }
 
   increaseBlocks(day: number): void {
@@ -181,6 +196,7 @@ export class CourseSchedulePage implements OnInit {
     }
 
     plan.get('bloques')?.setValue(Number(plan.get('bloques')?.value ?? 0) + 1);
+    this.bumpRevision();
   }
 
   decreaseBlocks(day: number): void {
@@ -191,6 +207,7 @@ export class CourseSchedulePage implements OnInit {
 
     const current = Number(plan.get('bloques')?.value ?? 1);
     plan.get('bloques')?.setValue(Math.max(current - 1, 1));
+    this.bumpRevision();
   }
 
   getPlan(day: number): UntypedFormGroup | null {
@@ -226,6 +243,13 @@ export class CourseSchedulePage implements OnInit {
     return `${blocks} bloque${blocks === 1 ? '' : 's'} de 45 min`;
   }
 
+  exampleRange(blocks: number): string {
+    if (blocks <= 0) {
+      return '--:-- a --:--';
+    }
+    return `20:15 a ${this.calculateEndTime('20:15', blocks)}`;
+  }
+
   goBack(): void {
     const course = this.course();
     if (!course) {
@@ -245,12 +269,12 @@ export class CourseSchedulePage implements OnInit {
     this.saveSuccess.set('');
 
     if (this.selectedDays().length === 0) {
-      this.saveError.set('Selecciona al menos un día para este curso.');
+      this.saveError.set('Selecciona al menos un dia para este curso.');
       return;
     }
 
     if (!this.canAdvanceToTimeStep()) {
-      this.saveError.set('La distribución de bloques debe coincidir exactamente con las horas semanales del curso.');
+      this.saveError.set('La distribucion de bloques debe coincidir exactamente con las horas semanales del curso.');
       return;
     }
 
@@ -296,6 +320,7 @@ export class CourseSchedulePage implements OnInit {
     if (selected.length === 0) {
       this.selectedDays.set([]);
       this.currentStep.set(1);
+      this.bumpRevision();
       return;
     }
 
@@ -322,13 +347,14 @@ export class CourseSchedulePage implements OnInit {
         diaSemana: day,
         bloques: Math.max(totalBlocks, 1),
         horaInicio: first?.horaInicio ?? '07:00',
-        tipoSesion: first?.tipoSesion ?? 'Teoría',
+        tipoSesion: first?.tipoSesion ?? 'Teoria',
         ubicacion: first?.ubicacion ?? '',
         urlVirtual: first?.urlVirtual ?? ''
       }));
     });
 
     this.currentStep.set(this.canAdvanceToTimeStep() ? 3 : 2);
+    this.bumpRevision();
   }
 
   private addPlan(day: number): void {
@@ -350,6 +376,7 @@ export class CourseSchedulePage implements OnInit {
 
     this.planControls.clear();
     sorted.forEach((value) => this.planControls.push(this.createPlanGroup(value)));
+    this.bumpRevision();
   }
 
   private createPlanGroup(value?: Partial<{ diaSemana: number; bloques: number; horaInicio: string; tipoSesion: string; ubicacion: string; urlVirtual: string }>): UntypedFormGroup {
@@ -357,7 +384,7 @@ export class CourseSchedulePage implements OnInit {
       diaSemana: [value?.diaSemana ?? 1, [Validators.required, Validators.min(1), Validators.max(7)]],
       bloques: [value?.bloques ?? 1, [Validators.required, Validators.min(1)]],
       horaInicio: [value?.horaInicio ?? '07:00', Validators.required],
-      tipoSesion: [value?.tipoSesion ?? 'Teoría'],
+      tipoSesion: [value?.tipoSesion ?? 'Teoria'],
       ubicacion: [value?.ubicacion ?? ''],
       urlVirtual: [value?.urlVirtual ?? '']
     });
@@ -405,5 +432,9 @@ export class CourseSchedulePage implements OnInit {
   private cleanText(value: string): string | null {
     const trimmed = value?.trim();
     return trimmed ? trimmed : null;
+  }
+
+  private bumpRevision(): void {
+    this.formRevision.update((value) => value + 1);
   }
 }

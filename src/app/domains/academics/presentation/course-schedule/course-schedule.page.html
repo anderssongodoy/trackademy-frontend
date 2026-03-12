@@ -3,8 +3,8 @@
     <div>
       <a class="back" [routerLink]="['/app/cursos', course()?.usuarioPeriodoCursoId]">Volver al curso</a>
       <p class="eyebrow">Horario del curso</p>
-      <h1>Primero elige los dÃ­as, luego acomoda la hora</h1>
-      <p class="subtitle">Este curso tiene {{ totalBlocks() || 'â€”' }} bloques semanales de 45 minutos. El flujo te guÃ­a paso a paso para que no llenes de mÃ¡s.</p>
+      <h1>Primero elige los dias, luego acomoda la hora</h1>
+      <p class="subtitle">Este curso tiene {{ totalBlocks() || '--' }} bloques semanales de 45 minutos. El flujo te guia paso a paso para que no llenes de mas.</p>
     </div>
     <div class="hero__actions">
       <a class="btn btn--ghost" routerLink="/app/horario">Ver horario global</a>
@@ -12,7 +12,7 @@
   </header>
 
   @if (isLoading()) {
-    <div class="state state--loading">Cargando configuraciÃ³n...</div>
+    <div class="state state--loading">Cargando configuracion...</div>
   }
 
   @if (loadError()) {
@@ -45,11 +45,11 @@
     <section class="steps">
       <button class="step" type="button" [class.is-active]="currentStep() === 1" (click)="goToStep(1)">
         <span>1</span>
-        <strong>DÃ­as</strong>
+        <strong>Dias</strong>
       </button>
       <button class="step" type="button" [class.is-active]="currentStep() === 2" [disabled]="selectedDays().length === 0" (click)="goToStep(2)">
         <span>2</span>
-        <strong>DistribuciÃ³n</strong>
+        <strong>Distribucion</strong>
       </button>
       <button class="step" type="button" [class.is-active]="currentStep() === 3" [disabled]="!canAdvanceToTimeStep()" (click)="goToStep(3)">
         <span>3</span>
@@ -63,8 +63,8 @@
           <div class="step-panel">
             <div class="step-panel__header">
               <div>
-                <h3>Â¿QuÃ© dÃ­as llevas este curso?</h3>
-                <p>Elige solo los dÃ­as en los que realmente tienes esta clase. Si luego cambia, lo editas sin rehacer todo.</p>
+                <h3>Que dias llevas este curso</h3>
+                <p>Elige solo los dias en los que realmente tienes esta clase. Si luego cambia, lo editas sin rehacer todo.</p>
               </div>
             </div>
 
@@ -92,10 +92,10 @@
           <div class="step-panel">
             <div class="step-panel__header">
               <div>
-                <h3>Reparte los bloques entre esos dÃ­as</h3>
-                <p>Puedes usar una propuesta automÃ¡tica y luego corregir solo lo necesario.</p>
+                <h3>Reparte los bloques entre esos dias</h3>
+                <p>Puedes usar una propuesta automatica y luego corregir solo lo necesario.</p>
               </div>
-              <button class="btn btn--ghost" type="button" (click)="applySuggestedDistribution()">Sugerir distribuciÃ³n</button>
+              <button class="btn btn--ghost" type="button" (click)="applySuggestedDistribution()">Sugerir distribucion</button>
             </div>
 
             <div class="distribution-grid">
@@ -104,6 +104,7 @@
                   <div>
                     <strong>{{ dayLabel(day) }}</strong>
                     <p>{{ distributionLabel(day) }}</p>
+                    <small>Ejemplo: {{ exampleRange(getPlan(day)?.get('bloques')?.value || 0) }}</small>
                   </div>
                   <div class="counter">
                     <button type="button" (click)="decreaseBlocks(day)">-</button>
@@ -122,12 +123,12 @@
                 <span>Te pasaste por {{ extraBlocks() }} bloques.</span>
               }
               @if (canAdvanceToTimeStep()) {
-                <span>La distribuciÃ³n ya coincide con las horas semanales del curso.</span>
+                <span>La distribucion ya coincide con las horas semanales del curso.</span>
               }
             </div>
 
             <div class="step-actions">
-              <button class="btn btn--ghost" type="button" (click)="goToStep(1)">AtrÃ¡s</button>
+              <button class="btn btn--ghost" type="button" (click)="goToStep(1)">Atras</button>
               <button class="btn btn--primary" type="button" [disabled]="!canAdvanceToTimeStep()" (click)="goToStep(3)">
                 Definir horario
               </button>
@@ -139,8 +140,8 @@
           <div class="step-panel">
             <div class="step-panel__header">
               <div>
-                <h3>Elige la hora de cada dÃ­a</h3>
-                <p>Ahora solo completas los dÃ­as seleccionados. La hora final se calcula automÃ¡ticamente.</p>
+                <h3>Elige la hora de cada dia</h3>
+                <p>Ahora solo completas los dias seleccionados. La hora final se calcula automaticamente.</p>
               </div>
             </div>
 
@@ -173,7 +174,7 @@
                       </select>
                     </label>
                     <label>
-                      <span>UbicaciÃ³n</span>
+                      <span>Ubicacion</span>
                       <input type="text" formControlName="ubicacion" placeholder="Aula o laboratorio" />
                     </label>
                     <label>
@@ -186,7 +187,7 @@
             </div>
 
             <div class="step-actions">
-              <button class="btn btn--ghost" type="button" (click)="goToStep(2)">AtrÃ¡s</button>
+              <button class="btn btn--ghost" type="button" (click)="goToStep(2)">Atras</button>
               <button class="btn btn--primary" type="button" (click)="save()" [disabled]="isSaving()">
                 {{ isSaving() ? 'Guardando...' : 'Guardar horario' }}
               </button>
@@ -198,14 +199,14 @@
       <aside class="preview-card">
         <div class="preview-card__header">
           <div>
-            <h3>Resumen rÃ¡pido</h3>
-            <p>AsÃ­ queda el curso antes de guardar.</p>
+            <h3>Resumen rapido</h3>
+            <p>Asi queda el curso antes de guardar.</p>
           </div>
         </div>
 
         <div class="progress-card">
           <span>Progreso</span>
-          <strong>{{ assignedBlocks() }} / {{ totalBlocks() || 'â€”' }}</strong>
+          <strong>{{ assignedBlocks() }} / {{ totalBlocks() || '--' }}</strong>
           <div class="progress-bar">
             <div class="progress-bar__fill" [style.width.%]="completionPercent()"></div>
           </div>
@@ -232,9 +233,9 @@
           @if (selectedDays().length === 0) {
             <section class="preview-day">
               <header>
-                <strong>AÃºn no elegiste dÃ­as</strong>
+                <strong>Aun no elegiste dias</strong>
               </header>
-              <p>Primero define quÃ© dÃ­as llevas este curso.</p>
+              <p>Primero define que dias llevas este curso.</p>
             </section>
           }
         </div>
