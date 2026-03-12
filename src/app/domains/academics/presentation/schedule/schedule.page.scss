@@ -80,7 +80,45 @@ h1 {
   padding: 18px;
   border: 1px solid rgba(226, 232, 240, 0.9);
   display: grid;
+  gap: 16px;
+}
+
+.panel__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.panel__header h2 {
+  margin: 0;
+  font-size: 18px;
+  color: #111827;
+}
+
+.week-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   gap: 12px;
+}
+
+.day-card {
+  border-radius: 14px;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px dashed rgba(148, 163, 184, 0.5);
+}
+
+.day-card h4 {
+  margin: 0 0 6px;
+  font-size: 14px;
+}
+
+.day-card p {
+  margin: 0;
+  color: #94a3b8;
+  font-size: 12px;
 }
 
 .empty {

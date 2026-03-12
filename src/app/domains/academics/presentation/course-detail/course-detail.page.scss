@@ -92,14 +92,19 @@
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  align-items: flex-start;
 }
 
 .tag {
-  padding: 6px 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
   border-radius: 999px;
   background: rgba(99, 102, 241, 0.12);
   color: #4f46e5;
   font-size: 12px;
+  white-space: nowrap;
 }
 
 .panel-grid {

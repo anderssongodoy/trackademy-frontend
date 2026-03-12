@@ -1,26 +1,25 @@
-﻿<div class="app-shell" [class.app-shell--menu-open]="mobileOpen()">
+﻿<div class="app-shell" [class.app-shell--menu-open]="mobileOpen()" [class.app-shell--collapsed]="collapsed()">
   <aside class="sidebar">
     <div class="sidebar__brand">
       <span class="brand__mark">T</span>
-      <div>
+      <div class="brand__text">
         <p class="brand__title">Trackademy</p>
         <p class="brand__subtitle">Panel académico</p>
       </div>
     </div>
     <nav class="sidebar__nav">
-      <a class="nav-link" routerLink="/app/dashboard" routerLinkActive="is-active">Dashboard</a>
-      <a class="nav-link" routerLink="/app/cursos" routerLinkActive="is-active">Cursos</a>
-      <a class="nav-link" routerLink="/app/horario" routerLinkActive="is-active">Horario</a>
-      <a class="nav-link" routerLink="/app/onboarding" routerLinkActive="is-active">Onboarding</a>
+      <a class="nav-link" routerLink="/app/dashboard" routerLinkActive="is-active" data-short="D"><span>Dashboard</span></a>
+      <a class="nav-link" routerLink="/app/cursos" routerLinkActive="is-active" data-short="C"><span>Cursos</span></a>
+      <a class="nav-link" routerLink="/app/horario" routerLinkActive="is-active" data-short="H"><span>Horario</span></a>
     </nav>
     <div class="sidebar__footer">
-      <a class="nav-cta" routerLink="/app/onboarding">Completar onboarding</a>
+      <button class="nav-cta" type="button" (click)="signOut()">Cerrar sesión</button>
     </div>
   </aside>
 
   <div class="app-shell__main">
     <header class="topbar">
-      <button class="icon-button" type="button" (click)="toggleMobile()" aria-label="Abrir menú">
+      <button class="icon-button" type="button" (click)="toggleMenu()" aria-label="Abrir menú">
         <span></span>
         <span></span>
         <span></span>
@@ -31,7 +30,7 @@
       </div>
       <div class="topbar__actions">
         <a class="topbar__link" routerLink="/app/horario">Ver horario</a>
-        <a class="topbar__primary" routerLink="/app/onboarding">Actualizar cursos</a>
+        <button class="topbar__secondary" type="button" (click)="signOut()">Cerrar sesión</button>
       </div>
     </header>
     <div class="app-shell__content">

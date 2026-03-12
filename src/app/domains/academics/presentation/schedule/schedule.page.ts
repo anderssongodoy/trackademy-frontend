@@ -13,6 +13,8 @@ import { MeUseCase, MyCourse } from '../../application/me-use-case';
 export class SchedulePage implements OnInit {
   private readonly meUseCase = inject(MeUseCase);
 
+  readonly days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+
   courses: MyCourse[] = [];
   isLoading = true;
   loadError = '';

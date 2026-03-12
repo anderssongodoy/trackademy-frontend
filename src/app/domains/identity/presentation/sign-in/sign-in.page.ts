@@ -73,10 +73,10 @@ export class SignInPage implements OnInit {
         return;
       }
 
-      await this.router.navigateByUrl('/app/onboarding');
+      await this.router.navigateByUrl('/onboarding');
     } catch (error) {
       if (error instanceof HttpErrorResponse && error.status === 404) {
-        await this.router.navigateByUrl('/app/onboarding');
+        await this.router.navigateByUrl('/onboarding');
         return;
       }
       this.authError.set('No pudimos validar tu periodo. Intenta nuevamente.');

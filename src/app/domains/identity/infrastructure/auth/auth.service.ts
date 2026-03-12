@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+﻿import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import {
   AccountInfo,
@@ -70,6 +70,10 @@ export class AuthService {
 
   private getStoredAppToken(): string | null {
     return localStorage.getItem(AuthService.APP_TOKEN_KEY);
+  }
+
+  private clearAppToken(): void {
+    localStorage.removeItem(AuthService.APP_TOKEN_KEY);
   }
 
   private getGoogleApi(): GoogleApi | null {
@@ -180,5 +184,18 @@ export class AuthService {
 
   async isSignedIn(): Promise<boolean> {
     return this.getStoredAppToken() !== null;
+  }
+
+  async signOut(): Promise<void> {
+    this.clearAppToken();
+    const account = this.getCurrentAccount();
+    if (account) {
+      await this.msal.logoutRedirect({
+        account,
+        postLogoutRedirectUri: `${window.location.origin}/auth/sign-in`
+      });
+      return;
+    }
+    window.location.assign('/auth/sign-in');
   }
 }

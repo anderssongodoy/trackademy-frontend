@@ -18,14 +18,15 @@ export const routes: Routes = [
       import('./domains/identity/presentation/sign-in/sign-in.page').then((m) => m.SignInPage)
   },
   {
+    path: 'onboarding',
+    canActivate: [authGuard],
+    loadComponent: () => import('./domains/academics/presentation/onboarding/onboarding.page').then((m) => m.OnboardingPage)
+  },
+  {
     path: 'app',
     canActivate: [authGuard],
     component: AppShellComponent,
     children: [
-      {
-        path: 'onboarding',
-        loadComponent: () => import('./domains/academics/presentation/onboarding/onboarding.page').then((m) => m.OnboardingPage)
-      },
       {
         path: 'dashboard',
         loadComponent: () => import('./domains/academics/presentation/dashboard/dashboard.page').then((m) => m.DashboardPage)

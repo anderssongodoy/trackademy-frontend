@@ -1,4 +1,4 @@
-import { Injectable, inject } from '@angular/core';
+﻿import { Injectable, inject } from '@angular/core';
 
 import { AuthService } from '../infrastructure/auth/auth.service';
 
@@ -20,5 +20,9 @@ export class AuthUseCase {
 
   beginMicrosoftLogin(redirect: string): Promise<void> {
     return this.auth.beginMicrosoftLogin(redirect);
+  }
+
+  signOut(): Promise<void> {
+    return this.auth.signOut();
   }
 }
