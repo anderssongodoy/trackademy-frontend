@@ -1,4 +1,4 @@
-﻿import { Injectable, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import {
@@ -27,6 +27,10 @@ export class CatalogUseCase {
 
   getCourses(carreraId?: number, query?: string, limit?: number, offset?: number): Observable<CatalogCourse[]> {
     return this.api.getCourses(carreraId, query, limit, offset);
+  }
+
+  getCourseByCode(codigo: string): Observable<CatalogCourse> {
+    return this.api.getCourseByCode(codigo);
   }
 }
 

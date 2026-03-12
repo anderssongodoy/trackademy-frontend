@@ -1,4 +1,4 @@
-﻿import { Routes } from '@angular/router';
+import { Routes } from '@angular/router';
 import { authGuard } from './domains/identity/infrastructure/auth/auth.guard';
 import { AppShellComponent } from './shared/ui/app-shell/app-shell.component';
 
@@ -38,6 +38,10 @@ export const routes: Routes = [
       {
         path: 'cursos/:id',
         loadComponent: () => import('./domains/academics/presentation/course-detail/course-detail.page').then((m) => m.CourseDetailPage)
+      },
+      {
+        path: 'cursos/:id/horario',
+        loadComponent: () => import('./domains/academics/presentation/course-schedule/course-schedule.page').then((m) => m.CourseSchedulePage)
       },
       {
         path: 'horario',

@@ -1,12 +1,16 @@
-ï»¿<main class="course-detail">
+<main class="course-detail">
   <header class="course-detail__hero">
     <div>
       <a class="back" routerLink="/app/cursos">Volver a cursos</a>
-      <h1>Detalle del curso</h1>
-      <p class="subtitle">Revisa la informaciÃ³n disponible y registra avances cuando estÃ©n listos.</p>
+      <p class="eyebrow">Detalle del curso</p>
+      <h1>Un solo lugar para seguir tu progreso</h1>
+      <p class="subtitle">Revisa evaluaciones, mantén tu horario al día y deja el registro listo para notas reales.</p>
     </div>
     <div class="hero__actions">
       <a class="btn btn--ghost" routerLink="/app/dashboard">Ir al dashboard</a>
+      @if (course) {
+        <a class="btn btn--primary" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Configurar horario</a>
+      }
     </div>
   </header>
 
@@ -20,23 +24,26 @@
 
   @if (!isLoading && !loadError && course) {
     <section class="course-card">
-      <div>
+      <div class="course-card__copy">
         <p class="course-code">{{ course.codigo }}</p>
         <h2>{{ course.nombre }}</h2>
-        <p class="course-meta">Modalidad: {{ course.modalidad || 'â€”' }}</p>
+        <p class="course-meta">Modalidad {{ course.modalidad || '—' }}</p>
       </div>
       <div class="course-tags">
-        <span class="tag">Estado: {{ course.activo ? 'Activo' : 'Inactivo' }}</span>
-        <span class="tag">SecciÃ³n: {{ course.seccion || 'â€”' }}</span>
-        <span class="tag">Profesor: {{ course.profesor || 'â€”' }}</span>
+        <span class="tag">{{ course.activo ? 'Activo' : 'Inactivo' }}</span>
+        <span class="tag">Sección {{ course.seccion || 'Pendiente' }}</span>
+        <span class="tag">Profesor {{ course.profesor || 'Pendiente' }}</span>
       </div>
     </section>
 
     <section class="panel-grid">
-      <article class="panel">
-        <h3>Evaluaciones</h3>
+      <article class="panel panel--wide">
+        <div class="panel__header">
+          <h3>Evaluaciones sincronizadas</h3>
+          <span>{{ evaluations.length }} items</span>
+        </div>
         @if (evaluations.length === 0) {
-          <p class="muted">Las evaluaciones aparecerÃ¡n cuando estÃ©n sincronizadas con el sÃ­labo.</p>
+          <p class="muted">Las evaluaciones aparecerán cuando el sílabo del curso tenga estructura utilizable.</p>
         }
         @if (evaluations.length > 0) {
           <div class="evaluation-list">
@@ -44,25 +51,27 @@
               <div class="evaluation-row">
                 <div>
                   <p class="evaluation-code">{{ item.evaluacionCodigo }}</p>
-                  <p class="evaluation-desc">{{ item.descripcion || item.tipo || 'EvaluaciÃ³n' }}</p>
+                  <p class="evaluation-desc">{{ item.descripcion || item.tipo || 'Evaluación' }}</p>
                 </div>
                 <div class="evaluation-meta">
-                  <span>Semana {{ item.semana ?? 'â€”' }}</span>
-                  <span>{{ item.fechaEstimada || 'â€”' }}</span>
+                  <span>Semana {{ item.semana ?? '—' }}</span>
+                  <span>{{ item.fechaEstimada || 'Fecha por definir' }}</span>
                 </div>
               </div>
             }
           </div>
         }
       </article>
+
       <article class="panel">
         <h3>Notas</h3>
-        <p class="muted">Registra tus notas desde el dashboard o cuando tengas la evaluaciÃ³n lista.</p>
+        <p class="muted">La siguiente iteración conectará el registro de nota por evaluación. Este curso ya quedó listo para esa integración.</p>
       </article>
-      <article class="panel">
+
+      <article class="panel accent-panel">
         <h3>Horario</h3>
-        <p class="muted">Agrega el horario del curso para construir tu calendario automÃ¡tico.</p>
-        <a class="btn btn--primary" routerLink="/app/horario">Configurar horario</a>
+        <p class="muted">Cuando definas tus bloques, las evaluaciones podrán ubicarse mejor dentro de la semana real.</p>
+        <a class="btn btn--primary" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Editar horario</a>
       </article>
     </section>
   }

@@ -1,4 +1,4 @@
-﻿import { Injectable, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
 import {
@@ -6,7 +6,9 @@ import {
   MyCourse,
   MyCurrentPeriod,
   MyEvaluation,
-  MyScheduleEntry
+  MyScheduleEntry,
+  ScheduleBlockRequest,
+  ScheduleUpdateResponse
 } from '../infrastructure/api/me-api.service';
 
 @Injectable({ providedIn: 'root' })
@@ -25,9 +27,13 @@ export class MeUseCase {
     return this.api.getMySchedule();
   }
 
+  updateCourseSchedule(usuarioPeriodoCursoId: number, bloques: ScheduleBlockRequest[]): Observable<ScheduleUpdateResponse> {
+    return this.api.updateCourseSchedule(usuarioPeriodoCursoId, bloques);
+  }
+
   getMyEvaluations(cursoId?: number): Observable<MyEvaluation[]> {
     return this.api.getMyEvaluations(cursoId);
   }
 }
 
-export type { MyCourse, MyCurrentPeriod, MyScheduleEntry, MyEvaluation };
+export type { MyCourse, MyCurrentPeriod, MyScheduleEntry, MyEvaluation, ScheduleBlockRequest, ScheduleUpdateResponse };

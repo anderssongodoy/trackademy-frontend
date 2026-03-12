@@ -1,4 +1,4 @@
-﻿.app-shell {
+.app-shell {
   display: flex;
   min-height: 100dvh;
   background:
@@ -9,9 +9,9 @@
 }
 
 .sidebar {
-  width: 260px;
-  padding: 28px 22px;
-  background: #0b1f2a;
+  width: 264px;
+  padding: 28px 20px;
+  background: linear-gradient(180deg, #071c28, #0b2230 55%, #0c2634);
   color: #f8fafc;
   display: flex;
   flex-direction: column;
@@ -19,18 +19,24 @@
   position: sticky;
   top: 0;
   height: 100dvh;
-  transition: width 0.2s ease, padding 0.2s ease;
+  transition: width 0.22s ease, padding 0.22s ease;
+  overflow: hidden;
 }
 
 .app-shell--collapsed .sidebar {
-  width: 84px;
-  padding: 28px 12px;
+  width: 92px;
+  padding: 28px 14px;
 }
 
 .sidebar__brand {
   display: flex;
   gap: 14px;
   align-items: center;
+  min-height: 42px;
+}
+
+.app-shell--collapsed .sidebar__brand {
+  justify-content: center;
 }
 
 .brand__mark {
@@ -41,26 +47,32 @@
   place-items: center;
   background: linear-gradient(135deg, #22d3ee, #6366f1);
   font-weight: 700;
+  flex: 0 0 auto;
 }
 
 .brand__text {
-  transition: opacity 0.2s ease;
+  transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
 .app-shell--collapsed .brand__text {
   opacity: 0;
+  transform: translateX(-8px);
   pointer-events: none;
+  width: 0;
+}
+
+.brand__title,
+.brand__subtitle {
+  margin: 0;
 }
 
 .brand__title {
-  margin: 0;
   font-weight: 700;
 }
 
 .brand__subtitle {
-  margin: 0;
   font-size: 12px;
-  color: rgba(248, 250, 252, 0.7);
+  color: rgba(248, 250, 252, 0.68);
 }
 
 .sidebar__nav {
@@ -70,10 +82,10 @@
 
 .nav-link {
   padding: 10px 14px;
-  border-radius: 12px;
-  color: rgba(248, 250, 252, 0.8);
+  border-radius: 14px;
+  color: rgba(248, 250, 252, 0.82);
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
   transition: background 0.2s ease, color 0.2s ease;
   display: flex;
   align-items: center;
@@ -82,24 +94,19 @@
 
 .nav-link::before {
   content: attr(data-short);
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 12px;
   display: grid;
   place-items: center;
   background: rgba(255, 255, 255, 0.08);
   font-weight: 700;
+  flex: 0 0 auto;
 }
 
 .app-shell--collapsed .nav-link {
   justify-content: center;
-  padding: 10px 8px;
-}
-
-.app-shell--collapsed .nav-link::before {
-  width: 36px;
-  height: 36px;
-  border-radius: 14px;
+  padding: 10px 6px;
 }
 
 .app-shell--collapsed .nav-link span {
@@ -108,7 +115,7 @@
 
 .nav-link:hover,
 .nav-link.is-active {
-  background: rgba(99, 102, 241, 0.2);
+  background: rgba(99, 102, 241, 0.22);
   color: #f8fafc;
 }
 
@@ -117,48 +124,47 @@
 }
 
 .nav-cta {
-  display: inline-flex;
-  justify-content: center;
   width: 100%;
-  padding: 10px 16px;
-  border-radius: 999px;
+  padding: 10px 14px;
+  border-radius: 14px;
   background: #f8fafc;
   color: #0b1f2a;
-  font-weight: 600;
+  font-weight: 700;
   border: none;
   cursor: pointer;
-  position: relative;
-  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
-.nav-cta::before {
-  content: attr(data-short);
-  font-weight: 700;
+.nav-cta__icon {
   display: none;
 }
 
 .app-shell--collapsed .nav-cta {
-  width: 44px;
-  height: 44px;
-  padding: 0;
-  border-radius: 16px;
-  color: transparent;
+  width: 100%;
+  padding: 10px 0;
 }
 
-.app-shell--collapsed .nav-cta::before {
-  display: block;
-  color: #0b1f2a;
+.app-shell--collapsed .nav-cta__label {
+  display: none;
+}
+
+.app-shell--collapsed .nav-cta__icon {
+  display: inline;
 }
 
 .app-shell__main {
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0;
 }
 
 .topbar {
   height: 72px;
-  padding: 0 32px;
+  padding: 0 28px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -168,11 +174,11 @@
 }
 
 .icon-button {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: 14px;
-  background: #fff;
-  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(148, 163, 184, 0.35);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -192,6 +198,7 @@
   flex-direction: column;
   font-size: 13px;
   color: #64748b;
+  min-width: 0;
 }
 
 .topbar__title strong {
@@ -208,7 +215,7 @@
 .topbar__link {
   color: #0f172a;
   text-decoration: none;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .topbar__secondary {
@@ -221,7 +228,8 @@
 }
 
 .app-shell__content {
-  padding: 24px 32px 48px;
+  padding: 24px 28px 48px;
+  min-width: 0;
 }
 
 .scrim {
@@ -245,8 +253,21 @@
   }
 
   .app-shell--collapsed .sidebar {
-    width: 260px;
-    padding: 28px 22px;
+    width: 264px;
+    padding: 28px 20px;
+  }
+
+  .app-shell--collapsed .brand__text,
+  .app-shell--collapsed .nav-link span,
+  .app-shell--collapsed .nav-cta__label {
+    display: block;
+    opacity: 1;
+    width: auto;
+    transform: none;
+  }
+
+  .app-shell--collapsed .nav-cta__icon {
+    display: none;
   }
 
   .topbar {

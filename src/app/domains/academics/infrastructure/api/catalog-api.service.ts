@@ -1,4 +1,4 @@
-﻿import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -74,5 +74,9 @@ export class CatalogApiService {
     }
 
     return this.http.get<CatalogCourse[]>(`${this.env.apiBaseUrl}/api/v1/catalog/cursos`, { params });
+  }
+
+  getCourseByCode(codigo: string): Observable<CatalogCourse> {
+    return this.http.get<CatalogCourse>(`${this.env.apiBaseUrl}/api/v1/catalog/cursos/${codigo}`);
   }
 }

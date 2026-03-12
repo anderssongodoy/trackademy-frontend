@@ -1,4 +1,4 @@
-﻿.schedule {
+.schedule {
   display: grid;
   gap: 24px;
 }
@@ -22,13 +22,14 @@
 
 h1 {
   margin: 0 0 12px;
-  font-size: clamp(1.8rem, 3vw, 2.6rem);
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
 }
 
-.subtitle {
+.subtitle,
+.panel__header p,
+.section-title p {
   margin: 0;
   color: #475569;
-  max-width: 560px;
 }
 
 .hero__actions {
@@ -45,6 +46,7 @@ h1 {
   cursor: pointer;
   text-decoration: none;
   font-size: 14px;
+  white-space: nowrap;
 }
 
 .btn--primary {
@@ -74,51 +76,61 @@ h1 {
   border: 1px solid rgba(148, 163, 184, 0.4);
 }
 
-.schedule__panel {
+.schedule__panel,
+.course-card {
   background: #fff;
-  border-radius: 18px;
-  padding: 18px;
+  border-radius: 22px;
+  padding: 20px;
   border: 1px solid rgba(226, 232, 240, 0.9);
-  display: grid;
-  gap: 16px;
 }
 
-.panel__header {
+.panel__header,
+.course-card,
+.section-title {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  color: #64748b;
-  font-size: 14px;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
 }
 
-.panel__header h2 {
-  margin: 0;
-  font-size: 18px;
-  color: #111827;
+.panel__header h2,
+.section-title h3,
+.course-card h4 {
+  margin: 0 0 6px;
+}
+
+.panel__header span {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.12);
+  color: #4f46e5;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .week-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
   gap: 12px;
+  margin-top: 18px;
 }
 
 .day-card {
-  border-radius: 14px;
-  padding: 12px;
+  border-radius: 16px;
+  padding: 14px;
   background: #f8fafc;
   border: 1px dashed rgba(148, 163, 184, 0.5);
   display: grid;
-  gap: 8px;
+  gap: 10px;
 }
 
-.day-card h4 {
+.day-card h4,
+.day-card p {
   margin: 0;
-  font-size: 14px;
 }
 
 .day-card p {
-  margin: 0;
   color: #94a3b8;
   font-size: 12px;
 }
@@ -128,26 +140,26 @@ h1 {
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 6px;
+  gap: 10px;
 }
 
 .day-card li {
   display: grid;
-  gap: 2px;
-  font-size: 12px;
-  color: #475569;
+  gap: 4px;
+  padding: 10px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.88);
 }
 
-.day-card .time {
-  color: #6366f1;
-  font-weight: 600;
+.day-card .time,
+.course-code {
+  color: #4f46e5;
+  font-weight: 700;
   font-size: 12px;
 }
 
-.empty {
-  padding: 16px;
-  border-radius: 12px;
-  background: #f8fafc;
+.day-card small,
+.course-meta {
   color: #64748b;
 }
 
@@ -162,35 +174,47 @@ h1 {
 }
 
 .course-card {
-  background: #fff;
-  border-radius: 18px;
-  padding: 18px;
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
   align-items: center;
 }
 
-.course-card .btn--ghost {
-  white-space: nowrap;
+.course-card--configured {
+  border-color: rgba(167, 243, 208, 0.9);
+  background: linear-gradient(180deg, #ffffff, #f0fdf4);
 }
 
-.course-code {
-  margin: 0 0 6px;
-  font-size: 12px;
+.course-card__actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.course-status {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.12);
   color: #4f46e5;
-  font-weight: 600;
+  font-weight: 700;
+  font-size: 12px;
 }
 
-.course-meta {
-  margin: 0;
+.empty {
+  padding: 16px;
+  border-radius: 12px;
+  background: #f8fafc;
   color: #64748b;
 }
 
 @media (max-width: 900px) {
-  .course-card {
-    align-items: flex-start;
+  .hero__actions,
+  .course-card__actions {
+    width: 100%;
+  }
+
+  .hero__actions .btn,
+  .course-card__actions .btn {
+    flex: 1;
+    text-align: center;
   }
 }

@@ -1,0 +1,127 @@
+<main class="course-schedule">
+  <header class="course-schedule__hero">
+    <div>
+      <a class="back" [routerLink]="['/app/cursos', course()?.usuarioPeriodoCursoId]">Volver al curso</a>
+      <p class="eyebrow">Horario del curso</p>
+      <h1>Configura bloques reales de clase</h1>
+      <p class="subtitle">Registra solo los bloques que ya conoces. El resto lo podrás ajustar más adelante.</p>
+    </div>
+    <div class="hero__actions">
+      <a class="btn btn--ghost" routerLink="/app/horario">Ver horario semanal</a>
+    </div>
+  </header>
+
+  @if (isLoading()) {
+    <div class="state state--loading">Cargando configuración...</div>
+  }
+
+  @if (loadError()) {
+    <div class="state state--error">{{ loadError() }}</div>
+  }
+
+  @if (!isLoading() && !loadError() && course()) {
+    <section class="summary-card">
+      <div>
+        <p class="course-code">{{ course()?.codigo }}</p>
+        <h2>{{ course()?.nombre }}</h2>
+        <p class="course-meta">{{ course()?.modalidad || 'Modalidad no definida' }}</p>
+      </div>
+      <div class="summary-grid">
+        <div>
+          <span class="label">Horas semanales</span>
+          <strong>{{ catalogCourse()?.horasSemanales ?? '—' }}</strong>
+        </div>
+        <div>
+          <span class="label">Bloques asignados</span>
+          <strong>{{ assignedBlocks() }}</strong>
+        </div>
+        <div>
+          <span class="label">Pendientes</span>
+          <strong>{{ remainingBlocks() }}</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="editor-card" [formGroup]="form">
+      <div class="editor-card__header">
+        <div>
+          <h3>Bloques de clase</h3>
+          <p>Usamos bloques de 45 minutos desde las 07:00. Puedes dejar un solo bloque hoy y volver luego.</p>
+        </div>
+        <button class="btn btn--ghost" type="button" (click)="addBlock()">Agregar bloque</button>
+      </div>
+
+      <div class="block-list" formArrayName="bloques">
+        @for (block of blockControls.controls; track $index) {
+          <article class="block-card" [formGroupName]="$index">
+            <div class="block-card__top">
+              <strong>Bloque {{ $index + 1 }}</strong>
+              <button class="link-button" type="button" (click)="removeBlock($index)">Quitar</button>
+            </div>
+            <div class="block-grid">
+              <label>
+                <span>Día</span>
+                <select formControlName="diaSemana">
+                  @for (day of dayOptions; track day.value) {
+                    <option [value]="day.value">{{ day.label }}</option>
+                  }
+                </select>
+              </label>
+              <label>
+                <span>Inicio</span>
+                <select formControlName="horaInicio">
+                  @for (time of timeOptions; track time) {
+                    <option [value]="time">{{ time }}</option>
+                  }
+                </select>
+              </label>
+              <label>
+                <span>Bloques</span>
+                <select formControlName="bloques">
+                  @for (option of availableBlockOptions($index); track option) {
+                    <option [value]="option">{{ option }}</option>
+                  }
+                </select>
+              </label>
+              <label>
+                <span>Fin</span>
+                <input type="text" [value]="endTimeFor($index)" readonly />
+              </label>
+              <label>
+                <span>Tipo</span>
+                <select formControlName="tipoSesion">
+                  @for (type of sessionTypes; track type) {
+                    <option [value]="type">{{ type }}</option>
+                  }
+                </select>
+              </label>
+              <label>
+                <span>Ubicación</span>
+                <input type="text" formControlName="ubicacion" placeholder="Aula o laboratorio" />
+              </label>
+              <label class="block-grid__full">
+                <span>URL virtual</span>
+                <input type="text" formControlName="urlVirtual" placeholder="https://..." />
+              </label>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    @if (saveError()) {
+      <div class="state state--error">{{ saveError() }}</div>
+    }
+
+    @if (saveSuccess()) {
+      <div class="state state--success">{{ saveSuccess() }}</div>
+    }
+
+    <div class="page-actions">
+      <button class="btn btn--ghost" type="button" (click)="goBack()">Cancelar</button>
+      <button class="btn btn--primary" type="button" (click)="save()" [disabled]="isSaving()">
+        {{ isSaving() ? 'Guardando...' : 'Guardar horario' }}
+      </button>
+    </div>
+  }
+</main>

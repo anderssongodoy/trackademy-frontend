@@ -42,6 +42,15 @@ export class SchedulePage implements OnInit {
     });
   }
 
+  get coursesWithoutSchedule(): MyCourse[] {
+    const configuredIds = new Set(this.schedule.map((entry) => entry.usuarioPeriodoCursoId));
+    return this.courses.filter((course) => !configuredIds.has(course.usuarioPeriodoCursoId));
+  }
+
+  hasSchedule(usuarioPeriodoCursoId: number): boolean {
+    return this.schedule.some((entry) => entry.usuarioPeriodoCursoId === usuarioPeriodoCursoId);
+  }
+
   private loadSchedule(): void {
     this.meUseCase.getMySchedule().subscribe({
       next: (schedule) => {

@@ -1,4 +1,4 @@
-﻿import { HttpClient } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -62,6 +62,21 @@ export interface MyEvaluation {
   observacion: string | null;
 }
 
+export interface ScheduleBlockRequest {
+  diaSemana: number;
+  horaInicio: string;
+  horaFin: string;
+  duracionMin: number;
+  tipoSesion: string | null;
+  ubicacion: string | null;
+  urlVirtual: string | null;
+}
+
+export interface ScheduleUpdateResponse {
+  usuarioPeriodoCursoId: number;
+  bloquesRegistrados: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class MeApiService {
   private readonly http = inject(HttpClient);
@@ -79,8 +94,20 @@ export class MeApiService {
     return this.http.get<MyScheduleEntry[]>(`${this.env.apiBaseUrl}/api/v1/me/horarios`);
   }
 
+  updateCourseSchedule(usuarioPeriodoCursoId: number, bloques: ScheduleBlockRequest[]): Observable<ScheduleUpdateResponse> {
+    return this.http.put<ScheduleUpdateResponse>(
+      `${this.env.apiBaseUrl}/api/v1/me/cursos/${usuarioPeriodoCursoId}/horarios`,
+      { bloques }
+    );
+  }
+
   getMyEvaluations(cursoId?: number): Observable<MyEvaluation[]> {
-    const params = cursoId ? { cursoId: cursoId.toString() } : {};
-    return this.http.get<MyEvaluation[]>(`${this.env.apiBaseUrl}/api/v1/me/evaluaciones`, { params });
+    if (cursoId) {
+      return this.http.get<MyEvaluation[]>(`${this.env.apiBaseUrl}/api/v1/me/evaluaciones`, {
+        params: { cursoId: cursoId.toString() }
+      });
+    }
+
+    return this.http.get<MyEvaluation[]>(`${this.env.apiBaseUrl}/api/v1/me/evaluaciones`);
   }
 }
