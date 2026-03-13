@@ -1,5 +1,5 @@
 ﻿import { CommonModule } from '@angular/common';
-import { Component, inject, signal } from '@angular/core';
+import { Component, HostListener, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
@@ -75,11 +75,29 @@ export class AppShellComponent {
     }
   ];
 
+  @HostListener('window:resize')
+  onResize(): void {
+    if (this.isMobileViewport()) {
+      this.collapsed.set(false);
+      return;
+    }
+
+    this.mobileOpen.set(false);
+  }
+
+  @HostListener('window:keydown.escape')
+  onEscape(): void {
+    this.closeMobile();
+  }
+
   toggleMenu(): void {
-    if (window.innerWidth <= 1024) {
+    if (this.isMobileViewport()) {
+      this.collapsed.set(false);
       this.mobileOpen.set(!this.mobileOpen());
       return;
     }
+
+    this.mobileOpen.set(false);
     this.collapsed.set(!this.collapsed());
   }
 
@@ -90,5 +108,9 @@ export class AppShellComponent {
   async signOut(): Promise<void> {
     await this.authUseCase.signOut();
     this.router.navigate(['/auth/sign-in']);
+  }
+
+  private isMobileViewport(): boolean {
+    return window.innerWidth <= 1024;
   }
 }

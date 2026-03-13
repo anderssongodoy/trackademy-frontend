@@ -4,7 +4,7 @@ import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/fo
 import { forkJoin } from 'rxjs';
 
 import { CatalogCampus, CatalogCareer, CatalogCourse, CatalogUseCase } from '../../application/catalog-use-case';
-import { MeUseCase, MyCourse, MyCurrentPeriod } from '../../application/me-use-case';
+import { MeUseCase, MyCalendarSyncAccount, MyCourse, MyCurrentPeriod } from '../../application/me-use-case';
 
 @Component({
   selector: 'app-profile-page',
@@ -53,6 +53,7 @@ export class ProfilePage implements OnInit {
   campuses: CatalogCampus[] = [];
   careers: CatalogCareer[] = [];
   currentCourses: MyCourse[] = [];
+  calendarSyncAccounts: MyCalendarSyncAccount[] = [];
   availableCourses: CatalogCourse[] = [];
   selectedCourseIds = new Set<number>();
   selectedCourseLabels = new Map<number, string>();
@@ -137,6 +138,34 @@ export class ProfilePage implements OnInit {
   get addedCourseCount(): number {
     const currentIds = new Set(this.currentCourses.map((course) => course.cursoId));
     return [...this.selectedCourseIds].filter((id) => !currentIds.has(id)).length;
+  }
+
+  get connectedCalendarProviders(): number {
+    return this.calendarSyncAccounts.filter((item) => item.conectado).length;
+  }
+
+  syncProviderLabel(provider: string): string {
+    return provider === 'google' ? 'Google Calendar' : 'Outlook Calendar';
+  }
+
+  syncStatusLabel(account: MyCalendarSyncAccount): string {
+    if (account.conectado && account.estado === 'active') {
+      return 'Conectado';
+    }
+    if (account.conectado && account.estado === 'error') {
+      return 'Revisar conexion';
+    }
+    if (account.conectado) {
+      return 'Configurado';
+    }
+    return 'Pendiente';
+  }
+
+  syncHint(account: MyCalendarSyncAccount): string {
+    if (account.conectado) {
+      return account.email || 'Cuenta vinculada';
+    }
+    return 'Base lista. Falta activar OAuth y el primer empuje de eventos.';
   }
 
   savePersonal(): void {
@@ -301,13 +330,15 @@ export class ProfilePage implements OnInit {
       period: this.meUseCase.getCurrentPeriod(),
       campuses: this.catalogUseCase.getCampuses(),
       careers: this.catalogUseCase.getCareers(),
-      courses: this.meUseCase.getMyCourses()
+      courses: this.meUseCase.getMyCourses(),
+      syncAccounts: this.meUseCase.getCalendarSyncAccounts()
     }).subscribe({
-      next: ({ period, campuses, careers, courses }) => {
+      next: ({ period, campuses, careers, courses, syncAccounts }) => {
         this.period = period;
         this.campuses = campuses;
         this.careers = careers;
         this.currentCourses = courses;
+        this.calendarSyncAccounts = syncAccounts;
         this.patchPersonalForm(period);
         this.patchGoalsForm(period);
         this.patchConfigForm(period);

@@ -7,6 +7,7 @@ import {
   EvaluationGradeRequest,
   MeApiService,
   MyCalendarEvent,
+  MyCalendarSyncAccount,
   MyCourse,
   MyCurrentPeriod,
   MyDashboardSummary,
@@ -54,6 +55,10 @@ export class MeUseCase {
     return this.api.getMyCalendar(from, to);
   }
 
+  getCalendarSyncAccounts(): Observable<MyCalendarSyncAccount[]> {
+    return this.api.getCalendarSyncAccounts();
+  }
+
   updateCourseSchedule(usuarioPeriodoCursoId: number, bloques: ScheduleBlockRequest[]): Observable<ScheduleUpdateResponse> {
     return this.api.updateCourseSchedule(usuarioPeriodoCursoId, bloques);
   }
@@ -76,6 +81,7 @@ export type {
   CourseMetadataUpdateRequest,
   EvaluationGradeRequest,
   MyCalendarEvent,
+  MyCalendarSyncAccount,
   MyCourse,
   MyCurrentPeriod,
   MyDashboardSummary,

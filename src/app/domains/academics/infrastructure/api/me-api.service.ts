@@ -23,6 +23,16 @@ export interface MyCurrentPeriod {
   periodoFechaFin: string | null;
 }
 
+export interface MyCalendarSyncAccount {
+  provider: string;
+  conectado: boolean;
+  email: string | null;
+  calendarId: string | null;
+  syncDirection: string | null;
+  estado: string | null;
+  lastSyncAt: string | null;
+}
+
 export interface MyCourse {
   usuarioPeriodoCursoId: number;
   cursoId: number;
@@ -186,6 +196,10 @@ export class MeApiService {
     }
 
     return this.http.get<MyCalendarEvent[]>(`${this.env.apiBaseUrl}/api/v1/me/calendario`);
+  }
+
+  getCalendarSyncAccounts(): Observable<MyCalendarSyncAccount[]> {
+    return this.http.get<MyCalendarSyncAccount[]>(`${this.env.apiBaseUrl}/api/v1/me/calendar-sync-accounts`);
   }
 
   updateCourseSchedule(usuarioPeriodoCursoId: number, bloques: ScheduleBlockRequest[]): Observable<ScheduleUpdateResponse> {

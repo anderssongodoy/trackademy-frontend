@@ -205,6 +205,42 @@
     <section class="profile-card profile-card--wide">
       <div class="profile-card__header">
         <div>
+          <h2>Sincronizacion de calendario</h2>
+          <p>Ya dejamos lista la base para Google Calendar y Outlook. En este bloque veras que proveedor esta conectado cuando activemos el OAuth real.</p>
+        </div>
+      </div>
+
+      <div class="reconfig-meta">
+        <strong>{{ connectedCalendarProviders }} proveedor{{ connectedCalendarProviders === 1 ? '' : 'es' }} conectado{{ connectedCalendarProviders === 1 ? '' : 's' }}</strong>
+        <span>Por ahora solo dejamos visible el estado. La conexion real sera el siguiente paso.</span>
+      </div>
+
+      <div class="sync-grid">
+        @for (account of calendarSyncAccounts; track account.provider) {
+          <article class="sync-card" [class.sync-card--connected]="account.conectado">
+            <div class="sync-card__top">
+              <div>
+                <span class="sync-card__eyebrow">{{ syncProviderLabel(account.provider) }}</span>
+                <h3>{{ syncStatusLabel(account) }}</h3>
+              </div>
+              <span class="status-chip" [class.status-chip--pending]="!account.conectado">{{ account.conectado ? 'Listo para usar' : 'Pendiente' }}</span>
+            </div>
+
+            <p>{{ syncHint(account) }}</p>
+
+            @if (account.lastSyncAt) {
+              <small>Ultimo sync: {{ account.lastSyncAt | date:'dd/MM/yyyy HH:mm' }}</small>
+            } @else {
+              <small>Aun no hay un primer sync registrado.</small>
+            }
+          </article>
+        }
+      </div>
+    </section>
+
+    <section class="profile-card profile-card--wide">
+      <div class="profile-card__header">
+        <div>
           <h2>Reconfigurar ciclo</h2>
           <p>Usa este bloque solo si te equivocaste en campus, carrera o cursos del periodo actual.</p>
         </div>

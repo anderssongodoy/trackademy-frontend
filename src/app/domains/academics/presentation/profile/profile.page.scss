@@ -83,6 +83,11 @@ h1 {
   background: rgba(237, 233, 254, 0.96);
 }
 
+.status-chip--pending {
+  color: #92400e;
+  background: rgba(255, 251, 235, 0.96);
+}
+
 .hero-chip {
   color: #334155;
   background: rgba(255, 255, 255, 0.9);
@@ -183,7 +188,8 @@ h1 {
 .summary-list,
 .reconfig-form,
 .selected-courses,
-.course-picker {
+.course-picker,
+.sync-grid {
   display: grid;
   gap: 16px;
 }
@@ -258,6 +264,50 @@ h1 {
 
 .selected-courses {
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.sync-grid {
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+}
+
+.sync-card {
+  display: grid;
+  gap: 12px;
+  padding: 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(226, 232, 240, 0.88);
+  background: rgba(248, 250, 252, 0.92);
+}
+
+.sync-card--connected {
+  background: rgba(240, 253, 244, 0.96);
+  border-color: rgba(134, 239, 172, 0.6);
+}
+
+.sync-card__top {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.sync-card__eyebrow {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #64748b;
+}
+
+.sync-card h3,
+.sync-card p,
+.sync-card small {
+  margin: 0;
+}
+
+.sync-card p,
+.sync-card small {
+  color: #475569;
 }
 
 .selected-chip,
@@ -346,6 +396,7 @@ h1 {
   .profile-card__header,
   .reconfig-meta,
   .hero__chips,
+  .sync-card__top,
   .course-option,
   .selected-chip {
     display: grid;

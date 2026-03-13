@@ -1,6 +1,7 @@
 .app-shell {
   display: flex;
   min-height: 100dvh;
+  overflow-x: clip;
   background:
     radial-gradient(circle at 20% 10%, rgba(99, 102, 241, 0.12), transparent 40%),
     radial-gradient(circle at 80% 0%, rgba(14, 165, 233, 0.12), transparent 45%),
@@ -245,18 +246,21 @@
 @media (max-width: 1024px) {
   .sidebar {
     position: fixed;
-    left: -280px;
+    left: 0;
     top: 0;
     z-index: 10;
-    transition: left 0.2s ease;
+    width: min(280px, calc(100vw - 32px));
+    transform: translateX(calc(-100% - 16px));
+    transition: transform 0.2s ease;
+    box-shadow: 0 28px 60px rgba(15, 23, 42, 0.28);
   }
 
   .app-shell--menu-open .sidebar {
-    left: 0;
+    transform: translateX(0);
   }
 
   .app-shell--collapsed .sidebar {
-    width: 264px;
+    width: min(280px, calc(100vw - 32px));
     padding: 28px 20px;
   }
 
@@ -289,6 +293,10 @@
 }
 
 @media (max-width: 640px) {
+  .topbar {
+    padding: 0 16px;
+  }
+
   .app-shell__content {
     padding: 20px 16px 36px;
   }
