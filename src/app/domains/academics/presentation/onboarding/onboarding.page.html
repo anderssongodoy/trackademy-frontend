@@ -36,8 +36,11 @@
           <section class="card card--pdf">
             <div class="card__header">
               <div>
-                <h2>Sube tu PDF de matrícula</h2>
-                <p>Si ya descargaste tu horario o matrícula del ciclo, Trackademy intentará completar campus, periodo, ciclo y cursos por ti.</p>
+                <div class="pdf-title-row">
+                  <h2>Sube tu PDF de matrícula</h2>
+                  <span class="pdf-badge">Experimental</span>
+                </div>
+                <p>Si ya descargaste tu horario o matrícula del ciclo, Trackademy intentará completar datos base y detectar cursos. En PDFs escaneados puede acertar solo una parte.</p>
               </div>
               <div class="course-meta">
                 <span>Más rápido que llenarlo a mano</span>
@@ -74,6 +77,11 @@
                 }
               </div>
             }
+
+            <div class="pdf-note">
+              <strong>Qué esperar ahora:</strong> suele detectar mejor nombre, código del alumno, correo institucional y periodo.
+              La detección de cursos, docentes, secciones y horarios todavía depende bastante de la calidad del PDF y del OCR.
+            </div>
 
             @if (pdfDetectedCourses.length > 0) {
               <div class="pdf-detected">

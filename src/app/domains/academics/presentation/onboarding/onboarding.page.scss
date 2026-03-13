@@ -146,6 +146,23 @@ h1 {
   font-size: 20px;
 }
 
+.pdf-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pdf-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(245, 158, 11, 0.12);
+  color: #b45309;
+  font-size: 11px;
+  font-weight: 700;
+}
+
 .card__header p {
   margin: 0;
   color: #64748b;
@@ -205,15 +222,7 @@ label {
   background: #f8fafc;
 }
 
-.pdf-status {
-  min-height: 48px;
-  display: grid;
-  gap: 4px;
-  align-content: center;
-}
-
 .pdf-status__file {
-  font-size: 13px;
   font-weight: 600;
   color: #0f172a;
 }
@@ -238,7 +247,6 @@ label {
   border-radius: 12px;
   background: rgba(245, 158, 11, 0.08);
   color: #92400e;
-  font-size: 13px;
 }
 
 .pdf-detected {
@@ -247,9 +255,17 @@ label {
   gap: 10px;
 }
 
+.pdf-note {
+  margin-top: 14px;
+  padding: 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.72);
+  color: #475569;
+  font-size: 13px;
+}
+
 .pdf-detected__title {
   margin: 0;
-  font-size: 13px;
   font-weight: 700;
   color: #334155;
 }
@@ -261,9 +277,8 @@ label {
 }
 
 .pdf-detected__item {
-  display: inline-flex;
-  align-items: center;
-  padding: 8px 10px;
+  display: inline-block;
+  padding: 8px;
   border-radius: 999px;
   background: rgba(99, 102, 241, 0.1);
   color: #4338ca;
@@ -380,10 +395,6 @@ input[readonly] {
 }
 
 .course-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
   margin-top: 12px;
 }
 
@@ -508,7 +519,6 @@ input[readonly] {
   padding: 10px 12px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.7);
-  border: 1px solid rgba(99, 102, 241, 0.12);
 }
 
 .selected-course-item__code {
@@ -518,7 +528,6 @@ input[readonly] {
 }
 
 .selected-course-item__name {
-  font-size: 13px;
   color: #1f2937;
 }
 
