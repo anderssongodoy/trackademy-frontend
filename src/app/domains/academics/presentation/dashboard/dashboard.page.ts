@@ -100,6 +100,14 @@ export class DashboardPage implements OnInit {
     }).length;
   }
 
+  get pendingGradesCount(): number {
+    return this.evaluations.filter((item) => item.nota == null && !item.exonerado).length;
+  }
+
+  get hasRegisteredGrades(): boolean {
+    return (this.summary?.notasRegistradas ?? 0) > 0;
+  }
+
   get setupSteps(): SetupStep[] {
     const scheduleStatus: SetupStep['status'] =
       this.courses.length === 0 || this.pendingCourseCount === 0 ? 'done'
@@ -107,9 +115,9 @@ export class DashboardPage implements OnInit {
       : 'pending';
 
     const gradesStatus: SetupStep['status'] =
-      this.pendingDueGradesCount === 0 ? 'done'
-      : this.summary?.notasRegistradas ? 'in_progress'
-      : 'pending';
+      this.pendingGradesCount === 0 ? 'done'
+      : this.pendingDueGradesCount > 0 ? 'pending'
+      : this.hasRegisteredGrades ? 'done' : 'upcoming';
 
     return [
       {
@@ -125,14 +133,18 @@ export class DashboardPage implements OnInit {
       },
       {
         key: 'grades',
-        title: 'Sube las notas que te falten',
+        title: 'Activa tu seguimiento de notas',
         description: 'Con tus notas reales, Trackademy puede mostrarte un panorama academico mucho mas honesto.',
         status: gradesStatus,
-        ctaLabel: this.pendingDueGradesCount === 0 ? 'Revisar notas' : 'Registrar notas',
+        ctaLabel: this.pendingDueGradesCount > 0 ? 'Registrar notas' : 'Revisar notas',
         ctaLink: '/app/notas',
-        detail: this.pendingDueGradesCount === 0
-          ? 'No tienes notas vencidas pendientes por registrar.'
-          : `Hay ${this.pendingDueGradesCount} evaluacion${this.pendingDueGradesCount === 1 ? '' : 'es'} que ya deberias cerrar.`
+        detail: this.pendingGradesCount === 0
+          ? 'Ya no quedan notas pendientes por registrar en este ciclo.'
+          : this.pendingDueGradesCount > 0
+            ? `Hay ${this.pendingDueGradesCount} evaluacion${this.pendingDueGradesCount === 1 ? '' : 'es'} que ya deberias cerrar.`
+            : this.hasRegisteredGrades
+              ? 'Ya empezaste a registrar notas. Manten este seguimiento vivo durante el ciclo.'
+              : 'Todavia no toca registrar la primera nota, pero este paso se activara cuando llegue tu siguiente evaluacion.'
       },
       {
         key: 'calendar-sync',
@@ -155,7 +167,7 @@ export class DashboardPage implements OnInit {
   }
 
   get nextSetupStep(): SetupStep | null {
-    return this.setupSteps.find((step) => step.status === 'pending' || step.status === 'in_progress') ?? null;
+    return this.setupSteps.find((step) => step.status !== 'done') ?? null;
   }
 
   get nextSetupLabel(): string {
