@@ -128,12 +128,12 @@ export class TasksPage implements OnInit {
 
   private isTaskLike(item: MyEvaluation): boolean {
     const source = `${item.evaluacionCodigo} ${item.tipo ?? ''} ${item.descripcion ?? ''}`.toLowerCase();
-    if (source.includes('examen') || source.includes('parcial') || source.includes('final')) {
-      return false;
+    const taskKeywords = ['laboratorio', 'lab', 'proyecto', 'tarea', 'trabajo', 'avance', 'practica', 'práctica', 'entrega'];
+    if (taskKeywords.some((keyword) => source.includes(keyword))) {
+      return true;
     }
 
-    return ['laboratorio', 'lab', 'proyecto', 'tarea', 'trabajo', 'avance', 'practica', 'práctica', 'entrega']
-      .some((keyword) => source.includes(keyword));
+    return !(source.includes('examen') || source.includes('parcial'));
   }
 
   private toTaskItem(item: MyEvaluation): TaskItem {
