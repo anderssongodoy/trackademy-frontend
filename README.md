@@ -99,3 +99,54 @@ npm run start
 ```
 
 La app corre en `http://localhost:4200`.
+
+## Validacion integrada
+
+Si el backend ya esta corriendo en `http://localhost:8080`, para probar el producto completo:
+
+```powershell
+cd C:\Users\uu\Desktop\trackademy\trackademy-frontend
+npm run start
+```
+
+Validacion rapida del frontend:
+
+```powershell
+cd C:\Users\uu\Desktop\trackademy\trackademy-frontend
+npx tsc -p tsconfig.app.json --noEmit
+npx ng build
+```
+
+Validacion rapida del backend:
+
+```powershell
+cd C:\Users\uu\Desktop\trackademy\trackademy-backend
+.\mvnw.cmd -DskipTests compile
+```
+
+## Estado actual del producto
+
+La version actual ya tiene operativo:
+
+- autenticacion Google y Microsoft
+- onboarding academico base
+- dashboard principal
+- mis cursos
+- detalle del curso
+- configuracion de horario
+- horario semanal
+- notas
+- tareas derivadas de evaluaciones reales
+- calendario academico
+- recordatorios construidos con data real
+- perfil con reconfiguracion del ciclo actual
+
+## Mejoras pensadas para la siguiente etapa
+
+- tareas manuales creadas por el alumno
+- recordatorios manuales creados por el alumno
+- sincronizacion real con Outlook o Google Calendar
+- proyeccion y calculadora de notas
+- edicion avanzada por sesion para `ubicacion` y `url_virtual`
+- QA manual cruzado en mobile y tablet
+- pruebas backend completas cuando el entorno tenga dependencias resueltas
