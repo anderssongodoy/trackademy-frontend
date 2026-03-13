@@ -1,13 +1,35 @@
-﻿<section class="signin">
+<section class="signin">
   <div class="signin__shell">
-    <div class="signin__card">
-      <a class="back" routerLink="/">Regresar</a>
+    <section class="signin__intro">
+      <a class="back" routerLink="/">Volver al inicio</a>
 
+      <span class="signin__eyebrow">Acceso seguro</span>
+      <h1>Entra una vez y deja tu ciclo listo para trabajar de verdad.</h1>
+      <p class="signin__subtitle">
+        Inicias sesión, completas tu configuración base y desde ahí Trackademy te va guiando entre horario, notas, calendario y recordatorios.
+      </p>
+
+      <div class="signin__rail">
+        <article class="rail-card rail-card--primary">
+          <strong>1. Configura tu periodo</strong>
+          <p>Campus, ciclo y cursos para que el sistema tenga contexto real.</p>
+        </article>
+        <article class="rail-card">
+          <strong>2. Arma tu horario</strong>
+          <p>Sin eso, el calendario y los recordatorios siempre estarán a medias.</p>
+        </article>
+        <article class="rail-card">
+          <strong>3. Registra notas</strong>
+          <p>Solo cuando ya toca, para leer el ciclo sin falsa sensación de avance.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="signin__card">
       <div class="header">
         <div class="logo">T</div>
-        <p class="eyebrow">Acceso seguro</p>
-        <h1>Bienvenido a Trackademy</h1>
-        <p class="muted">Accede con tu cuenta institucional o personal para continuar tu configuración académica.</p>
+        <h2>Bienvenido a Trackademy</h2>
+        <p class="muted">Usa tu cuenta autorizada para entrar al panel académico.</p>
       </div>
 
       <div class="providers">
@@ -20,50 +42,32 @@
               <rect x="13" y="13" width="9" height="9" fill="#ffb900"></rect>
             </svg>
           </span>
-          <span *ngIf="!microsoftLoading()">Continuar con Microsoft</span>
-          <span *ngIf="microsoftLoading()">Conectando...</span>
+          <span>@if (!microsoftLoading()) { Continuar con Microsoft } @else { Conectando... }</span>
         </button>
 
-        <div class="divider"><span>O continúa con</span></div>
+        <div class="divider"><span>o si tu sesión ya usa Google</span></div>
 
         <div id="google-signin-button" class="google"></div>
 
-        <p class="hint" *ngIf="googleUnavailable()">Google no está disponible. Usa Microsoft o intenta más tarde.</p>
-        <p class="error" *ngIf="authError()">{{ authError() }}</p>
+        @if (googleUnavailable()) {
+          <p class="hint">Google no está disponible en este momento. Puedes continuar con Microsoft.</p>
+        }
+
+        @if (authError()) {
+          <p class="error">{{ authError() }}</p>
+        }
       </div>
 
-      <p class="footnote">No almacenamos tus credenciales. Todo el acceso es vía OAuth.</p>
-    </div>
-
-    <aside class="signin__panel">
-      <div class="panel__header">
-        <h2>Tu ciclo académico bajo control</h2>
-        <p>Trackademy concentra cursos, tareas, notas y eventos institucionales en un solo flujo.</p>
+      <div class="signin__notes">
+        <article>
+          <strong>OAuth real</strong>
+          <p>No almacenamos tus credenciales; solo recibimos el resultado autenticado.</p>
+        </article>
+        <article>
+          <strong>Acceso condicionado</strong>
+          <p>Si todavía no existe tu periodo actual, te llevamos directo al onboarding.</p>
+        </article>
       </div>
-      <div class="panel__stats">
-        <div class="stat">
-          <p class="stat__value">+30%</p>
-          <p class="stat__label">Menos tiempo planificando</p>
-        </div>
-        <div class="stat">
-          <p class="stat__value">24/7</p>
-          <p class="stat__label">Acceso desde cualquier dispositivo</p>
-        </div>
-        <div class="stat">
-          <p class="stat__value">1</p>
-          <p class="stat__label">Panel central para todo tu ciclo</p>
-        </div>
-      </div>
-      <div class="panel__cards">
-        <div class="panel-card">
-          <p class="panel-card__title">Onboarding guiado</p>
-          <p class="panel-card__text">Carga tu carrera, ciclo y cursos en minutos.</p>
-        </div>
-        <div class="panel-card">
-          <p class="panel-card__title">Sincronización Outlook</p>
-          <p class="panel-card__text">Convierte tus horarios en eventos reales.</p>
-        </div>
-      </div>
-    </aside>
+    </section>
   </div>
 </section>

@@ -1,65 +1,110 @@
-﻿<section class="landing">
+<section class="landing">
   <nav class="topbar">
     <a class="brand" routerLink="/">
       <span class="brand__icon">T</span>
-      <span>Trackademy</span>
+      <span class="brand__text">
+        <strong>Trackademy</strong>
+        <small>Panel académico</small>
+      </span>
     </a>
+
     <div class="nav-actions">
-      <ng-container *ngIf="!signedIn(); else signedInActions">
+      @if (!signedIn()) {
         <a class="ghost-btn" routerLink="/auth/sign-in">Iniciar sesión</a>
-      </ng-container>
-      <ng-template #signedInActions>
+      } @else {
         <a class="primary-btn" routerLink="/app/dashboard">Ir al dashboard</a>
-      </ng-template>
+      }
     </div>
   </nav>
 
-  <header class="hero">
-    <div class="hero__badge">Para estudiantes de Ing. Sistemas - UTP</div>
-    <h1>
-      Organiza tu vida académica
-      <span>con claridad real</span>
-    </h1>
-    <p class="hero__subtitle">
-      Trackademy centraliza cursos, tareas, notas y eventos académicos para que tengas control total del ciclo.
-    </p>
-    <div class="hero__actions">
-      <ng-container *ngIf="!signedIn(); else signedInHero">
-        <a class="primary-btn" routerLink="/auth/sign-in">Iniciar sesión</a>
-      </ng-container>
-      <ng-template #signedInHero>
-        <a class="primary-btn" routerLink="/app/dashboard">Ir al dashboard</a>
-      </ng-template>
-    </div>
-  </header>
+  <section class="hero">
+    <div class="hero__copy">
+      <span class="hero__eyebrow">Trackademy para Ing. de Sistemas</span>
+      <h1>Deja de improvisar tu ciclo y empieza a verlo como un sistema.</h1>
+      <p class="hero__subtitle">
+        Cursos, horario, notas, tareas y calendario en un mismo flujo para que sepas qué configurar primero y qué te toca después.
+      </p>
 
-  <section class="benefits">
-    <article class="benefit" *ngFor="let benefit of benefits">
-      <h3>{{ benefit.title }}</h3>
-      <p>{{ benefit.description }}</p>
-    </article>
+      <div class="hero__actions">
+        @if (!signedIn()) {
+          <a class="primary-btn" routerLink="/auth/sign-in">Entrar con tu cuenta</a>
+        } @else {
+          <a class="primary-btn" routerLink="/app/dashboard">Abrir tu dashboard</a>
+        }
+        <a class="secondary-btn" routerLink="/auth/sign-in">Probar el onboarding</a>
+      </div>
+
+      <div class="hero__benefits">
+        @for (benefit of benefits; track benefit.title) {
+          <article class="benefit-pill">
+            <strong>{{ benefit.title }}</strong>
+            <span>{{ benefit.description }}</span>
+          </article>
+        }
+      </div>
+    </div>
+
+    <aside class="hero__panel">
+      <div class="hero__panel-card hero__panel-card--primary">
+        <span class="panel__eyebrow">Ruta sugerida</span>
+        <h2>Qué hacer después del onboarding</h2>
+        <ol class="panel__steps">
+          @for (step of previewSteps; track step; let index = $index) {
+            <li>
+              <span>{{ index + 1 }}</span>
+              <p>{{ step }}</p>
+            </li>
+          }
+        </ol>
+      </div>
+
+      <div class="hero__panel-grid">
+        <article class="hero__panel-card">
+          <span class="metric">Horario</span>
+          <strong>Semana aterrizada</strong>
+          <p>Bloques, calendario y recordatorios empiezan a tener sentido.</p>
+        </article>
+
+        <article class="hero__panel-card">
+          <span class="metric">Notas</span>
+          <strong>Seguimiento real</strong>
+          <p>Registra solo lo que ya toca y evita una lectura falsa del ciclo.</p>
+        </article>
+      </div>
+    </aside>
   </section>
 
   <section class="features">
     <div class="features__header">
-      <h2>Diseñado para el ritmo universitario real</h2>
-      <p>Herramientas claras para planificar, ejecutar y medir tu progreso académico.</p>
+      <h2>Lo importante no es tener más módulos, sino que te digan qué hacer.</h2>
+      <p>Trackademy está armado para priorizar configuración, seguimiento y decisiones rápidas.</p>
     </div>
+
     <div class="features__grid">
-      <article class="feature-card" *ngFor="let feature of features" [attr.data-tone]="feature.tone">
-        <div class="feature-card__icon">{{ feature.icon }}</div>
-        <h3>{{ feature.title }}</h3>
-        <p>{{ feature.description }}</p>
-      </article>
+      @for (feature of features; track feature.title) {
+        <article class="feature-card" [attr.data-tone]="feature.tone">
+          <div class="feature-card__icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path [attr.d]="feature.icon"></path>
+            </svg>
+          </div>
+          <h3>{{ feature.title }}</h3>
+          <p>{{ feature.description }}</p>
+        </article>
+      }
     </div>
   </section>
 
   <section class="cta">
     <div class="cta__content">
-      <h2>Empieza el ciclo con todo bajo control</h2>
-      <p>Activa Trackademy y prepara tu ruta académica antes de que empiecen las entregas.</p>
+      <span class="hero__eyebrow">Empieza con contexto real</span>
+      <h2>Configura tu ciclo una vez y usa el resto del producto con mucha menos fricción.</h2>
     </div>
-    <a class="primary-btn" routerLink="/auth/sign-in" *ngIf="!signedIn()">Iniciar sesión</a>
-    <a class="primary-btn" routerLink="/app/dashboard" *ngIf="signedIn()">Ir al dashboard</a>
+
+    @if (!signedIn()) {
+      <a class="primary-btn" routerLink="/auth/sign-in">Iniciar sesión</a>
+    } @else {
+      <a class="primary-btn" routerLink="/app/dashboard">Ir al dashboard</a>
+    }
   </section>
 </section>
