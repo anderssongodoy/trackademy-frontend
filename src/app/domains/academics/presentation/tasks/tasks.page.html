@@ -1,7 +1,100 @@
-﻿<main class="placeholder-page">
-  <p class="eyebrow">Tareas</p>
-  <h1>Tareas y entregas</h1>
-  <section class="placeholder-card">
-    <p>Esta vista ya existe en navegacion. La API real de tareas todavia no esta integrada.</p>
-  </section>
+<main class="tasks">
+  <header class="tasks__hero">
+    <div class="hero__copy">
+      <p class="eyebrow">Tareas</p>
+      <h1>Entregables reales del silabo, sin inflar cosas que no existen</h1>
+      <p class="subtitle">Esta vista se construye con laboratorios, proyectos, tareas, avances y practicas que ya vienen de tus evaluaciones reales.</p>
+    </div>
+  </header>
+
+  @if (isLoading) {
+    <div class="state state--loading">Cargando tareas...</div>
+  }
+
+  @if (loadError) {
+    <div class="state state--error">{{ loadError }}</div>
+  }
+
+  @if (!isLoading && !loadError) {
+    <section class="stats">
+      <article class="stat-card">
+        <span>Entregables visibles</span>
+        <strong>{{ stats.total }}</strong>
+        <small>segun tus filtros actuales</small>
+      </article>
+      <article class="stat-card stat-card--soft">
+        <span>Pendientes</span>
+        <strong>{{ stats.pending }}</strong>
+        <small>todavia sin completar</small>
+      </article>
+      <article class="stat-card stat-card--mint">
+        <span>Completadas</span>
+        <strong>{{ stats.done }}</strong>
+        <small>ya con nota registrada</small>
+      </article>
+      <article class="stat-card stat-card--warm">
+        <span>Urgentes</span>
+        <strong>{{ stats.urgent }}</strong>
+        <small>atrasadas o con fecha de hoy</small>
+      </article>
+    </section>
+
+    <section class="filters">
+      <label class="field">
+        <span>Buscar</span>
+        <input type="text" [value]="searchQuery" (input)="searchQuery = $any($event.target).value" placeholder="Ej. lab, proyecto, redes" />
+      </label>
+
+      <label class="field field--compact">
+        <span>Curso</span>
+        <select [(ngModel)]="selectedCourseId">
+          <option value="all">Todos los cursos</option>
+          @for (course of courseOptions; track course.value) {
+            <option [value]="course.value">{{ course.label }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="field field--compact">
+        <span>Estado</span>
+        <select [(ngModel)]="selectedStatus">
+          <option value="all">Todas</option>
+          <option value="pending">Pendientes</option>
+          <option value="done">Completadas</option>
+        </select>
+      </label>
+    </section>
+
+    @if (filteredTasks.length === 0) {
+      <div class="empty-card">No hay entregables que coincidan con los filtros actuales.</div>
+    }
+
+    @if (filteredTasks.length > 0) {
+      <section class="task-list">
+        @for (task of filteredTasks; track task.usuarioPeriodoCursoId + '-' + task.titulo) {
+          <article class="task-item">
+            <div class="task-item__head">
+              <div>
+                <p class="course-code">{{ task.codigoCurso }}</p>
+                <h2>{{ task.titulo }}</h2>
+                <p>{{ task.subtitulo }}</p>
+              </div>
+              <span class="task-chip" [class]="urgencyTone(task)">{{ urgencyLabel(task) }}</span>
+            </div>
+
+            <div class="task-item__meta">
+              <span>{{ task.nombreCurso }}</span>
+              <span>{{ task.fechaLabel }}</span>
+              <span>{{ task.porcentaje }}</span>
+            </div>
+
+            <div class="task-item__actions">
+              <a class="btn btn--ghost" [routerLink]="['/app/cursos', task.usuarioPeriodoCursoId]">Abrir curso</a>
+              <a class="btn btn--primary" [routerLink]="['/app/notas']" [queryParams]="{ curso: task.usuarioPeriodoCursoId }">Ir a notas</a>
+            </div>
+          </article>
+        }
+      </section>
+    }
+  }
 </main>
