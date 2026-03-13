@@ -5,7 +5,6 @@
 }
 
 .schedule__hero,
-.hero__actions,
 .hero__chips,
 .summary-card__header,
 .panel__header,
@@ -20,7 +19,6 @@
 }
 
 .schedule__hero,
-.hero__actions,
 .hero__chips,
 .course-card,
 .course-card__actions {
@@ -77,6 +75,14 @@ h1 {
 
 .hero__chips {
   margin-top: 18px;
+}
+
+.hero__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: flex-start;
 }
 
 .hero-chip {

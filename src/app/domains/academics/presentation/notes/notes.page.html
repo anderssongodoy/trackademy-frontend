@@ -18,29 +18,91 @@
   @if (!isLoading && !loadError) {
     <section class="stats">
       <article class="stat-card">
-        <span>Evaluaciones visibles</span>
-        <strong>{{ stats.total }}</strong>
-        <small>segun tus filtros actuales</small>
-      </article>
-
-      <article class="stat-card stat-card--soft">
-        <span>Pendientes</span>
-        <strong>{{ stats.pending }}</strong>
-        <small>todavia sin nota registrada</small>
-      </article>
-
-      <article class="stat-card stat-card--mint">
-        <span>Registradas</span>
-        <strong>{{ stats.graded }}</strong>
-        <small>ya guardadas en este periodo</small>
-      </article>
-
-      <article class="stat-card stat-card--warm">
         <span>Promedio visible</span>
         <strong>{{ stats.average }}</strong>
         <small>solo con evaluaciones registradas</small>
       </article>
+
+      <article class="stat-card stat-card--soft">
+        <span>Cursos aprobando</span>
+        <strong>{{ stats.approvedCourses }}</strong>
+        <small>promedios de 13 o mas</small>
+      </article>
+
+      <article class="stat-card stat-card--mint">
+        <span>Mejor nota</span>
+        <strong>{{ stats.bestGrade }}</strong>
+        <small>tu pico visible hasta ahora</small>
+      </article>
+
+      <article class="stat-card stat-card--warm">
+        <span>Evaluaciones</span>
+        <strong>{{ stats.graded }}/{{ stats.total }}</strong>
+        <small>registradas sobre visibles</small>
+      </article>
     </section>
+
+    @if (courseMetrics.length > 0) {
+      <section class="charts">
+        <article class="chart-card">
+          <div class="chart-card__header">
+            <div>
+              <h2>Notas por curso</h2>
+              <p>Promedio visible por codigo de curso.</p>
+            </div>
+          </div>
+
+          <div class="bars-chart">
+            @for (bar of barChartBars; track bar.code) {
+              <div class="bars-chart__item">
+                <div class="bars-chart__bar-wrap">
+                  <div class="bars-chart__bar" [style.height.px]="bar.height">
+                    <span>{{ bar.value.toFixed(1) }}</span>
+                  </div>
+                </div>
+                <strong>{{ bar.code }}</strong>
+              </div>
+            }
+          </div>
+        </article>
+
+        <article class="chart-card">
+          <div class="chart-card__header">
+            <div>
+              <h2>Comparativa visible</h2>
+              <p>Tu promedio por curso frente a tu promedio visible actual.</p>
+            </div>
+          </div>
+
+          @if (compareMetrics.length >= 3) {
+            <div class="radar-chart">
+              <svg viewBox="0 0 340 270" aria-label="Comparativa por curso">
+                <polygon points="170,37 258,86 258,184 170,233 82,184 82,86" class="radar-chart__grid"></polygon>
+                <polygon points="170,61 234,97 234,173 170,209 106,173 106,97" class="radar-chart__grid"></polygon>
+                <polygon points="170,84 210,107 210,163 170,186 130,163 130,107" class="radar-chart__grid"></polygon>
+                <polygon points="170,108 186,118 186,152 170,162 154,152 154,118" class="radar-chart__grid"></polygon>
+
+                <polygon [attr.points]="compareBaselinePolygon" class="radar-chart__baseline"></polygon>
+                <polygon [attr.points]="compareUserPolygon" class="radar-chart__value"></polygon>
+
+                @for (label of compareLabels; track label.code) {
+                  <text [attr.x]="label.x" [attr.y]="label.y" text-anchor="middle" class="radar-chart__label">
+                    {{ label.code }}
+                  </text>
+                }
+              </svg>
+
+              <div class="radar-chart__legend">
+                <span><i class="legend-dot legend-dot--value"></i> Tu promedio</span>
+                <span><i class="legend-dot legend-dot--baseline"></i> Promedio visible</span>
+              </div>
+            </div>
+          } @else {
+            <div class="empty-card">Necesitas al menos 3 cursos con notas para ver esta comparativa.</div>
+          }
+        </article>
+      </section>
+    }
 
     <section class="filters">
       <label class="field">

@@ -9,14 +9,16 @@
     </div>
 
     <nav class="sidebar__nav">
-      <a class="nav-link" routerLink="/app/dashboard" routerLinkActive="is-active" data-short="D" title="Dashboard" (click)="closeMobile()"><span>Dashboard</span></a>
-      <a class="nav-link" routerLink="/app/cursos" routerLinkActive="is-active" data-short="C" title="Mis cursos" (click)="closeMobile()"><span>Mis Cursos</span></a>
-      <a class="nav-link" routerLink="/app/horario" routerLinkActive="is-active" data-short="H" title="Horario" (click)="closeMobile()"><span>Horario</span></a>
-      <a class="nav-link" routerLink="/app/tareas" routerLinkActive="is-active" data-short="T" title="Tareas" (click)="closeMobile()"><span>Tareas</span></a>
-      <a class="nav-link" routerLink="/app/notas" routerLinkActive="is-active" data-short="N" title="Notas" (click)="closeMobile()"><span>Notas</span></a>
-      <a class="nav-link" routerLink="/app/calendario" routerLinkActive="is-active" data-short="K" title="Calendario" (click)="closeMobile()"><span>Calendario</span></a>
-      <a class="nav-link" routerLink="/app/recordatorios" routerLinkActive="is-active" data-short="R" title="Recordatorios" (click)="closeMobile()"><span>Recordatorios</span></a>
-      <a class="nav-link" routerLink="/app/perfil" routerLinkActive="is-active" data-short="P" title="Perfil" (click)="closeMobile()"><span>Perfil</span></a>
+      @for (item of navItems; track item.route) {
+        <a class="nav-link" [routerLink]="item.route" routerLinkActive="is-active" [title]="item.title" (click)="closeMobile()">
+          <span class="nav-link__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path [attr.d]="item.icon"></path>
+            </svg>
+          </span>
+          <span>{{ item.label }}</span>
+        </a>
+      }
     </nav>
 
     <div class="sidebar__footer">
@@ -34,12 +36,8 @@
         <span></span>
         <span></span>
       </button>
-      <div class="topbar__title">
-        <span>Resumen</span>
-        <strong>Trackademy</strong>
-      </div>
+      <div class="topbar__spacer"></div>
       <div class="topbar__actions">
-        <a class="topbar__link" routerLink="/app/calendario">Ver calendario</a>
         <button class="topbar__secondary" type="button" (click)="signOut()">Cerrar sesion</button>
       </div>
     </header>
