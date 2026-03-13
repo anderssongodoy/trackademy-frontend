@@ -22,6 +22,10 @@ export class AuthUseCase {
     return this.auth.beginMicrosoftLogin(redirect);
   }
 
+  clearLocalSession(): void {
+    this.auth.clearLocalSession();
+  }
+
   signOut(): Promise<void> {
     return this.auth.signOut();
   }

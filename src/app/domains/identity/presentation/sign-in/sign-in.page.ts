@@ -29,20 +29,24 @@ export class SignInPage implements OnInit {
       const redirectState = await this.authUseCase.completeMicrosoftLogin();
 
       if (redirectState) {
-        await this.navigateAfterAuth();
-        return;
+        const redirected = await this.navigateAfterAuth();
+        if (redirected) {
+          return;
+        }
       }
 
       const alreadySignedIn = await this.authUseCase.isSignedIn();
       if (alreadySignedIn) {
-        await this.navigateAfterAuth();
-        return;
+        const redirected = await this.navigateAfterAuth();
+        if (redirected) {
+          return;
+        }
       }
 
-      const googleReady = await this.authUseCase.setupGoogleSignIn('google-signin-button', '/auth/sign-in');
-      this.googleUnavailable.set(!googleReady);
+      await this.setupGoogle();
     } catch {
       this.authError.set('No se pudo completar la autenticacion. Intenta de nuevo y revisa que tu cuenta este permitida.');
+      await this.setupGoogle();
     }
   }
 
@@ -57,11 +61,12 @@ export class SignInPage implements OnInit {
     }
   }
 
-  private async navigateAfterAuth(): Promise<void> {
+  private async navigateAfterAuth(): Promise<boolean> {
     const authenticated = await firstValueFrom(this.sessionUseCase.isAuthenticated());
     if (!authenticated) {
-      this.authError.set('No pudimos validar tu sesion. Intenta de nuevo.');
-      return;
+      this.authUseCase.clearLocalSession();
+      this.authError.set('No pudimos validar tu sesion actual. Puedes volver a entrar con Microsoft o Google.');
+      return false;
     }
 
     try {
@@ -70,17 +75,25 @@ export class SignInPage implements OnInit {
 
       if (isOnboardingComplete) {
         await this.router.navigateByUrl('/app/dashboard');
-        return;
+        return true;
       }
 
       await this.router.navigateByUrl('/onboarding');
+      return true;
     } catch (error) {
       if (error instanceof HttpErrorResponse && error.status === 404) {
         await this.router.navigateByUrl('/onboarding');
-        return;
+        return true;
       }
-      this.authError.set('No pudimos validar tu periodo. Intenta nuevamente.');
+      this.authUseCase.clearLocalSession();
+      this.authError.set('No pudimos validar tu periodo actual. Puedes volver a entrar y crear el onboarding de este ciclo.');
+      return false;
     }
+  }
+
+  private async setupGoogle(): Promise<void> {
+    const googleReady = await this.authUseCase.setupGoogleSignIn('google-signin-button', '/auth/sign-in');
+    this.googleUnavailable.set(!googleReady);
   }
 }
 

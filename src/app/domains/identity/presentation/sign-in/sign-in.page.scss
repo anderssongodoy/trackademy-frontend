@@ -94,6 +94,11 @@
   gap: 14px;
 }
 
+.providers {
+  width: min(100%, 360px);
+  margin: 0 auto;
+}
+
 .signin__rail {
   margin-top: 10px;
 }
@@ -139,14 +144,15 @@
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  min-height: 44px;
-  border-radius: 18px;
-  padding: 0 14px;
-  border: 1px solid rgba(148, 163, 184, 0.4);
-  font-weight: 700;
+  min-height: 40px;
+  border-radius: 999px;
+  padding: 0 16px;
+  border: 1px solid #dadce0;
+  font-size: 14px;
+  font-weight: 600;
   background: #fff;
   cursor: pointer;
-  transition: transform 140ms ease, box-shadow 140ms ease;
+  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
 }
 
 .provider span:last-child {
@@ -161,16 +167,18 @@
 
 .provider:hover {
   transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.06);
+  border-color: #c7ced6;
 }
 
 .provider__icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 8px;
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
   display: grid;
   place-items: center;
-  background: #f8fafc;
+  background: transparent;
+  flex: 0 0 auto;
 }
 
 .provider__icon svg {
@@ -179,7 +187,7 @@
 }
 
 .microsoft {
-  border-color: rgba(15, 76, 129, 0.4);
+  color: #1f1f1f;
 }
 
 .divider {
@@ -203,6 +211,7 @@
 
 .google {
   display: block;
+  width: 100%;
 }
 
 :host ::ng-deep .google div,

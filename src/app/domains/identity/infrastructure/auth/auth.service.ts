@@ -182,6 +182,10 @@ export class AuthService {
     return this.getStoredAppToken();
   }
 
+  clearLocalSession(): void {
+    this.clearAppToken();
+  }
+
   async isSignedIn(): Promise<boolean> {
     return this.getStoredAppToken() !== null;
   }
