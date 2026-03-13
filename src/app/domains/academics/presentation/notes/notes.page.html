@@ -1,9 +1,9 @@
-﻿<main class="simple-page">
-  <header class="simple-page__hero">
-    <div>
+<main class="notes">
+  <header class="notes__hero">
+    <div class="hero__copy">
       <p class="eyebrow">Notas</p>
-      <h1>Registro rapido de evaluaciones</h1>
-      <p class="subtitle">Ya mostramos lo que viene del silabo y lo que ya tiene nota guardada.</p>
+      <h1>Un lugar para registrar y revisar tu avance real</h1>
+      <p class="subtitle">Aqui ves por curso que evaluaciones faltan, cuanto pesa cada una y puedes registrar la nota sin salir de esta pantalla.</p>
     </div>
   </header>
 
@@ -16,46 +16,133 @@
   }
 
   @if (!isLoading && !loadError) {
-    <div class="notes-grid">
-      <section class="simple-card">
-        <div class="simple-card__header">
-          <h2>Pendientes</h2>
-          <span>{{ pending.length }}</span>
-        </div>
-        @if (pending.length === 0) {
-          <div class="empty">No tienes evaluaciones pendientes de nota.</div>
-        }
-        @for (item of pending; track item.usuarioPeriodoCursoId + '-' + item.evaluacionCodigo) {
-          <article class="note-item">
-            <div>
-              <p class="course-code">{{ item.codigoCurso }}</p>
-              <strong>{{ item.evaluacionCodigo }}</strong>
-              <p>{{ item.nombreCurso }}</p>
-            </div>
-            <a class="btn btn--ghost" [routerLink]="['/app/cursos', item.usuarioPeriodoCursoId]">Abrir curso</a>
-          </article>
-        }
-      </section>
+    <section class="stats">
+      <article class="stat-card">
+        <span>Evaluaciones visibles</span>
+        <strong>{{ stats.total }}</strong>
+        <small>segun tus filtros actuales</small>
+      </article>
 
-      <section class="simple-card">
-        <div class="simple-card__header">
-          <h2>Con nota</h2>
-          <span>{{ completed.length }}</span>
-        </div>
-        @if (completed.length === 0) {
-          <div class="empty">Todavia no hay notas registradas.</div>
-        }
-        @for (item of completed; track item.usuarioPeriodoCursoId + '-' + item.evaluacionCodigo) {
-          <article class="note-item">
-            <div>
-              <p class="course-code">{{ item.codigoCurso }}</p>
-              <strong>{{ item.evaluacionCodigo }}</strong>
-              <p>{{ item.nombreCurso }}</p>
+      <article class="stat-card stat-card--soft">
+        <span>Pendientes</span>
+        <strong>{{ stats.pending }}</strong>
+        <small>todavia sin nota registrada</small>
+      </article>
+
+      <article class="stat-card stat-card--mint">
+        <span>Registradas</span>
+        <strong>{{ stats.graded }}</strong>
+        <small>ya guardadas en este periodo</small>
+      </article>
+
+      <article class="stat-card stat-card--warm">
+        <span>Promedio visible</span>
+        <strong>{{ stats.average }}</strong>
+        <small>solo con evaluaciones registradas</small>
+      </article>
+    </section>
+
+    <section class="filters">
+      <label class="field">
+        <span>Buscar evaluacion o curso</span>
+        <input type="text" [value]="searchQuery" (input)="searchQuery = $any($event.target).value" placeholder="Ej. parcial, redes, lab" />
+      </label>
+
+      <label class="field field--compact">
+        <span>Curso</span>
+        <select [(ngModel)]="selectedCourseId">
+          <option value="all">Todos los cursos</option>
+          @for (course of courseOptions; track course.value) {
+            <option [value]="course.value">{{ course.label }}</option>
+          }
+        </select>
+      </label>
+    </section>
+
+    @if (groupedEvaluations.length === 0) {
+      <div class="empty-card">No encontramos evaluaciones con los filtros actuales.</div>
+    }
+
+    @if (groupedEvaluations.length > 0) {
+      <section class="course-groups">
+        @for (group of groupedEvaluations; track group.usuarioPeriodoCursoId) {
+          <article class="course-card">
+            <div class="course-card__header">
+              <div>
+                <p class="course-code">{{ group.codigoCurso }}</p>
+                <h2>{{ group.nombreCurso }}</h2>
+              </div>
+              <a class="btn btn--ghost" [routerLink]="['/app/cursos', group.usuarioPeriodoCursoId]">Abrir curso</a>
             </div>
-            <span class="grade">{{ item.nota }}</span>
+
+            <div class="course-card__stats">
+              <div>
+                <span>Promedio</span>
+                <strong>{{ group.promedio }}</strong>
+              </div>
+              <div>
+                <span>Registradas</span>
+                <strong>{{ group.registradas }}</strong>
+              </div>
+              <div>
+                <span>Pendientes</span>
+                <strong>{{ group.pendientes }}</strong>
+              </div>
+              <div>
+                <span>Peso total</span>
+                <strong>{{ group.totalPeso }}%</strong>
+              </div>
+            </div>
+
+            <div class="evaluation-list">
+              @for (item of group.items; track item.usuarioPeriodoCursoId + '-' + item.evaluacionCodigo) {
+                <article class="evaluation-item">
+                  <div class="evaluation-item__meta">
+                    <div class="evaluation-item__head">
+                      <div>
+                        <strong>{{ item.evaluacionCodigo }}</strong>
+                        <p>{{ item.descripcion || item.tipo || 'Evaluacion sin descripcion adicional' }}</p>
+                      </div>
+                      <span class="status-chip" [class.status-chip--done]="item.nota != null">{{ statusLabel(item) }}</span>
+                    </div>
+
+                    <div class="evaluation-item__details">
+                      <span>{{ evaluationDateLabel(item) }}</span>
+                      <span>{{ weightLabel(item) }}</span>
+                      @if (item.semana != null) {
+                        <span>Semana {{ item.semana }}</span>
+                      }
+                    </div>
+                  </div>
+
+                  <div class="evaluation-item__action">
+                    <label class="grade-field">
+                      <span>Nota</span>
+                      <input
+                        type="number"
+                        min="0"
+                        max="20"
+                        step="0.1"
+                        [value]="draftValue(item)"
+                        (input)="updateDraft(item, $any($event.target).value)" />
+                    </label>
+
+                    <button class="btn btn--primary" type="button" [disabled]="isSaving(item)" (click)="saveGrade(item)">
+                      {{ isSaving(item) ? 'Guardando...' : 'Guardar' }}
+                    </button>
+                  </div>
+
+                  @if (feedback(item); as feedbackItem) {
+                    <div class="inline-feedback" [class.inline-feedback--error]="feedbackItem.type === 'error'">
+                      {{ feedbackItem.message }}
+                    </div>
+                  }
+                </article>
+              }
+            </div>
           </article>
         }
       </section>
-    </div>
+    }
   }
 </main>
