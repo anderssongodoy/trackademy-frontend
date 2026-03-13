@@ -3,12 +3,13 @@
     <div class="hero__copy">
       <p class="eyebrow">Dashboard</p>
       <h1>Tu panorama academico para hoy</h1>
-      <p class="subtitle">Cursos, entregas, clases y ritmo del ciclo en una vista mas clara para decidir rapido.</p>
+      <p class="subtitle">Cursos, clases, notas y ritmo del ciclo en una vista mas clara para decidir rapido.</p>
 
       <div class="hero__chips">
         <span class="chip">{{ todayLabel }}</span>
         <span class="chip chip--accent">{{ currentPeriod?.periodoEtiqueta || 'Periodo pendiente' }}</span>
         <span class="chip">{{ onboardingStatusLabel }}</span>
+        <span class="chip">{{ quickFocusLabel }}</span>
       </div>
     </div>
 
@@ -37,13 +38,13 @@
       <article class="stat-card stat-card--soft">
         <span>Clases proximas</span>
         <strong>{{ upcomingSessions.length }}</strong>
-        <small>sesiones detectadas en agenda</small>
+        <small>{{ configuredScheduleLabel }}</small>
       </article>
 
       <article class="stat-card stat-card--mint">
         <span>Evaluaciones pendientes</span>
         <strong>{{ summary.evaluacionesPendientes }}</strong>
-        <small>por registrar o rendir</small>
+        <small>{{ dueSoonCount }} caen en los proximos 7 dias</small>
       </article>
 
       <article class="stat-card stat-card--warm">
@@ -51,6 +52,32 @@
         <strong>{{ cycleProgressPercent }}%</strong>
         <small>{{ currentWeekLabel }}</small>
       </article>
+    </section>
+
+    <section class="dashboard__quick-actions">
+      <a class="quick-action quick-action--notes" routerLink="/app/notas">
+        <span class="quick-action__eyebrow">Notas</span>
+        <strong>{{ summary.evaluacionesPendientes }} pendientes</strong>
+        <small>Registra lo que ya toca cerrar.</small>
+      </a>
+
+      <a class="quick-action quick-action--tasks" routerLink="/app/tareas">
+        <span class="quick-action__eyebrow">Tareas</span>
+        <strong>{{ dueSoonCount }} por venir</strong>
+        <small>Entregables que se acercan esta semana.</small>
+      </a>
+
+      <a class="quick-action quick-action--reminders" routerLink="/app/recordatorios">
+        <span class="quick-action__eyebrow">Recordatorios</span>
+        <strong>{{ periodEvents.length + upcomingSessions.length }}</strong>
+        <small>Alertas utiles desde agenda y periodo.</small>
+      </a>
+
+      <a class="quick-action quick-action--profile" routerLink="/app/perfil">
+        <span class="quick-action__eyebrow">Perfil</span>
+        <strong>{{ currentPeriod?.metaPromedioCiclo ?? '--' }}</strong>
+        <small>Meta de promedio del ciclo.</small>
+      </a>
     </section>
 
     <section class="focus-grid">

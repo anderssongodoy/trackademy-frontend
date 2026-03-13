@@ -1,10 +1,20 @@
-﻿<main class="schedule">
+<main class="schedule">
   <header class="schedule__hero">
-    <div>
+    <div class="hero__copy">
       <p class="eyebrow">Horario semanal</p>
-      <h1>Organiza tu semana con claridad</h1>
-      <p class="subtitle">Tus bloques activos se ordenan por dia y hora. Si falta algun curso, puedes terminar de configurarlo aqui.</p>
+      <h1>Organiza tu semana con una vista mas aterrizada</h1>
+      <p class="subtitle">
+        Tus sesiones activas se ordenan por dia, con un foco claro en lo que toca hoy y en los
+        cursos que aun necesitan configuracion.
+      </p>
+
+      <div class="hero__chips">
+        <span class="hero-chip">{{ configuredCoursesCount }} cursos con horario</span>
+        <span class="hero-chip hero-chip--accent">{{ pendingCoursesCount }} por ajustar</span>
+        <span class="hero-chip">{{ totalWeeklyHours }} a la semana</span>
+      </div>
     </div>
+
     <div class="hero__actions">
       <a class="btn btn--ghost" routerLink="/app/calendario">Ver calendario</a>
       <a class="btn btn--primary" routerLink="/app/cursos">Ir a cursos</a>
@@ -20,33 +30,111 @@
   }
 
   @if (!isLoading && !loadError) {
+    <section class="schedule__summary">
+      <article class="summary-card summary-card--today">
+        <div class="summary-card__header">
+          <div>
+            <p class="summary-card__eyebrow">Hoy</p>
+            <h2>{{ todaySchedule?.day || 'Hoy' }}</h2>
+          </div>
+          <span>{{ todaySchedule?.entries?.length || 0 }} bloque{{ todaySchedule?.entries?.length === 1 ? '' : 's' }}</span>
+        </div>
+
+        @if (!todaySchedule || todaySchedule.entries.length === 0) {
+          <div class="summary-empty">
+            <p>No tienes clases registradas para hoy.</p>
+          </div>
+        }
+
+        @if (todaySchedule && todaySchedule.entries.length > 0) {
+          <div class="today-list">
+            @for (entry of todaySchedule.entries; track entry.usuarioPeriodoCursoId + '-' + entry.bloqueNro + '-' + entry.diaSemana) {
+              <article class="today-item">
+                <div>
+                  <strong>{{ entry.nombre }}</strong>
+                  <p>{{ sessionMeta(entry) }}</p>
+                  <small>{{ sessionContext(entry) }}</small>
+                </div>
+                <span>{{ entry.horaInicio || '—' }} - {{ entry.horaFin || '—' }}</span>
+              </article>
+            }
+          </div>
+        }
+      </article>
+
+      <article class="summary-card summary-card--pending">
+        <div class="summary-card__header">
+          <div>
+            <p class="summary-card__eyebrow">Pendiente</p>
+            <h2>Configura lo que falta</h2>
+          </div>
+          <span>{{ pendingCoursesCount }}</span>
+        </div>
+
+        @if (!nextPendingCourse) {
+          <div class="summary-empty">
+            <p>Todos tus cursos activos ya tienen horario configurado.</p>
+          </div>
+        }
+
+        @if (nextPendingCourse) {
+          <div class="pending-course">
+            <strong>{{ nextPendingCourse.nombre }}</strong>
+            <p>{{ nextPendingCourse.codigo }} · {{ nextPendingCourse.modalidad || 'Sin modalidad' }}</p>
+            <a class="btn btn--primary" [routerLink]="['/app/cursos', nextPendingCourse.usuarioPeriodoCursoId, 'horario']">Configurar siguiente</a>
+          </div>
+        }
+      </article>
+    </section>
+
     <section class="schedule__panel">
       <div class="panel__header">
         <div>
           <h2>Vista semanal</h2>
-          <p>{{ schedule.length === 0 ? 'Todavia no registras bloques de clase.' : 'Tus bloques activos se ordenan por dia y hora.' }}</p>
+          <p>{{ schedule.length === 0 ? 'Todavia no registras bloques de clase.' : 'Cada columna resume carga, contexto y horas por dia.' }}</p>
         </div>
         <span>{{ schedule.length }} bloque{{ schedule.length === 1 ? '' : 's' }}</span>
       </div>
+
       <div class="week-grid">
         @for (day of scheduleByDay; track day.day) {
-          <div class="day-card">
-            <h4>{{ day.day }}</h4>
+          <article class="day-card" [class.day-card--today]="day.isToday">
+            <div class="day-card__header">
+              <div>
+                <h3>{{ day.day }}</h3>
+                <p>{{ daySummaryLabel(day) }}</p>
+              </div>
+              @if (day.isToday) {
+                <span class="day-tag">Hoy</span>
+              }
+            </div>
+
             @if (day.entries.length === 0) {
-              <p>Sin sesiones registradas.</p>
+              <div class="day-card__empty">
+                <p>Sin sesiones registradas.</p>
+              </div>
             }
+
             @if (day.entries.length > 0) {
-              <ul>
+              <div class="day-card__list">
                 @for (entry of day.entries; track entry.usuarioPeriodoCursoId + '-' + entry.bloqueNro + '-' + entry.diaSemana) {
-                  <li>
-                    <span class="time">{{ entry.horaInicio || '—' }} - {{ entry.horaFin || '—' }}</span>
-                    <strong>{{ entry.nombre }}</strong>
-                    <small>{{ entry.tipoSesion || entry.modalidad || 'Bloque de clase' }}</small>
-                  </li>
+                  <article class="slot-card">
+                    <div class="slot-card__time">
+                      <strong>{{ entry.horaInicio || '—' }}</strong>
+                      <span>{{ entry.horaFin || '—' }}</span>
+                    </div>
+
+                    <div class="slot-card__body">
+                      <p class="slot-card__code">{{ entry.codigo }}</p>
+                      <strong>{{ entry.nombre }}</strong>
+                      <span>{{ sessionMeta(entry) }}</span>
+                      <small>{{ sessionContext(entry) }}</small>
+                    </div>
+                  </article>
                 }
-              </ul>
+              </div>
             }
-          </div>
+          </article>
         }
       </div>
     </section>
@@ -54,24 +142,32 @@
     <section class="schedule__courses">
       <div class="section-title">
         <div>
-          <h3>Cursos por configurar</h3>
-          <p>Empieza por los cursos que ya tienen seccion confirmada.</p>
+          <h3>Estado por curso</h3>
+          <p>Desde aqui detectas rapido que ya esta bien y que todavia necesita ajuste.</p>
         </div>
       </div>
+
       <div class="course-grid">
         @if (courses.length === 0) {
           <div class="empty">No hay cursos activos para mostrar.</div>
         }
+
         @for (course of courses; track course.usuarioPeriodoCursoId) {
           <article class="course-card" [class.course-card--configured]="hasSchedule(course.usuarioPeriodoCursoId)">
-            <div>
+            <div class="course-card__copy">
               <p class="course-code">{{ course.codigo }}</p>
               <h4>{{ course.nombre }}</h4>
-              <p class="course-meta">{{ course.modalidad || 'Sin modalidad' }}</p>
+              <p class="course-meta">{{ course.modalidad || 'Sin modalidad' }} · {{ course.seccion || 'Seccion pendiente' }}</p>
             </div>
+
             <div class="course-card__actions">
-              <span class="course-status">{{ hasSchedule(course.usuarioPeriodoCursoId) ? 'Configurado' : 'Pendiente' }}</span>
-              <a class="btn btn--ghost" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Configurar horario</a>
+              <span class="course-status" [class.course-status--pending]="!hasSchedule(course.usuarioPeriodoCursoId)">
+                {{ hasSchedule(course.usuarioPeriodoCursoId) ? 'Configurado' : 'Pendiente' }}
+              </span>
+              <a class="btn btn--ghost" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId]">Abrir curso</a>
+              <a class="btn btn--primary" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">
+                {{ hasSchedule(course.usuarioPeriodoCursoId) ? 'Editar horario' : 'Configurar horario' }}
+              </a>
             </div>
           </article>
         }

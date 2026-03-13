@@ -96,6 +96,36 @@ export class DashboardPage implements OnInit {
     return this.periodEvents[0] ?? null;
   }
 
+  get dueSoonCount(): number {
+    const today = this.startOfToday().getTime();
+    const nextWeek = today + (7 * 86400000);
+    return this.upcomingEvaluations.filter((item) => {
+      if (!item.fechaEstimada) {
+        return false;
+      }
+      const date = new Date(`${item.fechaEstimada}T00:00:00`).getTime();
+      return date >= today && date <= nextWeek;
+    }).length;
+  }
+
+  get configuredScheduleLabel(): string {
+    const value = this.summary?.horariosRegistrados ?? 0;
+    return `${value} bloque${value === 1 ? '' : 's'} en agenda`;
+  }
+
+  get quickFocusLabel(): string {
+    if (this.nextEvaluation) {
+      return `Siguiente nota: ${this.nextEvaluation.evaluacionCodigo}`;
+    }
+    if (this.nextSession) {
+      return `Siguiente clase: ${this.nextSession.titulo}`;
+    }
+    if (this.nextPeriodEvent) {
+      return `Siguiente evento: ${this.nextPeriodEvent.titulo}`;
+    }
+    return 'Sin eventos proximos';
+  }
+
   formatEventDate(value: string | null, includeTime = false): string {
     if (!value) {
       return 'Fecha pendiente';
@@ -105,5 +135,11 @@ export class DashboardPage implements OnInit {
       ? { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }
       : { day: '2-digit', month: 'short' }
     ).format(new Date(value));
+  }
+
+  private startOfToday(): Date {
+    const value = new Date();
+    value.setHours(0, 0, 0, 0);
+    return value;
   }
 }
