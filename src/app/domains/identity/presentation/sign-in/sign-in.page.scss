@@ -149,6 +149,11 @@
   transition: transform 140ms ease, box-shadow 140ms ease;
 }
 
+.provider span:last-child {
+  flex: 1;
+  text-align: left;
+}
+
 .provider:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -197,8 +202,36 @@
 }
 
 .google {
-  display: grid;
-  justify-content: center;
+  display: block;
+}
+
+:host ::ng-deep .google div,
+:host ::ng-deep .google iframe {
+  width: 100% !important;
+}
+
+:host ::ng-deep .google div[role='button'],
+:host ::ng-deep .google .nsm7Bb-HzV7m-LgbsSe,
+:host ::ng-deep .google .abcRioButton {
+  width: 100% !important;
+  min-width: 100% !important;
+  border-radius: 18px !important;
+  box-shadow: none !important;
+}
+
+:host ::ng-deep .google .nsm7Bb-HzV7m-LgbsSe,
+:host ::ng-deep .google .abcRioButton {
+  height: 54px !important;
+  border: 1px solid rgba(148, 163, 184, 0.4) !important;
+}
+
+:host ::ng-deep .google .nsm7Bb-HzV7m-LgbsSe-Bz112c,
+:host ::ng-deep .google .nsm7Bb-HzV7m-LgbsSe-MJoBVe,
+:host ::ng-deep .google .abcRioButtonContents {
+  font-family: inherit !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #0f172a !important;
 }
 
 .error {
