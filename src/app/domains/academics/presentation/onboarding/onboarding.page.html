@@ -5,7 +5,7 @@
       <h1>Configura tu periodo académico</h1>
       <p class="subtitle">Arranca con lo esencial. El resto lo puedes completar luego desde el dashboard.</p>
     </div>
-    <div class="header__actions">
+    <div>
       <button type="button" class="ghost-btn ghost-btn--danger" (click)="signOut()">Cerrar sesión</button>
     </div>
   </header>
@@ -239,13 +239,13 @@
 
         <div class="actions">
           @if (currentStep > 1) {
-            <button type="button" class="ghost-btn" (click)="prevStep()">Atrás</button>
+            <button type="button" class="ghost-btn action-btn" (click)="prevStep()">Atrás</button>
           }
           @if (currentStep < 2) {
-            <button type="button" class="primary-btn" (click)="nextStep()">Continuar</button>
+            <button type="button" class="primary-btn action-btn" (click)="nextStep()">Continuar</button>
           }
           @if (currentStep === 2) {
-            <button type="submit" class="primary-btn" [disabled]="isSubmitting">
+            <button type="submit" class="primary-btn action-btn action-btn--primary" [disabled]="isSubmitting">
               {{ isSubmitting ? 'Guardando...' : 'Guardar onboarding' }}
             </button>
           }

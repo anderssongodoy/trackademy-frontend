@@ -22,13 +22,6 @@
   flex-wrap: wrap;
 }
 
-.header__actions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
 .header__copy {
   max-width: 620px;
 }
@@ -57,7 +50,6 @@ h1 {
   border: 1px solid rgba(148, 163, 184, 0.4);
   padding: 8px 16px;
   border-radius: 999px;
-  text-decoration: none;
   color: #1f2937;
   background: rgba(255, 255, 255, 0.7);
   font-size: 13px;
@@ -182,13 +174,16 @@ label {
   color: #475569;
 }
 
-.field-error {
+.field-error,
+.field-note {
   font-size: 12px;
+}
+
+.field-error {
   color: #b91c1c;
 }
 
 .field-note {
-  font-size: 12px;
   color: #64748b;
 }
 
@@ -308,15 +303,25 @@ input[readonly] {
   margin-top: 12px;
 }
 
-.course-loading {
-  font-size: 12px;
-  color: #94a3b8;
-}
-
 .actions {
   display: flex;
   justify-content: flex-end;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 12px;
+}
+
+.action-btn {
+  min-height: 52px;
+  min-width: 132px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.action-btn--primary {
+  min-width: 176px;
 }
 
 .primary-btn {
@@ -335,15 +340,6 @@ input[readonly] {
   cursor: not-allowed;
 }
 
-.secondary-btn {
-  border: 1px solid rgba(148, 163, 184, 0.4);
-  padding: 10px 18px;
-  border-radius: 999px;
-  background: #fff;
-  color: #1f2937;
-  cursor: pointer;
-}
-
 .side {
   display: grid;
   gap: 16px;
@@ -359,14 +355,6 @@ input[readonly] {
 .side__title {
   font-weight: 600;
   margin: 0 0 12px;
-}
-
-.side__card ul {
-  margin: 0;
-  padding-left: 18px;
-  color: #64748b;
-  font-size: 13px;
-  line-height: 1.6;
 }
 
 .checklist {
@@ -472,6 +460,10 @@ input[readonly] {
   .layout {
     grid-template-columns: 1fr;
   }
+
+  .side {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 600px) {
@@ -484,6 +476,28 @@ input[readonly] {
   }
 
   .steps {
+    grid-template-columns: 1fr;
+  }
+
+  .course-tools__row {
+    align-items: stretch;
+  }
+
+  .toggle {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .actions {
+    justify-content: stretch;
+  }
+
+  .action-btn {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .side {
     grid-template-columns: 1fr;
   }
 }
