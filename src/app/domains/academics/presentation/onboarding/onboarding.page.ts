@@ -81,8 +81,9 @@ export class OnboardingPage implements OnInit {
         this.campuses = campuses;
         this.careers = careers;
         this.periods = periods;
-        this.isLoading = false;
         this.bindCareerChanges();
+        this.selectDefaultCareer();
+        this.isLoading = false;
       },
       error: () => {
         this.loadingError =
@@ -105,6 +106,18 @@ export class OnboardingPage implements OnInit {
       }
       this.loadCourses(carreraId);
     });
+  }
+
+  private selectDefaultCareer(): void {
+    const defaultCareer = this.careers.find((career) =>
+      this.normalizeSearchText(career.nombre).includes('ingenieria de sistemas')
+    );
+
+    if (!defaultCareer || this.form.get('carreraId')?.value) {
+      return;
+    }
+
+    this.form.patchValue({ carreraId: defaultCareer.id });
   }
 
   onCourseQueryChange(value: string): void {
@@ -147,7 +160,7 @@ export class OnboardingPage implements OnInit {
   }
 
   private applyCourseFilter(): void {
-    const normalizedQuery = this.courseQuery.trim().toLowerCase();
+    const normalizedQuery = this.normalizeSearchText(this.courseQuery);
     const baseCourses = this.showSelectedOnly
       ? this.courses.filter((course) => this.selectedCourseIds.has(course.id))
       : this.courses;
@@ -158,10 +171,19 @@ export class OnboardingPage implements OnInit {
     }
 
     this.filteredCourses = baseCourses.filter((course) => {
-      const code = course.codigo.toLowerCase();
-      const name = course.nombre.toLowerCase();
+      const code = this.normalizeSearchText(course.codigo);
+      const name = this.normalizeSearchText(course.nombre);
       return code.includes(normalizedQuery) || name.includes(normalizedQuery);
     });
+  }
+
+  private normalizeSearchText(value: string | null | undefined): string {
+    return (value ?? '')
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .toLowerCase()
+      .replace(/\s+/g, ' ')
+      .trim();
   }
 
   toggleCourse(course: CatalogCourse, enabled: boolean): void {
