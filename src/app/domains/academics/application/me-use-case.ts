@@ -12,6 +12,7 @@ import {
   MyDashboardSummary,
   MyEvaluation,
   MyScheduleEntry,
+  PeriodConfigurationUpdateRequest,
   ScheduleBlockRequest,
   ScheduleUpdateResponse
 } from '../infrastructure/api/me-api.service';
@@ -26,6 +27,10 @@ export class MeUseCase {
 
   updateAcademicProfile(payload: AcademicProfileUpdateRequest): Observable<MyCurrentPeriod> {
     return this.api.updateAcademicProfile(payload);
+  }
+
+  updatePeriodConfiguration(payload: PeriodConfigurationUpdateRequest): Observable<MyCurrentPeriod> {
+    return this.api.updatePeriodConfiguration(payload);
   }
 
   getDashboard(): Observable<MyDashboardSummary> {
@@ -71,6 +76,7 @@ export type {
   MyDashboardSummary,
   MyEvaluation,
   MyScheduleEntry,
+  PeriodConfigurationUpdateRequest,
   ScheduleBlockRequest,
   ScheduleUpdateResponse
 };

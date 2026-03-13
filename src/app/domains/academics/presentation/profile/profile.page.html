@@ -3,7 +3,7 @@
     <div class="hero__copy">
       <p class="eyebrow">Perfil</p>
       <h1>Tu configuracion academica del ciclo actual</h1>
-      <p class="subtitle">Aqui ajustas los objetivos que vienen del onboarding sin volver a entrar a ese flujo.</p>
+      <p class="subtitle">Aqui ajustas tus objetivos y, si hace falta, tambien reconfiguras campus, carrera y cursos del periodo actual.</p>
     </div>
 
     @if (period) {
@@ -59,7 +59,7 @@
           </div>
         </div>
 
-        <form class="profile-form" [formGroup]="form" (ngSubmit)="saveProfile()">
+        <form class="profile-form" [formGroup]="goalsForm" (ngSubmit)="saveGoals()">
           <label class="field">
             <span>Meta de promedio final</span>
             <input type="number" formControlName="metaPromedioCiclo" min="0" max="20" step="0.1" />
@@ -81,8 +81,8 @@
           }
 
           <div class="profile-form__actions">
-            <button class="btn btn--primary" type="submit" [disabled]="isSaving">
-              {{ isSaving ? 'Guardando...' : 'Guardar cambios' }}
+            <button class="btn btn--primary" type="submit" [disabled]="isSavingGoals">
+              {{ isSavingGoals ? 'Guardando...' : 'Guardar cambios' }}
             </button>
           </div>
         </form>
@@ -107,11 +107,11 @@
           </article>
           <article class="summary-item">
             <span>Campus</span>
-            <strong>ID {{ period.campusId || '--' }}</strong>
+            <strong>{{ campusName }}</strong>
           </article>
           <article class="summary-item">
             <span>Carrera</span>
-            <strong>ID {{ period.carreraId || '--' }}</strong>
+            <strong>{{ careerName }}</strong>
           </article>
           <article class="summary-item">
             <span>Onboarding completado</span>
@@ -125,6 +125,109 @@
           </article>
         </div>
       </aside>
+    </section>
+
+    <section class="profile-card profile-card--wide">
+      <div class="profile-card__header">
+        <div>
+          <h2>Reconfigurar ciclo</h2>
+          <p>Usa este bloque solo si te equivocaste en campus, carrera o cursos del periodo actual.</p>
+        </div>
+      </div>
+
+      <div class="warning-box">
+        Si quitas un curso, tambien se borraran su horario configurado y sus notas registradas en este periodo. Los cursos nuevos entraran sin horario ni notas.
+      </div>
+
+      <form class="reconfig-form" [formGroup]="configForm" (ngSubmit)="saveConfiguration()">
+        <div class="reconfig-grid">
+          <label class="field">
+            <span>Campus</span>
+            <select formControlName="campusId">
+              @for (campus of campuses; track campus.id) {
+                <option [ngValue]="campus.id">{{ campus.nombre }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Carrera</span>
+            <select formControlName="carreraId">
+              @for (career of careers; track career.id) {
+                <option [ngValue]="career.id">{{ career.nombre }}</option>
+              }
+            </select>
+          </label>
+
+          <label class="field">
+            <span>Ciclo actual</span>
+            <input type="number" formControlName="cicloActual" min="1" max="12" step="1" />
+          </label>
+        </div>
+
+        <label class="field">
+          <span>Buscar cursos</span>
+          <input type="text" [value]="courseQuery" (input)="onCourseQueryChange($any($event.target).value)" placeholder="Ej. Estructuras, CS201" />
+          <small>Selecciona exactamente los cursos que deben quedar en este periodo.</small>
+        </label>
+
+        @if (configInfo) {
+          <div class="state state--loading">{{ configInfo }}</div>
+        }
+
+        <div class="reconfig-meta">
+          <strong>{{ selectedCourseIds.size }} curso{{ selectedCourseIds.size === 1 ? '' : 's' }} seleccionado{{ selectedCourseIds.size === 1 ? '' : 's' }}</strong>
+          <span>
+            {{ addedCourseCount }} agregado{{ addedCourseCount === 1 ? '' : 's' }} ·
+            {{ removedCourseCount }} eliminado{{ removedCourseCount === 1 ? '' : 's' }}
+          </span>
+        </div>
+
+        <div class="selected-courses">
+          @if (selectedCoursesList.length === 0) {
+            <p class="selected-empty">Todavia no hay cursos confirmados en esta reconfiguracion.</p>
+          }
+
+          @for (course of selectedCoursesList; track course.id) {
+            <button class="selected-chip" type="button" (click)="removeSelectedCourse(course.id)">
+              <span>{{ course.label }}</span>
+              <strong>Quitar</strong>
+            </button>
+          }
+        </div>
+
+        <div class="course-picker">
+          @if (isCoursesLoading) {
+            <div class="state state--loading">Cargando cursos para esta carrera...</div>
+          }
+
+          @if (!isCoursesLoading) {
+            @for (course of availableCourses; track course.id) {
+              <button class="course-option" type="button" [class.course-option--selected]="isSelected(course.id)" (click)="toggleCourse(course)">
+                <div>
+                  <strong>{{ course.codigo }}</strong>
+                  <p>{{ course.nombre }}</p>
+                </div>
+                <span>{{ isSelected(course.id) ? 'Seleccionado' : 'Agregar' }}</span>
+              </button>
+            }
+          }
+        </div>
+
+        @if (configError) {
+          <div class="state state--error">{{ configError }}</div>
+        }
+
+        @if (configSuccess) {
+          <div class="state state--success">{{ configSuccess }}</div>
+        }
+
+        <div class="profile-form__actions">
+          <button class="btn btn--primary" type="submit" [disabled]="isSavingConfig">
+            {{ isSavingConfig ? 'Guardando...' : 'Aplicar reconfiguracion' }}
+          </button>
+        </div>
+      </form>
     </section>
   }
 </main>

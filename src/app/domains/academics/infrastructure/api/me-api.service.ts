@@ -129,6 +129,13 @@ export interface AcademicProfileUpdateRequest {
   horasEstudioSemanaObjetivo: number;
 }
 
+export interface PeriodConfigurationUpdateRequest {
+  campusId: number;
+  carreraId: number;
+  cicloActual: number;
+  cursoIds: number[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class MeApiService {
   private readonly http = inject(HttpClient);
@@ -140,6 +147,10 @@ export class MeApiService {
 
   updateAcademicProfile(payload: AcademicProfileUpdateRequest): Observable<MyCurrentPeriod> {
     return this.http.put<MyCurrentPeriod>(`${this.env.apiBaseUrl}/api/v1/me/periodo-actual`, payload);
+  }
+
+  updatePeriodConfiguration(payload: PeriodConfigurationUpdateRequest): Observable<MyCurrentPeriod> {
+    return this.http.put<MyCurrentPeriod>(`${this.env.apiBaseUrl}/api/v1/me/periodo-actual/configuracion`, payload);
   }
 
   getDashboard(): Observable<MyDashboardSummary> {
