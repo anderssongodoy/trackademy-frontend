@@ -17,6 +17,13 @@ interface EvaluationGroup {
   items: MyEvaluation[];
 }
 
+interface FlatEvaluationItem {
+  item: MyEvaluation;
+  promedioCurso: string;
+  registradasCurso: number;
+  pendientesCurso: number;
+}
+
 @Component({
   selector: 'app-notes-page',
   imports: [CommonModule, FormsModule, RouterLink],
@@ -94,6 +101,33 @@ export class NotesPage implements OnInit {
     }).sort((left, right) => left.nombreCurso.localeCompare(right.nombreCurso));
   }
 
+  get flatEvaluations(): FlatEvaluationItem[] {
+    const grouped = this.groupedEvaluations;
+    const summaryByCourse = new Map<number, EvaluationGroup>(
+      grouped.map((group) => [group.usuarioPeriodoCursoId, group])
+    );
+
+    return this.filteredEvaluations
+      .slice()
+      .sort((left, right) => {
+        const leftDate = left.fechaEstimada ? new Date(left.fechaEstimada).getTime() : Number.MAX_SAFE_INTEGER;
+        const rightDate = right.fechaEstimada ? new Date(right.fechaEstimada).getTime() : Number.MAX_SAFE_INTEGER;
+        if (leftDate !== rightDate) {
+          return leftDate - rightDate;
+        }
+        return `${left.codigoCurso}${left.evaluacionCodigo}`.localeCompare(`${right.codigoCurso}${right.evaluacionCodigo}`);
+      })
+      .map((item) => {
+        const courseSummary = summaryByCourse.get(item.usuarioPeriodoCursoId);
+        return {
+          item,
+          promedioCurso: courseSummary?.promedio ?? '--',
+          registradasCurso: courseSummary?.registradas ?? 0,
+          pendientesCurso: courseSummary?.pendientes ?? 0
+        };
+      });
+  }
+
   get courseOptions(): Array<{ value: string; label: string }> {
     const unique = new Map<string, string>();
 
@@ -131,6 +165,11 @@ export class NotesPage implements OnInit {
 
   saveGrade(item: MyEvaluation): void {
     const key = this.keyFor(item);
+    if (!this.canEditEvaluation(item)) {
+      this.feedbackByKey.set(key, { type: 'error', message: this.editBlockReason(item) });
+      return;
+    }
+
     const rawValue = (this.draftGrades.get(key) ?? '').trim();
 
     if (!rawValue) {
@@ -200,7 +239,33 @@ export class NotesPage implements OnInit {
     if (item.exonerado) {
       return 'Exonerado';
     }
+    if (!this.canEditEvaluation(item)) {
+      return 'Programada';
+    }
     return 'Pendiente';
+  }
+
+  canEditEvaluation(item: MyEvaluation): boolean {
+    if (item.nota != null) {
+      return true;
+    }
+
+    if (!item.fechaEstimada) {
+      return true;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const estimated = new Date(`${item.fechaEstimada}T00:00:00`);
+    return estimated.getTime() <= today.getTime();
+  }
+
+  editBlockReason(item: MyEvaluation): string {
+    if (this.canEditEvaluation(item)) {
+      return '';
+    }
+
+    return `Disponible cuando llegue la fecha estimada${item.fechaEstimada ? ` (${this.evaluationDateLabel(item)})` : ''}.`;
   }
 
   private loadEvaluations(): void {

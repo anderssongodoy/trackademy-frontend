@@ -160,6 +160,10 @@ h1 {
   gap: 18px;
 }
 
+.evaluation-list--flat {
+  grid-template-columns: 1fr;
+}
+
 .course-card {
   padding: 22px;
   display: grid;
@@ -221,6 +225,7 @@ h1 {
 
 .evaluation-item__action {
   align-items: end;
+  flex-wrap: wrap;
 }
 
 .grade-field {
