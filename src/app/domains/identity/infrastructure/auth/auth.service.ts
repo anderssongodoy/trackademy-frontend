@@ -166,7 +166,7 @@ export class AuthService {
       size: 'large',
       shape: 'pill',
       text: 'continue_with',
-      width: 360
+      width: Math.max(container.clientWidth - 2, 280)
     });
 
     google.accounts.id.prompt();

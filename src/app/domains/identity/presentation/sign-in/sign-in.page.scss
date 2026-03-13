@@ -139,9 +139,9 @@
   display: inline-flex;
   align-items: center;
   gap: 12px;
-  min-height: 54px;
+  min-height: 44px;
   border-radius: 18px;
-  padding: 0 16px;
+  padding: 0 14px;
   border: 1px solid rgba(148, 163, 184, 0.4);
   font-weight: 700;
   background: #fff;
@@ -151,7 +151,7 @@
 
 .provider span:last-child {
   flex: 1;
-  text-align: left;
+  text-align: center;
 }
 
 .provider:disabled {
@@ -165,9 +165,9 @@
 }
 
 .provider__icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 10px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
   display: grid;
   place-items: center;
   background: #f8fafc;
@@ -221,7 +221,7 @@
 
 :host ::ng-deep .google .nsm7Bb-HzV7m-LgbsSe,
 :host ::ng-deep .google .abcRioButton {
-  height: 54px !important;
+  height: 44px !important;
   border: 1px solid rgba(148, 163, 184, 0.4) !important;
 }
 
