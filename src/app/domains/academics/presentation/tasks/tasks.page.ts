@@ -2,8 +2,9 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
+import { forkJoin } from 'rxjs';
 
-import { MeUseCase, MyEvaluation } from '../../application/me-use-case';
+import { MeUseCase, MyCourse, MyEvaluation } from '../../application/me-use-case';
 
 type TaskStatusFilter = 'all' | 'pending' | 'done';
 
@@ -33,14 +34,19 @@ export class TasksPage implements OnInit {
   isLoading = true;
   loadError = '';
   evaluations: MyEvaluation[] = [];
+  courses: MyCourse[] = [];
   selectedCourseId = 'all';
   searchQuery = '';
   selectedStatus: TaskStatusFilter = 'all';
 
   ngOnInit(): void {
-    this.meUseCase.getMyEvaluations().subscribe({
-      next: (evaluations) => {
+    forkJoin({
+      evaluations: this.meUseCase.getMyEvaluations(),
+      courses: this.meUseCase.getMyCourses()
+    }).subscribe({
+      next: ({ evaluations, courses }) => {
         this.evaluations = evaluations;
+        this.courses = courses;
         this.isLoading = false;
       },
       error: () => {
@@ -51,12 +57,11 @@ export class TasksPage implements OnInit {
   }
 
   get courseOptions(): Array<{ value: string; label: string }> {
-    const unique = new Map<string, string>();
-    this.taskItems.forEach((item) => {
-      unique.set(`${item.usuarioPeriodoCursoId}`, `${item.codigoCurso} · ${item.nombreCurso}`);
-    });
-    return [...unique.entries()]
-      .map(([value, label]) => ({ value, label }))
+    return this.courses
+      .map((course) => ({
+        value: `${course.usuarioPeriodoCursoId}`,
+        label: `${course.codigo} · ${course.nombre}`
+      }))
       .sort((left, right) => left.label.localeCompare(right.label));
   }
 
