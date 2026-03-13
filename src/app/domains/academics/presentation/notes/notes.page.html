@@ -3,7 +3,7 @@
     <div class="hero__copy">
       <p class="eyebrow">Notas</p>
       <h1>Un lugar para registrar y revisar tu avance real</h1>
-      <p class="subtitle">En vista global ves una lista directa por evaluacion. Si eliges un curso, entras a su detalle completo.</p>
+      <p class="subtitle">Cada curso muestra solo la siguiente nota que toca registrar. Hasta que esa evaluacion no se cierre, no avanzas a la siguiente.</p>
     </div>
   </header>
 
@@ -59,77 +59,14 @@
       </label>
     </section>
 
-    @if (selectedCourseId === 'all') {
-      @if (flatEvaluations.length === 0) {
-        <div class="empty-card">No encontramos evaluaciones con los filtros actuales.</div>
-      }
+    @if (groupedEvaluations.length === 0) {
+      <div class="empty-card">No encontramos evaluaciones con los filtros actuales.</div>
+    }
 
-      @if (flatEvaluations.length > 0) {
-        <section class="evaluation-list evaluation-list--flat">
-          @for (entry of flatEvaluations; track entry.item.usuarioPeriodoCursoId + '-' + entry.item.evaluacionCodigo) {
-            <article class="evaluation-item">
-              <div class="evaluation-item__meta">
-                <div class="evaluation-item__head">
-                  <div>
-                    <p class="course-code">{{ entry.item.codigoCurso }}</p>
-                    <strong>{{ entry.item.evaluacionCodigo }}</strong>
-                    <p>{{ entry.item.descripcion || entry.item.tipo || 'Evaluacion sin descripcion adicional' }}</p>
-                  </div>
-                  <span class="status-chip" [class.status-chip--done]="entry.item.nota != null">{{ statusLabel(entry.item) }}</span>
-                </div>
-
-                <div class="evaluation-item__details">
-                  <span>{{ entry.item.nombreCurso }}</span>
-                  <span>{{ evaluationDateLabel(entry.item) }}</span>
-                  <span>{{ weightLabel(entry.item) }}</span>
-                  @if (entry.item.semana != null) {
-                    <span>Semana {{ entry.item.semana }}</span>
-                  }
-                  <span>Curso {{ entry.promedioCurso }} promedio</span>
-                </div>
-              </div>
-
-              <div class="evaluation-item__action">
-                <label class="grade-field">
-                  <span>Nota</span>
-                  <input
-                    type="number"
-                    min="0"
-                    max="20"
-                    step="0.1"
-                    [value]="draftValue(entry.item)"
-                    [disabled]="!canEditEvaluation(entry.item)"
-                    (input)="updateDraft(entry.item, $any($event.target).value)" />
-                </label>
-
-                <button class="btn btn--primary" type="button" [disabled]="isSaving(entry.item) || !canEditEvaluation(entry.item)" (click)="saveGrade(entry.item)">
-                  {{ isSaving(entry.item) ? 'Guardando...' : 'Guardar' }}
-                </button>
-
-                <a class="btn btn--ghost" [routerLink]="['/app/cursos', entry.item.usuarioPeriodoCursoId]">Abrir curso</a>
-              </div>
-
-              @if (!canEditEvaluation(entry.item) && entry.item.nota == null) {
-                <div class="inline-feedback">{{ editBlockReason(entry.item) }}</div>
-              }
-
-              @if (feedback(entry.item); as feedbackItem) {
-                <div class="inline-feedback" [class.inline-feedback--error]="feedbackItem.type === 'error'">
-                  {{ feedbackItem.message }}
-                </div>
-              }
-            </article>
-          }
-        </section>
-      }
-    } @else {
-      @if (groupedEvaluations.length === 0) {
-        <div class="empty-card">No encontramos evaluaciones con los filtros actuales.</div>
-      }
-
-      @if (groupedEvaluations.length > 0) {
-        <section class="course-groups">
-          @for (group of groupedEvaluations; track group.usuarioPeriodoCursoId) {
+    @if (groupedEvaluations.length > 0) {
+      <section class="course-groups">
+        @for (group of groupedEvaluations; track group.usuarioPeriodoCursoId) {
+          @if (currentEvaluation(group); as currentItem) {
             <article class="course-card">
               <div class="course-card__header">
                 <div>
@@ -159,60 +96,59 @@
               </div>
 
               <div class="evaluation-list">
-                @for (item of group.items; track item.usuarioPeriodoCursoId + '-' + item.evaluacionCodigo) {
-                  <article class="evaluation-item">
-                    <div class="evaluation-item__meta">
-                      <div class="evaluation-item__head">
-                        <div>
-                          <strong>{{ item.evaluacionCodigo }}</strong>
-                          <p>{{ item.descripcion || item.tipo || 'Evaluacion sin descripcion adicional' }}</p>
-                        </div>
-                        <span class="status-chip" [class.status-chip--done]="item.nota != null">{{ statusLabel(item) }}</span>
+                <article class="evaluation-item">
+                  <div class="evaluation-item__meta">
+                    <div class="evaluation-item__head">
+                      <div>
+                        <strong>{{ currentItem.evaluacionCodigo }}</strong>
+                        <p>{{ currentItem.descripcion || currentItem.tipo || 'Evaluacion sin descripcion adicional' }}</p>
                       </div>
-
-                      <div class="evaluation-item__details">
-                        <span>{{ evaluationDateLabel(item) }}</span>
-                        <span>{{ weightLabel(item) }}</span>
-                        @if (item.semana != null) {
-                          <span>Semana {{ item.semana }}</span>
-                        }
-                      </div>
+                      <span class="status-chip" [class.status-chip--done]="currentItem.nota != null">{{ statusLabel(currentItem) }}</span>
                     </div>
 
-                    <div class="evaluation-item__action">
-                      <label class="grade-field">
-                        <span>Nota</span>
-                        <input
-                          type="number"
-                          min="0"
-                          max="20"
-                          step="0.1"
-                          [value]="draftValue(item)"
-                          [disabled]="!canEditEvaluation(item)"
-                          (input)="updateDraft(item, $any($event.target).value)" />
-                      </label>
-
-                      <button class="btn btn--primary" type="button" [disabled]="isSaving(item) || !canEditEvaluation(item)" (click)="saveGrade(item)">
-                        {{ isSaving(item) ? 'Guardando...' : 'Guardar' }}
-                      </button>
+                    <div class="evaluation-item__details">
+                      <span>{{ evaluationDateLabel(currentItem) }}</span>
+                      <span>{{ weightLabel(currentItem) }}</span>
+                      @if (currentItem.semana != null) {
+                        <span>Semana {{ currentItem.semana }}</span>
+                      }
+                      <span>{{ currentItem.nota != null ? 'Ultima evaluacion registrada' : 'Siguiente evaluacion a registrar' }}</span>
                     </div>
+                  </div>
 
-                    @if (!canEditEvaluation(item) && item.nota == null) {
-                      <div class="inline-feedback">{{ editBlockReason(item) }}</div>
-                    }
+                  <div class="evaluation-item__action">
+                    <label class="grade-field">
+                      <span>Nota</span>
+                      <input
+                        type="number"
+                        min="0"
+                        max="20"
+                        step="0.1"
+                        [value]="draftValue(currentItem)"
+                        [disabled]="!canEditEvaluation(currentItem)"
+                        (input)="updateDraft(currentItem, $any($event.target).value)" />
+                    </label>
 
-                    @if (feedback(item); as feedbackItem) {
-                      <div class="inline-feedback" [class.inline-feedback--error]="feedbackItem.type === 'error'">
-                        {{ feedbackItem.message }}
-                      </div>
-                    }
-                  </article>
-                }
+                    <button class="btn btn--primary" type="button" [disabled]="isSaving(currentItem) || !canEditEvaluation(currentItem)" (click)="saveGrade(currentItem)">
+                      {{ isSaving(currentItem) ? 'Guardando...' : 'Guardar' }}
+                    </button>
+                  </div>
+
+                  @if (!canEditEvaluation(currentItem) && currentItem.nota == null) {
+                    <div class="inline-feedback">{{ editBlockReason(currentItem) }}</div>
+                  }
+
+                  @if (feedback(currentItem); as feedbackItem) {
+                    <div class="inline-feedback" [class.inline-feedback--error]="feedbackItem.type === 'error'">
+                      {{ feedbackItem.message }}
+                    </div>
+                  }
+                </article>
               </div>
             </article>
           }
-        </section>
-      }
+        }
+      </section>
     }
   }
 </main>

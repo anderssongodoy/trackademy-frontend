@@ -17,13 +17,6 @@ interface EvaluationGroup {
   items: MyEvaluation[];
 }
 
-interface FlatEvaluationItem {
-  item: MyEvaluation;
-  promedioCurso: string;
-  registradasCurso: number;
-  pendientesCurso: number;
-}
-
 @Component({
   selector: 'app-notes-page',
   imports: [CommonModule, FormsModule, RouterLink],
@@ -99,33 +92,6 @@ export class NotesPage implements OnInit {
         })
       };
     }).sort((left, right) => left.nombreCurso.localeCompare(right.nombreCurso));
-  }
-
-  get flatEvaluations(): FlatEvaluationItem[] {
-    const grouped = this.groupedEvaluations;
-    const summaryByCourse = new Map<number, EvaluationGroup>(
-      grouped.map((group) => [group.usuarioPeriodoCursoId, group])
-    );
-
-    return this.filteredEvaluations
-      .slice()
-      .sort((left, right) => {
-        const leftDate = left.fechaEstimada ? new Date(left.fechaEstimada).getTime() : Number.MAX_SAFE_INTEGER;
-        const rightDate = right.fechaEstimada ? new Date(right.fechaEstimada).getTime() : Number.MAX_SAFE_INTEGER;
-        if (leftDate !== rightDate) {
-          return leftDate - rightDate;
-        }
-        return `${left.codigoCurso}${left.evaluacionCodigo}`.localeCompare(`${right.codigoCurso}${right.evaluacionCodigo}`);
-      })
-      .map((item) => {
-        const courseSummary = summaryByCourse.get(item.usuarioPeriodoCursoId);
-        return {
-          item,
-          promedioCurso: courseSummary?.promedio ?? '--',
-          registradasCurso: courseSummary?.registradas ?? 0,
-          pendientesCurso: courseSummary?.pendientes ?? 0
-        };
-      });
   }
 
   get courseOptions(): Array<{ value: string; label: string }> {
@@ -243,6 +209,10 @@ export class NotesPage implements OnInit {
       return 'Programada';
     }
     return 'Pendiente';
+  }
+
+  currentEvaluation(group: EvaluationGroup): MyEvaluation | null {
+    return group.items.find((item) => item.nota == null && !item.exonerado) ?? group.items[0] ?? null;
   }
 
   canEditEvaluation(item: MyEvaluation): boolean {
