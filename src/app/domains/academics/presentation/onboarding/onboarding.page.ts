@@ -68,6 +68,16 @@ export class OnboardingPage implements OnInit {
   isSubmitting = false;
   loadingError = '';
   submitError = '';
+  private readonly controlLabels: Record<string, string> = {
+    nombre: 'Nombre completo',
+    emailInstitucional: 'Correo institucional',
+    campusId: 'Campus',
+    carreraId: 'Carrera',
+    periodoId: 'Periodo',
+    cicloActual: 'Ciclo actual',
+    metaPromedioCiclo: 'Meta de promedio',
+    horasEstudioSemanaObjetivo: 'Horas de estudio / semana'
+  };
 
   ngOnInit(): void {
     this.isLoading = true;
@@ -265,6 +275,14 @@ export class OnboardingPage implements OnInit {
       'metaPromedioCiclo',
       'horasEstudioSemanaObjetivo'
     ];
+
+    const invalidLabels = priorityControls
+      .filter((controlName) => this.form.get(controlName)?.invalid)
+      .map((controlName) => this.controlLabels[controlName] ?? controlName);
+
+    if (invalidLabels.length > 1) {
+      return `Revisa estos campos: ${invalidLabels.join(', ')}.`;
+    }
 
     const firstInvalid = priorityControls.find((controlName) => this.form.get(controlName)?.invalid);
     if (!firstInvalid) {

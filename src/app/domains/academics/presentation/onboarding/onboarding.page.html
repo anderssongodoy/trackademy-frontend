@@ -41,7 +41,12 @@
             <div class="grid">
               <label>
                 <span class="label-text">Nombre completo</span>
-                <input type="text" formControlName="nombre" placeholder="Nombre completo" />
+                <input
+                  type="text"
+                  formControlName="nombre"
+                  placeholder="Nombre completo"
+                  [class.field-invalid]="getControlError('nombre')"
+                />
                 @if (getControlError('nombre')) {
                   <span class="field-error">{{ getControlError('nombre') }}</span>
                 }
@@ -52,14 +57,19 @@
               </label>
               <label>
                 <span class="label-text">Correo institucional (opcional)</span>
-                <input type="email" formControlName="emailInstitucional" placeholder="u2020xxxxx@utp.edu.pe" />
+                <input
+                  type="email"
+                  formControlName="emailInstitucional"
+                  placeholder="u2020xxxxx@utp.edu.pe"
+                  [class.field-invalid]="getControlError('emailInstitucional')"
+                />
                 @if (getControlError('emailInstitucional')) {
                   <span class="field-error">{{ getControlError('emailInstitucional') }}</span>
                 }
               </label>
               <label>
                 <span class="label-text">Campus</span>
-                <select formControlName="campusId">
+                <select formControlName="campusId" [class.field-invalid]="getControlError('campusId')">
                   <option [ngValue]="null">Selecciona campus</option>
                   @for (campus of campuses; track campus.id) {
                     <option [ngValue]="campus.id">{{ campus.nombre }}</option>
@@ -80,7 +90,7 @@
                   />
                   <span class="field-note">Carrera fija para esta configuracion inicial.</span>
                 } @else {
-                  <select formControlName="carreraId">
+                  <select formControlName="carreraId" [class.field-invalid]="getControlError('carreraId')">
                     <option [ngValue]="null">Selecciona carrera</option>
                     @for (career of careers; track career.id) {
                       <option [ngValue]="career.id">{{ career.nombre }}</option>
@@ -93,7 +103,7 @@
               </label>
               <label>
                 <span class="label-text">Periodo</span>
-                <select formControlName="periodoId">
+                <select formControlName="periodoId" [class.field-invalid]="getControlError('periodoId')">
                   <option [ngValue]="null">Selecciona periodo</option>
                   @for (period of periods; track period.id) {
                     <option [ngValue]="period.id">{{ period.etiqueta }}</option>
@@ -105,21 +115,40 @@
               </label>
               <label>
                 <span class="label-text">Ciclo actual</span>
-                <input type="number" formControlName="cicloActual" min="1" max="12" />
+                <input
+                  type="number"
+                  formControlName="cicloActual"
+                  min="1"
+                  max="12"
+                  [class.field-invalid]="getControlError('cicloActual')"
+                />
                 @if (getControlError('cicloActual')) {
                   <span class="field-error">{{ getControlError('cicloActual') }}</span>
                 }
               </label>
               <label>
                 <span class="label-text">Meta de promedio</span>
-                <input type="number" formControlName="metaPromedioCiclo" min="0" max="20" step="0.1" />
+                <input
+                  type="number"
+                  formControlName="metaPromedioCiclo"
+                  min="0"
+                  max="20"
+                  step="0.1"
+                  [class.field-invalid]="getControlError('metaPromedioCiclo')"
+                />
                 @if (getControlError('metaPromedioCiclo')) {
                   <span class="field-error">{{ getControlError('metaPromedioCiclo') }}</span>
                 }
               </label>
               <label>
                 <span class="label-text">Horas de estudio / semana</span>
-                <input type="number" formControlName="horasEstudioSemanaObjetivo" min="1" max="80" />
+                <input
+                  type="number"
+                  formControlName="horasEstudioSemanaObjetivo"
+                  min="1"
+                  max="80"
+                  [class.field-invalid]="getControlError('horasEstudioSemanaObjetivo')"
+                />
                 @if (getControlError('horasEstudioSemanaObjetivo')) {
                   <span class="field-error">{{ getControlError('horasEstudioSemanaObjetivo') }}</span>
                 }

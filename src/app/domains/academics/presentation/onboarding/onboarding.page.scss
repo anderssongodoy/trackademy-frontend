@@ -203,6 +203,11 @@ select {
   box-sizing: border-box;
 }
 
+.field-invalid {
+  border-color: rgba(239, 68, 68, 0.75);
+  box-shadow: 0 0 0 3px rgba(254, 226, 226, 0.9);
+}
+
 input[readonly] {
   background: #f8fafc;
   color: #475569;
