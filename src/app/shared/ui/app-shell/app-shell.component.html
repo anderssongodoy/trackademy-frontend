@@ -1,30 +1,35 @@
-<div class="app-shell" [class.app-shell--menu-open]="mobileOpen()" [class.app-shell--collapsed]="collapsed()">
+﻿<div class="app-shell" [class.app-shell--menu-open]="mobileOpen()" [class.app-shell--collapsed]="collapsed()">
   <aside class="sidebar">
     <div class="sidebar__brand">
       <span class="brand__mark">T</span>
       <div class="brand__text">
         <p class="brand__title">Trackademy</p>
-        <p class="brand__subtitle">Panel académico</p>
+        <p class="brand__subtitle">Panel academico</p>
       </div>
     </div>
 
     <nav class="sidebar__nav">
       <a class="nav-link" routerLink="/app/dashboard" routerLinkActive="is-active" data-short="D" title="Dashboard" (click)="closeMobile()"><span>Dashboard</span></a>
-      <a class="nav-link" routerLink="/app/cursos" routerLinkActive="is-active" data-short="C" title="Cursos" (click)="closeMobile()"><span>Cursos</span></a>
+      <a class="nav-link" routerLink="/app/cursos" routerLinkActive="is-active" data-short="C" title="Mis cursos" (click)="closeMobile()"><span>Mis Cursos</span></a>
       <a class="nav-link" routerLink="/app/horario" routerLinkActive="is-active" data-short="H" title="Horario" (click)="closeMobile()"><span>Horario</span></a>
+      <a class="nav-link" routerLink="/app/tareas" routerLinkActive="is-active" data-short="T" title="Tareas" (click)="closeMobile()"><span>Tareas</span></a>
+      <a class="nav-link" routerLink="/app/notas" routerLinkActive="is-active" data-short="N" title="Notas" (click)="closeMobile()"><span>Notas</span></a>
+      <a class="nav-link" routerLink="/app/calendario" routerLinkActive="is-active" data-short="K" title="Calendario" (click)="closeMobile()"><span>Calendario</span></a>
+      <a class="nav-link" routerLink="/app/recordatorios" routerLinkActive="is-active" data-short="R" title="Recordatorios" (click)="closeMobile()"><span>Recordatorios</span></a>
+      <a class="nav-link" routerLink="/app/perfil" routerLinkActive="is-active" data-short="P" title="Perfil" (click)="closeMobile()"><span>Perfil</span></a>
     </nav>
 
     <div class="sidebar__footer">
-      <button class="nav-cta" type="button" (click)="signOut()" aria-label="Cerrar sesión" title="Cerrar sesión">
+      <button class="nav-cta" type="button" (click)="signOut()" aria-label="Cerrar sesion" title="Cerrar sesion">
         <span class="nav-cta__icon">⇠</span>
-        <span class="nav-cta__label">Cerrar sesión</span>
+        <span class="nav-cta__label">Cerrar sesion</span>
       </button>
     </div>
   </aside>
 
   <div class="app-shell__main">
     <header class="topbar">
-      <button class="icon-button" type="button" (click)="toggleMenu()" aria-label="Abrir menú">
+      <button class="icon-button" type="button" (click)="toggleMenu()" aria-label="Abrir menu">
         <span></span>
         <span></span>
         <span></span>
@@ -34,8 +39,8 @@
         <strong>Trackademy</strong>
       </div>
       <div class="topbar__actions">
-        <a class="topbar__link" routerLink="/app/horario">Ver horario</a>
-        <button class="topbar__secondary" type="button" (click)="signOut()">Cerrar sesión</button>
+        <a class="topbar__link" routerLink="/app/calendario">Ver calendario</a>
+        <button class="topbar__secondary" type="button" (click)="signOut()">Cerrar sesion</button>
       </div>
     </header>
     <div class="app-shell__content">

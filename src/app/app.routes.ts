@@ -1,4 +1,6 @@
 import { Routes } from '@angular/router';
+
+import { onboardingGuard } from './domains/academics/infrastructure/guards/onboarding.guard';
 import { authGuard } from './domains/identity/infrastructure/auth/auth.guard';
 import { AppShellComponent } from './shared/ui/app-shell/app-shell.component';
 
@@ -19,7 +21,7 @@ export const routes: Routes = [
   },
   {
     path: 'onboarding',
-    canActivate: [authGuard],
+    canActivate: [authGuard, onboardingGuard],
     loadComponent: () => import('./domains/academics/presentation/onboarding/onboarding.page').then((m) => m.OnboardingPage)
   },
   {
@@ -46,6 +48,26 @@ export const routes: Routes = [
       {
         path: 'horario',
         loadComponent: () => import('./domains/academics/presentation/schedule/schedule.page').then((m) => m.SchedulePage)
+      },
+      {
+        path: 'calendario',
+        loadComponent: () => import('./domains/academics/presentation/calendar/calendar.page').then((m) => m.CalendarPage)
+      },
+      {
+        path: 'notas',
+        loadComponent: () => import('./domains/academics/presentation/notes/notes.page').then((m) => m.NotesPage)
+      },
+      {
+        path: 'tareas',
+        loadComponent: () => import('./domains/academics/presentation/tasks/tasks.page').then((m) => m.TasksPage)
+      },
+      {
+        path: 'recordatorios',
+        loadComponent: () => import('./domains/academics/presentation/reminders/reminders.page').then((m) => m.RemindersPage)
+      },
+      {
+        path: 'perfil',
+        loadComponent: () => import('./domains/academics/presentation/profile/profile.page').then((m) => m.ProfilePage)
       },
       {
         path: '',

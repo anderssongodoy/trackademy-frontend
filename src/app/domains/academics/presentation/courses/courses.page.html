@@ -1,13 +1,14 @@
-﻿<main class="courses">
+<main class="courses">
   <header class="courses__hero">
-    <div>
-      <p class="eyebrow">Cursos activos</p>
-      <h1>Tu mapa académico del ciclo</h1>
-      <p class="subtitle">Accede rápido al detalle de cada curso y registra avances cuando quieras.</p>
+    <div class="hero__copy">
+      <p class="eyebrow">Mis cursos</p>
+      <h1>Tu ciclo en una vista operativa</h1>
+      <p class="subtitle">Cada curso muestra horario real, evaluaciones pendientes y acceso rapido para revisar el detalle o ajustar tus horarios de clase.</p>
     </div>
+
     <div class="hero__actions">
-      <a class="btn btn--ghost" routerLink="/app/horario">Ver horario</a>
-      <a class="btn btn--primary" routerLink="/onboarding">Actualizar cursos</a>
+      <a class="btn btn--ghost" routerLink="/app/horario">Ver horario general</a>
+      <a class="btn btn--primary" routerLink="/app/dashboard">Ir al dashboard</a>
     </div>
   </header>
 
@@ -20,13 +21,41 @@
   }
 
   @if (!isLoading && !loadError) {
+    <section class="stats" aria-label="Resumen de cursos">
+      <article class="stat-card">
+        <span class="stat-card__label">Cursos activos</span>
+        <strong>{{ activeCoursesCount }}</strong>
+        <small>matriculados este ciclo</small>
+      </article>
+
+      <article class="stat-card stat-card--soft">
+        <span class="stat-card__label">Con horario</span>
+        <strong>{{ configuredCoursesCount }}</strong>
+        <small>cursos ya configurados</small>
+      </article>
+
+      <article class="stat-card stat-card--mint">
+        <span class="stat-card__label">Pendientes</span>
+        <strong>{{ pendingEvaluationsCount }}</strong>
+        <small>evaluaciones por registrar</small>
+      </article>
+
+      <article class="stat-card stat-card--warm">
+        <span class="stat-card__label">Promedio actual</span>
+        <strong>{{ averageGradeLabel }}</strong>
+        <small>solo notas registradas</small>
+      </article>
+    </section>
+
     <section class="courses__controls">
-      <div>
-        <label class="label" for="course-search">Buscar curso</label>
-        <input id="course-search" type="text" [formControl]="searchControl" placeholder="Código o nombre" />
-      </div>
-      <div class="summary">
-        <span>{{ filteredCourses.length }} cursos</span>
+      <label class="search-field" for="course-search">
+        <span>Buscar curso, codigo o profesor</span>
+        <input id="course-search" type="text" [formControl]="searchControl" placeholder="Ej. Estructuras, CS201, Mendoza" />
+      </label>
+
+      <div class="courses__summary">
+        <strong>{{ filteredCourses.length }}</strong>
+        <span>curso{{ filteredCourses.length === 1 ? '' : 's' }} visibles</span>
       </div>
     </section>
 
@@ -34,16 +63,84 @@
       @if (filteredCourses.length === 0) {
         <div class="empty">No encontramos cursos con ese filtro.</div>
       }
-      @for (course of filteredCourses; track course.usuarioPeriodoCursoId) {
+
+      @for (course of filteredCourses; track trackCourse($index, course)) {
         <article class="course-card">
-          <div>
-            <p class="course-code">{{ course.codigo }}</p>
-            <h3>{{ course.nombre }}</h3>
-            <p class="course-meta">Modalidad: {{ course.modalidad || '—' }}</p>
+          <div class="course-card__header">
+            <div>
+              <div class="course-card__badges">
+                <span class="pill pill--code">{{ course.codigo }}</span>
+                <span class="pill">{{ course.modalidad || 'Modalidad pendiente' }}</span>
+                <span class="pill">Seccion {{ course.seccion || '--' }}</span>
+              </div>
+
+              <h2>{{ course.nombre }}</h2>
+              <p class="course-card__professor">{{ course.profesor || 'Profesor pendiente de confirmar' }}</p>
+            </div>
+
+            <div class="course-card__status">
+              <span class="status-chip" [class.status-chip--muted]="!course.activo">{{ course.activo ? 'Activo' : 'Inactivo' }}</span>
+            </div>
           </div>
-          <div class="course-actions">
-            <span class="course-status">{{ course.activo ? 'Activo' : 'Inactivo' }}</span>
-            <a class="btn btn--ghost" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId]">Ver detalle</a>
+
+          <div class="course-card__body">
+            <section class="course-panel">
+              <div class="course-panel__header">
+                <h3>Horario real</h3>
+                <span>{{ course.weeklyHoursLabel }}</span>
+              </div>
+
+              @if (course.schedulePreview.length === 0) {
+                <div class="panel-empty">
+                  <p>Este curso aun no tiene horarios de clase configurados.</p>
+                </div>
+              }
+
+              @if (course.schedulePreview.length > 0) {
+                <ul class="schedule-list">
+                  @for (slot of course.schedulePreview; track slot) {
+                    <li>{{ slot }}</li>
+                  }
+                </ul>
+              }
+
+              <p class="course-panel__meta">
+                {{ course.scheduleLocations.length > 0 ? course.scheduleLocations.join(' - ') : 'Ubicacion pendiente' }}
+              </p>
+            </section>
+
+            <section class="course-panel course-panel--accent">
+              <div class="course-panel__header">
+                <h3>Evaluaciones</h3>
+                <span>{{ course.pendingEvaluations }} pendientes</span>
+              </div>
+
+              <div class="evaluation-highlight">
+                <strong>{{ course.nextEvaluationLabel }}</strong>
+                <p>Siguiente registro recomendado</p>
+              </div>
+
+              <div class="metrics-row">
+                <div>
+                  <strong>{{ course.gradedEvaluations }}</strong>
+                  <span>con nota</span>
+                </div>
+                <div>
+                  <strong>{{ course.averageGrade != null ? (course.averageGrade | number:'1.1-1') : '--' }}</strong>
+                  <span>promedio</span>
+                </div>
+                <div>
+                  <strong>{{ course.sessionsCount }}</strong>
+                  <span>sesiones</span>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <div class="course-card__footer">
+            <a class="btn btn--ghost" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Configurar horario</a>
+            <a class="btn btn--ghost" routerLink="/app/notas">Ver notas</a>
+            <a class="btn btn--primary" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId]">Abrir curso</a>
           </div>
         </article>
       }

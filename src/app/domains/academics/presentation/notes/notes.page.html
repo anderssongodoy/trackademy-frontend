@@ -1,0 +1,61 @@
+﻿<main class="simple-page">
+  <header class="simple-page__hero">
+    <div>
+      <p class="eyebrow">Notas</p>
+      <h1>Registro rapido de evaluaciones</h1>
+      <p class="subtitle">Ya mostramos lo que viene del silabo y lo que ya tiene nota guardada.</p>
+    </div>
+  </header>
+
+  @if (isLoading) {
+    <div class="state state--loading">Cargando evaluaciones...</div>
+  }
+
+  @if (loadError) {
+    <div class="state state--error">{{ loadError }}</div>
+  }
+
+  @if (!isLoading && !loadError) {
+    <div class="notes-grid">
+      <section class="simple-card">
+        <div class="simple-card__header">
+          <h2>Pendientes</h2>
+          <span>{{ pending.length }}</span>
+        </div>
+        @if (pending.length === 0) {
+          <div class="empty">No tienes evaluaciones pendientes de nota.</div>
+        }
+        @for (item of pending; track item.usuarioPeriodoCursoId + '-' + item.evaluacionCodigo) {
+          <article class="note-item">
+            <div>
+              <p class="course-code">{{ item.codigoCurso }}</p>
+              <strong>{{ item.evaluacionCodigo }}</strong>
+              <p>{{ item.nombreCurso }}</p>
+            </div>
+            <a class="btn btn--ghost" [routerLink]="['/app/cursos', item.usuarioPeriodoCursoId]">Abrir curso</a>
+          </article>
+        }
+      </section>
+
+      <section class="simple-card">
+        <div class="simple-card__header">
+          <h2>Con nota</h2>
+          <span>{{ completed.length }}</span>
+        </div>
+        @if (completed.length === 0) {
+          <div class="empty">Todavia no hay notas registradas.</div>
+        }
+        @for (item of completed; track item.usuarioPeriodoCursoId + '-' + item.evaluacionCodigo) {
+          <article class="note-item">
+            <div>
+              <p class="course-code">{{ item.codigoCurso }}</p>
+              <strong>{{ item.evaluacionCodigo }}</strong>
+              <p>{{ item.nombreCurso }}</p>
+            </div>
+            <span class="grade">{{ item.nota }}</span>
+          </article>
+        }
+      </section>
+    </div>
+  }
+</main>

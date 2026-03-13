@@ -18,7 +18,7 @@ interface DaySchedule {
 export class SchedulePage implements OnInit {
   private readonly meUseCase = inject(MeUseCase);
 
-  readonly days = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+  readonly days = ['Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado', 'Domingo'];
 
   courses: MyCourse[] = [];
   schedule: MyScheduleEntry[] = [];
@@ -36,15 +36,10 @@ export class SchedulePage implements OnInit {
         this.loadSchedule();
       },
       error: () => {
-        this.loadError = 'No se pudo cargar tu horario. Verifica la conexión con el backend.';
+        this.loadError = 'No se pudo cargar tu horario. Verifica la conexion con el backend.';
         this.isLoading = false;
       }
     });
-  }
-
-  get coursesWithoutSchedule(): MyCourse[] {
-    const configuredIds = new Set(this.schedule.map((entry) => entry.usuarioPeriodoCursoId));
-    return this.courses.filter((course) => !configuredIds.has(course.usuarioPeriodoCursoId));
   }
 
   hasSchedule(usuarioPeriodoCursoId: number): boolean {
@@ -59,7 +54,7 @@ export class SchedulePage implements OnInit {
         this.isLoading = false;
       },
       error: () => {
-        this.loadError = 'No se pudo cargar tu horario. Verifica la conexión con el backend.';
+        this.loadError = 'No se pudo cargar tu horario. Verifica la conexion con el backend.';
         this.isLoading = false;
       }
     });

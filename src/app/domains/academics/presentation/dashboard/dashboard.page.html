@@ -1,167 +1,218 @@
 <main class="dashboard">
   <header class="dashboard__hero">
     <div class="hero__copy">
-      <p class="eyebrow">Resumen académico</p>
-      <h1>Hola, tu ciclo está listo para despegar</h1>
-      <p class="subtitle">Centraliza cursos, horarios y tareas en un solo lugar. Completa lo esencial y ajusta detalles luego.</p>
+      <p class="eyebrow">Dashboard</p>
+      <h1>Tu panorama academico para hoy</h1>
+      <p class="subtitle">Cursos, entregas, clases y ritmo del ciclo en una vista mas clara para decidir rapido.</p>
+
       <div class="hero__chips">
-        <span class="chip">Estado onboarding</span>
-        <span class="chip chip--accent">{{ currentPeriod?.onboardingEstado || 'pendiente' }}</span>
+        <span class="chip">{{ todayLabel }}</span>
+        <span class="chip chip--accent">{{ currentPeriod?.periodoEtiqueta || 'Periodo pendiente' }}</span>
+        <span class="chip">{{ onboardingStatusLabel }}</span>
       </div>
     </div>
+
     <div class="hero__actions">
-      <a class="btn btn--primary" routerLink="/app/cursos">Ver cursos</a>
+      <a class="btn btn--ghost" routerLink="/app/calendario">Abrir calendario</a>
+      <a class="btn btn--primary" routerLink="/app/cursos">Abrir cursos</a>
     </div>
   </header>
 
   @if (isLoading) {
-    <div class="state state--loading">Cargando tu información...</div>
+    <div class="state state--loading">Cargando tu informacion...</div>
   }
 
   @if (loadError) {
     <div class="state state--error">{{ loadError }}</div>
   }
 
-  @if (!isLoading && !loadError) {
-    <section class="stats" aria-label="Resumen">
-      <article class="stat">
-        <p class="stat__label">Cursos activos</p>
-        <h2>{{ courses.length }}</h2>
-        <span>Actualizados en este periodo</span>
+  @if (!isLoading && !loadError && summary) {
+    <section class="stats" aria-label="Resumen del periodo">
+      <article class="stat-card">
+        <span>Cursos activos</span>
+        <strong>{{ summary.cursosActivos }}</strong>
+        <small>cursos del periodo actual</small>
       </article>
-      <article class="stat">
-        <p class="stat__label">Horas/semana</p>
-        <h2>{{ currentPeriod?.horasEstudioSemanaObjetivo ?? '—' }}</h2>
-        <span>Meta de estudio</span>
+
+      <article class="stat-card stat-card--soft">
+        <span>Clases proximas</span>
+        <strong>{{ upcomingSessions.length }}</strong>
+        <small>sesiones detectadas en agenda</small>
       </article>
-      <article class="stat">
-        <p class="stat__label">Meta de promedio</p>
-        <h2>{{ currentPeriod?.metaPromedioCiclo ?? '—' }}</h2>
-        <span>Objetivo del ciclo</span>
+
+      <article class="stat-card stat-card--mint">
+        <span>Evaluaciones pendientes</span>
+        <strong>{{ summary.evaluacionesPendientes }}</strong>
+        <small>por registrar o rendir</small>
       </article>
-      <article class="stat">
-        <p class="stat__label">Semana actual</p>
-        <h2>{{ currentWeekLabel }}</h2>
-        <span>{{ currentPeriod?.periodoEtiqueta || 'Sin fechas del periodo' }}</span>
+
+      <article class="stat-card stat-card--warm">
+        <span>Avance del ciclo</span>
+        <strong>{{ cycleProgressPercent }}%</strong>
+        <small>{{ currentWeekLabel }}</small>
       </article>
     </section>
 
-    <div class="dashboard__grid">
-      <section class="panel">
-        <div class="panel__header">
-          <h3>Tus cursos</h3>
-          <a class="btn btn--ghost" routerLink="/app/cursos">Ver todos</a>
+    <section class="focus-grid">
+      <article class="focus-card">
+        <div class="focus-card__header">
+          <h3>Siguiente evaluacion</h3>
+          <a class="inline-link" routerLink="/app/notas">Ir a notas</a>
         </div>
-        <div class="panel__body">
-          @if (courses.length === 0) {
-            <div class="empty">Aún no tienes cursos activos. Vuelve al onboarding para agregarlos.</div>
-          }
-          @if (courses.length > 0) {
-            <div class="course-list">
-              @for (course of courses; track course.usuarioPeriodoCursoId) {
-                <article class="course-card">
-                  <div>
-                    <p class="course-code">{{ course.codigo }}</p>
-                    <p class="course-name">{{ course.nombre }}</p>
-                  </div>
-                  <div class="course-actions">
-                    <span class="course-status">{{ course.modalidad || '—' }}</span>
-                    <a class="btn btn--ghost" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId]">Registrar nota</a>
-                  </div>
-                </article>
-              }
+
+        @if (!nextEvaluation) {
+          <div class="empty-card">No hay evaluaciones proximas con fecha calculada.</div>
+        }
+
+        @if (nextEvaluation) {
+          <div class="focus-card__body">
+            <span class="eyebrow-label">{{ nextEvaluation.codigoCurso }}</span>
+            <strong>{{ nextEvaluation.evaluacionCodigo }}</strong>
+            <p>{{ nextEvaluation.nombreCurso }}</p>
+            <small>{{ nextEvaluation.descripcion || nextEvaluation.tipo || 'Evaluacion programada' }}</small>
+            <div class="focus-card__footer">
+              <span>{{ nextEvaluation.fechaEstimada ? formatEventDate(nextEvaluation.fechaEstimada) : currentWeekLabel }}</span>
+              <a class="btn btn--ghost" [routerLink]="['/app/cursos', nextEvaluation.usuarioPeriodoCursoId]">Abrir curso</a>
             </div>
-          }
-        </div>
-      </section>
+          </div>
+        }
+      </article>
 
-      <section class="panel">
-        <div class="panel__header">
-          <h3>Agenda de hoy</h3>
-          <a class="btn btn--ghost" routerLink="/app/horario">Ver calendario</a>
+      <article class="focus-card focus-card--soft">
+        <div class="focus-card__header">
+          <h3>Proxima clase</h3>
+          <a class="inline-link" routerLink="/app/horario">Ver horario</a>
         </div>
-        <div class="panel__body">
-          <div class="empty">Aún no hay horarios registrados. Puedes agregarlos cuando quieras.</div>
-        </div>
-      </section>
 
-      <section class="panel">
-        <div class="panel__header">
-          <h3>Próximas evaluaciones</h3>
-          <a class="btn btn--ghost" routerLink="/app/cursos">Ver detalle</a>
-        </div>
-        <div class="panel__body">
-          @if (upcomingEvaluations.length === 0) {
-            <div class="empty">Sin evaluaciones sincronizadas todavía.</div>
-          }
-          @if (upcomingEvaluations.length > 0) {
-            <div class="evaluation-list">
-              @for (item of upcomingEvaluations; track item.evaluacionCodigo) {
-                <article class="evaluation-card">
-                  <div>
-                    <p class="course-code">{{ item.codigoCurso }}</p>
-                    <p class="course-name">{{ item.nombreCurso }}</p>
-                    <p class="evaluation-meta">{{ item.evaluacionCodigo }} · Semana {{ item.semana ?? '—' }}</p>
-                  </div>
-                  <span class="course-status">{{ item.fechaEstimada || '—' }}</span>
-                </article>
-              }
+        @if (!nextSession) {
+          <div class="empty-card">No hay clases proximas dentro del rango disponible.</div>
+        }
+
+        @if (nextSession) {
+          <div class="focus-card__body">
+            <span class="eyebrow-label">{{ nextSession.codigoCurso || nextSession.tipo || 'Agenda' }}</span>
+            <strong>{{ nextSession.titulo }}</strong>
+            <p>{{ nextSession.subtitulo || 'Sesion programada' }}</p>
+            <div class="focus-card__footer">
+              <span>{{ formatEventDate(nextSession.inicio, true) }}</span>
+              <a class="btn btn--ghost" routerLink="/app/horario">Abrir horario</a>
             </div>
-          }
-        </div>
-      </section>
+          </div>
+        }
+      </article>
 
-      <section class="panel">
-        <div class="panel__header">
-          <h3>Notas rápidas</h3>
+      <article class="focus-card focus-card--mint">
+        <div class="focus-card__header">
+          <h3>Evento del periodo</h3>
+          <a class="inline-link" routerLink="/app/calendario">Ver calendario</a>
         </div>
-        <div class="panel__body">
-          @if (courses.length === 0) {
-            <div class="empty">Agrega cursos para registrar notas.</div>
-          }
-          @if (courses.length > 0) {
-            <div class="course-list">
-              @for (course of courses.slice(0, 3); track course.usuarioPeriodoCursoId) {
-                <article class="course-card">
-                  <div>
-                    <p class="course-code">{{ course.codigo }}</p>
-                    <p class="course-name">{{ course.nombre }}</p>
-                  </div>
-                  <a class="btn btn--ghost" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId]">Abrir</a>
-                </article>
-              }
+
+        @if (!nextPeriodEvent) {
+          <div class="empty-card">No hay eventos institucionales proximos.</div>
+        }
+
+        @if (nextPeriodEvent) {
+          <div class="focus-card__body">
+            <span class="eyebrow-label">{{ nextPeriodEvent.tipo || 'Periodo' }}</span>
+            <strong>{{ nextPeriodEvent.titulo }}</strong>
+            <p>{{ nextPeriodEvent.subtitulo || 'Evento institucional' }}</p>
+            <div class="focus-card__footer">
+              <span>{{ formatEventDate(nextPeriodEvent.inicio) }}</span>
+              <a class="btn btn--ghost" routerLink="/app/calendario">Abrir calendario</a>
             </div>
-          }
-        </div>
-      </section>
+          </div>
+        }
+      </article>
+    </section>
 
-      <section class="panel">
+    <section class="dashboard__grid">
+      <article class="panel panel--wide">
         <div class="panel__header">
-          <h3>Progreso del periodo</h3>
+          <h3>Entregas y evaluaciones proximas</h3>
+          <a class="inline-link" routerLink="/app/notas">Ver todas</a>
         </div>
-        <div class="panel__body">
+
+        @if (upcomingEvaluations.length === 0) {
+          <div class="empty-card">No hay evaluaciones proximas con fecha disponible.</div>
+        }
+
+        @if (upcomingEvaluations.length > 0) {
+          <div class="list-grid">
+            @for (item of upcomingEvaluations; track item.usuarioPeriodoCursoId + '-' + item.evaluacionCodigo) {
+              <article class="list-card">
+                <div>
+                  <p class="list-card__eyebrow">{{ item.codigoCurso }}</p>
+                  <h4>{{ item.evaluacionCodigo }}</h4>
+                  <p class="list-card__meta">{{ item.nombreCurso }}</p>
+                </div>
+                <div class="list-card__side">
+                  <strong>{{ item.fechaEstimada ? formatEventDate(item.fechaEstimada) : 'Fecha pendiente' }}</strong>
+                  <span>{{ item.semana != null ? 'Semana ' + item.semana : 'Semana por definir' }}</span>
+                </div>
+              </article>
+            }
+          </div>
+        }
+      </article>
+
+      <article class="panel">
+        <div class="panel__header">
+          <h3>Clases proximas</h3>
+          <a class="inline-link" routerLink="/app/horario">Abrir horario</a>
+        </div>
+
+        @if (upcomingSessions.length === 0) {
+          <div class="empty-card">No hay sesiones proximas cargadas.</div>
+        }
+
+        @if (upcomingSessions.length > 0) {
+          <div class="agenda-list">
+            @for (item of upcomingSessions; track item.inicio + '-' + item.titulo) {
+              <div class="agenda-item">
+                <strong>{{ item.titulo }}</strong>
+                <span>{{ item.subtitulo || item.codigoCurso || 'Sesion' }}</span>
+                <small>{{ formatEventDate(item.inicio, true) }}</small>
+              </div>
+            }
+          </div>
+        }
+      </article>
+
+      <article class="panel">
+        <div class="panel__header">
+          <h3>Indicadores personales</h3>
+          <a class="inline-link" routerLink="/app/perfil">Ver perfil</a>
+        </div>
+
+        <div class="metric-stack">
+          <div class="metric-card">
+            <strong>{{ summary.notasRegistradas }}</strong>
+            <span>notas registradas</span>
+          </div>
+          <div class="metric-card">
+            <strong>{{ currentPeriod?.metaPromedioCiclo ?? '--' }}</strong>
+            <span>meta de promedio</span>
+          </div>
+          <div class="metric-card">
+            <strong>{{ currentPeriod?.horasEstudioSemanaObjetivo ?? '--' }}</strong>
+            <span>horas objetivo por semana</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel panel--full">
+        <div class="panel__header">
+          <h3>Ritmo del ciclo</h3>
+          <span>{{ cycleProgressLabel }}</span>
+        </div>
+
+        <div class="progress-block">
           <div class="progress">
             <div class="progress__bar" [style.width.%]="cycleProgressPercent"></div>
           </div>
-          <p class="muted">{{ cycleProgressLabel }}</p>
+          <p class="muted">Periodo actual: {{ currentPeriod?.periodoEtiqueta || 'Sin periodo' }}</p>
         </div>
-      </section>
-
-      <aside class="side">
-        <div class="side__card">
-          <h4>Checklist</h4>
-          <ul>
-            <li>Completa tus cursos activos.</li>
-            <li>Registra horarios cuando tengas la sección.</li>
-            <li>Configura alertas y tareas.</li>
-          </ul>
-        </div>
-        <div class="side__card accent">
-          <h4>Estado de conexión</h4>
-          <p>Microsoft / Google OK</p>
-          <button class="btn btn--ghost" type="button">Sincronizar calendario</button>
-        </div>
-      </aside>
-    </div>
+      </article>
+    </section>
   }
 </main>

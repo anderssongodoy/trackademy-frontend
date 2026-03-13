@@ -1,0 +1,52 @@
+﻿<main class="simple-page">
+  <header class="simple-page__hero">
+    <div>
+      <p class="eyebrow">Calendario</p>
+      <h1>Todo el periodo en una sola linea de tiempo</h1>
+      <p class="subtitle">Aqui mezclamos eventos institucionales, evaluaciones y sesiones del horario dentro del rango proximo.</p>
+    </div>
+  </header>
+
+  @if (isLoading) {
+    <div class="state state--loading">Cargando calendario...</div>
+  }
+
+  @if (loadError) {
+    <div class="state state--error">{{ loadError }}</div>
+  }
+
+  @if (!isLoading && !loadError) {
+    <section class="simple-card">
+      <div class="simple-card__header">
+        <h2>Proximos 30 dias</h2>
+        <span>{{ events.length }} evento{{ events.length === 1 ? '' : 's' }}</span>
+      </div>
+
+      @if (groups.length === 0) {
+        <div class="empty">No hay eventos para mostrar en este rango.</div>
+      }
+
+      @if (groups.length > 0) {
+        <div class="timeline-groups">
+          @for (group of groups; track group.label) {
+            <section class="timeline-group">
+              <h3>{{ group.label | date:'EEEE dd/MM' }}</h3>
+              <div class="timeline-items">
+                @for (item of group.items; track item.inicio + '-' + item.titulo) {
+                  <article class="timeline-item">
+                    <div>
+                      <p class="course-code">{{ item.origen }}</p>
+                      <strong>{{ item.titulo }}</strong>
+                      <p>{{ item.subtitulo || 'Sin detalle adicional' }}</p>
+                    </div>
+                    <span>{{ item.todoElDia ? 'Todo el dia' : (item.inicio | date:'HH:mm') + ' - ' + (item.fin | date:'HH:mm') }}</span>
+                  </article>
+                }
+              </div>
+            </section>
+          }
+        </div>
+      }
+    </section>
+  }
+</main>

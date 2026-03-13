@@ -1,12 +1,12 @@
-﻿import { Component, OnInit, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
 
-import { MeUseCase, MyCourse, MyCurrentPeriod, MyEvaluation } from '../../application/me-use-case';
+import { MeUseCase, MyCalendarEvent, MyDashboardSummary, MyEvaluation } from '../../application/me-use-case';
 
 @Component({
   selector: 'app-dashboard-page',
-  imports: [RouterLink],
+  imports: [CommonModule, RouterLink],
   templateUrl: './dashboard.page.html',
   styleUrl: './dashboard.page.scss'
 })
@@ -15,83 +15,95 @@ export class DashboardPage implements OnInit {
 
   isLoading = true;
   loadError = '';
-  currentPeriod: MyCurrentPeriod | null = null;
-  courses: MyCourse[] = [];
-  evaluations: MyEvaluation[] = [];
+  summary: MyDashboardSummary | null = null;
 
   ngOnInit(): void {
     this.isLoading = true;
     this.loadError = '';
 
-    forkJoin({
-      period: this.meUseCase.getCurrentPeriod(),
-      courses: this.meUseCase.getMyCourses(),
-      evaluations: this.meUseCase.getMyEvaluations()
-    }).subscribe({
-      next: ({ period, courses, evaluations }) => {
-        this.currentPeriod = period;
-        this.courses = courses;
-        this.evaluations = evaluations;
+    this.meUseCase.getDashboard().subscribe({
+      next: (summary) => {
+        this.summary = summary;
         this.isLoading = false;
       },
       error: () => {
-        this.loadError = 'No se pudo cargar tu información. Revisa tu sesión o el backend.';
+        this.loadError = 'No se pudo cargar tu dashboard. Revisa tu sesion o el backend.';
         this.isLoading = false;
       }
     });
   }
 
+  get currentPeriod() {
+    return this.summary?.periodoActual ?? null;
+  }
+
   get upcomingEvaluations(): MyEvaluation[] {
-    return this.evaluations
-      .filter((item) => item.fechaEstimada)
-      .sort((a, b) => (a.fechaEstimada || '').localeCompare(b.fechaEstimada || ''))
-      .slice(0, 4);
+    return this.summary?.proximasEvaluaciones ?? [];
+  }
+
+  get upcomingSessions(): MyCalendarEvent[] {
+    return this.summary?.proximasSesiones ?? [];
+  }
+
+  get periodEvents(): MyCalendarEvent[] {
+    return this.summary?.proximosEventosPeriodo ?? [];
   }
 
   get currentWeekLabel(): string {
-    const start = this.parseDate(this.currentPeriod?.periodoFechaInicio);
-    if (!start) {
-      return '—';
-    }
-    const now = new Date();
-    const diffDays = Math.floor((now.getTime() - start.getTime()) / 86400000);
-    if (diffDays < 0) {
-      return '—';
-    }
-    const week = Math.floor(diffDays / 7) + 1;
-    return `Semana ${week}`;
+    const week = this.summary?.semanaActual;
+    return week == null ? 'Semana no calculada' : `Semana ${week}`;
   }
 
   get cycleProgressPercent(): number {
-    const start = this.parseDate(this.currentPeriod?.periodoFechaInicio);
-    const end = this.parseDate(this.currentPeriod?.periodoFechaFin);
-    if (!start || !end) {
-      return 0;
-    }
-    const total = end.getTime() - start.getTime();
-    if (total <= 0) {
-      return 0;
-    }
-    const now = new Date();
-    const elapsed = Math.min(Math.max(now.getTime() - start.getTime(), 0), total);
-    return Math.round((elapsed / total) * 100);
+    return this.summary?.progresoPeriodoPct ?? 0;
   }
 
   get cycleProgressLabel(): string {
-    if (!this.currentPeriod?.periodoFechaInicio || !this.currentPeriod?.periodoFechaFin) {
+    if (this.summary?.progresoPeriodoPct == null) {
       return 'Sin fechas del periodo';
     }
-    return `${this.cycleProgressPercent}% del ciclo`;
+    return `${this.summary.progresoPeriodoPct}% del ciclo completado`;
   }
 
-  private parseDate(value?: string | null): Date | null {
+  get todayLabel(): string {
+    return new Intl.DateTimeFormat('es-PE', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long'
+    }).format(new Date());
+  }
+
+  get onboardingStatusLabel(): string {
+    const status = this.currentPeriod?.onboardingEstado?.toLowerCase();
+    if (status === 'completado') {
+      return 'Perfil academico listo';
+    }
+    if (status === 'en_progreso') {
+      return 'Perfil academico en progreso';
+    }
+    return 'Perfil academico pendiente';
+  }
+
+  get nextEvaluation(): MyEvaluation | null {
+    return this.upcomingEvaluations[0] ?? null;
+  }
+
+  get nextSession(): MyCalendarEvent | null {
+    return this.upcomingSessions[0] ?? null;
+  }
+
+  get nextPeriodEvent(): MyCalendarEvent | null {
+    return this.periodEvents[0] ?? null;
+  }
+
+  formatEventDate(value: string | null, includeTime = false): string {
     if (!value) {
-      return null;
+      return 'Fecha pendiente';
     }
-    const parsed = new Date(`${value}T00:00:00`);
-    if (Number.isNaN(parsed.getTime())) {
-      return null;
-    }
-    return parsed;
+
+    return new Intl.DateTimeFormat('es-PE', includeTime
+      ? { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }
+      : { day: '2-digit', month: 'short' }
+    ).format(new Date(value));
   }
 }

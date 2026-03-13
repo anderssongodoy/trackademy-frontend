@@ -9,7 +9,7 @@
         <a class="ghost-btn" routerLink="/auth/sign-in">Iniciar sesión</a>
       </ng-container>
       <ng-template #signedInActions>
-        <a class="primary-btn" routerLink="/onboarding">Ir a onboarding</a>
+        <a class="primary-btn" routerLink="/app/dashboard">Ir al dashboard</a>
       </ng-template>
     </div>
   </nav>
@@ -28,7 +28,7 @@
         <a class="primary-btn" routerLink="/auth/sign-in">Iniciar sesión</a>
       </ng-container>
       <ng-template #signedInHero>
-        <a class="primary-btn" routerLink="/onboarding">Completar onboarding</a>
+        <a class="primary-btn" routerLink="/app/dashboard">Ir al dashboard</a>
       </ng-template>
     </div>
   </header>
@@ -60,6 +60,6 @@
       <p>Activa Trackademy y prepara tu ruta académica antes de que empiecen las entregas.</p>
     </div>
     <a class="primary-btn" routerLink="/auth/sign-in" *ngIf="!signedIn()">Iniciar sesión</a>
-    <a class="primary-btn" routerLink="/onboarding" *ngIf="signedIn()">Ir a onboarding</a>
+    <a class="primary-btn" routerLink="/app/dashboard" *ngIf="signedIn()">Ir al dashboard</a>
   </section>
 </section>

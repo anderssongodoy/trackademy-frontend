@@ -1,0 +1,33 @@
+﻿<main class="placeholder-page">
+  <p class="eyebrow">Perfil</p>
+  <h1>Tu configuracion academica actual</h1>
+
+  @if (isLoading) {
+    <div class="state state--loading">Cargando perfil...</div>
+  }
+
+  @if (loadError) {
+    <div class="state state--error">{{ loadError }}</div>
+  }
+
+  @if (!isLoading && !loadError && period) {
+    <section class="placeholder-card profile-grid">
+      <article>
+        <strong>Periodo</strong>
+        <p>{{ period.periodoEtiqueta || 'Sin etiqueta' }}</p>
+      </article>
+      <article>
+        <strong>Ciclo actual</strong>
+        <p>{{ period.cicloActual || 'Sin definir' }}</p>
+      </article>
+      <article>
+        <strong>Meta de promedio</strong>
+        <p>{{ period.metaPromedioCiclo || 'Sin definir' }}</p>
+      </article>
+      <article>
+        <strong>Horas objetivo</strong>
+        <p>{{ period.horasEstudioSemanaObjetivo || 'Sin definir' }}</p>
+      </article>
+    </section>
+  }
+</main>

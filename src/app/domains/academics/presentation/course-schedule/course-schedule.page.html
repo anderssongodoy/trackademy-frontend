@@ -4,7 +4,7 @@
       <a class="back" [routerLink]="['/app/cursos', course()?.usuarioPeriodoCursoId]">Volver al curso</a>
       <p class="eyebrow">Horario del curso</p>
       <h1>Primero elige los dias, luego acomoda la hora real</h1>
-      <p class="subtitle">Puedes usar horarios como 20:15 a 21:45. El sistema calcula solo cuandos bloques de 45 minutos hay en cada dia.</p>
+      <p class="subtitle">Puedes usar horarios como 20:15 a 21:45. Aqui solo ajustas dias y hora de inicio real de cada clase.</p>
     </div>
     <div class="hero__actions">
       <a class="btn btn--ghost" routerLink="/app/horario">Ver horario global</a>
@@ -28,7 +28,7 @@
       </div>
       <div class="summary-grid">
         <div>
-          <span class="label">Bloques esperados</span>
+          <span class="label">Sesiones esperadas</span>
           <strong>{{ totalBlocks() }}</strong>
         </div>
         <div>
@@ -60,7 +60,7 @@
             <div class="step-panel__header">
               <div>
                 <h3>Que dias llevas este curso</h3>
-                <p>Elige los dias reales. Apenas los marques, el sistema reparte automaticamente los bloques para que solo ajustes lo necesario.</p>
+                <p>Elige los dias reales. Apenas los marques, el sistema reparte automaticamente las sesiones para que solo ajustes lo necesario.</p>
               </div>
             </div>
 
@@ -89,17 +89,17 @@
             <div class="step-panel__header">
               <div>
                 <h3>Ahora acomoda cada dia</h3>
-                <p>Ya dejamos un reparto automatico. Si un dia necesita 3 bloques y otro 1, ajustalo aqui mismo sin pasos extra.</p>
+                <p>Ya dejamos un reparto automatico. Si un dia necesita mas sesiones que otro, ajustalo aqui mismo sin pasos extra.</p>
               </div>
               <button class="btn btn--ghost" type="button" (click)="resetSuggestedBlocks()">Repartir de nuevo</button>
             </div>
 
             <div class="schedule-status" [class.is-valid]="missingBlocks() === 0 && extraBlocks() === 0" [class.is-error]="missingBlocks() > 0 || extraBlocks() > 0">
               @if (missingBlocks() > 0) {
-                <span>Te faltan {{ missingBlocks() }} bloques por acomodar.</span>
+                <span>Te faltan {{ missingBlocks() }} sesiones por acomodar.</span>
               }
               @if (extraBlocks() > 0) {
-                <span>Te pasaste por {{ extraBlocks() }} bloques. Ajusta la cantidad por dia.</span>
+                <span>Te pasaste por {{ extraBlocks() }} sesiones. Ajusta la cantidad por dia.</span>
               }
               @if (missingBlocks() === 0 && extraBlocks() === 0) {
                 <span>La suma ya coincide con las horas semanales del curso.</span>
@@ -122,7 +122,7 @@
 
                   <div class="block-adjuster">
                     <div>
-                      <span class="label-inline">Bloques de este dia</span>
+                      <span class="label-inline">Sesiones de este dia</span>
                       <p>{{ distributionLabel(day) }}</p>
                     </div>
                     <div class="counter">
@@ -149,28 +149,7 @@
                     </div>
                   </div>
 
-                  <details class="optional-details">
-                    <summary>Datos opcionales</summary>
-                    <div class="optional-grid">
-                      <label>
-                        <span>Tipo</span>
-                        <select formControlName="tipoSesion">
-                          <option value="">Sin definir</option>
-                          @for (type of sessionTypes; track type) {
-                            <option [value]="type">{{ type }}</option>
-                          }
-                        </select>
-                      </label>
-                      <label>
-                        <span>Ubicacion</span>
-                        <input type="text" formControlName="ubicacion" placeholder="Aula o laboratorio" />
-                      </label>
-                      <label class="optional-grid__full">
-                        <span>URL virtual</span>
-                        <input type="text" formControlName="urlVirtual" placeholder="https://..." />
-                      </label>
-                    </div>
-                  </details>
+                  <p class="time-card__saved-info">{{ existingDetailsLabel(day) }}</p>
                 </article>
               }
             </div>
@@ -209,7 +188,7 @@
                 <span>{{ distributionLabel(day) }}</span>
               </header>
               <p>{{ getPlan(day)?.get('horaInicio')?.value || '--:--' }} a {{ endTimeFor(day) }}</p>
-              <small>{{ optionalSummary(day) }}</small>
+              <small>{{ existingDetailsLabel(day) }}</small>
             </section>
           }
 

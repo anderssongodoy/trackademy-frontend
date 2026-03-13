@@ -43,7 +43,8 @@ h1 {
 .time-card__explanation small,
 .block-adjuster p,
 .schedule-status,
-.time-card__end small {
+.time-card__end small,
+.time-card__saved-info {
   margin: 0;
   color: #475569;
 }
@@ -203,8 +204,7 @@ h1 {
 .step-panel,
 .time-grid,
 .preview-grid,
-.day-selector,
-.optional-grid {
+.day-selector {
   display: grid;
   gap: 16px;
 }
@@ -307,24 +307,10 @@ h1 {
   background: linear-gradient(180deg, rgba(238, 242, 255, 0.9), rgba(255, 255, 255, 0.95));
 }
 
-.optional-details {
+.time-card__saved-info {
+  padding-top: 12px;
   border-top: 1px solid rgba(226, 232, 240, 0.95);
-  padding-top: 14px;
-}
-
-.optional-details summary {
-  cursor: pointer;
-  font-weight: 700;
-  color: #0f172a;
-}
-
-.optional-grid {
-  margin-top: 14px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.optional-grid__full {
-  grid-column: 1 / -1;
+  font-size: 13px;
 }
 
 label {
@@ -398,8 +384,7 @@ select {
   .summary-card,
   .planner-layout,
   .day-selector,
-  .time-grid,
-  .optional-grid {
+  .time-grid {
     grid-template-columns: 1fr;
   }
 }

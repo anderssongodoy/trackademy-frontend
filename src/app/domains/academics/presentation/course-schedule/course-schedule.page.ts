@@ -1,4 +1,4 @@
-﻿import { CommonModule } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormArray, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
@@ -37,7 +37,6 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
     { value: 7, label: 'Domingo' }
   ];
 
-  readonly sessionTypes = ['Teoria', 'Practica', 'Laboratorio', 'Asesoria'];
   readonly timeOptions = this.buildTimeOptions();
   readonly currentStep = signal(1);
   readonly selectedDays = signal<number[]>([]);
@@ -74,9 +73,7 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.subscriptions.add(
-      this.form.valueChanges.subscribe(() => this.bumpRevision())
-    );
+    this.subscriptions.add(this.form.valueChanges.subscribe(() => this.bumpRevision()));
 
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (Number.isNaN(id)) {
@@ -192,7 +189,7 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
       return '--:--';
     }
 
-    const startValue = plan.get('horaInicio')?.value as string;
+    const startValue = this.normalizeTime(plan.get('horaInicio')?.value as string);
     const blocks = Number(plan.get('bloques')?.value ?? 1);
     return this.calculateEndTime(startValue, blocks);
   }
@@ -205,10 +202,10 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
     const plan = this.getPlan(day);
     const blocks = Number(plan?.get('bloques')?.value ?? 0);
     if (blocks === 0) {
-      return 'Sin bloques';
+      return 'Sin sesiones';
     }
 
-    return `${blocks} bloque${blocks === 1 ? '' : 's'} de 45 min`;
+    return `${blocks} sesion${blocks === 1 ? '' : 'es'} de 45 min`;
   }
 
   durationLabel(day: number): string {
@@ -221,18 +218,17 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
     return `${minutes} min en total`;
   }
 
-  optionalSummary(day: number): string {
+  existingDetailsLabel(day: number): string {
     const plan = this.getPlan(day);
     if (!plan) {
-      return 'Sin datos extra';
+      return 'Sin detalles extra guardados';
     }
 
     const type = this.cleanText(plan.get('tipoSesion')?.value as string);
     const location = this.cleanText(plan.get('ubicacion')?.value as string);
     const url = this.cleanText(plan.get('urlVirtual')?.value as string);
-
-    const parts = [type, location, url ? 'URL lista' : null].filter(Boolean);
-    return parts.length ? parts.join(' · ') : 'Sin datos extra';
+    const parts = [type, location, url ? 'URL guardada' : null].filter(Boolean);
+    return parts.length > 0 ? parts.join(' - ') : 'Sin detalles extra guardados';
   }
 
   resetSuggestedBlocks(): void {
@@ -263,7 +259,7 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
     }
 
     if (this.missingBlocks() > 0 || this.extraBlocks() > 0) {
-      this.saveError.set('Los bloques asignados deben coincidir con las horas semanales del curso.');
+      this.saveError.set('Las sesiones asignadas deben coincidir con las horas semanales del curso.');
       return;
     }
 
@@ -275,10 +271,12 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
 
     const payload: ScheduleBlockRequest[] = this.selectedDays().map((day) => {
       const plan = this.planForDay(day);
+      const startTime = this.normalizeTime(plan.get('horaInicio')?.value as string);
+
       return {
         diaSemana: day,
-        horaInicio: plan.get('horaInicio')?.value as string,
-        horaFin: this.endTimeFor(day),
+        horaInicio: startTime,
+        horaFin: this.calculateEndTime(startTime, Number(plan.get('bloques')?.value ?? 1)),
         duracionMin: 45,
         tipoSesion: this.cleanText(plan.get('tipoSesion')?.value as string),
         ubicacion: this.cleanText(plan.get('ubicacion')?.value as string),
@@ -338,7 +336,7 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
       this.planControls.push(this.createPlanGroup({
         diaSemana: day,
         bloques: Math.max(totalBlocks, 1),
-        horaInicio: first?.horaInicio ?? '07:00',
+        horaInicio: this.normalizeTime(first?.horaInicio ?? '07:00'),
         tipoSesion: first?.tipoSesion ?? '',
         ubicacion: first?.ubicacion ?? '',
         urlVirtual: first?.urlVirtual ?? ''
@@ -399,11 +397,13 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
     this.bumpRevision();
   }
 
-  private createPlanGroup(value?: Partial<{ diaSemana: number; bloques: number; horaInicio: string; tipoSesion: string; ubicacion: string; urlVirtual: string }>): UntypedFormGroup {
+  private createPlanGroup(
+    value?: Partial<{ diaSemana: number; bloques: number; horaInicio: string; tipoSesion: string; ubicacion: string; urlVirtual: string }>
+  ): UntypedFormGroup {
     return this.formBuilder.group({
       diaSemana: [value?.diaSemana ?? 1, [Validators.required, Validators.min(1), Validators.max(7)]],
       bloques: [value?.bloques ?? 1, [Validators.required, Validators.min(1)]],
-      horaInicio: [value?.horaInicio ?? '07:00', Validators.required],
+      horaInicio: [this.normalizeTime(value?.horaInicio ?? '07:00'), Validators.required],
       tipoSesion: [value?.tipoSesion ?? ''],
       ubicacion: [value?.ubicacion ?? ''],
       urlVirtual: [value?.urlVirtual ?? '']
@@ -421,7 +421,7 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
   }
 
   private calculateEndTime(startTime: string, blocks: number): string {
-    const start = this.timeToMinutes(startTime);
+    const start = this.timeToMinutes(this.normalizeTime(startTime));
     return this.minutesToTime(start + blocks * 45);
   }
 
@@ -430,7 +430,7 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
       return 1;
     }
 
-    const diff = this.timeToMinutes(horaFin) - this.timeToMinutes(horaInicio);
+    const diff = this.timeToMinutes(this.normalizeTime(horaFin)) - this.timeToMinutes(this.normalizeTime(horaInicio));
     if (diff <= 0 || duration <= 0) {
       return 1;
     }
@@ -439,7 +439,7 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
   }
 
   private timeToMinutes(value: string): number {
-    const [hours, minutes] = value.split(':').map(Number);
+    const [hours, minutes] = this.normalizeTime(value).split(':').map(Number);
     return (hours * 60) + minutes;
   }
 
@@ -448,6 +448,16 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
     const hours = Math.floor(safeMinutes / 60);
     const minutes = safeMinutes % 60;
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  }
+
+  private normalizeTime(value: string): string {
+    const trimmed = value?.trim();
+    if (!trimmed) {
+      return '07:00';
+    }
+
+    const [hours = '07', minutes = '00'] = trimmed.split(':');
+    return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
   }
 
   private cleanText(value: string): string | null {
@@ -459,4 +469,3 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
     this.formRevision.update((value) => value + 1);
   }
 }
-

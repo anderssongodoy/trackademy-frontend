@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+﻿import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -49,6 +49,7 @@ export interface MyScheduleEntry {
 }
 
 export interface MyEvaluation {
+  usuarioPeriodoEvaluacionId: number | null;
   usuarioPeriodoCursoId: number;
   cursoId: number;
   codigoCurso: string;
@@ -59,7 +60,40 @@ export interface MyEvaluation {
   porcentaje: number | null;
   semana: number | null;
   fechaEstimada: string | null;
+  fechaReal: string | null;
+  nota: number | null;
+  exonerado: boolean | null;
+  esRezagado: boolean | null;
   observacion: string | null;
+  comentarios: string | null;
+}
+
+export interface MyCalendarEvent {
+  origen: string;
+  tipo: string | null;
+  titulo: string;
+  subtitulo: string | null;
+  inicio: string;
+  fin: string;
+  todoElDia: boolean;
+  usuarioPeriodoCursoId: number | null;
+  cursoId: number | null;
+  codigoCurso: string | null;
+  nombreCurso: string | null;
+  referenciaCodigo: string | null;
+}
+
+export interface MyDashboardSummary {
+  periodoActual: MyCurrentPeriod | null;
+  semanaActual: number | null;
+  progresoPeriodoPct: number | null;
+  cursosActivos: number;
+  horariosRegistrados: number;
+  evaluacionesPendientes: number;
+  notasRegistradas: number;
+  proximasEvaluaciones: MyEvaluation[];
+  proximasSesiones: MyCalendarEvent[];
+  proximosEventosPeriodo: MyCalendarEvent[];
 }
 
 export interface ScheduleBlockRequest {
@@ -77,6 +111,19 @@ export interface ScheduleUpdateResponse {
   bloquesRegistrados: number;
 }
 
+export interface EvaluationGradeRequest {
+  nota: number | null;
+  fechaReal: string | null;
+  exonerado: boolean;
+  esRezagado: boolean;
+  comentarios: string | null;
+}
+
+export interface CourseMetadataUpdateRequest {
+  seccion: string | null;
+  profesor: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class MeApiService {
   private readonly http = inject(HttpClient);
@@ -84,6 +131,10 @@ export class MeApiService {
 
   getCurrentPeriod(): Observable<MyCurrentPeriod> {
     return this.http.get<MyCurrentPeriod>(`${this.env.apiBaseUrl}/api/v1/me/periodo-actual`);
+  }
+
+  getDashboard(): Observable<MyDashboardSummary> {
+    return this.http.get<MyDashboardSummary>(`${this.env.apiBaseUrl}/api/v1/me/dashboard`);
   }
 
   getMyCourses(): Observable<MyCourse[]> {
@@ -94,10 +145,34 @@ export class MeApiService {
     return this.http.get<MyScheduleEntry[]>(`${this.env.apiBaseUrl}/api/v1/me/horarios`);
   }
 
+  getMyCalendar(from?: string, to?: string): Observable<MyCalendarEvent[]> {
+    if (from && to) {
+      return this.http.get<MyCalendarEvent[]>(`${this.env.apiBaseUrl}/api/v1/me/calendario`, {
+        params: { from, to }
+      });
+    }
+
+    return this.http.get<MyCalendarEvent[]>(`${this.env.apiBaseUrl}/api/v1/me/calendario`);
+  }
+
   updateCourseSchedule(usuarioPeriodoCursoId: number, bloques: ScheduleBlockRequest[]): Observable<ScheduleUpdateResponse> {
     return this.http.put<ScheduleUpdateResponse>(
       `${this.env.apiBaseUrl}/api/v1/me/cursos/${usuarioPeriodoCursoId}/horarios`,
       { bloques }
+    );
+  }
+
+  updateCourseMetadata(usuarioPeriodoCursoId: number, payload: CourseMetadataUpdateRequest): Observable<MyCourse> {
+    return this.http.put<MyCourse>(
+      `${this.env.apiBaseUrl}/api/v1/me/cursos/${usuarioPeriodoCursoId}`,
+      payload
+    );
+  }
+
+  saveEvaluationGrade(usuarioPeriodoCursoId: number, evaluacionCodigo: string, payload: EvaluationGradeRequest): Observable<MyEvaluation> {
+    return this.http.put<MyEvaluation>(
+      `${this.env.apiBaseUrl}/api/v1/me/cursos/${usuarioPeriodoCursoId}/evaluaciones/${evaluacionCodigo}/nota`,
+      payload
     );
   }
 
