@@ -1,7 +1,89 @@
-﻿<main class="placeholder-page">
-  <p class="eyebrow">Recordatorios</p>
-  <h1>Recordatorios y alertas</h1>
-  <section class="placeholder-card">
-    <p>La estructura ya esta lista. Falta conectar reglas y eventos reales cuando abramos esa API.</p>
+<main class="reminders-page">
+  <section class="reminders-hero">
+    <div class="reminders-hero__copy">
+      <p class="eyebrow">Recordatorios</p>
+      <h1>Alertas reales para no perder el hilo del ciclo</h1>
+      <p>
+        Esta vista junta pendientes de nota, clases cercanas y eventos del periodo para que veas
+        que requiere accion y que solo conviene tener presente.
+      </p>
+    </div>
+
+    <div class="reminders-stats">
+      <article class="stat-card stat-card--slate">
+        <span>Total</span>
+        <strong>{{ stats.total }}</strong>
+        <small>alertas visibles</small>
+      </article>
+      <article class="stat-card stat-card--lilac">
+        <span>Accionables</span>
+        <strong>{{ stats.actionable }}</strong>
+        <small>pendientes de nota</small>
+      </article>
+      <article class="stat-card stat-card--mint">
+        <span>Hoy</span>
+        <strong>{{ stats.today }}</strong>
+        <small>cosas que ya corren</small>
+      </article>
+      <article class="stat-card stat-card--amber">
+        <span>Vencidos</span>
+        <strong>{{ stats.overdue }}</strong>
+        <small>necesitan atencion</small>
+      </article>
+    </div>
+  </section>
+
+  <section class="reminders-shell">
+    <header class="reminders-toolbar">
+      <div>
+        <h2>Tu radar del periodo</h2>
+        <p>Se actualiza con calendario y evaluaciones reales.</p>
+      </div>
+
+      <div class="filter-pills">
+        <button type="button" [class.is-active]="selectedFilter === 'all'" (click)="selectedFilter = 'all'">Todo</button>
+        <button type="button" [class.is-active]="selectedFilter === 'actionable'" (click)="selectedFilter = 'actionable'">Accionables</button>
+        <button type="button" [class.is-active]="selectedFilter === 'informative'" (click)="selectedFilter = 'informative'">Informativos</button>
+      </div>
+    </header>
+
+    <section *ngIf="isLoading" class="state-card">
+      <p>Cargando recordatorios reales...</p>
+    </section>
+
+    <section *ngIf="!isLoading && loadError" class="state-card state-card--error">
+      <p>{{ loadError }}</p>
+    </section>
+
+    <section *ngIf="!isLoading && !loadError && !filteredReminders.length" class="state-card">
+      <p>No hay recordatorios para este filtro.</p>
+    </section>
+
+    <section *ngIf="!isLoading && !loadError && filteredReminders.length" class="reminders-list">
+      <article *ngFor="let item of filteredReminders; trackBy: trackReminder" class="reminder-card">
+        <div class="reminder-card__top">
+          <span class="reminder-kind" [ngClass]="kindClass(item)">{{ kindLabel(item) }}</span>
+          <span class="reminder-chip" [ngClass]="urgencyClass(item)">{{ urgencyLabel(item) }}</span>
+        </div>
+
+        <div class="reminder-card__body">
+          <div class="reminder-card__main">
+            <p class="reminder-card__course">{{ item.courseLabel }}</p>
+            <h3>{{ item.title }}</h3>
+            <p class="reminder-card__subtitle">{{ item.subtitle }}</p>
+            <p class="reminder-card__description">{{ item.description }}</p>
+          </div>
+
+          <div class="reminder-card__meta">
+            <strong>{{ item.dateLabel }}</strong>
+            <span>{{ item.timeLabel }}</span>
+          </div>
+        </div>
+
+        <div class="reminder-card__actions">
+          <a [routerLink]="item.actionLink">{{ item.actionLabel }}</a>
+        </div>
+      </article>
+    </section>
   </section>
 </main>
