@@ -6,7 +6,6 @@
       <p class="subtitle">Arranca con lo esencial. El resto lo puedes completar luego desde el dashboard.</p>
     </div>
     <div class="header__actions">
-      <a class="ghost-btn" routerLink="/app/dashboard">Volver al dashboard</a>
       <button type="button" class="ghost-btn ghost-btn--danger" (click)="signOut()">Cerrar sesión</button>
     </div>
   </header>
@@ -128,7 +127,7 @@
                 </label>
               </div>
               <div class="course-tools__summary">
-                Mostrando {{ filteredCourses.length }} cursos
+                Mostrando {{ filteredCourses.length }} de {{ courses.length }} cursos
               </div>
             </div>
 
@@ -165,9 +164,6 @@
               <div class="course-actions">
                 @if (isCourseLoading) {
                   <span class="course-loading">Cargando cursos...</span>
-                }
-                @if (hasMoreCourses && !isCourseLoading) {
-                  <button type="button" class="secondary-btn" (click)="showMoreCourses()">Ver más cursos</button>
                 }
               </div>
             }

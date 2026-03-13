@@ -1,7 +1,7 @@
 ﻿import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
 import {
@@ -22,7 +22,7 @@ interface CourseDetailForm {
 
 @Component({
   selector: 'app-onboarding-page',
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './onboarding.page.html',
   styleUrl: './onboarding.page.scss'
 })
@@ -52,13 +52,11 @@ export class OnboardingPage implements OnInit {
   periods: CatalogPeriod[] = [];
   courses: CatalogCourse[] = [];
   filteredCourses: CatalogCourse[] = [];
+  private readonly courseCache = new Map<number, CatalogCourse[]>();
 
   selectedCourseIds = new Set<number>();
 
   courseQuery = '';
-  coursePageSize = 12;
-  courseOffset = 0;
-  hasMoreCourses = false;
   isCourseLoading = false;
   courseError = '';
   showSelectedOnly = false;
@@ -98,18 +96,20 @@ export class OnboardingPage implements OnInit {
     this.form.get('carreraId')?.valueChanges.subscribe((value) => {
       const carreraId = value ?? null;
       this.resetCourseSelection();
+      this.courseQuery = '';
+      this.showSelectedOnly = false;
       if (!carreraId) {
         this.courses = [];
         this.applyCourseFilter();
         return;
       }
-      this.loadCourses(true);
+      this.loadCourses(carreraId);
     });
   }
 
   onCourseQueryChange(value: string): void {
     this.courseQuery = value;
-    this.loadCourses(true);
+    this.applyCourseFilter();
   }
 
   toggleShowSelected(value: boolean): void {
@@ -121,38 +121,21 @@ export class OnboardingPage implements OnInit {
     return this.filteredCourses;
   }
 
-  showMoreCourses(): void {
-    if (!this.hasMoreCourses || this.isCourseLoading) {
+  private loadCourses(carreraId: number): void {
+    const cachedCourses = this.courseCache.get(carreraId);
+    if (cachedCourses) {
+      this.courses = cachedCourses;
+      this.applyCourseFilter();
       return;
-    }
-    this.loadCourses(false);
-  }
-
-  private loadCourses(reset: boolean): void {
-    const carreraId = this.form.get('carreraId')?.value ?? null;
-    if (!carreraId) {
-      return;
-    }
-
-    if (reset) {
-      this.courseOffset = 0;
-      this.courses = [];
-      this.filteredCourses = [];
-      this.hasMoreCourses = false;
     }
 
     this.isCourseLoading = true;
     this.courseError = '';
 
-    this.catalogUseCase.getCourses(carreraId, this.courseQuery, this.coursePageSize, this.courseOffset).subscribe({
+    this.catalogUseCase.getCourses(carreraId, undefined, 256, 0).subscribe({
       next: (courses) => {
-        if (reset) {
-          this.courses = courses;
-        } else {
-          this.courses = [...this.courses, ...courses];
-        }
-        this.courseOffset += courses.length;
-        this.hasMoreCourses = courses.length === this.coursePageSize;
+        this.courseCache.set(carreraId, courses);
+        this.courses = courses;
         this.applyCourseFilter();
         this.isCourseLoading = false;
       },
@@ -164,11 +147,21 @@ export class OnboardingPage implements OnInit {
   }
 
   private applyCourseFilter(): void {
-    if (this.showSelectedOnly) {
-      this.filteredCourses = this.courses.filter((course) => this.selectedCourseIds.has(course.id));
+    const normalizedQuery = this.courseQuery.trim().toLowerCase();
+    const baseCourses = this.showSelectedOnly
+      ? this.courses.filter((course) => this.selectedCourseIds.has(course.id))
+      : this.courses;
+
+    if (!normalizedQuery) {
+      this.filteredCourses = baseCourses;
       return;
     }
-    this.filteredCourses = this.courses;
+
+    this.filteredCourses = baseCourses.filter((course) => {
+      const code = course.codigo.toLowerCase();
+      const name = course.nombre.toLowerCase();
+      return code.includes(normalizedQuery) || name.includes(normalizedQuery);
+    });
   }
 
   toggleCourse(course: CatalogCourse, enabled: boolean): void {
