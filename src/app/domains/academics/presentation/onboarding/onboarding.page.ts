@@ -52,6 +52,7 @@ export class OnboardingPage implements OnInit {
   periods: CatalogPeriod[] = [];
   courses: CatalogCourse[] = [];
   filteredCourses: CatalogCourse[] = [];
+  fixedCareer: CatalogCareer | null = null;
   private readonly courseCache = new Map<number, CatalogCourse[]>();
 
   selectedCourseIds = new Set<number>();
@@ -117,6 +118,7 @@ export class OnboardingPage implements OnInit {
       return;
     }
 
+    this.fixedCareer = defaultCareer;
     this.form.patchValue({ carreraId: defaultCareer.id });
   }
 
@@ -218,6 +220,7 @@ export class OnboardingPage implements OnInit {
     if (this.currentStep === 1) {
       if (this.form.invalid) {
         this.form.markAllAsTouched();
+        this.submitError = this.getStepOneValidationMessage();
         return;
       }
       this.currentStep = 2;
@@ -227,6 +230,48 @@ export class OnboardingPage implements OnInit {
   prevStep(): void {
     this.submitError = '';
     this.currentStep = Math.max(1, this.currentStep - 1);
+  }
+
+  getControlError(controlName: string): string {
+    const control = this.form.get(controlName);
+    if (!control || !control.touched || !control.invalid) {
+      return '';
+    }
+
+    if (control.hasError('required')) {
+      return 'Este campo es obligatorio.';
+    }
+    if (control.hasError('email')) {
+      return 'Ingresa un correo institucional valido o deja el campo vacio.';
+    }
+    if (control.hasError('minlength')) {
+      return 'Ingresa al menos 3 caracteres.';
+    }
+    if (control.hasError('min') || control.hasError('max')) {
+      return 'Revisa el rango permitido para este campo.';
+    }
+
+    return 'Revisa este campo.';
+  }
+
+  private getStepOneValidationMessage(): string {
+    const priorityControls = [
+      'nombre',
+      'emailInstitucional',
+      'campusId',
+      'carreraId',
+      'periodoId',
+      'cicloActual',
+      'metaPromedioCiclo',
+      'horasEstudioSemanaObjetivo'
+    ];
+
+    const firstInvalid = priorityControls.find((controlName) => this.form.get(controlName)?.invalid);
+    if (!firstInvalid) {
+      return 'Revisa los datos base antes de continuar.';
+    }
+
+    return this.getControlError(firstInvalid) || 'Revisa los datos base antes de continuar.';
   }
 
   submit(): void {

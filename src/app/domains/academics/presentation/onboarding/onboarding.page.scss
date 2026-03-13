@@ -154,26 +154,6 @@ h1 {
   font-size: 14px;
 }
 
-.hint {
-  margin: 0;
-  font-size: 12px;
-  color: #94a3b8;
-}
-
-.hint-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: rgba(148, 163, 184, 0.2);
-  color: #64748b;
-  font-size: 11px;
-  margin-left: 6px;
-  cursor: help;
-}
-
 .course-meta {
   font-size: 12px;
   color: #64748b;
@@ -188,14 +168,6 @@ h1 {
   gap: 16px;
 }
 
-.grid--3 {
-  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-}
-
-.grid-span-2 {
-  grid-column: span 2;
-}
-
 label {
   display: flex;
   flex-direction: column;
@@ -208,6 +180,16 @@ label {
 .label-text {
   font-weight: 600;
   color: #475569;
+}
+
+.field-error {
+  font-size: 12px;
+  color: #b91c1c;
+}
+
+.field-note {
+  font-size: 12px;
+  color: #64748b;
 }
 
 input,
@@ -324,61 +306,6 @@ input[readonly] {
 .course-loading {
   font-size: 12px;
   color: #94a3b8;
-}
-
-.course-detail-list {
-  display: grid;
-  gap: 16px;
-}
-
-.course-detail {
-  border-radius: 16px;
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  padding: 16px;
-  background: #fff;
-}
-
-.course-detail h3 {
-  margin: 0 0 12px;
-  font-size: 16px;
-}
-
-.horarios {
-  margin-top: 16px;
-  display: grid;
-  gap: 12px;
-}
-
-.horarios__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.horario {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 12px;
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  background: #f8fafc;
-}
-
-.franjas {
-  display: grid;
-  gap: 12px;
-}
-
-.franja {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 12px;
-  padding: 12px;
-  border-radius: 12px;
-  border: 1px solid rgba(226, 232, 240, 0.8);
-  background: #f8fafc;
 }
 
 .actions {
