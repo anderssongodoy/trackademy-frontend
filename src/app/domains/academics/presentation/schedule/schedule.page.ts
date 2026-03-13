@@ -69,6 +69,10 @@ export class SchedulePage implements OnInit {
     return this.courses.find((course) => !this.hasSchedule(course.usuarioPeriodoCursoId)) ?? null;
   }
 
+  get needsInitialSetup(): boolean {
+    return this.courses.length > 0 && this.configuredCoursesCount === 0;
+  }
+
   daySummaryLabel(day: DaySchedule): string {
     if (day.entries.length === 0) {
       return 'Sin clases';

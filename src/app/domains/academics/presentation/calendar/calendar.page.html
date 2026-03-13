@@ -21,6 +21,17 @@
   }
 
   @if (!isLoading && !loadError) {
+    @if (!hasScheduledClasses) {
+      <section class="setup-callout">
+        <div>
+          <p class="eyebrow">Todavia te falta un paso base</p>
+          <h2>Este calendario mejora mucho cuando armas tu horario</h2>
+          <p>Hoy solo ves eventos del periodo y evaluaciones. En cuanto registres tus bloques de clase, esta vista se vuelve mucho mas util.</p>
+        </div>
+        <a class="btn btn--primary" routerLink="/app/horario">Ir a horario</a>
+      </section>
+    }
+
     <section class="stats">
       <article class="stat-card">
         <span>Eventos del mes</span>

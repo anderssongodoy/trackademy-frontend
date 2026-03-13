@@ -57,6 +57,7 @@ h1 {
 }
 
 .state,
+.setup-callout,
 .stat-card,
 .course-card,
 .evaluation-item,
@@ -78,6 +79,18 @@ h1 {
 .state--error {
   color: #b91c1c;
   border-color: rgba(248, 113, 113, 0.3);
+}
+
+.setup-callout {
+  padding: 18px 20px;
+  border-radius: 24px;
+  border: 1px solid rgba(251, 191, 36, 0.32);
+  background: linear-gradient(135deg, rgba(255, 251, 235, 0.98), rgba(255, 255, 255, 0.94));
+}
+
+.setup-callout h2,
+.setup-callout p {
+  margin-bottom: 0;
 }
 
 .stats {

@@ -30,6 +30,17 @@
   }
 
   @if (!isLoading && !loadError) {
+    @if (needsInitialSetup) {
+      <section class="setup-callout">
+        <div>
+          <p class="summary-card__eyebrow">Siguiente paso recomendado</p>
+          <h2>Empieza armando tu horario</h2>
+          <p>Sin bloques de clase, el calendario y los recordatorios quedan a medias. Configura primero tus cursos activos.</p>
+        </div>
+        <a class="btn btn--primary" routerLink="/app/cursos">Ir a configurar cursos</a>
+      </section>
+    }
+
     <section class="schedule__summary">
       <article class="summary-card summary-card--today">
         <div class="summary-card__header">

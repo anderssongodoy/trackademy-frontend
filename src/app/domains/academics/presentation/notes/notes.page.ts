@@ -127,6 +127,20 @@ export class NotesPage implements OnInit {
     };
   }
 
+  get pendingDueCount(): number {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    return this.evaluations.filter((item) => {
+      if (item.nota != null || item.exonerado || !item.fechaEstimada) {
+        return false;
+      }
+
+      const estimated = new Date(`${item.fechaEstimada}T00:00:00`);
+      return estimated.getTime() <= today.getTime();
+    }).length;
+  }
+
   get courseMetrics(): CourseMetric[] {
     return this.groupedEvaluations
       .map((group) => {

@@ -132,6 +132,7 @@ h1 {
 }
 
 .state,
+.setup-callout,
 .summary-card,
 .schedule__panel,
 .course-card,
@@ -152,6 +153,25 @@ h1 {
 
 .state--loading {
   color: #475569;
+}
+
+.setup-callout {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  padding: 20px 22px;
+  border-radius: 28px;
+  border: 1px solid rgba(196, 181, 253, 0.7);
+  background: linear-gradient(135deg, rgba(245, 243, 255, 0.98), rgba(255, 255, 255, 0.96));
+}
+
+.setup-callout h2 {
+  margin: 6px 0;
+}
+
+.setup-callout p:last-child {
+  margin: 0;
 }
 
 .schedule__summary,
@@ -403,6 +423,7 @@ h1 {
   }
 
   .hero__actions,
+  .setup-callout,
   .course-card__actions,
   .today-item,
   .slot-card,

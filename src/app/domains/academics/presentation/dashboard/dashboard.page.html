@@ -54,6 +54,46 @@
       </article>
     </section>
 
+    <section class="setup-panel">
+      <article class="setup-highlight">
+        <div class="setup-highlight__copy">
+          <p class="setup-highlight__eyebrow">Primeros pasos</p>
+          <h2>Deja Trackademy listo para ayudarte de verdad</h2>
+          <p>
+            Tu progreso de arranque va en {{ setupCompletedCount }}/{{ setupSteps.length }} pasos.
+            Lo siguiente recomendado es: <strong>{{ nextSetupLabel }}</strong>.
+          </p>
+        </div>
+
+        <div class="setup-highlight__meter">
+          <strong>{{ setupProgressPercent }}%</strong>
+          <span>progreso de configuracion inicial</span>
+          <div class="progress">
+            <div class="progress__bar" [style.width.%]="setupProgressPercent"></div>
+          </div>
+        </div>
+      </article>
+
+      <div class="setup-grid">
+        @for (step of setupSteps; track step.key) {
+          <article
+            class="setup-card"
+            [class.setup-card--done]="step.status === 'done'"
+            [class.setup-card--pending]="step.status === 'pending'"
+            [class.setup-card--progress]="step.status === 'in_progress'"
+            [class.setup-card--upcoming]="step.status === 'upcoming'">
+            <div class="setup-card__header">
+              <span class="setup-badge">{{ setupStepLabel(step) }}</span>
+              <strong>{{ step.title }}</strong>
+            </div>
+            <p>{{ step.description }}</p>
+            <small>{{ step.detail }}</small>
+            <a class="btn" [class.btn--primary]="step.status !== 'upcoming'" [class.btn--ghost]="step.status === 'upcoming'" [routerLink]="step.ctaLink">{{ step.ctaLabel }}</a>
+          </article>
+        }
+      </div>
+    </section>
+
     <section class="dashboard__quick-actions">
       <a class="quick-action quick-action--notes" routerLink="/app/notas">
         <span class="quick-action__eyebrow">Notas</span>

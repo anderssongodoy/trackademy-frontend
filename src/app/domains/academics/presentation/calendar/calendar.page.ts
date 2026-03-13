@@ -69,6 +69,10 @@ export class CalendarPage implements OnInit {
     };
   }
 
+  get hasScheduledClasses(): boolean {
+    return this.events.some((item) => item.origen === 'horario');
+  }
+
   previousMonth(): void {
     this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() - 1, 1);
     this.rebuildCalendar();

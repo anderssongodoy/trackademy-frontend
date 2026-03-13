@@ -16,6 +16,16 @@
   }
 
   @if (!isLoading && !loadError) {
+    @if (pendingDueCount > 0) {
+      <section class="setup-callout">
+        <div>
+          <p class="eyebrow">Siguiente paso recomendado</p>
+          <h2>Registra primero las notas que ya deberias tener</h2>
+          <p>Tienes {{ pendingDueCount }} evaluacion{{ pendingDueCount === 1 ? '' : 'es' }} cuya fecha ya llego. Si las cierras, el dashboard y tus promedios empiezan a reflejar tu situacion real.</p>
+        </div>
+      </section>
+    }
+
     <section class="stats">
       <article class="stat-card">
         <span>Promedio visible</span>
