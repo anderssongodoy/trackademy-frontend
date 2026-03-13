@@ -84,8 +84,8 @@ h1 {
 
 .chip--accent {
   color: #5b21b6;
-  background: rgba(237, 233, 254, 0.96);
-  border-color: rgba(196, 181, 253, 0.86);
+  background: rgba(245, 243, 255, 0.98);
+  border-color: rgba(216, 180, 254, 0.6);
 }
 
 .btn {
@@ -166,7 +166,8 @@ h1 {
 .setup-highlight {
   padding: 22px;
   align-items: flex-end;
-  background: linear-gradient(135deg, rgba(245, 243, 255, 0.95), rgba(236, 253, 245, 0.92));
+  background: linear-gradient(135deg, rgba(245, 243, 255, 0.98), rgba(255, 255, 255, 0.96));
+  border-color: rgba(196, 181, 253, 0.62);
 }
 
 .setup-highlight__copy {
@@ -214,11 +215,11 @@ h1 {
 }
 
 .setup-card--done {
-  background: linear-gradient(180deg, rgba(236, 253, 245, 0.96), rgba(255, 255, 255, 0.94));
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .setup-card--progress {
-  background: linear-gradient(180deg, rgba(245, 243, 255, 0.96), rgba(255, 255, 255, 0.94));
+  background: linear-gradient(180deg, rgba(245, 243, 255, 0.96), rgba(255, 255, 255, 0.95));
 }
 
 .setup-card--pending {
@@ -226,7 +227,7 @@ h1 {
 }
 
 .setup-card--upcoming {
-  background: linear-gradient(180deg, rgba(248, 250, 252, 0.96), rgba(255, 255, 255, 0.94));
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .setup-badge {
@@ -241,25 +242,31 @@ h1 {
   color: #475569;
 }
 
+.setup-card--done .setup-badge {
+  color: #166534;
+  border-color: rgba(134, 239, 172, 0.5);
+  background: rgba(240, 253, 244, 0.98);
+}
+
+.setup-card--pending .setup-badge {
+  color: #b45309;
+  border-color: rgba(253, 224, 71, 0.55);
+  background: rgba(255, 251, 235, 0.98);
+}
+
+.setup-card--progress .setup-badge {
+  color: #5b21b6;
+  border-color: rgba(196, 181, 253, 0.65);
+  background: rgba(245, 243, 255, 0.98);
+}
+
 .dashboard__quick-actions {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
 .stat-card {
   padding: 20px 22px;
-  background: linear-gradient(180deg, rgba(236, 241, 255, 0.96), rgba(226, 232, 240, 0.82));
-}
-
-.stat-card--soft {
-  background: linear-gradient(180deg, rgba(243, 232, 255, 0.96), rgba(233, 213, 255, 0.84));
-}
-
-.stat-card--mint {
-  background: linear-gradient(180deg, rgba(220, 252, 231, 0.96), rgba(204, 251, 241, 0.82));
-}
-
-.stat-card--warm {
-  background: linear-gradient(180deg, rgba(254, 249, 195, 0.96), rgba(254, 240, 138, 0.84));
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .stat-card span,
@@ -307,22 +314,6 @@ h1 {
   letter-spacing: 0.12em;
 }
 
-.quick-action--notes {
-  background: linear-gradient(180deg, rgba(239, 246, 255, 0.98), rgba(255, 255, 255, 0.94));
-}
-
-.quick-action--tasks {
-  background: linear-gradient(180deg, rgba(245, 243, 255, 0.98), rgba(255, 255, 255, 0.94));
-}
-
-.quick-action--reminders {
-  background: linear-gradient(180deg, rgba(236, 253, 245, 0.98), rgba(255, 255, 255, 0.94));
-}
-
-.quick-action--profile {
-  background: linear-gradient(180deg, rgba(255, 251, 235, 0.98), rgba(255, 255, 255, 0.94));
-}
-
 .focus-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
@@ -335,17 +326,7 @@ h1 {
 .focus-card {
   display: grid;
   gap: 16px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.94)),
-    linear-gradient(135deg, rgba(91, 61, 245, 0.08), rgba(8, 145, 178, 0.06));
-}
-
-.focus-card--soft {
-  background: linear-gradient(180deg, rgba(245, 243, 255, 0.96), rgba(255, 255, 255, 0.94));
-}
-
-.focus-card--mint {
-  background: linear-gradient(180deg, rgba(236, 253, 245, 0.96), rgba(255, 255, 255, 0.94));
+  background: rgba(255, 255, 255, 0.95);
 }
 
 .focus-card__body {
@@ -360,8 +341,9 @@ h1 {
   width: fit-content;
   padding: 6px 10px;
   border-radius: 999px;
-  background: rgba(237, 233, 254, 0.96);
-  color: #5b21b6;
+  background: rgba(248, 250, 252, 0.98);
+  color: #475569;
+  border: 1px solid rgba(226, 232, 240, 0.92);
   font-size: 12px;
   font-weight: 700;
 }
@@ -416,7 +398,7 @@ h1 {
 .agenda-item,
 .metric-card {
   padding: 16px 18px;
-  background: rgba(248, 250, 252, 0.92);
+  background: rgba(248, 250, 252, 0.72);
 }
 
 .list-card {
@@ -466,7 +448,7 @@ h1 {
 .progress {
   height: 14px;
   border-radius: 999px;
-  background: rgba(99, 102, 241, 0.14);
+  background: rgba(226, 232, 240, 0.92);
   overflow: hidden;
 }
 

@@ -35,19 +35,19 @@
         <small>cursos del periodo actual</small>
       </article>
 
-      <article class="stat-card stat-card--soft">
+      <article class="stat-card">
         <span>Clases proximas</span>
         <strong>{{ upcomingSessions.length }}</strong>
         <small>{{ configuredScheduleLabel }}</small>
       </article>
 
-      <article class="stat-card stat-card--mint">
+      <article class="stat-card">
         <span>Evaluaciones pendientes</span>
         <strong>{{ summary.evaluacionesPendientes }}</strong>
         <small>{{ dueSoonCount }} caen en los proximos 7 dias</small>
       </article>
 
-      <article class="stat-card stat-card--warm">
+      <article class="stat-card">
         <span>Avance del ciclo</span>
         <strong>{{ cycleProgressPercent }}%</strong>
         <small>{{ currentWeekLabel }}</small>
@@ -95,25 +95,25 @@
     </section>
 
     <section class="dashboard__quick-actions">
-      <a class="quick-action quick-action--notes" routerLink="/app/notas">
+      <a class="quick-action" routerLink="/app/notas">
         <span class="quick-action__eyebrow">Notas</span>
         <strong>{{ summary.evaluacionesPendientes }} pendientes</strong>
         <small>Registra lo que ya toca cerrar.</small>
       </a>
 
-      <a class="quick-action quick-action--tasks" routerLink="/app/tareas">
+      <a class="quick-action" routerLink="/app/tareas">
         <span class="quick-action__eyebrow">Tareas</span>
         <strong>{{ dueSoonCount }} por venir</strong>
         <small>Entregables que se acercan esta semana.</small>
       </a>
 
-      <a class="quick-action quick-action--reminders" routerLink="/app/recordatorios">
+      <a class="quick-action" routerLink="/app/recordatorios">
         <span class="quick-action__eyebrow">Recordatorios</span>
         <strong>{{ periodEvents.length + upcomingSessions.length }}</strong>
         <small>Alertas utiles desde agenda y periodo.</small>
       </a>
 
-      <a class="quick-action quick-action--profile" routerLink="/app/perfil">
+      <a class="quick-action" routerLink="/app/perfil">
         <span class="quick-action__eyebrow">Perfil</span>
         <strong>{{ currentPeriod?.metaPromedioCiclo ?? '--' }}</strong>
         <small>Meta de promedio del ciclo.</small>
@@ -145,7 +145,7 @@
         }
       </article>
 
-      <article class="focus-card focus-card--soft">
+      <article class="focus-card">
         <div class="focus-card__header">
           <h3>Proxima clase</h3>
           <a class="inline-link" routerLink="/app/horario">Ver horario</a>
@@ -168,7 +168,7 @@
         }
       </article>
 
-      <article class="focus-card focus-card--mint">
+      <article class="focus-card">
         <div class="focus-card__header">
           <h3>Evento del periodo</h3>
           <a class="inline-link" routerLink="/app/calendario">Ver calendario</a>
