@@ -3,6 +3,7 @@ import { Observable } from 'rxjs';
 
 import {
   OnboardingApiService,
+  OnboardingPdfPreviewResponse,
   OnboardingRequest,
   OnboardingResponse
 } from '../infrastructure/api/onboarding-api.service';
@@ -14,6 +15,10 @@ export class OnboardingUseCase {
   submitBasicOnboarding(payload: OnboardingRequest): Observable<OnboardingResponse> {
     return this.api.submitBasicOnboarding(payload);
   }
+
+  previewEnrollmentPdf(file: File): Observable<OnboardingPdfPreviewResponse> {
+    return this.api.previewEnrollmentPdf(file);
+  }
 }
 
-export type { OnboardingRequest, OnboardingResponse };
+export type { OnboardingPdfPreviewResponse, OnboardingRequest, OnboardingResponse };

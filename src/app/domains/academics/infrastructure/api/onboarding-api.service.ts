@@ -59,6 +59,24 @@ export interface OnboardingResponse {
   confianzasRegistradas: number;
 }
 
+export interface OnboardingPdfDetectedCourse {
+  cursoId: number;
+  codigo: string;
+  nombre: string;
+}
+
+export interface OnboardingPdfPreviewResponse {
+  carreraId: number | null;
+  carreraNombre: string | null;
+  campusId: number | null;
+  campusNombre: string | null;
+  periodoId: number | null;
+  periodoEtiqueta: string | null;
+  cicloActual: number | null;
+  cursosDetectados: OnboardingPdfDetectedCourse[];
+  advertencias: string[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class OnboardingApiService {
   private readonly http = inject(HttpClient);
@@ -66,5 +84,11 @@ export class OnboardingApiService {
 
   submitBasicOnboarding(payload: OnboardingRequest): Observable<OnboardingResponse> {
     return this.http.post<OnboardingResponse>(`${this.env.apiBaseUrl}/api/v1/onboarding/basic`, payload);
+  }
+
+  previewEnrollmentPdf(file: File): Observable<OnboardingPdfPreviewResponse> {
+    const formData = new FormData();
+    formData.append('archivo', file);
+    return this.http.post<OnboardingPdfPreviewResponse>(`${this.env.apiBaseUrl}/api/v1/onboarding/preview-pdf`, formData);
   }
 }

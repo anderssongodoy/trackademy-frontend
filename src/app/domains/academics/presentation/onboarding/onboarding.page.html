@@ -33,6 +33,60 @@
     <div class="layout">
       <form class="form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
         @if (currentStep === 1) {
+          <section class="card card--pdf">
+            <div class="card__header">
+              <div>
+                <h2>Sube tu PDF de matrícula</h2>
+                <p>Si ya descargaste tu horario o matrícula del ciclo, Trackademy intentará completar campus, periodo, ciclo y cursos por ti.</p>
+              </div>
+              <div class="course-meta">
+                <span>Más rápido que llenarlo a mano</span>
+              </div>
+            </div>
+
+            <div class="pdf-import">
+              <label class="pdf-input">
+                <span class="label-text">PDF de matrícula u horario</span>
+                <input type="file" accept="application/pdf" (change)="onPdfSelected($event)" [disabled]="isUploadingPdf" />
+              </label>
+
+              <div class="pdf-status">
+                @if (selectedPdfName) {
+                  <span class="pdf-status__file">{{ selectedPdfName }}</span>
+                }
+                @if (isUploadingPdf) {
+                  <span class="pdf-status__hint">Leyendo y detectando cursos...</span>
+                }
+                @if (pdfSuccess) {
+                  <span class="pdf-status__hint pdf-status__hint--success">{{ pdfSuccess }}</span>
+                }
+              </div>
+            </div>
+
+            @if (pdfError) {
+              <div class="state state--error state--inline">{{ pdfError }}</div>
+            }
+
+            @if (pdfWarnings.length > 0) {
+              <div class="pdf-warnings">
+                @for (warning of pdfWarnings; track warning) {
+                  <div class="pdf-warning">{{ warning }}</div>
+                }
+              </div>
+            }
+
+            @if (pdfDetectedCourses.length > 0) {
+              <div class="pdf-detected">
+                <p class="pdf-detected__title">Cursos detectados en el PDF</p>
+                <div class="pdf-detected__list">
+                  @for (course of pdfDetectedCourses; track course.cursoId) {
+                    <span class="pdf-detected__item">{{ course.codigo }} · {{ course.nombre }}</span>
+                  }
+                </div>
+              </div>
+            }
+          </section>
+
           <section class="card">
             <div class="card__header">
               <h2>Datos base</h2>

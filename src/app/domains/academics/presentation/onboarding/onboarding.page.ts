@@ -2,7 +2,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { firstValueFrom, forkJoin } from 'rxjs';
 
 import {
   CatalogUseCase,
@@ -12,7 +12,7 @@ import {
   CatalogPeriod
 } from '../../application/catalog-use-case';
 import { AuthUseCase } from '../../../identity/application/auth-use-case';
-import { OnboardingUseCase } from '../../application/onboarding-use-case';
+import { OnboardingPdfPreviewResponse, OnboardingUseCase } from '../../application/onboarding-use-case';
 
 interface CourseDetailForm {
   seccion: string;
@@ -61,6 +61,12 @@ export class OnboardingPage implements OnInit {
   isCourseLoading = false;
   courseError = '';
   showSelectedOnly = false;
+  selectedPdfName = '';
+  isUploadingPdf = false;
+  pdfError = '';
+  pdfSuccess = '';
+  pdfWarnings: string[] = [];
+  pdfDetectedCourses: Array<{ cursoId: number; codigo: string; nombre: string }> = [];
 
   currentStep = 1;
 
@@ -153,6 +159,10 @@ export class OnboardingPage implements OnInit {
   get checklistItems(): Array<{ label: string; done: boolean }> {
     return [
       {
+        label: 'PDF revisado',
+        done: this.pdfDetectedCourses.length > 0
+      },
+      {
         label: 'Campus listo',
         done: !!this.form.get('campusId')?.value
       },
@@ -190,6 +200,121 @@ export class OnboardingPage implements OnInit {
         this.isCourseLoading = false;
       }
     });
+  }
+
+  async onPdfSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement | null;
+    const file = input?.files?.[0];
+    if (!file) {
+      return;
+    }
+
+    this.selectedPdfName = file.name;
+    this.isUploadingPdf = true;
+    this.pdfError = '';
+    this.pdfSuccess = '';
+    this.pdfWarnings = [];
+
+    this.onboardingUseCase.previewEnrollmentPdf(file).subscribe({
+      next: async (preview) => {
+        try {
+          await this.applyPdfPreview(preview);
+          this.pdfSuccess = this.buildPdfSuccessMessage(preview);
+        } catch {
+          this.pdfError = 'Leimos el PDF, pero no pudimos aplicar las sugerencias en el formulario.';
+        } finally {
+          this.isUploadingPdf = false;
+          if (input) {
+            input.value = '';
+          }
+        }
+      },
+      error: (error) => {
+        this.pdfError = typeof error?.error === 'string'
+          ? error.error
+          : 'No pudimos leer este PDF de matricula. Intenta con otro archivo o completa el onboarding manual.';
+        this.isUploadingPdf = false;
+        if (input) {
+          input.value = '';
+        }
+      }
+    });
+  }
+
+  private async applyPdfPreview(preview: OnboardingPdfPreviewResponse): Promise<void> {
+    this.pdfWarnings = preview.advertencias ?? [];
+    this.pdfDetectedCourses = preview.cursosDetectados ?? [];
+
+    this.form.patchValue({
+      campusId: preview.campusId ?? this.form.get('campusId')?.value ?? null,
+      periodoId: preview.periodoId ?? this.form.get('periodoId')?.value ?? null,
+      cicloActual: preview.cicloActual ?? this.form.get('cicloActual')?.value ?? 1
+    });
+
+    const carreraId = this.fixedCareer?.id ?? preview.carreraId ?? this.form.get('carreraId')?.value ?? null;
+    if (!carreraId) {
+      return;
+    }
+
+    if (this.form.get('carreraId')?.value !== carreraId) {
+      this.form.patchValue({ carreraId });
+    }
+
+    await this.ensureCoursesLoaded(carreraId);
+    this.applyDetectedCourses(preview.cursosDetectados ?? []);
+  }
+
+  private async ensureCoursesLoaded(carreraId: number): Promise<void> {
+    const cachedCourses = this.courseCache.get(carreraId);
+    if (cachedCourses) {
+      this.courses = cachedCourses;
+      this.applyCourseFilter();
+      return;
+    }
+
+    this.isCourseLoading = true;
+    this.courseError = '';
+
+    try {
+      const courses = await firstValueFrom(this.catalogUseCase.getCourses(carreraId, undefined, 256, 0));
+      this.courseCache.set(carreraId, courses);
+      this.courses = courses;
+      this.applyCourseFilter();
+    } finally {
+      this.isCourseLoading = false;
+    }
+  }
+
+  private applyDetectedCourses(courses: Array<{ cursoId: number }>): void {
+    this.resetCourseSelection();
+    const availableCourseIds = new Set(this.courses.map((course) => course.id));
+
+    for (const detectedCourse of courses) {
+      if (!availableCourseIds.has(detectedCourse.cursoId)) {
+        continue;
+      }
+      const course = this.courses.find((item) => item.id === detectedCourse.cursoId);
+      if (course) {
+        this.toggleCourse(course, true);
+      }
+    }
+  }
+
+  private buildPdfSuccessMessage(preview: OnboardingPdfPreviewResponse): string {
+    const detectedCourses = preview.cursosDetectados?.length ?? 0;
+    const pieces = [
+      preview.campusNombre ? `campus ${preview.campusNombre}` : null,
+      preview.periodoEtiqueta ? `periodo ${preview.periodoEtiqueta}` : null,
+      preview.cicloActual ? `ciclo ${preview.cicloActual}` : null
+    ].filter(Boolean);
+
+    const base = pieces.length > 0
+      ? `Detectamos ${pieces.join(', ')}`
+      : 'Leimos el PDF y aplicamos las sugerencias disponibles';
+
+    return detectedCourses > 0
+      ? `${base}. Tambien marcamos ${detectedCourses} cursos.`
+      : `${base}.`;
   }
 
   private applyCourseFilter(): void {
