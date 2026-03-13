@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 
 import { onboardingGuard } from './domains/academics/infrastructure/guards/onboarding.guard';
+import { periodAccessGuard } from './domains/academics/infrastructure/guards/period-access.guard';
 import { authGuard } from './domains/identity/infrastructure/auth/auth.guard';
 import { AppShellComponent } from './shared/ui/app-shell/app-shell.component';
 
@@ -26,7 +27,7 @@ export const routes: Routes = [
   },
   {
     path: 'app',
-    canActivate: [authGuard],
+    canActivate: [authGuard, periodAccessGuard],
     component: AppShellComponent,
     children: [
       {
