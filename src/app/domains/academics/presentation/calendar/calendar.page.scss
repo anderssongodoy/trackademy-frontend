@@ -182,6 +182,7 @@ h1 {
 
 .calendar-layout {
   grid-template-columns: minmax(0, 1.2fr) minmax(320px, 0.8fr);
+  align-items: start;
 }
 
 .calendar-board,
@@ -192,6 +193,8 @@ h1 {
 .calendar-board {
   display: grid;
   gap: 18px;
+  align-content: start;
+  align-self: start;
 }
 
 .calendar-board__header {
@@ -312,6 +315,8 @@ h1 {
 .calendar-sidebar {
   display: grid;
   gap: 16px;
+  align-content: start;
+  align-self: start;
 }
 
 .sidebar-card {

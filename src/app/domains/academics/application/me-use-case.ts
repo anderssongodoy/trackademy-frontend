@@ -2,6 +2,7 @@
 import { Observable } from 'rxjs';
 
 import {
+  AcademicProfileUpdateRequest,
   CourseMetadataUpdateRequest,
   EvaluationGradeRequest,
   MeApiService,
@@ -21,6 +22,10 @@ export class MeUseCase {
 
   getCurrentPeriod(): Observable<MyCurrentPeriod> {
     return this.api.getCurrentPeriod();
+  }
+
+  updateAcademicProfile(payload: AcademicProfileUpdateRequest): Observable<MyCurrentPeriod> {
+    return this.api.updateAcademicProfile(payload);
   }
 
   getDashboard(): Observable<MyDashboardSummary> {
@@ -57,6 +62,7 @@ export class MeUseCase {
 }
 
 export type {
+  AcademicProfileUpdateRequest,
   CourseMetadataUpdateRequest,
   EvaluationGradeRequest,
   MyCalendarEvent,
