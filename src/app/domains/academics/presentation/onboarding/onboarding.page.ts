@@ -11,6 +11,7 @@ import {
   CatalogCourse,
   CatalogPeriod
 } from '../../application/catalog-use-case';
+import { AuthUseCase } from '../../../identity/application/auth-use-case';
 import { OnboardingUseCase } from '../../application/onboarding-use-case';
 
 interface CourseDetailForm {
@@ -29,6 +30,7 @@ export class OnboardingPage implements OnInit {
   private readonly fb = inject(UntypedFormBuilder);
   private readonly catalogUseCase = inject(CatalogUseCase);
   private readonly onboardingUseCase = inject(OnboardingUseCase);
+  private readonly authUseCase = inject(AuthUseCase);
   private readonly router = inject(Router);
 
   readonly form = this.fb.group({
@@ -270,5 +272,10 @@ export class OnboardingPage implements OnInit {
           this.isSubmitting = false;
         }
       });
+  }
+
+  async signOut(): Promise<void> {
+    await this.authUseCase.signOut();
+    await this.router.navigate(['/auth/sign-in']);
   }
 }

@@ -22,6 +22,13 @@
   flex-wrap: wrap;
 }
 
+.header__actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
 .header__copy {
   max-width: 620px;
 }
@@ -54,6 +61,13 @@ h1 {
   color: #1f2937;
   background: rgba(255, 255, 255, 0.7);
   font-size: 13px;
+  cursor: pointer;
+}
+
+.ghost-btn--danger {
+  color: #991b1b;
+  border-color: rgba(248, 113, 113, 0.35);
+  background: rgba(254, 242, 242, 0.88);
 }
 
 .steps {
