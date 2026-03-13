@@ -29,7 +29,6 @@
 }
 
 .hero__copy {
-  max-width: 760px;
 }
 
 .back {
@@ -53,7 +52,6 @@ h1 {
   margin: 0;
   font-size: clamp(2rem, 4vw, 3.4rem);
   line-height: 1.02;
-  color: #0f172a;
 }
 
 .subtitle,
@@ -119,7 +117,6 @@ h1 {
 }
 
 .state--loading {
-  color: #475569;
 }
 
 .state--error {
@@ -159,15 +156,9 @@ h1 {
   border-color: rgba(196, 181, 253, 0.9);
 }
 
-.pill--soft {
-  color: #475569;
-  background: rgba(226, 232, 240, 0.9);
-}
-
 .hero-card h2 {
   margin: 0;
   font-size: clamp(1.8rem, 3vw, 2.7rem);
-  color: #0f172a;
 }
 
 .hero-card__meta {
@@ -178,7 +169,6 @@ h1 {
 .hero-card__summary {
   margin: 18px 0 0;
   line-height: 1.7;
-  max-width: 860px;
 }
 
 .hero-card__side {
@@ -200,17 +190,14 @@ h1 {
 .focus-card span,
 .stat-card span {
   font-size: 13px;
-  color: #64748b;
 }
 
 .focus-card strong,
 .stat-card strong {
   font-size: 2rem;
-  color: #0f172a;
 }
 
 .stats-grid,
-.metadata-section,
 .detail-grid,
 .evaluation-list,
 .schedule-groups,
@@ -264,7 +251,6 @@ h1 {
 .text-card h4,
 .unit-card h4 {
   margin: 0;
-  color: #0f172a;
 }
 
 .panel__header span {
@@ -303,7 +289,7 @@ h1 {
 }
 
 .metadata-form__read-only strong {
-  color: #0f172a;
+  font-weight: 700;
 }
 
 .metadata-form__actions {
@@ -381,11 +367,6 @@ h1 {
 .evaluation-card__side strong,
 .syllabus-evaluation > strong {
   font-size: 1.4rem;
-  color: #0f172a;
-}
-
-.schedule-groups {
-  gap: 14px;
 }
 
 .schedule-group header {
@@ -413,7 +394,6 @@ h1 {
 
 .schedule-item strong {
   display: block;
-  color: #0f172a;
 }
 
 .text-grid {
@@ -452,9 +432,7 @@ h1 {
 }
 
 .unit-weeks {
-  font-size: 12px;
   font-weight: 700;
-  color: #64748b;
 }
 
 .unit-card ul {
@@ -472,7 +450,6 @@ input {
   background: #fff;
   padding: 12px 14px;
   font: inherit;
-  color: #0f172a;
 }
 
 @media (max-width: 1180px) {
