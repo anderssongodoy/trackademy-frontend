@@ -255,15 +255,30 @@
       <aside class="side">
         <div class="side__card">
           <p class="side__title">Checklist rápido</p>
-          <ul>
-            <li>Selecciona tu campus y periodo actual.</li>
-            <li>Marca los cursos que llevas este ciclo.</li>
-          </ul>
+          <div class="checklist">
+            @for (item of checklistItems; track item.label) {
+              <div class="checklist__item" [class.checklist__item--done]="item.done">
+                <span class="checklist__icon">{{ item.done ? '✓' : '•' }}</span>
+                <span>{{ item.label }}</span>
+              </div>
+            }
+          </div>
         </div>
         <div class="side__card highlight">
           <p class="side__title">Cursos seleccionados</p>
           <p class="side__value">{{ selectedCourseIds.size }}</p>
-          <p class="side__subtitle">Horarios y preferencias se completan luego.</p>
+          @if (selectedCourses.length > 0) {
+            <div class="selected-course-list">
+              @for (course of selectedCourses; track course.id) {
+                <div class="selected-course-item">
+                  <span class="selected-course-item__code">{{ course.codigo }}</span>
+                  <span class="selected-course-item__name">{{ course.nombre }}</span>
+                </div>
+              }
+            </div>
+          } @else {
+            <p class="side__subtitle">Aun no has marcado cursos para este ciclo.</p>
+          }
         </div>
       </aside>
     </div>

@@ -146,6 +146,27 @@ export class OnboardingPage implements OnInit {
     return this.filteredCourses;
   }
 
+  get selectedCourses(): CatalogCourse[] {
+    return this.courses.filter((course) => this.selectedCourseIds.has(course.id));
+  }
+
+  get checklistItems(): Array<{ label: string; done: boolean }> {
+    return [
+      {
+        label: 'Campus listo',
+        done: !!this.form.get('campusId')?.value
+      },
+      {
+        label: 'Periodo listo',
+        done: !!this.form.get('periodoId')?.value
+      },
+      {
+        label: 'Cursos marcados',
+        done: this.selectedCourseIds.size > 0
+      }
+    ];
+  }
+
   private loadCourses(carreraId: number): void {
     const cachedCourses = this.courseCache.get(carreraId);
     if (cachedCourses) {
