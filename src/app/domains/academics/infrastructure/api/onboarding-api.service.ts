@@ -63,15 +63,24 @@ export interface OnboardingPdfDetectedCourse {
   cursoId: number;
   codigo: string;
   nombre: string;
+  profesor: string | null;
+  seccion: string | null;
+  modalidad: string | null;
+  horarios: OnboardingCourseScheduleRequest[];
 }
 
 export interface OnboardingPdfPreviewResponse {
+  codigoAlumno: string | null;
+  nombreCompleto: string | null;
+  emailInstitucional: string | null;
   carreraId: number | null;
   carreraNombre: string | null;
   campusId: number | null;
   campusNombre: string | null;
+  campusTexto: string | null;
   periodoId: number | null;
   periodoEtiqueta: string | null;
+  periodoTexto: string | null;
   cicloActual: number | null;
   cursosDetectados: OnboardingPdfDetectedCourse[];
   advertencias: string[];

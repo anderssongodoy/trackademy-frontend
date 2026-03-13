@@ -18,6 +18,14 @@ interface CourseDetailForm {
   seccion: string;
   profesor: string;
   modalidad: string;
+  horarios: Array<{
+    diaSemana?: number | null;
+    horaInicio?: string | null;
+    horaFin?: string | null;
+    tipoSesion?: string | null;
+    ubicacion?: string | null;
+    urlVirtual?: string | null;
+  }>;
 }
 
 @Component({
@@ -66,7 +74,22 @@ export class OnboardingPage implements OnInit {
   pdfError = '';
   pdfSuccess = '';
   pdfWarnings: string[] = [];
-  pdfDetectedCourses: Array<{ cursoId: number; codigo: string; nombre: string }> = [];
+  pdfDetectedCourses: Array<{
+    cursoId: number;
+    codigo: string;
+    nombre: string;
+    profesor: string | null;
+    seccion: string | null;
+    modalidad: string | null;
+    horarios: Array<{
+      diaSemana?: number | null;
+      horaInicio?: string | null;
+      horaFin?: string | null;
+      tipoSesion?: string | null;
+      ubicacion?: string | null;
+      urlVirtual?: string | null;
+    }>;
+  }> = [];
 
   currentStep = 1;
 
@@ -246,6 +269,8 @@ export class OnboardingPage implements OnInit {
     this.pdfDetectedCourses = preview.cursosDetectados ?? [];
 
     this.form.patchValue({
+      nombre: preview.nombreCompleto ?? this.form.get('nombre')?.value ?? '',
+      emailInstitucional: preview.emailInstitucional ?? this.form.get('emailInstitucional')?.value ?? '',
       campusId: preview.campusId ?? this.form.get('campusId')?.value ?? null,
       periodoId: preview.periodoId ?? this.form.get('periodoId')?.value ?? null,
       cicloActual: preview.cicloActual ?? this.form.get('cicloActual')?.value ?? 1
@@ -285,7 +310,20 @@ export class OnboardingPage implements OnInit {
     }
   }
 
-  private applyDetectedCourses(courses: Array<{ cursoId: number }>): void {
+  private applyDetectedCourses(courses: Array<{
+    cursoId: number;
+    profesor: string | null;
+    seccion: string | null;
+    modalidad: string | null;
+    horarios: Array<{
+      diaSemana?: number | null;
+      horaInicio?: string | null;
+      horaFin?: string | null;
+      tipoSesion?: string | null;
+      ubicacion?: string | null;
+      urlVirtual?: string | null;
+    }>;
+  }>): void {
     this.resetCourseSelection();
     const availableCourseIds = new Set(this.courses.map((course) => course.id));
 
@@ -296,6 +334,13 @@ export class OnboardingPage implements OnInit {
       const course = this.courses.find((item) => item.id === detectedCourse.cursoId);
       if (course) {
         this.toggleCourse(course, true);
+        const detailControl = this.courseDetailForm.get(`${course.id}`);
+        detailControl?.patchValue({
+          seccion: detectedCourse.seccion ?? '',
+          profesor: detectedCourse.profesor ?? '',
+          modalidad: detectedCourse.modalidad ?? course.modalidad ?? '',
+          horarios: detectedCourse.horarios ?? []
+        });
       }
     }
   }
@@ -354,7 +399,8 @@ export class OnboardingPage implements OnInit {
         this.fb.group({
           seccion: [''],
           profesor: [''],
-          modalidad: [course.modalidad ?? '']
+          modalidad: [course.modalidad ?? ''],
+          horarios: [[]]
         })
       );
       this.applyCourseFilter();
@@ -465,7 +511,7 @@ export class OnboardingPage implements OnInit {
         seccion: detail.seccion || null,
         profesor: detail.profesor || null,
         modalidad: detail.modalidad || null,
-        horarios: []
+        horarios: detail.horarios ?? []
       };
     });
 
