@@ -17,6 +17,12 @@ export class ProfilePage implements OnInit {
   private readonly catalogUseCase = inject(CatalogUseCase);
   private readonly fb = inject(UntypedFormBuilder);
 
+  readonly personalForm = this.fb.group({
+    nombre: ['', [Validators.required, Validators.minLength(3)]],
+    nombrePreferido: [''],
+    emailInstitucional: ['', [Validators.email]]
+  });
+
   readonly goalsForm = this.fb.group({
     metaPromedioCiclo: [14, [Validators.required, Validators.min(0), Validators.max(20)]],
     horasEstudioSemanaObjetivo: [8, [Validators.required, Validators.min(1), Validators.max(80)]]
@@ -29,15 +35,20 @@ export class ProfilePage implements OnInit {
   });
 
   isLoading = true;
+  isSavingPersonal = false;
   isSavingGoals = false;
   isSavingConfig = false;
   isCoursesLoading = false;
+
   loadError = '';
-  saveError = '';
-  saveSuccess = '';
+  personalError = '';
+  personalSuccess = '';
+  goalsError = '';
+  goalsSuccess = '';
   configError = '';
   configSuccess = '';
   configInfo = '';
+
   period: MyCurrentPeriod | null = null;
   campuses: CatalogCampus[] = [];
   careers: CatalogCareer[] = [];
@@ -52,10 +63,32 @@ export class ProfilePage implements OnInit {
     this.bindCareerChanges();
   }
 
+  get displayName(): string {
+    const preferred = this.period?.nombrePreferido?.trim();
+    if (preferred) {
+      return preferred;
+    }
+
+    const fullName = this.period?.nombre?.trim();
+    if (!fullName) {
+      return 'tu perfil';
+    }
+
+    return fullName.split(' ')[0] || fullName;
+  }
+
+  get heroTitle(): string {
+    if (!this.period) {
+      return 'Tu configuracion academica del ciclo actual';
+    }
+
+    return `${this.displayName}, ajusta tu ciclo actual`;
+  }
+
   get onboardingStatusLabel(): string {
     const status = this.period?.onboardingEstado?.toLowerCase();
     if (status === 'completado') {
-      return 'Perfil inicial completo';
+      return 'Perfil base listo';
     }
     if (status === 'en_progreso') {
       return 'Perfil en progreso';
@@ -69,6 +102,24 @@ export class ProfilePage implements OnInit {
 
   get careerName(): string {
     return this.careers.find((item) => item.id === this.period?.carreraId)?.nombre || 'Sin carrera definida';
+  }
+
+  get periodRangeLabel(): string {
+    if (!this.period?.periodoFechaInicio || !this.period?.periodoFechaFin) {
+      return 'Rango del periodo no disponible';
+    }
+
+    const start = new Intl.DateTimeFormat('es-PE', {
+      day: '2-digit',
+      month: 'short'
+    }).format(new Date(this.period.periodoFechaInicio));
+
+    const end = new Intl.DateTimeFormat('es-PE', {
+      day: '2-digit',
+      month: 'short'
+    }).format(new Date(this.period.periodoFechaFin));
+
+    return `${start} - ${end}`;
   }
 
   get selectedCoursesList(): Array<{ id: number; label: string }> {
@@ -88,6 +139,38 @@ export class ProfilePage implements OnInit {
     return [...this.selectedCourseIds].filter((id) => !currentIds.has(id)).length;
   }
 
+  savePersonal(): void {
+    if (this.personalForm.invalid || this.isSavingPersonal) {
+      this.personalForm.markAllAsTouched();
+      return;
+    }
+
+    this.isSavingPersonal = true;
+    this.personalError = '';
+    this.personalSuccess = '';
+
+    const value = this.personalForm.getRawValue();
+
+    this.meUseCase.updatePersonalProfile({
+      nombre: String(value.nombre).trim(),
+      nombrePreferido: value.nombrePreferido ? String(value.nombrePreferido).trim() : null,
+      emailInstitucional: value.emailInstitucional ? String(value.emailInstitucional).trim() : null
+    }).subscribe({
+      next: (period) => {
+        this.period = period;
+        this.patchPersonalForm(period);
+        this.isSavingPersonal = false;
+        this.personalSuccess = 'Datos personales actualizados.';
+      },
+      error: (error) => {
+        this.isSavingPersonal = false;
+        this.personalError = typeof error?.error === 'string'
+          ? error.error
+          : 'No se pudo actualizar tu informacion personal.';
+      }
+    });
+  }
+
   saveGoals(): void {
     if (this.goalsForm.invalid || this.isSavingGoals) {
       this.goalsForm.markAllAsTouched();
@@ -95,8 +178,8 @@ export class ProfilePage implements OnInit {
     }
 
     this.isSavingGoals = true;
-    this.saveError = '';
-    this.saveSuccess = '';
+    this.goalsError = '';
+    this.goalsSuccess = '';
 
     const value = this.goalsForm.getRawValue();
 
@@ -108,11 +191,11 @@ export class ProfilePage implements OnInit {
         this.period = period;
         this.patchGoalsForm(period);
         this.isSavingGoals = false;
-        this.saveSuccess = 'Objetivos actualizados.';
+        this.goalsSuccess = 'Objetivos actualizados.';
       },
       error: () => {
         this.isSavingGoals = false;
-        this.saveError = 'No se pudo actualizar tu perfil academico.';
+        this.goalsError = 'No se pudo actualizar tu perfil academico.';
       }
     });
   }
@@ -225,6 +308,7 @@ export class ProfilePage implements OnInit {
         this.campuses = campuses;
         this.careers = careers;
         this.currentCourses = courses;
+        this.patchPersonalForm(period);
         this.patchGoalsForm(period);
         this.patchConfigForm(period);
         this.rebuildSelectedCourses(courses);
@@ -295,6 +379,14 @@ export class ProfilePage implements OnInit {
     this.selectedCourseLabels = new Map(
       courses.map((course) => [course.cursoId, `${course.codigo} - ${course.nombre}`])
     );
+  }
+
+  private patchPersonalForm(period: MyCurrentPeriod): void {
+    this.personalForm.patchValue({
+      nombre: period.nombre ?? '',
+      nombrePreferido: period.nombrePreferido ?? '',
+      emailInstitucional: period.emailInstitucional ?? ''
+    });
   }
 
   private patchGoalsForm(period: MyCurrentPeriod): void {

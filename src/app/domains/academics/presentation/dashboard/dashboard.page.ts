@@ -37,6 +37,26 @@ export class DashboardPage implements OnInit {
     return this.summary?.periodoActual ?? null;
   }
 
+  get displayName(): string | null {
+    const preferred = this.currentPeriod?.nombrePreferido?.trim();
+    if (preferred) {
+      return preferred;
+    }
+
+    const fullName = this.currentPeriod?.nombre?.trim();
+    if (!fullName) {
+      return null;
+    }
+
+    return fullName.split(' ')[0] || fullName;
+  }
+
+  get heroTitle(): string {
+    return this.displayName
+      ? `${this.displayName}, este es tu panorama de hoy`
+      : 'Tu panorama academico para hoy';
+  }
+
   get upcomingEvaluations(): MyEvaluation[] {
     return this.summary?.proximasEvaluaciones ?? [];
   }

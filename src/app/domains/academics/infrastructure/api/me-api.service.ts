@@ -6,6 +6,9 @@ import { APP_ENV } from '../../../identity/infrastructure/config/app-environment
 
 export interface MyCurrentPeriod {
   usuarioId: number;
+  nombre: string | null;
+  nombrePreferido: string | null;
+  emailInstitucional: string | null;
   usuarioPeriodoId: number;
   periodoId: number;
   campusId: number;
@@ -129,6 +132,12 @@ export interface AcademicProfileUpdateRequest {
   horasEstudioSemanaObjetivo: number;
 }
 
+export interface PersonalProfileUpdateRequest {
+  nombre: string;
+  nombrePreferido: string | null;
+  emailInstitucional: string | null;
+}
+
 export interface PeriodConfigurationUpdateRequest {
   campusId: number;
   carreraId: number;
@@ -147,6 +156,10 @@ export class MeApiService {
 
   updateAcademicProfile(payload: AcademicProfileUpdateRequest): Observable<MyCurrentPeriod> {
     return this.http.put<MyCurrentPeriod>(`${this.env.apiBaseUrl}/api/v1/me/periodo-actual`, payload);
+  }
+
+  updatePersonalProfile(payload: PersonalProfileUpdateRequest): Observable<MyCurrentPeriod> {
+    return this.http.put<MyCurrentPeriod>(`${this.env.apiBaseUrl}/api/v1/me/periodo-actual/personal`, payload);
   }
 
   updatePeriodConfiguration(payload: PeriodConfigurationUpdateRequest): Observable<MyCurrentPeriod> {

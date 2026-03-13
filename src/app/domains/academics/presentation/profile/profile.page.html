@@ -2,23 +2,17 @@
   <header class="profile__hero">
     <div class="hero__copy">
       <p class="eyebrow">Perfil</p>
-      <h1>Tu configuracion academica del ciclo actual</h1>
-      <p class="subtitle">Aqui ajustas tus objetivos y, si hace falta, tambien reconfiguras campus, carrera y cursos del periodo actual.</p>
-    </div>
+      <h1>{{ heroTitle }}</h1>
+      <p class="subtitle">Aqui ajustas tus datos personales, tus objetivos y, si hace falta, tambien reconfiguras campus, carrera y cursos del periodo actual.</p>
 
-    @if (period) {
-      <div class="hero__status">
-        <span class="status-chip">{{ onboardingStatusLabel }}</span>
-        <strong>{{ period.periodoEtiqueta || 'Periodo actual' }}</strong>
-        <small>
-          @if (period.periodoFechaInicio && period.periodoFechaFin) {
-            {{ period.periodoFechaInicio | date:'dd/MM/yyyy' }} - {{ period.periodoFechaFin | date:'dd/MM/yyyy' }}
-          } @else {
-            Rango del periodo no disponible
-          }
-        </small>
-      </div>
-    }
+      @if (period) {
+        <div class="hero__chips">
+          <span class="status-chip">{{ onboardingStatusLabel }}</span>
+          <span class="hero-chip">{{ period.periodoEtiqueta || 'Periodo actual' }}</span>
+          <span class="hero-chip">{{ periodRangeLabel }}</span>
+        </div>
+      }
+    </div>
   </header>
 
   @if (isLoading) {
@@ -54,6 +48,97 @@
       <section class="profile-card">
         <div class="profile-card__header">
           <div>
+            <h2>Datos personales</h2>
+            <p>Este es el lugar correcto para actualizar como te llamamos y tu correo institucional.</p>
+          </div>
+        </div>
+
+        <form class="profile-form" [formGroup]="personalForm" (ngSubmit)="savePersonal()">
+          <div class="form-grid">
+            <label class="field">
+              <span>Nombre completo</span>
+              <input type="text" formControlName="nombre" placeholder="Tu nombre completo" />
+              <small>Se usa como identidad principal dentro del sistema.</small>
+            </label>
+
+            <label class="field">
+              <span>Nombre preferido</span>
+              <input type="text" formControlName="nombrePreferido" placeholder="Como prefieres que te llamemos" />
+              <small>Si existe, lo priorizamos en encabezados y saludos.</small>
+            </label>
+
+            <label class="field">
+              <span>Correo institucional</span>
+              <input type="email" formControlName="emailInstitucional" placeholder="u2020xxxx@utp.edu.pe" />
+              <small>Opcional, pero debe ser un correo valido si decides usarlo.</small>
+            </label>
+          </div>
+
+          @if (personalError) {
+            <div class="state state--error">{{ personalError }}</div>
+          }
+
+          @if (personalSuccess) {
+            <div class="state state--success">{{ personalSuccess }}</div>
+          }
+
+          <div class="profile-form__actions">
+            <button class="btn btn--primary" type="submit" [disabled]="isSavingPersonal">
+              {{ isSavingPersonal ? 'Guardando...' : 'Guardar datos personales' }}
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <aside class="profile-card profile-card--aside">
+        <div class="profile-card__header">
+          <div>
+            <h2>Identidad del periodo</h2>
+            <p>Un resumen mas claro del contexto activo, sin ese bloque suelto del hero.</p>
+          </div>
+        </div>
+
+        <div class="summary-list">
+          <article class="summary-item summary-item--highlight">
+            <span>Como te mostramos</span>
+            <strong>{{ displayName }}</strong>
+            <small>{{ period.nombre || 'Sin nombre base' }}</small>
+          </article>
+
+          <article class="summary-item">
+            <span>Periodo</span>
+            <strong>{{ period.periodoEtiqueta || 'Sin etiqueta' }}</strong>
+            <small>{{ periodRangeLabel }}</small>
+          </article>
+
+          <article class="summary-item">
+            <span>Campus</span>
+            <strong>{{ campusName }}</strong>
+          </article>
+
+          <article class="summary-item">
+            <span>Carrera</span>
+            <strong>{{ careerName }}</strong>
+          </article>
+
+          <article class="summary-item">
+            <span>Onboarding completado</span>
+            <strong>
+              @if (period.onboardingCompletadoAt) {
+                {{ period.onboardingCompletadoAt | date:'dd/MM/yyyy HH:mm' }}
+              } @else {
+                Sin registro
+              }
+            </strong>
+          </article>
+        </div>
+      </aside>
+    </section>
+
+    <section class="profile__layout">
+      <section class="profile-card">
+        <div class="profile-card__header">
+          <div>
             <h2>Objetivos personales</h2>
             <p>Actualiza lo que quieres perseguir este ciclo sin tocar cursos ni horarios.</p>
           </div>
@@ -72,17 +157,17 @@
             <small>Tiempo objetivo fuera del horario de clases.</small>
           </label>
 
-          @if (saveError) {
-            <div class="state state--error">{{ saveError }}</div>
+          @if (goalsError) {
+            <div class="state state--error">{{ goalsError }}</div>
           }
 
-          @if (saveSuccess) {
-            <div class="state state--success">{{ saveSuccess }}</div>
+          @if (goalsSuccess) {
+            <div class="state state--success">{{ goalsSuccess }}</div>
           }
 
           <div class="profile-form__actions">
             <button class="btn btn--primary" type="submit" [disabled]="isSavingGoals">
-              {{ isSavingGoals ? 'Guardando...' : 'Guardar cambios' }}
+              {{ isSavingGoals ? 'Guardando...' : 'Guardar objetivos' }}
             </button>
           </div>
         </form>
@@ -91,37 +176,27 @@
       <aside class="profile-card profile-card--aside">
         <div class="profile-card__header">
           <div>
-            <h2>Resumen del periodo</h2>
-            <p>Datos base del ciclo actual que ya quedaron definidos.</p>
+            <h2>Base academica</h2>
+            <p>Lo que ya define este ciclo y luego impacta en cursos, horario y notas.</p>
           </div>
         </div>
 
         <div class="summary-list">
           <article class="summary-item">
-            <span>Periodo</span>
-            <strong>{{ period.periodoEtiqueta || 'Sin etiqueta' }}</strong>
-          </article>
-          <article class="summary-item">
             <span>Ciclo</span>
             <strong>{{ period.cicloActual || 'Sin definir' }}</strong>
           </article>
           <article class="summary-item">
-            <span>Campus</span>
-            <strong>{{ campusName }}</strong>
+            <span>Objetivo de promedio</span>
+            <strong>{{ period.metaPromedioCiclo }}</strong>
           </article>
           <article class="summary-item">
-            <span>Carrera</span>
-            <strong>{{ careerName }}</strong>
+            <span>Horas objetivo</span>
+            <strong>{{ period.horasEstudioSemanaObjetivo }}</strong>
           </article>
           <article class="summary-item">
-            <span>Onboarding completado</span>
-            <strong>
-              @if (period.onboardingCompletadoAt) {
-                {{ period.onboardingCompletadoAt | date:'dd/MM/yyyy HH:mm' }}
-              } @else {
-                Sin registro
-              }
-            </strong>
+            <span>Estado del perfil base</span>
+            <strong>{{ onboardingStatusLabel }}</strong>
           </article>
         </div>
       </aside>

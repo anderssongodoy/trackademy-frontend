@@ -7,7 +7,8 @@
 .profile__layout,
 .profile-card__header,
 .profile-form__actions,
-.reconfig-meta {
+.reconfig-meta,
+.hero__chips {
   display: flex;
   justify-content: space-between;
   gap: 16px;
@@ -16,33 +17,13 @@
 .profile__hero,
 .profile__layout,
 .profile-card__header,
-.reconfig-meta {
+.reconfig-meta,
+.hero__chips {
   flex-wrap: wrap;
 }
 
 .hero__copy {
-  max-width: 760px;
-}
-
-.hero__status {
-  min-width: 260px;
-  padding: 20px 22px;
-  border-radius: 24px;
-  border: 1px solid rgba(226, 232, 240, 0.88);
-  background: rgba(255, 255, 255, 0.94);
-  display: grid;
-  gap: 8px;
-}
-
-.status-chip {
-  display: inline-flex;
-  width: fit-content;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #5b3df5;
-  background: rgba(237, 233, 254, 0.96);
+  max-width: 860px;
 }
 
 .eyebrow {
@@ -71,7 +52,7 @@ h1 {
 .profile-card__header p,
 .field small,
 .summary-item span,
-.hero__status small,
+.summary-item small,
 .selected-empty,
 .course-option p,
 .reconfig-meta span {
@@ -81,6 +62,31 @@ h1 {
 .subtitle {
   margin: 14px 0 0;
   line-height: 1.6;
+}
+
+.hero__chips {
+  margin-top: 18px;
+}
+
+.status-chip,
+.hero-chip {
+  display: inline-flex;
+  width: fit-content;
+  padding: 8px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.status-chip {
+  color: #5b3df5;
+  background: rgba(237, 233, 254, 0.96);
+}
+
+.hero-chip {
+  color: #334155;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(226, 232, 240, 0.9);
 }
 
 .state,
@@ -162,7 +168,7 @@ h1 {
 }
 
 .profile-card:first-child {
-  flex: 1 1 560px;
+  flex: 1 1 620px;
 }
 
 .profile-card--aside {
@@ -182,6 +188,7 @@ h1 {
   gap: 16px;
 }
 
+.form-grid,
 .reconfig-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -226,10 +233,27 @@ h1 {
 
 .reconfig-meta strong,
 .summary-item strong,
-.hero__status strong,
 .course-option strong,
 .selected-chip span {
   color: #0f172a;
+}
+
+.summary-list {
+  align-content: start;
+}
+
+.summary-item {
+  display: grid;
+  gap: 4px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(248, 250, 252, 0.92);
+  border: 1px solid rgba(226, 232, 240, 0.9);
+}
+
+.summary-item--highlight {
+  background: linear-gradient(180deg, rgba(245, 243, 255, 0.96), rgba(233, 213, 255, 0.82));
+  border-color: rgba(196, 181, 253, 0.92);
 }
 
 .selected-courses {
@@ -303,17 +327,9 @@ h1 {
   opacity: 0.7;
 }
 
-.summary-item {
-  display: grid;
-  gap: 4px;
-  padding: 14px 16px;
-  border-radius: 18px;
-  background: rgba(248, 250, 252, 0.92);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-}
-
 @media (max-width: 960px) {
   .stats,
+  .form-grid,
   .reconfig-grid {
     grid-template-columns: 1fr;
   }
@@ -321,8 +337,7 @@ h1 {
 
 @media (max-width: 760px) {
   .profile-card,
-  .stat-card,
-  .hero__status {
+  .stat-card {
     padding: 18px;
   }
 
@@ -330,6 +345,7 @@ h1 {
   .profile__layout,
   .profile-card__header,
   .reconfig-meta,
+  .hero__chips,
   .course-option,
   .selected-chip {
     display: grid;

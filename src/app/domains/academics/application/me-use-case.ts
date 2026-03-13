@@ -12,6 +12,7 @@ import {
   MyDashboardSummary,
   MyEvaluation,
   MyScheduleEntry,
+  PersonalProfileUpdateRequest,
   PeriodConfigurationUpdateRequest,
   ScheduleBlockRequest,
   ScheduleUpdateResponse
@@ -27,6 +28,10 @@ export class MeUseCase {
 
   updateAcademicProfile(payload: AcademicProfileUpdateRequest): Observable<MyCurrentPeriod> {
     return this.api.updateAcademicProfile(payload);
+  }
+
+  updatePersonalProfile(payload: PersonalProfileUpdateRequest): Observable<MyCurrentPeriod> {
+    return this.api.updatePersonalProfile(payload);
   }
 
   updatePeriodConfiguration(payload: PeriodConfigurationUpdateRequest): Observable<MyCurrentPeriod> {
@@ -76,6 +81,7 @@ export type {
   MyDashboardSummary,
   MyEvaluation,
   MyScheduleEntry,
+  PersonalProfileUpdateRequest,
   PeriodConfigurationUpdateRequest,
   ScheduleBlockRequest,
   ScheduleUpdateResponse
