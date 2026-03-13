@@ -128,7 +128,7 @@ export class ProfilePage implements OnInit {
     } else {
       this.selectedCourseIds.add(course.id);
     }
-    this.selectedCourseLabels.set(course.id, `${course.codigo} · ${course.nombre}`);
+    this.selectedCourseLabels.set(course.id, `${course.codigo} - ${course.nombre}`);
   }
 
   removeSelectedCourse(courseId: number): void {
@@ -185,20 +185,23 @@ export class ProfilePage implements OnInit {
     }).subscribe({
       next: (period) => {
         this.period = period;
-        this.currentCourses = this.selectedCoursesList.map((item) => ({
-          usuarioPeriodoCursoId: 0,
-          cursoId: item.id,
-          codigo: item.label.split(' · ')[0] || item.label,
-          nombre: item.label.split(' · ').slice(1).join(' · ') || item.label,
-          estado: 'matriculado',
-          activo: true,
-          seccion: '',
-          profesor: '',
-          modalidad: ''
-        }));
         this.patchConfigForm(period);
-        this.isSavingConfig = false;
-        this.configSuccess = 'Configuracion del ciclo actualizada.';
+        this.configInfo = '';
+
+        this.meUseCase.getMyCourses().subscribe({
+          next: (courses) => {
+            this.currentCourses = courses;
+            this.rebuildSelectedCourses(courses);
+            this.loadAvailableCourses();
+            this.isSavingConfig = false;
+            this.configSuccess = 'Configuracion del ciclo actualizada.';
+          },
+          error: () => {
+            this.currentCourses = [];
+            this.isSavingConfig = false;
+            this.configError = 'Se actualizo el ciclo, pero no se pudieron recargar los cursos.';
+          }
+        });
       },
       error: (error) => {
         this.isSavingConfig = false;
@@ -275,7 +278,7 @@ export class ProfilePage implements OnInit {
       next: (courses) => {
         this.availableCourses = courses;
         courses.forEach((course) => {
-          this.selectedCourseLabels.set(course.id, `${course.codigo} · ${course.nombre}`);
+          this.selectedCourseLabels.set(course.id, `${course.codigo} - ${course.nombre}`);
         });
         this.isCoursesLoading = false;
       },
@@ -290,7 +293,7 @@ export class ProfilePage implements OnInit {
   private rebuildSelectedCourses(courses: MyCourse[]): void {
     this.selectedCourseIds = new Set(courses.map((course) => course.cursoId));
     this.selectedCourseLabels = new Map(
-      courses.map((course) => [course.cursoId, `${course.codigo} · ${course.nombre}`])
+      courses.map((course) => [course.cursoId, `${course.codigo} - ${course.nombre}`])
     );
   }
 
