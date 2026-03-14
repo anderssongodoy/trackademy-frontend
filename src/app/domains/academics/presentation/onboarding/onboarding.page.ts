@@ -90,6 +90,7 @@ export class OnboardingPage implements OnInit {
       urlVirtual?: string | null;
     }>;
   }> = [];
+  pdfDetectedSummary: Array<{ label: string; value: string }> = [];
 
   currentStep = 1;
 
@@ -267,14 +268,31 @@ export class OnboardingPage implements OnInit {
   private async applyPdfPreview(preview: OnboardingPdfPreviewResponse): Promise<void> {
     this.pdfWarnings = preview.advertencias ?? [];
     this.pdfDetectedCourses = preview.cursosDetectados ?? [];
+    this.pdfDetectedSummary = this.buildPdfDetectedSummary(preview);
 
-    this.form.patchValue({
-      nombre: preview.nombreCompleto ?? this.form.get('nombre')?.value ?? '',
-      emailInstitucional: preview.emailInstitucional ?? this.form.get('emailInstitucional')?.value ?? '',
-      campusId: preview.campusId ?? this.form.get('campusId')?.value ?? null,
-      periodoId: preview.periodoId ?? this.form.get('periodoId')?.value ?? null,
-      cicloActual: preview.cicloActual ?? this.form.get('cicloActual')?.value ?? 1
-    });
+    if (preview.nombreCompleto) {
+      this.form.get('nombre')?.setValue(preview.nombreCompleto);
+      this.form.get('nombre')?.markAsDirty();
+      this.form.get('nombre')?.updateValueAndValidity();
+    }
+
+    if (preview.emailInstitucional) {
+      this.form.get('emailInstitucional')?.setValue(preview.emailInstitucional);
+      this.form.get('emailInstitucional')?.markAsDirty();
+      this.form.get('emailInstitucional')?.updateValueAndValidity();
+    }
+
+    if (preview.campusId) {
+      this.form.get('campusId')?.setValue(preview.campusId);
+    }
+
+    if (preview.periodoId) {
+      this.form.get('periodoId')?.setValue(preview.periodoId);
+    }
+
+    if (preview.cicloActual) {
+      this.form.get('cicloActual')?.setValue(preview.cicloActual);
+    }
 
     const carreraId = this.fixedCareer?.id ?? preview.carreraId ?? this.form.get('carreraId')?.value ?? null;
     if (!carreraId) {
@@ -360,6 +378,16 @@ export class OnboardingPage implements OnInit {
     return detectedCourses > 0
       ? `${base}. Tambien marcamos ${detectedCourses} cursos.`
       : `${base}.`;
+  }
+
+  private buildPdfDetectedSummary(preview: OnboardingPdfPreviewResponse): Array<{ label: string; value: string }> {
+    return [
+      preview.nombreCompleto ? { label: 'Nombre', value: preview.nombreCompleto } : null,
+      preview.emailInstitucional ? { label: 'Correo', value: preview.emailInstitucional } : null,
+      preview.periodoEtiqueta ? { label: 'Periodo', value: preview.periodoEtiqueta } : null,
+      preview.campusTexto ? { label: 'Campus leído', value: preview.campusTexto } : null,
+      preview.codigoAlumno ? { label: 'Código alumno', value: preview.codigoAlumno } : null
+    ].filter((item): item is { label: string; value: string } => !!item);
   }
 
   private applyCourseFilter(): void {

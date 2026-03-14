@@ -83,6 +83,17 @@
               La detección de cursos, docentes, secciones y horarios todavía depende bastante de la calidad del PDF y del OCR.
             </div>
 
+            @if (pdfDetectedSummary.length > 0) {
+              <div class="pdf-detected-summary">
+                @for (item of pdfDetectedSummary; track item.label) {
+                  <div class="pdf-detected-summary__item">
+                    <span class="pdf-detected-summary__label">{{ item.label }}</span>
+                    <span class="pdf-detected-summary__value">{{ item.value }}</span>
+                  </div>
+                }
+              </div>
+            }
+
             @if (pdfDetectedCourses.length > 0) {
               <div class="pdf-detected">
                 <p class="pdf-detected__title">Cursos detectados en el PDF</p>
