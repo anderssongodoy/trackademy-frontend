@@ -238,6 +238,102 @@
       </div>
     </section>
 
+    <section class="profile-card profile-card--wide" id="whatsapp-channel">
+      <div class="profile-card__header">
+        <div>
+          <h2>Integraciones y canales</h2>
+          <p>WhatsApp en esta fase sirve solo para consultas. El alumno debe iniciar la conversacion desde su propio chat.</p>
+        </div>
+        <span class="status-chip" [class.status-chip--pending]="!isWhatsappLinked">{{ whatsappConnectionLabel }}</span>
+      </div>
+
+      @if (isWhatsappLoading) {
+        <div class="state state--loading">Consultando estado de WhatsApp...</div>
+      }
+
+      @if (!isWhatsappLoading) {
+        <div class="channel-grid">
+          <article class="channel-card channel-card--accent">
+            <span class="channel-card__eyebrow">Canal oficial</span>
+            <h3>Vincula tu WhatsApp personal</h3>
+            <p>
+              Genera un codigo temporal, abre el chat oficial de Trackademy y envia ese primer mensaje para validar tu numero.
+            </p>
+
+            @if (whatsappStatus?.linked) {
+              <div class="channel-meta">
+                <strong>{{ whatsappStatus?.phoneNumberMasked || 'Numero vinculado' }}</strong>
+                <small>
+                  Vinculado:
+                  {{ whatsappStatus?.linkedAt ? (whatsappStatus?.linkedAt | date:'dd/MM/yyyy HH:mm') : 'sin fecha' }}
+                </small>
+                <small>
+                  Ultima interaccion:
+                  {{ whatsappStatus?.lastInteractionAt ? (whatsappStatus?.lastInteractionAt | date:'dd/MM/yyyy HH:mm') : 'sin actividad' }}
+                </small>
+              </div>
+            } @else {
+              <div class="channel-meta">
+                <strong>{{ whatsappLinkCode?.officialWhatsappNumber || 'Numero oficial entregado por backend' }}</strong>
+                <small>{{ whatsappExpiryLabel }}</small>
+                <small>Comandos MVP: menu, resumen, pendientes, hoy y cursos.</small>
+              </div>
+            }
+          </article>
+
+          <article class="channel-card">
+            <span class="channel-card__eyebrow">Estado actual</span>
+
+            @if (whatsappStatus?.linked) {
+              <h3>Numero verificado</h3>
+              <p>Tu cuenta ya puede consultar informacion del dashboard desde WhatsApp.</p>
+            } @else if (whatsappHasActiveCode) {
+              <h3>Codigo listo para enviar</h3>
+              <p>Abre WhatsApp o copia este codigo y envialo al numero oficial antes de que expire.</p>
+            } @else {
+              <h3>Falta iniciar la conversacion</h3>
+              <p>Genera un codigo nuevo y usa el deep link para arrancar la prueba real desde el chat.</p>
+            }
+
+            @if (whatsappLinkCode && !whatsappStatus?.linked) {
+              <div class="whatsapp-code-box">
+                <span>Codigo temporal</span>
+                <strong>{{ whatsappLinkCode.code }}</strong>
+                <small>{{ whatsappLinkCode.instructions }}</small>
+              </div>
+            }
+
+            <div class="channel-actions">
+              @if (!whatsappStatus?.linked) {
+                <button class="btn btn--primary" type="button" (click)="generateWhatsappCode()" [disabled]="isGeneratingWhatsappCode">
+                  {{ isGeneratingWhatsappCode ? 'Generando...' : (whatsappHasActiveCode ? 'Generar nuevo codigo' : 'Conectar WhatsApp') }}
+                </button>
+              }
+
+              @if (whatsappHasActiveCode && !whatsappStatus?.linked) {
+                <button class="btn btn--ghost" type="button" (click)="openWhatsappDeepLink()">Abrir WhatsApp</button>
+                <button class="btn btn--ghost" type="button" (click)="copyWhatsappCode()">Copiar codigo</button>
+              }
+
+              @if (whatsappStatus?.linked) {
+                <button class="btn btn--ghost" type="button" (click)="unlinkWhatsapp()" [disabled]="isUnlinkingWhatsapp">
+                  {{ isUnlinkingWhatsapp ? 'Desvinculando...' : 'Desvincular' }}
+                </button>
+              }
+            </div>
+          </article>
+        </div>
+      }
+
+      @if (whatsappError) {
+        <div class="state state--error">{{ whatsappError }}</div>
+      }
+
+      @if (whatsappSuccess) {
+        <div class="state state--success">{{ whatsappSuccess }}</div>
+      }
+    </section>
+
     <section class="profile-card profile-card--wide">
       <div class="profile-card__header">
         <div>

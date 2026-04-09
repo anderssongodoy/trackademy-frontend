@@ -1,10 +1,11 @@
 import { CommonModule, DatePipe } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
-import { forkJoin } from 'rxjs';
+import { Subscription, forkJoin, interval } from 'rxjs';
 
 import { CatalogCampus, CatalogCareer, CatalogCourse, CatalogUseCase } from '../../application/catalog-use-case';
 import { MeUseCase, MyCalendarSyncAccount, MyCourse, MyCurrentPeriod } from '../../application/me-use-case';
+import { WhatsappLinkCodeResponse, WhatsappLinkStatusResponse, WhatsappUseCase } from '../../application/whatsapp-use-case';
 
 @Component({
   selector: 'app-profile-page',
@@ -15,7 +16,9 @@ import { MeUseCase, MyCalendarSyncAccount, MyCourse, MyCurrentPeriod } from '../
 export class ProfilePage implements OnInit {
   private readonly meUseCase = inject(MeUseCase);
   private readonly catalogUseCase = inject(CatalogUseCase);
+  private readonly whatsappUseCase = inject(WhatsappUseCase);
   private readonly fb = inject(UntypedFormBuilder);
+  private whatsappPollingSubscription: Subscription | null = null;
 
   readonly personalForm = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(3)]],
@@ -39,6 +42,9 @@ export class ProfilePage implements OnInit {
   isSavingGoals = false;
   isSavingConfig = false;
   isCoursesLoading = false;
+  isWhatsappLoading = true;
+  isGeneratingWhatsappCode = false;
+  isUnlinkingWhatsapp = false;
 
   loadError = '';
   personalError = '';
@@ -48,6 +54,8 @@ export class ProfilePage implements OnInit {
   configError = '';
   configSuccess = '';
   configInfo = '';
+  whatsappError = '';
+  whatsappSuccess = '';
 
   period: MyCurrentPeriod | null = null;
   campuses: CatalogCampus[] = [];
@@ -58,10 +66,16 @@ export class ProfilePage implements OnInit {
   selectedCourseIds = new Set<number>();
   selectedCourseLabels = new Map<number, string>();
   courseQuery = '';
+  whatsappStatus: WhatsappLinkStatusResponse | null = null;
+  whatsappLinkCode: WhatsappLinkCodeResponse | null = null;
 
   ngOnInit(): void {
     this.loadProfile();
     this.bindCareerChanges();
+  }
+
+  ngOnDestroy(): void {
+    this.stopWhatsappPolling();
   }
 
   get displayName(): string {
@@ -144,6 +158,42 @@ export class ProfilePage implements OnInit {
     return this.calendarSyncAccounts.filter((item) => item.conectado).length;
   }
 
+  get isWhatsappLinked(): boolean {
+    return this.whatsappStatus?.linked ?? false;
+  }
+
+  get whatsappHasActiveCode(): boolean {
+    if (!this.whatsappLinkCode) {
+      return false;
+    }
+
+    return new Date(this.whatsappLinkCode.expiresAt).getTime() > Date.now();
+  }
+
+  get whatsappConnectionLabel(): string {
+    if (this.isWhatsappLinked) {
+      return 'Vinculado';
+    }
+    if (this.whatsappHasActiveCode) {
+      return 'Codigo activo';
+    }
+    return 'Pendiente';
+  }
+
+  get whatsappExpiryLabel(): string {
+    if (!this.whatsappLinkCode) {
+      return 'Genera un codigo y envia el primer mensaje desde WhatsApp.';
+    }
+
+    const diffMs = new Date(this.whatsappLinkCode.expiresAt).getTime() - Date.now();
+    if (diffMs <= 0) {
+      return 'El codigo ya expiro. Genera uno nuevo para seguir.';
+    }
+
+    const totalMinutes = Math.ceil(diffMs / 60000);
+    return `Expira en ${totalMinutes} min.`;
+  }
+
   syncProviderLabel(provider: string): string {
     return provider === 'google' ? 'Google Calendar' : 'Outlook Calendar';
   }
@@ -166,6 +216,84 @@ export class ProfilePage implements OnInit {
       return account.email || 'Cuenta vinculada';
     }
     return 'Base lista. Falta activar OAuth y el primer empuje de eventos.';
+  }
+
+  generateWhatsappCode(): void {
+    if (this.isGeneratingWhatsappCode) {
+      return;
+    }
+
+    this.isGeneratingWhatsappCode = true;
+    this.whatsappError = '';
+    this.whatsappSuccess = '';
+
+    this.whatsappUseCase.generateLinkCode().subscribe({
+      next: (result) => {
+        this.whatsappLinkCode = result;
+        this.isGeneratingWhatsappCode = false;
+        this.whatsappSuccess = 'Codigo generado. Abre WhatsApp y envia ese primer mensaje para completar la vinculacion.';
+        this.startWhatsappPolling();
+      },
+      error: () => {
+        this.isGeneratingWhatsappCode = false;
+        this.whatsappError = 'No se pudo generar el codigo de vinculacion de WhatsApp.';
+      }
+    });
+  }
+
+  openWhatsappDeepLink(): void {
+    if (!this.whatsappLinkCode?.deepLink) {
+      return;
+    }
+
+    window.open(this.whatsappLinkCode.deepLink, '_blank', 'noopener,noreferrer');
+  }
+
+  copyWhatsappCode(): void {
+    if (!this.whatsappLinkCode) {
+      return;
+    }
+
+    if (!navigator.clipboard?.writeText) {
+      this.whatsappError = 'Tu navegador no permitio copiar automaticamente. Usa el codigo visible en pantalla.';
+      return;
+    }
+
+    navigator.clipboard.writeText(this.whatsappLinkCode.code)
+      .then(() => {
+        this.whatsappError = '';
+        this.whatsappSuccess = 'Codigo copiado. Pegalo en WhatsApp si no abriste el deep link.';
+      })
+      .catch(() => {
+        this.whatsappError = 'No se pudo copiar el codigo. Usa el texto visible en pantalla.';
+      });
+  }
+
+  unlinkWhatsapp(): void {
+    if (this.isUnlinkingWhatsapp || !this.isWhatsappLinked) {
+      return;
+    }
+
+    if (!window.confirm('Se desvinculara tu numero de WhatsApp de esta cuenta. Quieres continuar?')) {
+      return;
+    }
+
+    this.isUnlinkingWhatsapp = true;
+    this.whatsappError = '';
+    this.whatsappSuccess = '';
+
+    this.whatsappUseCase.unlink().subscribe({
+      next: () => {
+        this.isUnlinkingWhatsapp = false;
+        this.whatsappLinkCode = null;
+        this.whatsappSuccess = 'WhatsApp fue desvinculado. Si quieres volver a usarlo, genera un nuevo codigo.';
+        this.loadWhatsappStatus();
+      },
+      error: () => {
+        this.isUnlinkingWhatsapp = false;
+        this.whatsappError = 'No se pudo desvincular WhatsApp en este momento.';
+      }
+    });
   }
 
   savePersonal(): void {
@@ -331,24 +459,28 @@ export class ProfilePage implements OnInit {
       campuses: this.catalogUseCase.getCampuses(),
       careers: this.catalogUseCase.getCareers(),
       courses: this.meUseCase.getMyCourses(),
-      syncAccounts: this.meUseCase.getCalendarSyncAccounts()
+      syncAccounts: this.meUseCase.getCalendarSyncAccounts(),
+      whatsappStatus: this.whatsappUseCase.getLinkStatus()
     }).subscribe({
-      next: ({ period, campuses, careers, courses, syncAccounts }) => {
+      next: ({ period, campuses, careers, courses, syncAccounts, whatsappStatus }) => {
         this.period = period;
         this.campuses = campuses;
         this.careers = careers;
         this.currentCourses = courses;
         this.calendarSyncAccounts = syncAccounts;
+        this.whatsappStatus = whatsappStatus;
         this.patchPersonalForm(period);
         this.patchGoalsForm(period);
         this.patchConfigForm(period);
         this.rebuildSelectedCourses(courses);
         this.loadAvailableCourses();
         this.isLoading = false;
+        this.isWhatsappLoading = false;
       },
       error: () => {
         this.loadError = 'No se pudo cargar tu perfil academico actual.';
         this.isLoading = false;
+        this.isWhatsappLoading = false;
       }
     });
   }
@@ -433,5 +565,44 @@ export class ProfilePage implements OnInit {
       carreraId: period.carreraId ?? null,
       cicloActual: period.cicloActual ?? 1
     }, { emitEvent: false });
+  }
+
+  private loadWhatsappStatus(): void {
+    this.whatsappUseCase.getLinkStatus().subscribe({
+      next: (status) => {
+        this.whatsappStatus = status;
+        this.isWhatsappLoading = false;
+
+        if (status.linked) {
+          this.whatsappLinkCode = null;
+          this.stopWhatsappPolling();
+        } else if (!this.whatsappHasActiveCode) {
+          this.stopWhatsappPolling();
+        }
+      },
+      error: () => {
+        this.isWhatsappLoading = false;
+        this.whatsappError = 'No se pudo consultar el estado de vinculacion de WhatsApp.';
+        this.stopWhatsappPolling();
+      }
+    });
+  }
+
+  private startWhatsappPolling(): void {
+    this.stopWhatsappPolling();
+
+    this.whatsappPollingSubscription = interval(5000).subscribe(() => {
+      if (!this.whatsappHasActiveCode) {
+        this.stopWhatsappPolling();
+        return;
+      }
+
+      this.loadWhatsappStatus();
+    });
+  }
+
+  private stopWhatsappPolling(): void {
+    this.whatsappPollingSubscription?.unsubscribe();
+    this.whatsappPollingSubscription = null;
   }
 }

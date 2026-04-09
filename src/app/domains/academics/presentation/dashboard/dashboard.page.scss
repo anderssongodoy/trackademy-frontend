@@ -261,7 +261,7 @@ h1 {
 }
 
 .dashboard__quick-actions {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
 }
 
 .stat-card {
@@ -296,6 +296,11 @@ h1 {
   background: rgba(255, 255, 255, 0.95);
   text-decoration: none;
   color: #0f172a;
+}
+
+.quick-action--whatsapp {
+  background: linear-gradient(180deg, rgba(236, 253, 245, 0.98), rgba(240, 249, 255, 0.94));
+  border-color: rgba(74, 222, 128, 0.36);
 }
 
 .quick-action strong {
