@@ -6,6 +6,7 @@ import { Subscription, forkJoin, interval } from 'rxjs';
 import { CatalogCampus, CatalogCareer, CatalogCourse, CatalogUseCase } from '../../application/catalog-use-case';
 import { MeUseCase, MyCalendarSyncAccount, MyCourse, MyCurrentPeriod } from '../../application/me-use-case';
 import { WhatsappLinkCodeResponse, WhatsappLinkStatusResponse, WhatsappUseCase } from '../../application/whatsapp-use-case';
+import { apiErrorMessage } from '../../../identity/infrastructure/http/api-error.interceptor';
 
 @Component({
   selector: 'app-profile-page',
@@ -234,9 +235,9 @@ export class ProfilePage implements OnInit {
         this.whatsappSuccess = 'Codigo generado. Abre WhatsApp y envia ese primer mensaje para completar la vinculacion.';
         this.startWhatsappPolling();
       },
-      error: () => {
+      error: (error) => {
         this.isGeneratingWhatsappCode = false;
-        this.whatsappError = 'No se pudo generar el codigo de vinculacion de WhatsApp.';
+        this.whatsappError = apiErrorMessage(error, 'No se pudo generar el codigo de vinculacion de WhatsApp.');
       }
     });
   }
@@ -289,9 +290,9 @@ export class ProfilePage implements OnInit {
         this.whatsappSuccess = 'WhatsApp fue desvinculado. Si quieres volver a usarlo, genera un nuevo codigo.';
         this.loadWhatsappStatus();
       },
-      error: () => {
+      error: (error) => {
         this.isUnlinkingWhatsapp = false;
-        this.whatsappError = 'No se pudo desvincular WhatsApp en este momento.';
+        this.whatsappError = apiErrorMessage(error, 'No se pudo desvincular WhatsApp en este momento.');
       }
     });
   }
@@ -321,9 +322,7 @@ export class ProfilePage implements OnInit {
       },
       error: (error) => {
         this.isSavingPersonal = false;
-        this.personalError = typeof error?.error === 'string'
-          ? error.error
-          : 'No se pudo actualizar tu informacion personal.';
+        this.personalError = apiErrorMessage(error, 'No se pudo actualizar tu informacion personal.');
       }
     });
   }
@@ -350,9 +349,9 @@ export class ProfilePage implements OnInit {
         this.isSavingGoals = false;
         this.goalsSuccess = 'Objetivos actualizados.';
       },
-      error: () => {
+      error: (error) => {
         this.isSavingGoals = false;
-        this.goalsError = 'No se pudo actualizar tu perfil academico.';
+        this.goalsError = apiErrorMessage(error, 'No se pudo actualizar tu perfil academico.');
       }
     });
   }
@@ -445,7 +444,7 @@ export class ProfilePage implements OnInit {
       },
       error: (error) => {
         this.isSavingConfig = false;
-        this.configError = typeof error?.error === 'string' ? error.error : 'No se pudo reconfigurar el ciclo actual.';
+        this.configError = apiErrorMessage(error, 'No se pudo reconfigurar el ciclo actual.');
       }
     });
   }

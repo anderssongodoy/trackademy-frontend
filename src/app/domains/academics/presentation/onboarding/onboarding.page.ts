@@ -12,6 +12,7 @@ import {
   CatalogPeriod
 } from '../../application/catalog-use-case';
 import { AuthUseCase } from '../../../identity/application/auth-use-case';
+import { apiErrorMessage } from '../../../identity/infrastructure/http/api-error.interceptor';
 import { OnboardingPdfPreviewResponse, OnboardingUseCase } from '../../application/onboarding-use-case';
 
 interface CourseDetailForm {
@@ -254,9 +255,10 @@ export class OnboardingPage implements OnInit {
         }
       },
       error: (error) => {
-        this.pdfError = typeof error?.error === 'string'
-          ? error.error
-          : 'No pudimos leer este PDF de matricula. Intenta con otro archivo o completa el onboarding manual.';
+        this.pdfError = apiErrorMessage(
+          error,
+          'No pudimos leer este PDF de matricula. Intenta con otro archivo o completa el onboarding manual.'
+        );
         this.isUploadingPdf = false;
         if (input) {
           input.value = '';
@@ -565,8 +567,11 @@ export class OnboardingPage implements OnInit {
           this.isSubmitting = false;
           this.router.navigate(['/app/dashboard']);
         },
-        error: () => {
-          this.submitError = 'No se pudo registrar el onboarding. Revisa los datos y vuelve a intentar.';
+        error: (error) => {
+          this.submitError = apiErrorMessage(
+            error,
+            'No se pudo registrar el onboarding. Revisa los datos y vuelve a intentar.'
+          );
           this.isSubmitting = false;
         }
       });
