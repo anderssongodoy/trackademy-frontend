@@ -6,6 +6,7 @@ import { forkJoin } from 'rxjs';
 
 import { CatalogCourseDetail, CatalogCourseEvaluation, CatalogCourseUnit, CatalogUseCase } from '../../application/catalog-use-case';
 import { MeUseCase, MyCourse, MyEvaluation, MyScheduleEntry } from '../../application/me-use-case';
+import { apiErrorMessage } from '../../../identity/infrastructure/http/api-error.interceptor';
 
 @Component({
   selector: 'app-course-detail-page',
@@ -176,8 +177,8 @@ export class CourseDetailPage implements OnInit {
         this.metadataSuccess = 'Datos del curso actualizados.';
         this.isSavingMetadata = false;
       },
-      error: () => {
-        this.metadataError = 'No se pudo guardar la seccion o el profesor.';
+      error: (error) => {
+        this.metadataError = apiErrorMessage(error, 'No se pudo guardar la seccion o el profesor.');
         this.isSavingMetadata = false;
       }
     });

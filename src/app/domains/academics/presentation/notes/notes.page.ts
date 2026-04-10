@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 
 import { MeUseCase, MyEvaluation } from '../../application/me-use-case';
+import { apiErrorMessage } from '../../../identity/infrastructure/http/api-error.interceptor';
 
 interface EvaluationGroup {
   usuarioPeriodoCursoId: number;
@@ -246,8 +247,11 @@ export class NotesPage implements OnInit {
         this.feedbackByKey.set(key, { type: 'success', message: 'Nota guardada.' });
         this.savingKeys.delete(key);
       },
-      error: () => {
-        this.feedbackByKey.set(key, { type: 'error', message: 'No se pudo guardar la nota.' });
+      error: (error) => {
+        this.feedbackByKey.set(key, {
+          type: 'error',
+          message: apiErrorMessage(error, 'No se pudo guardar la nota.')
+        });
         this.savingKeys.delete(key);
       }
     });

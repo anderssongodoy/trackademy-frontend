@@ -6,6 +6,7 @@ import { Subscription, forkJoin } from 'rxjs';
 
 import { CatalogCourse, CatalogUseCase } from '../../application/catalog-use-case';
 import { MeUseCase, MyCourse, MyScheduleEntry, ScheduleBlockRequest } from '../../application/me-use-case';
+import { apiErrorMessage } from '../../../identity/infrastructure/http/api-error.interceptor';
 
 interface DayOption {
   value: number;
@@ -295,7 +296,7 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
       },
       error: (error) => {
         this.isSaving.set(false);
-        this.saveError.set(typeof error?.error === 'string' ? error.error : 'No se pudo guardar el horario del curso.');
+        this.saveError.set(apiErrorMessage(error, 'No se pudo guardar el horario del curso.'));
       }
     });
   }

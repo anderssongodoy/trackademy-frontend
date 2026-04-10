@@ -1,7 +1,7 @@
 import { AppEnvironment } from '../app/domains/identity/infrastructure/config/app-environment';
 
 export const environment: AppEnvironment = {
-  production: false,
+  production: true,
   apiBaseUrl: 'https://api.trackademy.trinitylabs.app',
   authSessionPath: '/api/v1/auth/session',
   authMicrosoftExchangePath: '/api/v1/auth/microsoft',
