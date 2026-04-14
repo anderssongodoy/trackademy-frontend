@@ -1,17 +1,4 @@
 <main class="calendar">
-  <header class="calendar__hero">
-    <div class="hero__copy">
-      <p class="eyebrow">Calendario</p>
-      <h1>Una vista mensual para entender tu carga real</h1>
-      <p class="subtitle">Clases, evaluaciones y eventos del periodo en un calendario mas claro, con foco en el dia seleccionado y lo que viene despues.</p>
-    </div>
-
-    <div class="hero__actions">
-      <a class="btn btn--ghost" routerLink="/app/dashboard">Volver al dashboard</a>
-      <a class="btn btn--primary" routerLink="/app/horario">Abrir horario</a>
-    </div>
-  </header>
-
   @if (isLoading) {
     <div class="state state--loading">Cargando calendario...</div>
   }
@@ -21,145 +8,146 @@
   }
 
   @if (!isLoading && !loadError) {
-    @if (!hasScheduledClasses) {
-      <section class="setup-callout">
-        <div>
-          <p class="eyebrow">Todavia te falta un paso base</p>
-          <h2>Este calendario mejora mucho cuando armas tu horario</h2>
-          <p>Hoy solo ves eventos del periodo y evaluaciones. En cuanto registres tus bloques de clase, esta vista se vuelve mucho mas util.</p>
+    <section class="calendar__frame">
+      <header class="calendar__hero">
+        <div class="calendar__hero-main">
+          <div class="calendar__heading">
+            <h1>{{ currentMonthLabel }}</h1>
+            <div class="calendar__month-actions">
+              <button class="icon-btn" type="button" (click)="previousMonth()" aria-label="Mes anterior">&#8249;</button>
+              <button class="icon-btn" type="button" (click)="nextMonth()" aria-label="Mes siguiente">&#8250;</button>
+            </div>
+          </div>
+
+          <div class="filter-strip" role="tablist" aria-label="Filtros del calendario">
+            @for (filter of filterOptions; track filter.key) {
+              <button
+                class="filter-chip"
+                type="button"
+                [class.filter-chip--active]="selectedFilter === filter.key"
+                (click)="setFilter(filter.key)">
+                {{ filter.label }}
+              </button>
+            }
+          </div>
         </div>
-        <a class="btn btn--primary" routerLink="/app/horario">Ir a horario</a>
-      </section>
-    }
 
-    <section class="stats">
-      <article class="stat-card">
-        <span>Eventos del mes</span>
-        <strong>{{ monthStats.total }}</strong>
-        <small>items visibles en esta vista</small>
-      </article>
+        <div class="calendar__hero-side">
+          <span class="hero-pill hero-pill--accent">{{ currentPeriod?.periodoEtiqueta || 'Periodo actual' }}</span>
+          <button class="btn btn--ghost" type="button" (click)="goToToday()">Hoy</button>
+        </div>
+      </header>
 
-      <article class="stat-card stat-card--soft">
-        <span>Clases</span>
-        <strong>{{ monthStats.classes }}</strong>
-        <small>sesiones programadas</small>
-      </article>
-
-      <article class="stat-card stat-card--mint">
-        <span>Evaluaciones</span>
-        <strong>{{ monthStats.evaluations }}</strong>
-        <small>eventos de evaluacion</small>
-      </article>
-
-      <article class="stat-card stat-card--warm">
-        <span>Periodo</span>
-        <strong>{{ monthStats.period }}</strong>
-        <small>eventos institucionales</small>
-      </article>
-    </section>
-
-    <section class="calendar-layout">
-      <section class="calendar-board">
-        <div class="calendar-board__header">
+      @if (!hasScheduledClasses) {
+        <section class="setup-callout">
           <div>
-            <h2>{{ currentMonthLabel }}</h2>
-            <p>Selecciona un dia para ver el detalle a la derecha.</p>
+            <p class="setup-callout__eyebrow">Calendario incompleto</p>
+            <h2>Esta vista gana mucho valor cuando registras tus clases.</h2>
+            <p>Por ahora ves eventos del periodo y evaluaciones. En cuanto armes tu horario, el mes se vuelve mucho mas util.</p>
+          </div>
+          <a class="btn btn--primary" routerLink="/app/horario">Ir a horario</a>
+        </section>
+      }
+
+      <section class="calendar__layout">
+        <section class="calendar-board">
+          <div class="calendar-grid calendar-grid--head">
+            @for (day of weekDays; track day) {
+              <div class="weekday">{{ day }}</div>
+            }
           </div>
 
-          <div class="calendar-board__actions">
-            <button class="icon-btn" type="button" (click)="previousMonth()" aria-label="Mes anterior">&#8249;</button>
-            <button class="btn btn--ghost" type="button" (click)="goToToday()">Hoy</button>
-            <button class="icon-btn" type="button" (click)="nextMonth()" aria-label="Mes siguiente">&#8250;</button>
+          <div class="calendar-grid">
+            @for (cell of calendarCells; track trackCell($index, cell)) {
+              <button
+                class="calendar-cell"
+                type="button"
+                [class.calendar-cell--outside]="!cell.inCurrentMonth"
+                [class.calendar-cell--today]="cell.isToday"
+                [class.calendar-cell--selected]="cell.isSelected"
+                (click)="selectDate(cell.isoDate)">
+                <span class="calendar-cell__day">{{ cell.dayNumber }}</span>
+
+                <div class="calendar-cell__events">
+                  @for (item of cell.visibleEvents; track trackEvent($index, item)) {
+                    <span class="event-chip" [class]="eventTone(item)">{{ item.titulo }}</span>
+                  }
+
+                  @if (cell.hiddenCount > 0) {
+                    <span class="calendar-cell__more">+{{ cell.hiddenCount }} mas</span>
+                  }
+                </div>
+              </button>
+            }
           </div>
-        </div>
+        </section>
 
-        <div class="calendar-grid calendar-grid--head">
-          @for (day of weekDays; track day) {
-            <div class="weekday">{{ day }}</div>
-          }
-        </div>
+        <aside class="calendar-sidebar">
+          <article class="sidebar-card">
+            <div class="sidebar-card__header">
+              <div>
+                <h2>Hoy</h2>
+                <p>{{ todayDateLabel }}</p>
+              </div>
+              <span class="sidebar-card__badge">{{ todayBadgeLabel }}</span>
+            </div>
 
-        <div class="calendar-grid">
-          @for (cell of calendarCells; track trackCell($index, cell)) {
-            <button
-              class="calendar-cell"
-              type="button"
-              [class.calendar-cell--outside]="!cell.inCurrentMonth"
-              [class.calendar-cell--today]="cell.isToday"
-              [class.calendar-cell--selected]="cell.isSelected"
-              (click)="selectDate(cell.isoDate)">
-              <span class="calendar-cell__day">{{ cell.dayNumber }}</span>
+            @if (todayEvents.length === 0) {
+              <div class="empty-card">No hay eventos para hoy con el filtro actual.</div>
+            }
 
-              <div class="calendar-cell__events">
-                @for (item of cell.visibleEvents; track trackEvent($index, item)) {
-                  <span class="event-chip" [class]="eventTone(item)">{{ item.titulo }}</span>
-                }
-
-                @if (cell.hiddenCount > 0) {
-                  <span class="calendar-cell__more">+{{ cell.hiddenCount }} mas</span>
-                }
-
-                @if (cell.visibleEvents.length === 0) {
-                  <span class="calendar-cell__empty"></span>
+            @if (todayEvents.length > 0) {
+              <div class="sidebar-list">
+                @for (item of todayEvents; track trackEvent($index, item)) {
+                  <article class="sidebar-event">
+                    <span class="sidebar-event__mark" [class]="eventTone(item)"></span>
+                    <div>
+                      <strong>{{ dayPillLabel(item) }}</strong>
+                      <h3>{{ item.titulo }}</h3>
+                      <p>{{ item.subtitulo || item.nombreCurso || 'Sin detalle adicional' }}</p>
+                    </div>
+                  </article>
                 }
               </div>
-            </button>
-          }
-        </div>
+            }
+          </article>
+
+          <article class="sidebar-card">
+            <div class="sidebar-card__header">
+              <div>
+                <h2>Proximos eventos</h2>
+                <p>Lo siguiente que ya entra en radar.</p>
+              </div>
+            </div>
+
+            @if (upcomingEvents.length === 0) {
+              <div class="empty-card">No hay eventos proximos en este rango.</div>
+            }
+
+            @if (upcomingEvents.length > 0) {
+              <div class="upcoming-list">
+                @for (item of upcomingEvents; track trackEvent($index, item)) {
+                  <article class="upcoming-item">
+                    <div class="upcoming-item__date">
+                      <strong>{{ upcomingDateLabel(item) }}</strong>
+                    </div>
+                    <div class="upcoming-item__copy">
+                      <h3>{{ item.titulo }}</h3>
+                      <p>{{ item.subtitulo || item.nombreCurso || eventTypeLabel(item) }}</p>
+                    </div>
+                  </article>
+                }
+              </div>
+            }
+          </article>
+
+          <article class="month-card">
+            <span class="month-card__eyebrow">Ritmo del mes</span>
+            <strong>{{ monthStats.total }} eventos</strong>
+            <p>{{ monthDensityLabel }} con {{ monthStats.evaluations }} evaluacion{{ monthStats.evaluations === 1 ? '' : 'es' }} y {{ monthStats.classes }} clase{{ monthStats.classes === 1 ? '' : 's' }} visibles.</p>
+          </article>
+        </aside>
       </section>
-
-      <aside class="calendar-sidebar">
-        <section class="sidebar-card">
-          <div class="sidebar-card__header">
-            <h3>{{ selectedDateLabel }}</h3>
-            <span>{{ selectedDayEvents.length }} evento{{ selectedDayEvents.length === 1 ? '' : 's' }}</span>
-          </div>
-
-          @if (selectedDayEvents.length === 0) {
-            <div class="empty-card">No hay eventos para esta fecha.</div>
-          }
-
-          @if (selectedDayEvents.length > 0) {
-            <div class="sidebar-list">
-              @for (item of selectedDayEvents; track trackEvent($index, item)) {
-                <article class="sidebar-event">
-                  <div class="sidebar-event__head">
-                    <span class="event-tag" [class]="eventTone(item)">{{ eventTypeLabel(item) }}</span>
-                    <strong>{{ item.titulo }}</strong>
-                  </div>
-                  <p>{{ item.subtitulo || item.nombreCurso || 'Sin detalle adicional' }}</p>
-                  <small>{{ eventTimeLabel(item) }}</small>
-                </article>
-              }
-            </div>
-          }
-        </section>
-
-        <section class="sidebar-card">
-          <div class="sidebar-card__header">
-            <h3>Lo siguiente</h3>
-            <span>{{ upcomingEvents.length }}</span>
-          </div>
-
-          @if (upcomingEvents.length === 0) {
-            <div class="empty-card">No hay eventos proximos en este rango.</div>
-          }
-
-          @if (upcomingEvents.length > 0) {
-            <div class="upcoming-list">
-              @for (item of upcomingEvents; track trackEvent($index, item)) {
-                <article class="upcoming-item">
-                  <div>
-                    <strong>{{ item.titulo }}</strong>
-                    <p>{{ item.subtitulo || item.nombreCurso || eventTypeLabel(item) }}</p>
-                  </div>
-                  <span>{{ item.inicio | date:'dd/MM HH:mm' }}</span>
-                </article>
-              }
-            </div>
-          }
-        </section>
-      </aside>
     </section>
   }
 </main>
