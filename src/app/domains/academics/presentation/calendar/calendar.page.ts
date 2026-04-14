@@ -1,9 +1,11 @@
-import { CommonModule, DatePipe } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { switchMap } from 'rxjs';
 
 import { MeUseCase, MyCalendarEvent, MyCurrentPeriod } from '../../application/me-use-case';
+
+type CalendarFilter = 'all' | 'evaluacion' | 'horario' | 'periodo';
 
 interface CalendarCell {
   key: string;
@@ -19,14 +21,14 @@ interface CalendarCell {
 
 @Component({
   selector: 'app-calendar-page',
-  imports: [CommonModule, DatePipe, RouterLink],
+  imports: [CommonModule, RouterLink],
   templateUrl: './calendar.page.html',
   styleUrl: './calendar.page.scss'
 })
 export class CalendarPage implements OnInit {
   private readonly meUseCase = inject(MeUseCase);
 
-  readonly weekDays = ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'];
+  readonly weekDays = ['Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab', 'Dom'];
 
   isLoading = true;
   loadError = '';
@@ -35,32 +37,76 @@ export class CalendarPage implements OnInit {
   currentMonth = this.startOfMonth(new Date());
   selectedDateIso = this.toIsoDate(new Date());
   calendarCells: CalendarCell[] = [];
+  selectedFilter: CalendarFilter = 'all';
 
   ngOnInit(): void {
     this.loadCalendar();
   }
 
   get currentMonthLabel(): string {
-    return new Intl.DateTimeFormat('es-PE', { month: 'long', year: 'numeric' }).format(this.currentMonth);
+    return this.capitalize(new Intl.DateTimeFormat('es-PE', { month: 'long', year: 'numeric' }).format(this.currentMonth));
   }
 
   get selectedDateLabel(): string {
-    return new Intl.DateTimeFormat('es-PE', { weekday: 'long', day: 'numeric', month: 'long' }).format(new Date(`${this.selectedDateIso}T00:00:00`));
+    return this.capitalize(new Intl.DateTimeFormat('es-PE', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long'
+    }).format(new Date(`${this.selectedDateIso}T00:00:00`)));
+  }
+
+  get todayDateLabel(): string {
+    return this.capitalize(new Intl.DateTimeFormat('es-PE', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long'
+    }).format(new Date()));
+  }
+
+  get filteredEvents(): MyCalendarEvent[] {
+    return this.events.filter((item) => this.matchesFilter(item, this.selectedFilter));
   }
 
   get selectedDayEvents(): MyCalendarEvent[] {
-    return this.eventsForDate(this.selectedDateIso);
+    return this.filteredEventsForDate(this.selectedDateIso);
+  }
+
+  get todayEvents(): MyCalendarEvent[] {
+    return this.filteredEventsForDate(this.toIsoDate(new Date()));
+  }
+
+  get todayBadgeLabel(): string {
+    return new Intl.DateTimeFormat('es-PE', {
+      day: '2-digit',
+      month: 'short'
+    }).format(new Date()).toUpperCase();
   }
 
   get upcomingEvents(): MyCalendarEvent[] {
-    return this.events
+    const todayIso = this.toIsoDate(new Date());
+    return this.filteredEvents
+      .filter((item) => item.inicio.slice(0, 10) >= todayIso)
       .slice()
       .sort((a, b) => a.inicio.localeCompare(b.inicio))
-      .slice(0, 6);
+      .slice(0, 3);
+  }
+
+  get monthDensityLabel(): string {
+    const total = this.monthStats.total;
+    if (total === 0) {
+      return 'Mes ligero';
+    }
+    if (total <= 4) {
+      return 'Carga contenida';
+    }
+    if (total <= 8) {
+      return 'Carga media';
+    }
+    return 'Mes intenso';
   }
 
   get monthStats() {
-    const currentMonthEvents = this.events.filter((item) => this.isSameMonth(new Date(item.inicio), this.currentMonth));
+    const currentMonthEvents = this.filteredEvents.filter((item) => this.isSameMonth(new Date(item.inicio), this.currentMonth));
     return {
       total: currentMonthEvents.length,
       classes: currentMonthEvents.filter((item) => item.origen === 'horario').length,
@@ -69,29 +115,43 @@ export class CalendarPage implements OnInit {
     };
   }
 
+  get filterOptions(): Array<{ key: CalendarFilter; label: string }> {
+    return [
+      { key: 'all', label: 'Ver todos' },
+      { key: 'evaluacion', label: 'Evaluaciones' },
+      { key: 'horario', label: 'Clases' },
+      { key: 'periodo', label: 'Eventos' }
+    ];
+  }
+
   get hasScheduledClasses(): boolean {
     return this.events.some((item) => item.origen === 'horario');
   }
 
   previousMonth(): void {
     this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() - 1, 1);
-    this.rebuildCalendar();
+    this.loadCalendar();
   }
 
   nextMonth(): void {
     this.currentMonth = new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() + 1, 1);
-    this.rebuildCalendar();
+    this.loadCalendar();
   }
 
   goToToday(): void {
     const today = new Date();
     this.currentMonth = this.startOfMonth(today);
     this.selectedDateIso = this.toIsoDate(today);
-    this.rebuildCalendar();
+    this.loadCalendar();
   }
 
   selectDate(isoDate: string): void {
     this.selectedDateIso = isoDate;
+    this.rebuildCalendar();
+  }
+
+  setFilter(filter: CalendarFilter): void {
+    this.selectedFilter = filter;
     this.rebuildCalendar();
   }
 
@@ -110,7 +170,7 @@ export class CalendarPage implements OnInit {
       case 'horario':
         return 'event-chip--brand';
       case 'periodo':
-        return 'event-chip--warning';
+        return 'event-chip--success';
       default:
         return 'event-chip--neutral';
     }
@@ -140,6 +200,20 @@ export class CalendarPage implements OnInit {
     return `${format.format(start)} - ${format.format(end)}`;
   }
 
+  dayPillLabel(item: MyCalendarEvent): string {
+    return new Intl.DateTimeFormat('es-PE', {
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(new Date(item.inicio));
+  }
+
+  upcomingDateLabel(item: MyCalendarEvent): string {
+    return this.capitalize(new Intl.DateTimeFormat('es-PE', {
+      day: '2-digit',
+      month: 'short'
+    }).format(new Date(item.inicio)));
+  }
+
   private loadCalendar(): void {
     this.isLoading = true;
     this.loadError = '';
@@ -154,9 +228,9 @@ export class CalendarPage implements OnInit {
     ).subscribe({
       next: (events) => {
         this.events = events.sort((a, b) => a.inicio.localeCompare(b.inicio));
-        const availableDates = new Set(events.map((item) => item.inicio.slice(0, 10)));
-        if (!availableDates.has(this.selectedDateIso) && events.length > 0) {
-          this.selectedDateIso = events[0].inicio.slice(0, 10);
+        const availableDates = new Set(this.filteredEvents.map((item) => item.inicio.slice(0, 10)));
+        if (!availableDates.has(this.selectedDateIso) && this.filteredEvents.length > 0) {
+          this.selectedDateIso = this.filteredEvents[0].inicio.slice(0, 10);
         }
         this.rebuildCalendar();
         this.isLoading = false;
@@ -169,15 +243,15 @@ export class CalendarPage implements OnInit {
   }
 
   private rebuildCalendar(): void {
-    const start = this.startOfWeek(this.currentMonth);
-    const end = this.endOfWeek(new Date(this.currentMonth.getFullYear(), this.currentMonth.getMonth() + 1, 0));
+    const start = this.startOfCalendarGrid(this.currentMonth);
     const cells: CalendarCell[] = [];
     const cursor = new Date(start);
     const todayIso = this.toIsoDate(new Date());
 
-    while (cursor <= end) {
+    for (let index = 0; index < 42; index += 1) {
       const isoDate = this.toIsoDate(cursor);
-      const dayEvents = this.eventsForDate(isoDate);
+      const dayEvents = this.filteredEventsForDate(isoDate);
+
       cells.push({
         key: isoDate,
         date: new Date(cursor),
@@ -196,6 +270,10 @@ export class CalendarPage implements OnInit {
     this.calendarCells = cells;
   }
 
+  private matchesFilter(item: MyCalendarEvent, filter: CalendarFilter): boolean {
+    return filter === 'all' || item.origen === filter;
+  }
+
   private resolveCalendarEnd(start: Date, currentPeriod: MyCurrentPeriod | null): string {
     const periodEnd = currentPeriod?.periodoFechaFin;
     if (periodEnd) {
@@ -209,23 +287,20 @@ export class CalendarPage implements OnInit {
     return this.toIsoDate(fallback);
   }
 
-  private eventsForDate(isoDate: string): MyCalendarEvent[] {
-    return this.events.filter((item) => item.inicio.slice(0, 10) === isoDate);
+  private filteredEventsForDate(isoDate: string): MyCalendarEvent[] {
+    return this.filteredEvents.filter((item) => item.inicio.slice(0, 10) === isoDate);
   }
 
   private startOfMonth(value: Date): Date {
     return new Date(value.getFullYear(), value.getMonth(), 1);
   }
 
-  private startOfWeek(value: Date): Date {
-    const result = new Date(value);
-    result.setDate(result.getDate() - result.getDay());
-    return result;
-  }
-
-  private endOfWeek(value: Date): Date {
-    const result = new Date(value);
-    result.setDate(result.getDate() + (6 - result.getDay()));
+  private startOfCalendarGrid(value: Date): Date {
+    const firstOfMonth = this.startOfMonth(value);
+    const day = firstOfMonth.getDay();
+    const offset = day === 0 ? 6 : day - 1;
+    const result = new Date(firstOfMonth);
+    result.setDate(result.getDate() - offset);
     return result;
   }
 
@@ -238,5 +313,9 @@ export class CalendarPage implements OnInit {
     const month = `${value.getMonth() + 1}`.padStart(2, '0');
     const day = `${value.getDate()}`.padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  private capitalize(value: string): string {
+    return value.charAt(0).toUpperCase() + value.slice(1);
   }
 }
