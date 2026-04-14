@@ -8,6 +8,11 @@ import { CatalogCourseDetail, CatalogCourseEvaluation, CatalogCourseUnit, Catalo
 import { MeUseCase, MyCourse, MyEvaluation, MyScheduleEntry } from '../../application/me-use-case';
 import { apiErrorMessage } from '../../../identity/infrastructure/http/api-error.interceptor';
 
+interface HeroFact {
+  label: string;
+  value: string;
+}
+
 @Component({
   selector: 'app-course-detail-page',
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
@@ -151,6 +156,63 @@ export class CourseDetailPage implements OnInit {
     }));
   }
 
+  get heroFacts(): HeroFact[] {
+    if (!this.courseDetail) {
+      return [];
+    }
+
+    return [
+      { label: 'Creditos', value: `${this.courseDetail.curso.creditos}` },
+      { label: 'Horas semanales', value: `${this.courseDetail.curso.horasSemanales}` },
+      { label: 'Bloques reales', value: `${this.configuredSessionsCount}` },
+      { label: 'Periodo', value: this.courseDetail.periodoTexto || 'Sin periodo' }
+    ];
+  }
+
+  get modalityLabel(): string {
+    return this.course?.modalidad || this.courseDetail?.curso.modalidad || 'No definida';
+  }
+
+  get professorLabel(): string {
+    return this.course?.profesor || 'Profesor pendiente de confirmar';
+  }
+
+  get nextEvaluationLabel(): string {
+    if (!this.nextEvaluation) {
+      return 'No hay evaluaciones pendientes';
+    }
+    return this.nextEvaluation.descripcion || this.nextEvaluation.tipo || this.nextEvaluation.evaluacionCodigo;
+  }
+
+  get overviewCards(): Array<{ label: string; value: string; detail: string; tone: 'violet' | 'mint' | 'warm' | 'soft' }> {
+    return [
+      {
+        label: 'Promedio actual',
+        value: this.averageGradeLabel,
+        detail: `${this.gradedEvaluationsCount} evaluaciones con nota`,
+        tone: 'soft'
+      },
+      {
+        label: 'Pendientes',
+        value: `${this.pendingEvaluationsCount}`,
+        detail: 'evaluaciones por registrar',
+        tone: 'warm'
+      },
+      {
+        label: 'Avance del curso',
+        value: `${this.progressPercent}%`,
+        detail: `${this.gradedEvaluationsCount}/${this.evaluations.length || 0} atendidas`,
+        tone: 'mint'
+      },
+      {
+        label: 'Version del silabo',
+        value: this.courseDetail?.version || '--',
+        detail: `${this.courseDetail?.anio || '--'}`,
+        tone: 'violet'
+      }
+    ];
+  }
+
   saveMetadata(): void {
     if (!this.course) {
       return;
@@ -214,9 +276,22 @@ export class CourseDetailPage implements OnInit {
     return 'Fecha por definir';
   }
 
+  evaluationStatusLabel(item: MyEvaluation): string {
+    if (item.exonerado) {
+      return 'Exonerado';
+    }
+    if (item.nota != null) {
+      return 'Registrado';
+    }
+    if (item.fechaEstimada) {
+      return 'Pendiente';
+    }
+    return 'Por definir';
+  }
+
   syllabusEvaluationLabel(item: CatalogCourseEvaluation): string {
     const parts = [item.tipo, item.descripcion, item.semana != null ? `Semana ${item.semana}` : null].filter(Boolean);
-    return parts.join(' - ') || 'Evaluacion';
+    return parts.join(' · ') || 'Evaluacion';
   }
 
   private patchMetadataForm(course: MyCourse): void {
