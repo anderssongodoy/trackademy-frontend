@@ -1,20 +1,4 @@
 <main class="course-detail">
-  <header class="course-detail__hero">
-    <div class="hero__copy">
-      <a class="back" routerLink="/app/cursos">Volver a cursos</a>
-      <p class="eyebrow">Detalle del curso</p>
-      <h1>Un centro operativo para seguir este curso</h1>
-      <p class="subtitle">Aqui reunimos horario real, evaluaciones, datos del silabo y el contexto academico que ya registraste.</p>
-    </div>
-
-    <div class="hero__actions">
-      @if (course) {
-        <a class="btn btn--ghost" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Ajustar horario</a>
-      }
-      <a class="btn btn--primary" routerLink="/app/notas">Ir a notas</a>
-    </div>
-  </header>
-
   @if (isLoading) {
     <div class="state state--loading">Cargando curso...</div>
   }
@@ -24,248 +8,272 @@
   }
 
   @if (!isLoading && !loadError && course && courseDetail) {
-    <section class="hero-card">
-      <div class="hero-card__main">
-        <div class="hero-card__badges">
-          <span class="pill pill--code">{{ course.codigo }}</span>
-          <span class="pill">{{ course.modalidad || 'Modalidad pendiente' }}</span>
-          <span class="pill">Seccion {{ course.seccion || '--' }}</span>
-          <span class="pill" [class.pill--soft]="!course.activo">{{ course.activo ? 'Activo' : 'Inactivo' }}</span>
-        </div>
+    <section class="course-detail__frame">
+      <header class="hero-card">
+        <div class="hero-card__main">
+          <a class="back" routerLink="/app/cursos">Volver a cursos</a>
 
-        <h2>{{ course.nombre }}</h2>
-
-        <div class="hero-card__meta">
-          <span>{{ course.profesor || 'Profesor pendiente de confirmar' }}</span>
-          <span>{{ courseDetail.curso.creditos }} creditos</span>
-          <span>{{ courseDetail.curso.horasSemanales }} h/semana</span>
-          <span>{{ courseDetail.periodoTexto || 'Periodo del silabo pendiente' }}</span>
-        </div>
-
-        <p class="hero-card__summary">{{ courseDetail.sumilla || 'Todavia no hay sumilla disponible para este curso.' }}</p>
-      </div>
-
-      <aside class="hero-card__side">
-        <div class="focus-card">
-          <span>Proxima evaluacion</span>
-          <strong>{{ nextEvaluation?.evaluacionCodigo || 'Sin pendientes' }}</strong>
-          <small>{{ nextEvaluation ? evaluationSubtitle(nextEvaluation) : 'No hay evaluaciones por registrar' }}</small>
-        </div>
-
-        <div class="focus-card focus-card--soft">
-          <span>Estado del horario</span>
-          <strong>{{ configuredSessionsCount }}</strong>
-          <small>sesiones configuradas</small>
-        </div>
-      </aside>
-    </section>
-
-    <section class="metadata-section">
-      <article class="panel">
-        <div class="panel__header">
-          <h3>Datos del curso que si puedes editar</h3>
-          <span>Seccion y profesor</span>
-        </div>
-
-        <form class="metadata-form" [formGroup]="metadataForm" (ngSubmit)="saveMetadata()">
-          <label>
-            <span>Seccion</span>
-            <input type="text" formControlName="seccion" placeholder="Ej. A, B1, Noche-02" />
-          </label>
-
-          <label>
-            <span>Profesor</span>
-            <input type="text" formControlName="profesor" placeholder="Nombre del profesor" />
-          </label>
-
-          <div class="metadata-form__read-only">
-            <span>Modalidad</span>
-            <strong>{{ course.modalidad || courseDetail.curso.modalidad || 'No definida' }}</strong>
-            <small>La modalidad viene del curso y no se edita aqui.</small>
+          <div class="hero-card__badges">
+            <span class="pill pill--code">{{ course.codigo }}</span>
+            <span class="pill">{{ modalityLabel }}</span>
+            <span class="pill" [class.pill--soft]="!course.activo">{{ course.activo ? 'Activo' : 'Inactivo' }}</span>
           </div>
 
-          <div class="metadata-form__actions">
-            <button class="btn btn--primary" type="submit" [disabled]="isSavingMetadata">
-              {{ isSavingMetadata ? 'Guardando...' : 'Guardar datos' }}
-            </button>
-          </div>
-        </form>
+          <h1>{{ course.nombre }}</h1>
 
-        @if (metadataError) {
-          <div class="inline-state inline-state--error">{{ metadataError }}</div>
-        }
-
-        @if (metadataSuccess) {
-          <div class="inline-state inline-state--success">{{ metadataSuccess }}</div>
-        }
-      </article>
-    </section>
-
-    <section class="stats-grid">
-      <article class="stat-card">
-        <span>Promedio actual</span>
-        <strong>{{ averageGradeLabel }}</strong>
-        <small>{{ gradedEvaluationsCount }} evaluaciones con nota</small>
-      </article>
-
-      <article class="stat-card stat-card--soft">
-        <span>Pendientes</span>
-        <strong>{{ pendingEvaluationsCount }}</strong>
-        <small>evaluaciones por registrar</small>
-      </article>
-
-      <article class="stat-card stat-card--mint">
-        <span>Avance del curso</span>
-        <strong>{{ progressPercent }}%</strong>
-        <small>{{ gradedEvaluationsCount }}/{{ evaluations.length || 0 }} evaluaciones atendidas</small>
-      </article>
-
-      <article class="stat-card stat-card--warm">
-        <span>Version del silabo</span>
-        <strong>{{ courseDetail.version || '--' }}</strong>
-        <small>{{ courseDetail.anio || '--' }}</small>
-      </article>
-    </section>
-
-    <section class="detail-grid">
-      <article class="panel panel--stack">
-        <div class="panel__header">
-          <h3>Evaluaciones del curso</h3>
-          <a class="inline-link" routerLink="/app/notas">Abrir notas</a>
-        </div>
-
-        @if (evaluations.length === 0) {
-          <div class="empty-card">No hay evaluaciones sincronizadas todavia.</div>
-        }
-
-        @if (evaluations.length > 0) {
-          <div class="evaluation-list">
-            @for (item of evaluations; track trackEvaluation($index, item)) {
-              <article class="evaluation-card">
-                <div>
-                  <p class="evaluation-card__code">{{ item.evaluacionCodigo }}</p>
-                  <h4>{{ item.descripcion || item.tipo || 'Evaluacion' }}</h4>
-                  <p class="evaluation-card__meta">{{ evaluationSubtitle(item) }}</p>
-                </div>
-
-                <div class="evaluation-card__side">
-                  <strong>{{ item.nota != null ? (item.nota | number:'1.1-1') : '--' }}</strong>
-                  <span>{{ item.nota != null ? 'nota registrada' : 'pendiente' }}</span>
-                </div>
-              </article>
-            }
-          </div>
-        }
-      </article>
-
-      <article class="panel">
-        <div class="panel__header">
-          <h3>Horario real</h3>
-          <a class="inline-link" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Editar</a>
-        </div>
-
-        @if (groupedSchedule.length === 0) {
-          <div class="empty-card empty-card--cta">
-            <p>Este curso aun no tiene horarios de clase configurados.</p>
-            <a class="btn btn--primary" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Crear horario</a>
-          </div>
-        }
-
-        @if (groupedSchedule.length > 0) {
-          <div class="schedule-groups">
-            @for (group of groupedSchedule; track group.key) {
-              <section class="schedule-group">
-                <header>
-                  <strong>{{ group.label }}</strong>
-                  <span>{{ group.items.length }} sesion{{ group.items.length === 1 ? '' : 'es' }}</span>
-                </header>
-
-                <div class="schedule-group__list">
-                  @for (entry of group.items; track entry.bloqueNro) {
-                    <div class="schedule-item">
-                      <div>
-                        <strong>{{ formatScheduleEntry(entry) }}</strong>
-                        <small>{{ entry.tipoSesion || 'Clase' }}</small>
-                      </div>
-                      <span>{{ entry.ubicacion || entry.urlVirtual || 'Ubicacion pendiente' }}</span>
-                    </div>
-                  }
-                </div>
-              </section>
-            }
-          </div>
-        }
-      </article>
-
-      <article class="panel">
-        <div class="panel__header">
-          <h3>Resumen del silabo</h3>
-        </div>
-
-        <div class="text-grid">
-          <section class="text-card">
-            <h4>Logro general</h4>
-            <p>{{ courseDetail.logroGeneral || 'No disponible.' }}</p>
-          </section>
-
-          <section class="text-card">
-            <h4>Metodologia</h4>
-            <p>{{ courseDetail.metodologia || 'No disponible.' }}</p>
-          </section>
-
-          <section class="text-card">
-            <h4>Fundamentacion</h4>
-            <p>{{ courseDetail.fundamentacion || 'No disponible.' }}</p>
-          </section>
-        </div>
-      </article>
-
-      <article class="panel panel--stack">
-        <div class="panel__header">
-          <h3>Sistema de evaluacion del silabo</h3>
-        </div>
-
-        <div class="syllabus-evaluations">
-          @for (item of courseDetail.evaluaciones; track item.codigo) {
-            <div class="syllabus-evaluation">
-              <div>
-                <strong>{{ item.codigo }}</strong>
-                <span>{{ syllabusEvaluationLabel(item) }}</span>
+          <div class="hero-card__facts">
+            @for (fact of heroFacts; track fact.label) {
+              <div class="hero-fact">
+                <span>{{ fact.label }}</span>
+                <strong>{{ fact.value }}</strong>
               </div>
-              <strong>{{ item.porcentaje ?? 0 }}%</strong>
+            }
+          </div>
+
+          <div class="hero-card__summary">
+            <div>
+              <span class="hero-card__eyebrow">Panorama del curso</span>
+              <p>{{ courseDetail.sumilla || 'Todavia no hay sumilla disponible para este curso.' }}</p>
             </div>
-          }
-        </div>
-      </article>
 
-      <article class="panel panel--full">
-        <div class="panel__header">
-          <h3>Ruta del curso por unidades</h3>
-          <span>{{ courseDetail.unidades.length }} unidades</span>
+            <div class="hero-professor">
+              <span class="hero-card__eyebrow">Profesor titular</span>
+              <strong>{{ professorLabel }}</strong>
+              <small>{{ course.seccion ? 'Seccion ' + course.seccion : 'Seccion pendiente de confirmar' }}</small>
+            </div>
+          </div>
         </div>
 
-        <div class="units-grid">
-          @for (unit of courseDetail.unidades; track trackUnit($index, unit)) {
-            <article class="unit-card">
-              <div class="unit-card__head">
-                <span class="unit-index">Unidad {{ unit.nro }}</span>
-                <span class="unit-weeks">Semanas {{ unit.semanaInicio ?? '--' }} a {{ unit.semanaFin ?? '--' }}</span>
+        <aside class="hero-card__aside">
+          <div class="hero-focus">
+            <span class="hero-card__eyebrow">Siguiente foco</span>
+            <strong>{{ nextEvaluation?.evaluacionCodigo || 'Sin pendientes' }}</strong>
+            <p>{{ nextEvaluationLabel }}</p>
+            <small>{{ nextEvaluation ? evaluationSubtitle(nextEvaluation) : 'No hay evaluaciones por registrar' }}</small>
+          </div>
+
+          <div class="hero-actions">
+            <a class="btn btn--ghost" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Ajustar horario</a>
+            <a class="btn btn--primary" routerLink="/app/notas">Abrir notas</a>
+          </div>
+        </aside>
+      </header>
+
+      <section class="overview-strip" aria-label="Resumen del curso">
+        @for (item of overviewCards; track item.label) {
+          <article class="metric-card" [class.metric-card--soft]="item.tone === 'soft'" [class.metric-card--mint]="item.tone === 'mint'" [class.metric-card--warm]="item.tone === 'warm'" [class.metric-card--violet]="item.tone === 'violet'">
+            <span>{{ item.label }}</span>
+            <strong>{{ item.value }}</strong>
+            <small>{{ item.detail }}</small>
+          </article>
+        }
+      </section>
+
+      <section class="detail-grid">
+        <div class="detail-grid__main">
+          <article class="panel panel--evaluations">
+            <div class="panel__header">
+              <div>
+                <h2>Registro de evaluaciones</h2>
+                <p>Seguimiento real de notas y entregables del curso.</p>
+              </div>
+              <div class="panel__stat">
+                <span>Promedio actual</span>
+                <strong>{{ averageGradeLabel }}</strong>
+              </div>
+            </div>
+
+            @if (evaluations.length === 0) {
+              <div class="empty-card">No hay evaluaciones sincronizadas todavia.</div>
+            }
+
+            @if (evaluations.length > 0) {
+              <div class="evaluation-list">
+                @for (item of evaluations; track trackEvaluation($index, item)) {
+                  <article class="evaluation-row" [class.evaluation-row--accent]="item.nota == null && !item.exonerado">
+                    <div class="evaluation-row__content">
+                      <span class="evaluation-row__code">{{ item.evaluacionCodigo }}</span>
+                      <h3>{{ item.descripcion || item.tipo || 'Evaluacion' }}</h3>
+                      <p>{{ evaluationStatusLabel(item) }} · {{ evaluationSubtitle(item) }}</p>
+                    </div>
+
+                    <div class="evaluation-row__weight">
+                      <span>Peso</span>
+                      <strong>{{ item.porcentaje != null ? item.porcentaje + '%' : '--' }}</strong>
+                    </div>
+
+                    <div class="evaluation-row__score">
+                      <strong>{{ item.nota != null ? (item.nota | number:'1.1-1') : '--' }}</strong>
+                    </div>
+                  </article>
+                }
+              </div>
+            }
+          </article>
+
+          <article class="panel panel--metadata">
+            <div class="panel__header">
+              <div>
+                <h2>Informacion de seccion</h2>
+                <p>Estos datos sí dependen de tu configuracion real.</p>
+              </div>
+            </div>
+
+            <form class="metadata-form" [formGroup]="metadataForm" (ngSubmit)="saveMetadata()">
+              <label>
+                <span>Seccion</span>
+                <input type="text" formControlName="seccion" placeholder="Ej. A, B1, Noche-02" />
+              </label>
+
+              <label>
+                <span>Profesor</span>
+                <input type="text" formControlName="profesor" placeholder="Nombre del profesor" />
+              </label>
+
+              <div class="metadata-static">
+                <span>Modalidad</span>
+                <strong>{{ modalityLabel }}</strong>
               </div>
 
-              <h4>{{ unit.titulo }}</h4>
-              <p>{{ unit.logroEspecifico || 'Sin logro especifico disponible.' }}</p>
+              <div class="metadata-form__actions">
+                <button class="btn btn--primary" type="submit" [disabled]="isSavingMetadata">
+                  {{ isSavingMetadata ? 'Guardando...' : 'Guardar cambios' }}
+                </button>
+              </div>
+            </form>
 
-              @if (topicsFor(unit).length > 0) {
-                <ul>
-                  @for (topic of topicsFor(unit); track topic) {
-                    <li>{{ topic }}</li>
-                  }
-                </ul>
-              }
-            </article>
-          }
+            @if (metadataError) {
+              <div class="inline-state inline-state--error">{{ metadataError }}</div>
+            }
+
+            @if (metadataSuccess) {
+              <div class="inline-state inline-state--success">{{ metadataSuccess }}</div>
+            }
+          </article>
+
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <h2>Marco academico</h2>
+                <p>Lo que si trae el catalogo para contextualizar el curso.</p>
+              </div>
+            </div>
+
+            <div class="text-grid">
+              <section class="text-card">
+                <h3>Logro general</h3>
+                <p>{{ courseDetail.logroGeneral || 'No disponible.' }}</p>
+              </section>
+
+              <section class="text-card">
+                <h3>Metodologia</h3>
+                <p>{{ courseDetail.metodologia || 'No disponible.' }}</p>
+              </section>
+
+              <section class="text-card text-card--wide">
+                <h3>Fundamentacion</h3>
+                <p>{{ courseDetail.fundamentacion || 'No disponible.' }}</p>
+              </section>
+            </div>
+          </article>
         </div>
-      </article>
+
+        <aside class="detail-grid__rail">
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <h2>Horario del curso</h2>
+                <p>Bloques reales guardados para esta seccion.</p>
+              </div>
+              <a class="inline-link" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Editar</a>
+            </div>
+
+            @if (groupedSchedule.length === 0) {
+              <div class="empty-card empty-card--cta">
+                <p>Este curso aun no tiene horarios de clase configurados.</p>
+                <a class="btn btn--primary" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Crear horario</a>
+              </div>
+            }
+
+            @if (groupedSchedule.length > 0) {
+              <div class="schedule-groups">
+                @for (group of groupedSchedule; track group.key) {
+                  <section class="schedule-group">
+                    <header>
+                      <strong>{{ group.label }}</strong>
+                      <span>{{ group.items.length }} sesion{{ group.items.length === 1 ? '' : 'es' }}</span>
+                    </header>
+
+                    <div class="schedule-group__list">
+                      @for (entry of group.items; track entry.bloqueNro) {
+                        <article class="schedule-item">
+                          <div>
+                            <strong>{{ formatScheduleEntry(entry) }}</strong>
+                            <small>{{ entry.tipoSesion || 'Clase' }}</small>
+                          </div>
+                          <span>{{ entry.ubicacion || entry.urlVirtual || 'Ubicacion pendiente' }}</span>
+                        </article>
+                      }
+                    </div>
+                  </section>
+                }
+              </div>
+            }
+          </article>
+
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <h2>Sistema de evaluacion</h2>
+                <p>Distribucion del silabo oficial.</p>
+              </div>
+            </div>
+
+            <div class="syllabus-evaluations">
+              @for (item of courseDetail.evaluaciones; track item.codigo) {
+                <article class="syllabus-evaluation">
+                  <div>
+                    <strong>{{ item.codigo }}</strong>
+                    <span>{{ syllabusEvaluationLabel(item) }}</span>
+                  </div>
+                  <strong>{{ item.porcentaje ?? 0 }}%</strong>
+                </article>
+              }
+            </div>
+          </article>
+
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <h2>Contenido programatico</h2>
+                <p>{{ courseDetail.unidades.length }} unidades disponibles.</p>
+              </div>
+            </div>
+
+            <div class="units-list">
+              @for (unit of courseDetail.unidades; track trackUnit($index, unit)) {
+                <article class="unit-card">
+                  <div class="unit-card__head">
+                    <span class="unit-index">{{ unit.nro < 10 ? '0' + unit.nro : unit.nro }}</span>
+                    <div>
+                      <h3>{{ unit.titulo }}</h3>
+                      <small>Semanas {{ unit.semanaInicio ?? '--' }} a {{ unit.semanaFin ?? '--' }}</small>
+                    </div>
+                  </div>
+
+                  @if (topicsFor(unit).length > 0) {
+                    <ul>
+                      @for (topic of topicsFor(unit).slice(0, 3); track topic) {
+                        <li>{{ topic }}</li>
+                      }
+                    </ul>
+                  }
+                </article>
+              }
+            </div>
+          </article>
+        </aside>
+      </section>
     </section>
   }
 </main>
