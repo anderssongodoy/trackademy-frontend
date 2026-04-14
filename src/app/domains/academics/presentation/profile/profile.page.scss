@@ -1,7 +1,7 @@
 @use '../../../../../styles/ui-system' as ui;
 
 .profile {
-  @include ui.page-root();
+  @include ui.page-root(30px);
 }
 
 .profile__hero,
@@ -24,7 +24,7 @@
 }
 
 .hero__copy {
-  @include ui.hero-copy(860px);
+  @include ui.hero-copy(920px);
 }
 
 .eyebrow {
@@ -39,7 +39,7 @@ p {
 
 h1 {
   margin-bottom: 0;
-  @include ui.title-display(2rem, 3.8vw, 3.1rem, 1.03);
+  @include ui.title-display(2.4rem, 4.8vw, 4rem, 0.95);
 }
 
 .subtitle,
@@ -50,78 +50,60 @@ h1 {
 .selected-empty,
 .course-option p,
 .reconfig-meta span {
-  color: #475569;
+  color: var(--text-secondary);
 }
 
 .subtitle {
-  margin: 14px 0 0;
-  line-height: 1.6;
+  @include ui.subtitle(18px, 1.72);
+  max-width: 74ch;
 }
 
 .hero__chips {
-  margin-top: 18px;
+  margin-top: 20px;
 }
 
 .status-chip,
 .hero-chip {
-  display: inline-flex;
-  width: fit-content;
-  padding: 8px 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
+  @include ui.chip-base();
 }
 
 .status-chip {
-  color: #5b3df5;
-  background: rgba(237, 233, 254, 0.96);
+  background: rgba(83, 0, 183, 0.1);
+  color: var(--brand-primary);
 }
 
 .status-chip--pending {
-  color: #92400e;
-  background: rgba(255, 251, 235, 0.96);
+  background: rgba(217, 119, 6, 0.12);
+  color: #b45309;
 }
 
 .hero-chip {
-  color: #334155;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid rgba(226, 232, 240, 0.9);
-}
-
-.state,
-.stat-card,
-.profile-card,
-.warning-box,
-.course-option,
-.selected-chip {
-  border-radius: 24px;
-  border: 1px solid rgba(226, 232, 240, 0.88);
-  background: rgba(255, 255, 255, 0.94);
+  background: var(--surface-container-high);
+  color: var(--text-secondary);
 }
 
 .state {
-  @include ui.state-card(14px 16px, 24px);
+  @include ui.state-card();
 }
 
 .state--loading {
-  color: #475569;
+  color: var(--text-secondary);
 }
 
 .state--error {
-  color: #b91c1c;
-  border-color: rgba(248, 113, 113, 0.3);
+  color: var(--state-danger);
+  background: rgba(182, 62, 62, 0.08);
 }
 
 .state--success {
-  color: #166534;
-  border-color: rgba(74, 222, 128, 0.32);
-  background: rgba(240, 253, 244, 0.95);
+  color: var(--state-success);
+  background: rgba(22, 101, 52, 0.08);
 }
 
 .stats {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  gap: 18px;
 }
 
 .stat-card {
@@ -138,21 +120,25 @@ h1 {
 
 .stat-card span {
   display: block;
-  font-size: 13px;
-  color: #64748b;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
 }
 
 .stat-card strong {
   display: block;
-  margin-top: 8px;
-  font-size: 2rem;
-  color: #0f172a;
+  margin-top: 10px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2.25rem;
+  line-height: 0.94;
+  color: var(--text-primary);
 }
 
 .stat-card small {
   display: block;
-  margin-top: 8px;
-  color: #334155;
+  margin-top: 12px;
+  color: var(--text-secondary);
 }
 
 .profile__layout {
@@ -160,7 +146,7 @@ h1 {
 }
 
 .profile-card {
-  padding: 22px;
+  @include ui.layer-section(24px, 30px);
   display: grid;
   gap: 18px;
 }
@@ -203,15 +189,16 @@ h1 {
 }
 
 .field span {
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 700;
-  color: #0f172a;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
 }
 
 .field input,
 .field select {
   @include ui.input-field();
-  background: rgba(248, 250, 252, 0.9);
 }
 
 .field input:focus,
@@ -220,17 +207,16 @@ h1 {
 }
 
 .warning-box {
-  padding: 16px 18px;
+  @include ui.layer-card(18px, 22px);
   color: #92400e;
-  background: rgba(255, 251, 235, 0.98);
-  border-color: rgba(251, 191, 36, 0.28);
+  background: rgba(255, 248, 234, 0.98);
 }
 
 .reconfig-meta strong,
 .summary-item strong,
 .course-option strong,
 .selected-chip span {
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .summary-list {
@@ -238,17 +224,15 @@ h1 {
 }
 
 .summary-item {
+  @include ui.layer-card(16px, 20px);
   display: grid;
   gap: 4px;
-  padding: 14px 16px;
-  border-radius: 18px;
-  background: rgba(248, 250, 252, 0.92);
-  border: 1px solid rgba(226, 232, 240, 0.9);
 }
 
 .summary-item--highlight {
-  background: linear-gradient(180deg, rgba(245, 243, 255, 0.96), rgba(233, 213, 255, 0.82));
-  border-color: rgba(196, 181, 253, 0.92);
+  background:
+    radial-gradient(circle at top right, rgba(83, 0, 183, 0.1), transparent 34%),
+    rgba(247, 242, 255, 0.98);
 }
 
 .selected-courses {
@@ -264,17 +248,15 @@ h1 {
 }
 
 .sync-card {
+  @include ui.layer-card(20px, 24px);
   display: grid;
   gap: 12px;
-  padding: 18px;
-  border-radius: 20px;
-  border: 1px solid rgba(226, 232, 240, 0.88);
-  background: rgba(248, 250, 252, 0.92);
 }
 
 .sync-card--connected {
-  background: rgba(240, 253, 244, 0.96);
-  border-color: rgba(134, 239, 172, 0.6);
+  background:
+    radial-gradient(circle at top right, rgba(22, 101, 52, 0.08), transparent 34%),
+    rgba(239, 250, 244, 0.98);
 }
 
 .sync-card__top {
@@ -285,11 +267,11 @@ h1 {
 }
 
 .sync-card__eyebrow {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
 .sync-card h3,
@@ -300,29 +282,27 @@ h1 {
 
 .sync-card p,
 .sync-card small {
-  color: #475569;
+  color: var(--text-secondary);
 }
 
 .channel-card {
+  @include ui.layer-card(22px, 24px);
   display: grid;
   gap: 14px;
-  padding: 20px;
-  border-radius: 20px;
-  border: 1px solid rgba(226, 232, 240, 0.88);
-  background: rgba(248, 250, 252, 0.92);
 }
 
 .channel-card--accent {
-  background: linear-gradient(180deg, rgba(236, 253, 245, 0.98), rgba(240, 249, 255, 0.94));
-  border-color: rgba(125, 211, 252, 0.55);
+  background:
+    radial-gradient(circle at top right, rgba(83, 0, 183, 0.1), transparent 34%),
+    rgba(255, 255, 255, 0.98);
 }
 
 .channel-card__eyebrow {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #64748b;
+  color: var(--text-secondary);
 }
 
 .channel-card h3,
@@ -336,30 +316,29 @@ h1 {
 .channel-card p,
 .channel-card small,
 .channel-meta small {
-  color: #475569;
+  color: var(--text-secondary);
 }
 
 .whatsapp-code-box {
+  @include ui.layer-card(18px, 20px);
   display: grid;
   gap: 8px;
-  padding: 18px;
-  border-radius: 18px;
-  background: rgba(240, 253, 244, 0.96);
-  border: 1px solid rgba(134, 239, 172, 0.55);
+  background: rgba(239, 250, 244, 0.98);
 }
 
 .whatsapp-code-box span {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: #166534;
+  color: var(--state-success);
 }
 
 .whatsapp-code-box strong {
+  font-family: 'Space Grotesk', sans-serif;
   font-size: clamp(1.8rem, 4vw, 2.4rem);
-  letter-spacing: 0.08em;
-  color: #0f172a;
+  letter-spacing: 0.04em;
+  color: var(--text-primary);
 }
 
 .selected-chip,
@@ -369,17 +348,19 @@ h1 {
 }
 
 .selected-chip {
+  @include ui.layer-card(14px 16px, 18px);
   display: flex;
   justify-content: space-between;
   gap: 12px;
   align-items: center;
-  background: rgba(245, 243, 255, 0.96);
-  border-color: rgba(196, 181, 253, 0.85);
+  background: rgba(247, 242, 255, 0.98);
 }
 
 .selected-chip strong {
-  color: #6d28d9;
-  font-size: 12px;
+  color: var(--brand-primary);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 .course-picker {
@@ -387,22 +368,23 @@ h1 {
 }
 
 .course-option {
+  @include ui.layer-card(16px, 20px);
   display: flex;
   justify-content: space-between;
   gap: 14px;
   align-items: flex-start;
-  background: rgba(248, 250, 252, 0.92);
 }
 
 .course-option--selected {
-  border-color: rgba(91, 61, 245, 0.48);
-  background: rgba(245, 243, 255, 0.96);
+  background: rgba(247, 242, 255, 0.98);
 }
 
 .course-option span {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  color: #5b3df5;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brand-primary);
 }
 
 .course-option p {
@@ -418,7 +400,7 @@ h1 {
 }
 
 .btn--ghost {
-  @include ui.button-ghost();
+  @include ui.button-secondary();
 }
 
 .btn:disabled {
@@ -437,7 +419,7 @@ h1 {
 @media (max-width: 760px) {
   .profile-card,
   .stat-card {
-    padding: 18px;
+    padding: 20px 18px;
   }
 
   .profile__hero,

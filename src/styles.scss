@@ -1,17 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap');
 
 :root {
-	--brand-primary: #5b3df5;
-	--brand-accent: #8b2cf5;
-	--brand-cyan: #22d3ee;
+	--brand-primary: #5300b7;
+	--brand-primary-container: #6d28d9;
+	--brand-accent: #6d28d9;
+	--brand-cyan: #8ddcff;
 	--accent-strong: #6d28d9;
-	--surface-background: #f4f6f8;
-	--surface-panel: rgba(255, 255, 255, 0.94);
-	--surface-panel-soft: rgba(248, 250, 252, 0.92);
-	--text-primary: #162330;
-	--text-secondary: #4d6174;
-	--line-soft: #d8e0e7;
-	--line-strong: #94a8b8;
+	--surface-background: #f8f9fa;
+	--surface: #f8f9fa;
+	--surface-container-low: rgba(240, 242, 246, 0.92);
+	--surface-container-lowest: #ffffff;
+	--surface-container-high: rgba(232, 236, 242, 0.94);
+	--surface-container-highest: rgba(223, 229, 237, 0.98);
+	--surface-panel: rgba(255, 255, 255, 0.72);
+	--surface-panel-soft: rgba(240, 242, 246, 0.86);
+	--text-primary: #191c1d;
+	--text-secondary: #56606b;
+	--line-soft: rgba(86, 96, 107, 0.15);
+	--line-strong: rgba(86, 96, 107, 0.3);
 	--state-danger: #b63e3e;
 	--state-success: #166534;
 }
@@ -27,12 +33,13 @@ body {
 }
 
 body {
-	font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+	font-family: 'Inter', 'Segoe UI', sans-serif;
 	color: var(--text-primary);
 	background:
-		radial-gradient(circle at 18% 10%, rgba(91, 61, 245, 0.08), transparent 34%),
-		radial-gradient(circle at 84% 0%, rgba(34, 211, 238, 0.08), transparent 36%),
+		radial-gradient(circle at 16% 8%, rgba(83, 0, 183, 0.08), transparent 30%),
+		radial-gradient(circle at 86% 0%, rgba(109, 40, 217, 0.07), transparent 32%),
 		var(--surface-background);
+	line-height: 1.5;
 }
 
 h1,
@@ -41,7 +48,8 @@ h3,
 h4,
 h5,
 h6 {
-	font-family: 'Sora', 'Segoe UI', sans-serif;
+	font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+	font-weight: 700;
 }
 
 a,
@@ -50,4 +58,8 @@ input,
 select,
 textarea {
 	font-family: inherit;
+}
+
+::selection {
+	background: rgba(83, 0, 183, 0.14);
 }
