@@ -1,17 +1,4 @@
 <main class="courses">
-  <header class="courses__hero">
-    <div class="hero__copy">
-      <p class="eyebrow">Mis cursos</p>
-      <h1>Tu ciclo en una vista operativa</h1>
-      <p class="subtitle">Cada curso muestra horario real, evaluaciones pendientes y acceso rapido para revisar el detalle o ajustar tus horarios de clase.</p>
-    </div>
-
-    <div class="hero__actions">
-      <a class="btn btn--ghost" routerLink="/app/horario">Ver horario general</a>
-      <a class="btn btn--primary" routerLink="/app/dashboard">Ir al dashboard</a>
-    </div>
-  </header>
-
   @if (isLoading) {
     <div class="state state--loading">Cargando cursos...</div>
   }
@@ -21,129 +8,139 @@
   }
 
   @if (!isLoading && !loadError) {
-    <section class="stats" aria-label="Resumen de cursos">
-      <article class="stat-card">
-        <span class="stat-card__label">Cursos activos</span>
-        <strong>{{ activeCoursesCount }}</strong>
-        <small>matriculados este ciclo</small>
-      </article>
+    <section class="courses__frame">
+      <header class="courses__hero">
+        <div class="hero__copy">
+          <div class="hero__pills">
+            <span class="hero-pill hero-pill--accent">{{ currentPeriod?.periodoEtiqueta || 'Periodo actual' }}</span>
+            <span class="hero-pill">Ciclo {{ currentPeriod?.cicloActual || '--' }}</span>
+          </div>
+          <h1>Mis cursos</h1>
+          <p class="hero__summary">
+            Gestiona tu carga academica con contexto real: bloques, evaluaciones pendientes y acceso rapido a cada curso.
+          </p>
+        </div>
 
-      <article class="stat-card stat-card--soft">
-        <span class="stat-card__label">Con horario</span>
-        <strong>{{ configuredCoursesCount }}</strong>
-        <small>cursos ya configurados</small>
-      </article>
+        <div class="metric-strip" aria-label="Resumen de cursos">
+          <article class="metric-block metric-block--mint">
+            <span class="metric-block__label">Con horario</span>
+            <strong>{{ configuredCoursesCount }}</strong>
+            <small>de {{ activeCoursesCount }} activos</small>
+          </article>
 
-      <article class="stat-card stat-card--mint">
-        <span class="stat-card__label">Pendientes</span>
-        <strong>{{ pendingEvaluationsCount }}</strong>
-        <small>evaluaciones por registrar</small>
-      </article>
+          <article class="metric-block metric-block--soft">
+            <span class="metric-block__label">Pendientes</span>
+            <strong>{{ pendingEvaluationsCount }}</strong>
+            <small>evaluaciones por cerrar</small>
+          </article>
 
-      <article class="stat-card stat-card--warm">
-        <span class="stat-card__label">Promedio actual</span>
-        <strong>{{ averageGradeLabel }}</strong>
-        <small>solo notas registradas</small>
-      </article>
-    </section>
+          <article class="metric-block metric-block--warm">
+            <span class="metric-block__label">Carga semanal</span>
+            <strong>{{ totalWeeklyHoursLabel }}</strong>
+            <small>sumando bloques registrados</small>
+          </article>
+        </div>
+      </header>
 
-    <section class="courses__controls">
-      <label class="search-field" for="course-search">
-        <span>Buscar curso, codigo o profesor</span>
-        <input id="course-search" type="text" [formControl]="searchControl" placeholder="Ej. Estructuras, CS201, Mendoza" />
-      </label>
+      <section class="courses__toolbar">
+        <div class="filter-strip" role="tablist" aria-label="Filtros de cursos">
+          @for (filter of filterOptions; track filter.key) {
+            <button
+              class="filter-chip"
+              type="button"
+              [class.filter-chip--active]="selectedFilter === filter.key"
+              (click)="selectFilter(filter.key)">
+              {{ filter.label }}
+            </button>
+          }
+        </div>
 
-      <div class="courses__summary">
-        <strong>{{ filteredCourses.length }}</strong>
-        <span>curso{{ filteredCourses.length === 1 ? '' : 's' }} visibles</span>
-      </div>
-    </section>
+        <div class="toolbar__controls">
+          <label class="search-field" for="course-search">
+            <input id="course-search" type="text" [formControl]="searchControl" placeholder="Buscar curso, codigo, profesor o seccion..." />
+          </label>
 
-    <section class="courses__grid">
-      @if (filteredCourses.length === 0) {
-        <div class="empty">No encontramos cursos con ese filtro.</div>
-      }
+          <div class="courses__summary">
+            <strong>{{ visibleCoursesLabel }}</strong>
+          </div>
+        </div>
+      </section>
 
-      @for (course of filteredCourses; track trackCourse($index, course)) {
-        <article class="course-card">
-          <div class="course-card__header">
-            <div>
+      <section class="courses__grid">
+        @if (filteredCourses.length === 0) {
+          <div class="empty">No encontramos cursos con ese filtro.</div>
+        }
+
+        @for (course of filteredCourses; track trackCourse($index, course)) {
+          <article class="course-card">
+            <div class="course-card__header">
               <div class="course-card__badges">
+                <span class="pill">{{ course.modalityTag }}</span>
                 <span class="pill pill--code">{{ course.codigo }}</span>
-                <span class="pill">{{ course.modalidad || 'Modalidad pendiente' }}</span>
-                <span class="pill">Seccion {{ course.seccion || '--' }}</span>
               </div>
-
-              <h2>{{ course.nombre }}</h2>
-              <p class="course-card__professor">{{ course.profesor || 'Profesor pendiente de confirmar' }}</p>
             </div>
 
-            <div class="course-card__status">
-              <span class="status-chip" [class.status-chip--muted]="!course.activo">{{ course.activo ? 'Activo' : 'Inactivo' }}</span>
-            </div>
-          </div>
-
-          <div class="course-card__body">
-            <section class="course-panel">
-              <div class="course-panel__header">
-                <h3>Horario real</h3>
-                <span>{{ course.weeklyHoursLabel }}</span>
+            <div class="course-card__body">
+              <div class="course-card__heading">
+                <h2>{{ course.nombre }}</h2>
+                <p class="course-card__professor">{{ course.compactProfessor }}</p>
               </div>
 
-              @if (course.schedulePreview.length === 0) {
-                <div class="panel-empty">
-                  <p>Este curso aun no tiene horarios de clase configurados.</p>
+              <div class="course-meta-grid">
+                <div class="meta-box">
+                  <span>Seccion</span>
+                  <strong>{{ course.seccion || '--' }}</strong>
                 </div>
-              }
-
-              @if (course.schedulePreview.length > 0) {
-                <ul class="schedule-list">
-                  @for (slot of course.schedulePreview; track slot) {
-                    <li>{{ slot }}</li>
-                  }
-                </ul>
-              }
-
-              <p class="course-panel__meta">
-                {{ course.scheduleLocations.length > 0 ? course.scheduleLocations.join(' - ') : 'Ubicacion pendiente' }}
-              </p>
-            </section>
-
-            <section class="course-panel course-panel--accent">
-              <div class="course-panel__header">
-                <h3>Evaluaciones</h3>
-                <span>{{ course.pendingEvaluations }} pendientes</span>
+                <div class="meta-box">
+                  <span>Horario</span>
+                  <strong>{{ course.primaryScheduleLabel }}</strong>
+                </div>
               </div>
 
-              <div class="evaluation-highlight">
+              <div class="course-card__signals">
+                <span class="signal-chip" [class.signal-chip--muted]="course.pendingEvaluations === 0">
+                  {{ course.pendingEvaluations === 0 ? 'Sin pendientes' : course.pendingEvaluations + ' pendiente' + (course.pendingEvaluations === 1 ? '' : 's') }}
+                </span>
+                <span class="signal-chip signal-chip--neutral">{{ course.weeklyHoursLabel }}</span>
+              </div>
+            </div>
+
+            <div class="course-card__footer">
+              <div class="course-card__insight">
                 <strong>{{ course.nextEvaluationLabel }}</strong>
-                <p>Siguiente registro recomendado</p>
+                <span>{{ course.secondaryScheduleLabel }}</span>
               </div>
+              <a class="btn btn--primary" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId]">Ir al curso</a>
+            </div>
+          </article>
+        }
 
-              <div class="metrics-row">
-                <div>
-                  <strong>{{ course.gradedEvaluations }}</strong>
-                  <span>con nota</span>
-                </div>
-                <div>
-                  <strong>{{ course.averageGrade != null ? (course.averageGrade | number:'1.1-1') : '--' }}</strong>
-                  <span>promedio</span>
-                </div>
-                <div>
-                  <strong>{{ course.sessionsCount }}</strong>
-                  <span>sesiones</span>
-                </div>
-              </div>
-            </section>
+        <article class="insight-card">
+          <span class="insight-card__eyebrow">Radar academico</span>
+          <h3>{{ coursesWithoutScheduleCount }} curso{{ coursesWithoutScheduleCount === 1 ? '' : 's' }} aun necesitan horario</h3>
+          <p>
+            {{ nextPendingCourse
+              ? 'La siguiente evaluacion pendiente cae en ' + nextPendingCourse.nombre + '. Conviene revisar ese curso primero.'
+              : 'Tu carga actual no tiene una evaluacion urgente detectada. Este es un buen momento para terminar de ordenar horarios.' }}
+          </p>
+
+          <div class="insight-card__stats">
+            <div>
+              <strong>{{ averageGradeLabel }}</strong>
+              <span>promedio visible</span>
+            </div>
+            <div>
+              <strong>{{ currentPeriod?.horasEstudioSemanaObjetivo ?? '--' }}</strong>
+              <span>meta de estudio</span>
+            </div>
           </div>
 
-          <div class="course-card__footer">
-            <a class="btn btn--ghost" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Configurar horario</a>
-            <a class="btn btn--ghost" routerLink="/app/notas">Ver notas</a>
-            <a class="btn btn--primary" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId]">Abrir curso</a>
+          <div class="insight-card__actions">
+            <a class="btn btn--ghost" routerLink="/app/horario">Configurar horario</a>
+            <a class="btn btn--primary" routerLink="/app/notas">Abrir notas</a>
           </div>
         </article>
-      }
+      </section>
     </section>
   }
 </main>

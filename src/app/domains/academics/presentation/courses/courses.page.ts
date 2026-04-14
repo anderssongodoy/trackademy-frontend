@@ -4,18 +4,30 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
-import { MeUseCase, MyCourse, MyEvaluation, MyScheduleEntry } from '../../application/me-use-case';
+import { MeUseCase, MyCourse, MyCurrentPeriod, MyEvaluation, MyScheduleEntry } from '../../application/me-use-case';
 
 interface CourseCardView extends MyCourse {
   averageGrade: number | null;
   gradedEvaluations: number;
   pendingEvaluations: number;
   nextEvaluationLabel: string;
-  schedulePreview: string[];
+  nextEvaluationDate: string | null;
+  primaryScheduleLabel: string;
+  secondaryScheduleLabel: string;
   scheduleLocations: string[];
   weeklyHoursLabel: string;
   sessionsCount: number;
   hasSchedule: boolean;
+  modalityTag: string;
+  compactProfessor: string;
+}
+
+type CourseFilterKey = 'all' | 'sin-horario' | 'presencial' | 'remoto' | 'virtual' | 'hibrido';
+
+interface CourseFilterOption {
+  key: CourseFilterKey;
+  label: string;
+  count: number;
 }
 
 @Component({
@@ -29,9 +41,11 @@ export class CoursesPage implements OnInit {
 
   readonly searchControl = new FormControl('');
 
+  currentPeriod: MyCurrentPeriod | null = null;
   courses: MyCourse[] = [];
   courseCards: CourseCardView[] = [];
   filteredCourses: CourseCardView[] = [];
+  selectedFilter: CourseFilterKey = 'all';
   isLoading = true;
   loadError = '';
 
@@ -40,14 +54,16 @@ export class CoursesPage implements OnInit {
     this.loadError = '';
 
     forkJoin({
+      period: this.meUseCase.getCurrentPeriod(),
       courses: this.meUseCase.getMyCourses(),
       schedule: this.meUseCase.getMySchedule(),
       evaluations: this.meUseCase.getMyEvaluations()
     }).subscribe({
-      next: ({ courses, schedule, evaluations }) => {
+      next: ({ period, courses, schedule, evaluations }) => {
+        this.currentPeriod = period;
         this.courses = courses;
         this.courseCards = this.buildCourseCards(courses, schedule, evaluations);
-        this.applyFilter(this.searchControl.value ?? '');
+        this.applyFilters(this.searchControl.value ?? '');
         this.isLoading = false;
       },
       error: () => {
@@ -57,7 +73,7 @@ export class CoursesPage implements OnInit {
     });
 
     this.searchControl.valueChanges.subscribe((value) => {
-      this.applyFilter(value ?? '');
+      this.applyFilters(value ?? '');
     });
   }
 
@@ -73,6 +89,10 @@ export class CoursesPage implements OnInit {
     return this.courseCards.reduce((total, course) => total + course.pendingEvaluations, 0);
   }
 
+  get coursesWithoutScheduleCount(): number {
+    return this.courseCards.filter((course) => !course.hasSchedule).length;
+  }
+
   get averageGradeLabel(): string {
     const grades = this.courseCards
       .map((course) => course.averageGrade)
@@ -86,24 +106,83 @@ export class CoursesPage implements OnInit {
     return (total / grades.length).toFixed(1);
   }
 
+  get filterOptions(): CourseFilterOption[] {
+    const options: CourseFilterOption[] = [
+      { key: 'all', label: 'Todos', count: this.courseCards.length },
+      { key: 'presencial', label: 'Presencial', count: this.countByFilter('presencial') },
+      { key: 'remoto', label: 'Remoto', count: this.countByFilter('remoto') },
+      { key: 'virtual', label: 'Virtual', count: this.countByFilter('virtual') },
+      { key: 'hibrido', label: 'Hibrido', count: this.countByFilter('hibrido') },
+      { key: 'sin-horario', label: 'Sin horario', count: this.countByFilter('sin-horario') }
+    ];
+
+    return options.filter((option) => option.key === 'all' || option.count > 0);
+  }
+
+  get nextPendingCourse(): CourseCardView | null {
+    return this.courseCards
+      .filter((course) => course.pendingEvaluations > 0)
+      .sort((left, right) => {
+        const leftDate = left.nextEvaluationDate ? new Date(left.nextEvaluationDate).getTime() : Number.MAX_SAFE_INTEGER;
+        const rightDate = right.nextEvaluationDate ? new Date(right.nextEvaluationDate).getTime() : Number.MAX_SAFE_INTEGER;
+        return leftDate - rightDate;
+      })[0] ?? null;
+  }
+
+  get totalWeeklyHoursLabel(): string {
+    const totalHours = this.courseCards.reduce((sum, course) => sum + this.parseWeeklyHours(course.weeklyHoursLabel), 0);
+    if (totalHours === 0) {
+      return 'Horario pendiente';
+    }
+    return `${this.formatHours(totalHours)} h/sem`;
+  }
+
+  get visibleCoursesLabel(): string {
+    const count = this.filteredCourses.length;
+    return `${count} curso${count === 1 ? '' : 's'} visibles`;
+  }
+
+  selectFilter(filter: CourseFilterKey): void {
+    this.selectedFilter = filter;
+    this.applyFilters(this.searchControl.value ?? '');
+  }
+
   trackCourse(_index: number, course: CourseCardView): number {
     return course.usuarioPeriodoCursoId;
   }
 
-  private applyFilter(query: string): void {
+  private applyFilters(query: string): void {
     const normalized = this.normalizeText(query);
 
-    if (!normalized) {
-      this.filteredCourses = this.courseCards;
-      return;
+    this.filteredCourses = this.courseCards.filter((course) => {
+      const matchesSearch = !normalized || this.matchesSearch(course, normalized);
+      const matchesFilter = this.matchesFilter(course, this.selectedFilter);
+      return matchesSearch && matchesFilter;
+    });
+  }
+
+  private matchesSearch(course: CourseCardView, normalized: string): boolean {
+    const name = this.normalizeText(course.nombre);
+    const code = this.normalizeText(course.codigo);
+    const professor = this.normalizeText(course.profesor || '');
+    const section = this.normalizeText(course.seccion || '');
+    return name.includes(normalized) || code.includes(normalized) || professor.includes(normalized) || section.includes(normalized);
+  }
+
+  private matchesFilter(course: CourseCardView, filter: CourseFilterKey): boolean {
+    if (filter === 'all') {
+      return true;
     }
 
-    this.filteredCourses = this.courseCards.filter((course) => {
-      const name = this.normalizeText(course.nombre);
-      const code = this.normalizeText(course.codigo);
-      const professor = this.normalizeText(course.profesor || '');
-      return name.includes(normalized) || code.includes(normalized) || professor.includes(normalized);
-    });
+    if (filter === 'sin-horario') {
+      return !course.hasSchedule;
+    }
+
+    return this.normalizeText(course.modalityTag) === filter;
+  }
+
+  private countByFilter(filter: CourseFilterKey): number {
+    return this.courseCards.filter((course) => this.matchesFilter(course, filter)).length;
   }
 
   private buildCourseCards(
@@ -151,13 +230,51 @@ export class CoursesPage implements OnInit {
         gradedEvaluations: gradedEvaluations.length,
         pendingEvaluations: pendingEvaluations.length,
         nextEvaluationLabel: this.buildNextEvaluationLabel(nextEvaluation),
-        schedulePreview: courseSchedule.slice(0, 3).map((entry) => this.formatScheduleEntry(entry)),
+        nextEvaluationDate: nextEvaluation?.fechaEstimada ?? null,
+        primaryScheduleLabel: this.buildPrimaryScheduleLabel(courseSchedule),
+        secondaryScheduleLabel: this.buildSecondaryScheduleLabel(courseSchedule),
         scheduleLocations: [...new Set(courseSchedule.map((entry) => entry.ubicacion).filter(Boolean))] as string[],
         weeklyHoursLabel: weeklyHours > 0 ? `${this.formatHours(weeklyHours)} h/sem` : 'Horario pendiente',
         sessionsCount: courseSchedule.length,
-        hasSchedule: courseSchedule.length > 0
+        hasSchedule: courseSchedule.length > 0,
+        modalityTag: this.resolveModalityTag(course.modalidad),
+        compactProfessor: course.profesor || 'Profesor pendiente'
       };
     });
+  }
+
+  private buildPrimaryScheduleLabel(courseSchedule: MyScheduleEntry[]): string {
+    if (courseSchedule.length === 0) {
+      return 'Horario pendiente';
+    }
+
+    const first = courseSchedule[0];
+    return `${this.dayLabel(first.diaSemana)} ${first.horaInicio?.slice(0, 5) || '--:--'}`;
+  }
+
+  private buildSecondaryScheduleLabel(courseSchedule: MyScheduleEntry[]): string {
+    if (courseSchedule.length === 0) {
+      return 'Configura tus bloques';
+    }
+
+    const first = courseSchedule[0];
+    const type = first.tipoSesion?.trim();
+    const place = first.ubicacion?.trim();
+    return [type, place].filter(Boolean).join(' · ') || 'Sesion registrada';
+  }
+
+  private resolveModalityTag(value: string | null): string {
+    const normalized = this.normalizeText(value || '');
+    if (normalized.includes('remot')) {
+      return 'Remoto';
+    }
+    if (normalized.includes('virtual')) {
+      return 'Virtual';
+    }
+    if (normalized.includes('hibrid')) {
+      return 'Hibrido';
+    }
+    return 'Presencial';
   }
 
   private normalizeText(value: string): string {
@@ -165,13 +282,6 @@ export class CoursesPage implements OnInit {
       .toLowerCase()
       .normalize('NFD')
       .replace(/\p{Diacritic}/gu, '');
-  }
-
-  private formatScheduleEntry(entry: MyScheduleEntry): string {
-    const day = this.dayLabel(entry.diaSemana);
-    const start = entry.horaInicio?.slice(0, 5) || '--:--';
-    const end = entry.horaFin?.slice(0, 5) || '--:--';
-    return `${day} ${start} - ${end}`;
   }
 
   private dayLabel(day: number | null): string {
@@ -201,17 +311,22 @@ export class CoursesPage implements OnInit {
     }
 
     if (evaluation.fechaEstimada) {
-      return `${evaluation.evaluacionCodigo} - ${new Date(evaluation.fechaEstimada).toLocaleDateString('es-PE', {
+      return `${evaluation.evaluacionCodigo} · ${new Date(evaluation.fechaEstimada).toLocaleDateString('es-PE', {
         day: '2-digit',
         month: 'short'
       })}`;
     }
 
     if (evaluation.semana != null) {
-      return `${evaluation.evaluacionCodigo} - Semana ${evaluation.semana}`;
+      return `${evaluation.evaluacionCodigo} · Semana ${evaluation.semana}`;
     }
 
     return evaluation.evaluacionCodigo;
+  }
+
+  private parseWeeklyHours(label: string): number {
+    const value = Number(label.replace(' h/sem', ''));
+    return Number.isFinite(value) ? value : 0;
   }
 
   private formatHours(hours: number): string {
