@@ -1,6 +1,7 @@
+@use '../../../../../styles/ui-system' as ui;
+
 .calendar {
-  display: grid;
-  gap: 24px;
+  @include ui.page-root();
 }
 
 .calendar__hero,
@@ -26,7 +27,7 @@
 }
 
 .hero__copy {
-  max-width: 760px;
+  @include ui.hero-copy();
 }
 
 .hero__actions {
@@ -35,12 +36,7 @@
 }
 
 .eyebrow {
-  margin: 0 0 10px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #6d28d9;
+  @include ui.eyebrow();
 }
 
 h1,
@@ -53,9 +49,7 @@ p {
 
 h1 {
   margin-bottom: 0;
-  font-size: clamp(2rem, 3.8vw, 3.2rem);
-  line-height: 1.03;
-  color: #0f172a;
+  @include ui.title-display(2rem, 3.8vw, 3.2rem, 1.03);
 }
 
 .subtitle,
@@ -74,14 +68,9 @@ h1 {
 
 .btn,
 .icon-btn {
-  border: 1px solid transparent;
-  border-radius: 16px;
-  padding: 12px 18px;
-  font-size: 14px;
-  font-weight: 700;
-  text-decoration: none;
+  @include ui.button-base();
   background: rgba(255, 255, 255, 0.92);
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .btn {
@@ -90,9 +79,7 @@ h1 {
 }
 
 .btn--primary {
-  color: #fff;
-  background: linear-gradient(135deg, #5b3df5, #8b2cf5);
-  box-shadow: 0 16px 28px rgba(91, 61, 245, 0.18);
+  @include ui.button-primary();
 }
 
 .btn--ghost,
@@ -121,7 +108,7 @@ h1 {
 }
 
 .state {
-  padding: 16px 18px;
+  @include ui.state-card(16px 18px, 24px);
 }
 
 .state--loading {
@@ -162,20 +149,19 @@ h1 {
 }
 
 .stat-card {
-  padding: 20px 22px;
-  background: linear-gradient(180deg, rgba(236, 241, 255, 0.96), rgba(226, 232, 240, 0.82));
+  @include ui.stat-card();
 }
 
 .stat-card--soft {
-  background: linear-gradient(180deg, rgba(243, 232, 255, 0.96), rgba(233, 213, 255, 0.84));
+  @include ui.stat-card-tone(soft);
 }
 
 .stat-card--mint {
-  background: linear-gradient(180deg, rgba(220, 252, 231, 0.96), rgba(204, 251, 241, 0.82));
+  @include ui.stat-card-tone(mint);
 }
 
 .stat-card--warm {
-  background: linear-gradient(180deg, rgba(254, 249, 195, 0.96), rgba(254, 240, 138, 0.84));
+  @include ui.stat-card-tone(warm);
 }
 
 .stat-card span {

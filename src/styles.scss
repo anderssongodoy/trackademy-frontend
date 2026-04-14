@@ -1,14 +1,19 @@
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&display=swap');
 
 :root {
-	--brand-primary: #0c5e70;
-	--brand-accent: #ea7f2d;
+	--brand-primary: #5b3df5;
+	--brand-accent: #8b2cf5;
+	--brand-cyan: #22d3ee;
+	--accent-strong: #6d28d9;
 	--surface-background: #f4f6f8;
+	--surface-panel: rgba(255, 255, 255, 0.94);
+	--surface-panel-soft: rgba(248, 250, 252, 0.92);
 	--text-primary: #162330;
 	--text-secondary: #4d6174;
 	--line-soft: #d8e0e7;
 	--line-strong: #94a8b8;
 	--state-danger: #b63e3e;
+	--state-success: #166534;
 }
 
 * {
@@ -24,7 +29,10 @@ body {
 body {
 	font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif;
 	color: var(--text-primary);
-	background: var(--surface-background);
+	background:
+		radial-gradient(circle at 18% 10%, rgba(91, 61, 245, 0.08), transparent 34%),
+		radial-gradient(circle at 84% 0%, rgba(34, 211, 238, 0.08), transparent 36%),
+		var(--surface-background);
 }
 
 h1,
@@ -34,4 +42,12 @@ h4,
 h5,
 h6 {
 	font-family: 'Sora', 'Segoe UI', sans-serif;
+}
+
+a,
+button,
+input,
+select,
+textarea {
+	font-family: inherit;
 }

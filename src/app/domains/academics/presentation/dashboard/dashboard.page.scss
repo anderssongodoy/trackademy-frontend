@@ -1,11 +1,11 @@
+@use '../../../../../styles/ui-system' as ui;
+
 :host {
   display: block;
 }
 
 .dashboard {
-  display: grid;
-  gap: 24px;
-  color: #0f172a;
+  @include ui.page-root();
 }
 
 .dashboard__hero,
@@ -36,22 +36,15 @@
 }
 
 .hero__copy {
-  max-width: 760px;
+  @include ui.hero-copy();
 }
 
 .eyebrow {
-  margin: 0 0 10px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #6d28d9;
+  @include ui.eyebrow();
 }
 
 h1 {
-  margin: 0;
-  font-size: clamp(2rem, 3.8vw, 3.3rem);
-  line-height: 1.04;
+  @include ui.title-display(2rem, 3.8vw, 3.3rem, 1.04);
 }
 
 .subtitle,
@@ -89,24 +82,15 @@ h1 {
 }
 
 .btn {
-  border: 1px solid transparent;
-  border-radius: 16px;
-  padding: 12px 18px;
-  font-size: 14px;
-  font-weight: 700;
-  text-decoration: none;
+  @include ui.button-base();
 }
 
 .btn--primary {
-  color: #fff;
-  background: linear-gradient(135deg, #5b3df5, #8b2cf5);
-  box-shadow: 0 16px 28px rgba(91, 61, 245, 0.18);
+  @include ui.button-primary();
 }
 
 .btn--ghost {
-  color: #0f172a;
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(148, 163, 184, 0.28);
+  @include ui.button-ghost();
 }
 
 .state,
@@ -123,7 +107,7 @@ h1 {
 }
 
 .state {
-  padding: 16px 18px;
+  @include ui.state-card(16px 18px, 24px);
 }
 
 .state--loading {
@@ -265,7 +249,7 @@ h1 {
 }
 
 .stat-card {
-  padding: 20px 22px;
+  @include ui.stat-card();
   background: rgba(255, 255, 255, 0.95);
 }
 
