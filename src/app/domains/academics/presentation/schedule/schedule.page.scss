@@ -1,7 +1,7 @@
+@use '../../../../../styles/ui-system' as ui;
+
 .schedule {
-  display: grid;
-  gap: 24px;
-  color: #0f172a;
+  @include ui.page-root();
 }
 
 .schedule__hero,
@@ -26,7 +26,7 @@
 }
 
 .hero__copy {
-  max-width: 760px;
+  @include ui.hero-copy();
 }
 
 .eyebrow,
@@ -39,8 +39,7 @@
 }
 
 .eyebrow {
-  color: #6366f1;
-  margin-bottom: 10px;
+  @include ui.eyebrow();
 }
 
 .summary-card__eyebrow {
@@ -48,9 +47,7 @@
 }
 
 h1 {
-  margin: 0;
-  font-size: clamp(2rem, 3.8vw, 3.3rem);
-  line-height: 1.02;
+  @include ui.title-display(2rem, 3.8vw, 3.3rem, 1.02);
 }
 
 .subtitle,
@@ -105,30 +102,16 @@ h1 {
 }
 
 .btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 46px;
-  padding: 0 18px;
-  border-radius: 16px;
-  border: 1px solid transparent;
-  cursor: pointer;
-  text-decoration: none;
-  font-size: 14px;
-  font-weight: 700;
+  @include ui.button-base();
   white-space: nowrap;
 }
 
 .btn--primary {
-  background: linear-gradient(135deg, #5b3df5, #8b2cf5);
-  color: #fff;
-  box-shadow: 0 16px 28px rgba(91, 61, 245, 0.18);
+  @include ui.button-primary();
 }
 
 .btn--ghost {
-  background: rgba(255, 255, 255, 0.92);
-  border-color: rgba(148, 163, 184, 0.38);
-  color: #0f172a;
+  @include ui.button-ghost();
 }
 
 .state,
@@ -143,7 +126,7 @@ h1 {
 }
 
 .state {
-  padding: 16px 18px;
+  @include ui.state-card(16px 18px, 28px);
 }
 
 .state--error {

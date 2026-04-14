@@ -1,3 +1,5 @@
+@use '../../../../../styles/ui-system' as ui;
+
 :host {
   display: block;
 }
@@ -36,27 +38,19 @@
 }
 
 .back {
-  display: inline-flex;
+  @include ui.button-base(999px);
   width: fit-content;
-  align-items: center;
-  justify-content: center;
   min-height: 42px;
   padding: 0 16px;
-  border-radius: 999px;
-  border: 1px solid rgba(203, 213, 225, 0.9);
-  background: rgba(255, 255, 255, 0.9);
-  color: #0f172a;
-  text-decoration: none;
-  font-weight: 700;
+  @include ui.button-ghost();
+  border-color: rgba(203, 213, 225, 0.9);
 }
 
 .signin__eyebrow {
-  display: inline-flex;
-  width: fit-content;
+  @include ui.chip-base();
   padding: 7px 12px;
-  border-radius: 999px;
   background: rgba(91, 61, 245, 0.1);
-  color: #5b3df5;
+  color: var(--accent-strong);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -134,7 +128,7 @@
   border-radius: 16px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #22d3ee, #5b3df5);
+  background: linear-gradient(135deg, var(--brand-cyan), var(--brand-primary));
   color: #fff;
   font-weight: 800;
 }

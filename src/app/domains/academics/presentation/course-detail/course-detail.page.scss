@@ -1,6 +1,7 @@
+@use '../../../../../styles/ui-system' as ui;
+
 .course-detail {
-  display: grid;
-  gap: 24px;
+  @include ui.page-root();
 }
 
 .course-detail__hero,
@@ -40,18 +41,11 @@
 }
 
 .eyebrow {
-  margin: 0 0 10px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #6d28d9;
+  @include ui.eyebrow();
 }
 
 h1 {
-  margin: 0;
-  font-size: clamp(2rem, 4vw, 3.4rem);
-  line-height: 1.02;
+  @include ui.title-display(2rem, 4vw, 3.4rem, 1.02);
 }
 
 .subtitle,
@@ -77,24 +71,15 @@ h1 {
 }
 
 .btn {
-  border: 1px solid transparent;
-  border-radius: 16px;
-  padding: 12px 18px;
-  font-size: 14px;
-  font-weight: 700;
-  text-decoration: none;
+  @include ui.button-base();
 }
 
 .btn--primary {
-  background: linear-gradient(135deg, #5b3df5, #8b2cf5);
-  color: #fff;
-  box-shadow: 0 16px 28px rgba(91, 61, 245, 0.18);
+  @include ui.button-primary();
 }
 
 .btn--ghost {
-  color: #0f172a;
-  background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(148, 163, 184, 0.28);
+  @include ui.button-ghost();
 }
 
 .state,
@@ -113,7 +98,7 @@ h1 {
 }
 
 .state {
-  padding: 16px 18px;
+  @include ui.state-card(16px 18px, 24px);
 }
 
 .state--loading {
@@ -213,20 +198,19 @@ h1 {
 }
 
 .stat-card {
-  padding: 20px 22px;
-  background: linear-gradient(180deg, rgba(236, 241, 255, 0.96), rgba(226, 232, 240, 0.82));
+  @include ui.stat-card();
 }
 
 .stat-card--soft {
-  background: linear-gradient(180deg, rgba(243, 232, 255, 0.96), rgba(233, 213, 255, 0.84));
+  @include ui.stat-card-tone(soft);
 }
 
 .stat-card--mint {
-  background: linear-gradient(180deg, rgba(220, 252, 231, 0.96), rgba(204, 251, 241, 0.82));
+  @include ui.stat-card-tone(mint);
 }
 
 .stat-card--warm {
-  background: linear-gradient(180deg, rgba(254, 249, 195, 0.96), rgba(254, 240, 138, 0.84));
+  @include ui.stat-card-tone(warm);
 }
 
 .detail-grid {
@@ -443,13 +427,8 @@ h1 {
 }
 
 input {
-  width: 100%;
-  min-width: 0;
-  border-radius: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.38);
+  @include ui.input-field(12px 14px, 14px);
   background: #fff;
-  padding: 12px 14px;
-  font: inherit;
 }
 
 @media (max-width: 1180px) {

@@ -1,15 +1,12 @@
+@use '../../../../../styles/ui-system' as ui;
+
 .reminders-page {
-  display: grid;
-  gap: 24px;
+  @include ui.page-root();
 }
 
 .eyebrow {
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: .18em;
-  font-size: 12px;
-  color: #5b3df5;
-  font-weight: 700;
+  @include ui.eyebrow(0);
+  letter-spacing: 0.18em;
 }
 
 .reminders-hero {
@@ -50,12 +47,10 @@
 }
 
 .stat-card {
+  @include ui.stat-card(22px);
   display: grid;
   gap: 10px;
   min-height: 132px;
-  padding: 22px;
-  border-radius: 24px;
-  border: 1px solid rgba(191, 219, 254, 0.5);
 }
 
 .stat-card span,
@@ -69,10 +64,10 @@
   line-height: 1;
 }
 
-.stat-card--slate { background: rgba(244, 247, 251, 0.94); }
-.stat-card--lilac { background: rgba(244, 234, 255, 0.94); }
-.stat-card--mint { background: rgba(230, 251, 240, 0.94); }
-.stat-card--amber { background: rgba(255, 245, 199, 0.94); }
+.stat-card--slate { @include ui.stat-card-tone(slate); }
+.stat-card--lilac { @include ui.stat-card-tone(lilac); }
+.stat-card--mint { @include ui.stat-card-tone(mint); }
+.stat-card--amber { @include ui.stat-card-tone(amber); }
 
 .reminders-shell {
   display: grid;
@@ -130,10 +125,8 @@
 }
 
 .state-card {
-  padding: 20px 22px;
-  border-radius: 24px;
+  @include ui.soft-panel(20px 22px, 24px);
   background: #f8fafc;
-  border: 1px solid rgba(226, 232, 240, 0.95);
   color: #475569;
 }
 

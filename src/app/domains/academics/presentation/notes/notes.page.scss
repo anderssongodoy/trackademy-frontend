@@ -1,6 +1,7 @@
+@use '../../../../../styles/ui-system' as ui;
+
 .notes {
-  display: grid;
-  gap: 24px;
+  @include ui.page-root();
 }
 
 .notes__hero,
@@ -18,12 +19,7 @@
 }
 
 .eyebrow {
-  margin: 0 0 10px;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: #6d28d9;
+  @include ui.eyebrow();
 }
 
 h1,
@@ -34,9 +30,7 @@ p {
 
 h1 {
   margin-bottom: 0;
-  font-size: clamp(2rem, 3.8vw, 3.1rem);
-  line-height: 1.03;
-  color: #0f172a;
+  @include ui.title-display(2rem, 3.8vw, 3.1rem, 1.03);
 }
 
 .subtitle,
@@ -69,7 +63,7 @@ h1 {
 
 .state,
 .empty-card {
-  padding: 14px 16px;
+  @include ui.state-card(14px 16px, 24px);
 }
 
 .state--loading {
@@ -106,20 +100,19 @@ h1 {
 }
 
 .stat-card {
-  padding: 20px 22px;
-  background: linear-gradient(180deg, rgba(236, 241, 255, 0.96), rgba(226, 232, 240, 0.82));
+  @include ui.stat-card();
 }
 
 .stat-card--soft {
-  background: linear-gradient(180deg, rgba(243, 232, 255, 0.96), rgba(233, 213, 255, 0.84));
+  @include ui.stat-card-tone(soft);
 }
 
 .stat-card--mint {
-  background: linear-gradient(180deg, rgba(220, 252, 231, 0.96), rgba(204, 251, 241, 0.82));
+  @include ui.stat-card-tone(mint);
 }
 
 .stat-card--warm {
-  background: linear-gradient(180deg, rgba(254, 249, 195, 0.96), rgba(254, 240, 138, 0.84));
+  @include ui.stat-card-tone(warm);
 }
 
 .stat-card span {
@@ -164,12 +157,7 @@ h1 {
 .field input,
 .field select,
 .grade-field input {
-  width: 100%;
-  border: 1px solid rgba(203, 213, 225, 0.92);
-  border-radius: 16px;
-  padding: 14px 16px;
-  font-size: 14px;
-  color: #0f172a;
+  @include ui.input-field();
   background: rgba(248, 250, 252, 0.9);
 }
 
@@ -377,31 +365,21 @@ h1 {
 }
 
 .btn {
-  border: 1px solid transparent;
-  border-radius: 16px;
-  padding: 12px 18px;
-  font-size: 14px;
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
+  @include ui.button-base();
   text-align: center;
 }
 
 .btn--primary {
-  color: #fff;
-  background: linear-gradient(135deg, #5b3df5, #8b2cf5);
-  box-shadow: 0 16px 28px rgba(91, 61, 245, 0.18);
+  @include ui.button-primary();
 }
 
 .btn--ghost {
-  color: #0f172a;
+  @include ui.button-ghost();
   background: #fff;
-  border-color: rgba(148, 163, 184, 0.28);
 }
 
 .btn:disabled {
-  cursor: wait;
-  opacity: 0.7;
+  @include ui.button-disabled();
 }
 
 .status-chip {

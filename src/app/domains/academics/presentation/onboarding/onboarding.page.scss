@@ -47,9 +47,16 @@ h1 {
 }
 
 .ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40px;
   border: 1px solid rgba(148, 163, 184, 0.4);
   padding: 8px 16px;
   border-radius: 999px;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 700;
   color: #1f2937;
   background: rgba(255, 255, 255, 0.7);
   font-size: 13px;
@@ -120,10 +127,10 @@ h1 {
 }
 
 .card {
-  background: #ffffff;
   border-radius: 20px;
   padding: 24px;
   border: 1px solid rgba(226, 232, 240, 0.9);
+  background: #ffffff;
   box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
 }
 
@@ -448,14 +455,20 @@ input[readonly] {
 }
 
 .primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
   border: none;
   padding: 12px 22px;
   border-radius: 999px;
+  text-decoration: none;
+  font-size: 14px;
   font-weight: 600;
   color: #fff;
   background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  cursor: pointer;
   box-shadow: 0 12px 24px rgba(99, 102, 241, 0.2);
+  cursor: pointer;
 }
 
 .primary-btn:disabled {

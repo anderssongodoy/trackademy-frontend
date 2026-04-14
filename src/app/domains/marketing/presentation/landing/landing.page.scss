@@ -1,3 +1,5 @@
+@use '../../../../../styles/ui-system' as ui;
+
 :host {
   display: block;
 }
@@ -46,7 +48,7 @@
   border-radius: 14px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #22d3ee, #5b3df5);
+  background: linear-gradient(135deg, var(--brand-cyan), var(--brand-primary));
   color: #fff;
   font-weight: 800;
 }
@@ -94,12 +96,10 @@
 }
 
 .hero__eyebrow {
-  display: inline-flex;
-  width: fit-content;
+  @include ui.chip-base();
   padding: 7px 12px;
-  border-radius: 999px;
   background: rgba(91, 61, 245, 0.1);
-  color: #5b3df5;
+  color: var(--accent-strong);
   font-size: 12px;
   font-weight: 800;
   letter-spacing: 0.12em;
@@ -320,27 +320,16 @@
 .primary-btn,
 .secondary-btn,
 .ghost-btn {
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 46px;
-  padding: 0 18px;
-  border-radius: 999px;
-  font-weight: 700;
-  text-decoration: none;
-  border: 1px solid transparent;
-  transition: transform 140ms ease, box-shadow 140ms ease, border-color 140ms ease;
+  @include ui.button-base(999px);
 }
 
 .primary-btn {
-  color: #fff;
-  background: linear-gradient(135deg, #5b3df5, #8b2cf5);
-  box-shadow: 0 16px 28px rgba(91, 61, 245, 0.22);
+  @include ui.button-primary();
 }
 
 .secondary-btn,
 .ghost-btn {
-  color: #0f172a;
+  @include ui.button-ghost();
   background: rgba(255, 255, 255, 0.94);
   border-color: rgba(203, 213, 225, 0.9);
 }
