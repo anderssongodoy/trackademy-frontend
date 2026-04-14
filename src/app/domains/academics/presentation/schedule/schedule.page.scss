@@ -1,8 +1,6 @@
 @use '../../../../../styles/ui-system' as ui;
 
-.schedule {
-  @include ui.page-root();
-}
+.schedule { @include ui.page-root(30px); }
 
 .schedule__hero,
 .hero__chips,
@@ -21,34 +19,19 @@
 .schedule__hero,
 .hero__chips,
 .course-card,
-.course-card__actions {
-  flex-wrap: wrap;
-}
+.course-card__actions { flex-wrap: wrap; }
 
-.hero__copy {
-  @include ui.hero-copy();
-}
-
-.eyebrow,
+.hero__copy { @include ui.hero-copy(820px); }
+.eyebrow { @include ui.eyebrow(); }
 .summary-card__eyebrow {
-  text-transform: uppercase;
-  letter-spacing: .14em;
-  font-size: 12px;
-  font-weight: 700;
   margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
 }
-
-.eyebrow {
-  @include ui.eyebrow();
-}
-
-.summary-card__eyebrow {
-  color: #475569;
-}
-
-h1 {
-  @include ui.title-display(2rem, 3.8vw, 3.3rem, 1.02);
-}
+h1 { @include ui.title-display(2.35rem, 4.4vw, 4rem, 0.95); }
 
 .subtitle,
 .panel__header p,
@@ -60,351 +43,145 @@ h1 {
 .today-item p,
 .today-item small,
 .summary-empty p,
-.pending-course p {
-  margin: 0;
-  color: #475569;
-}
+.pending-course p { margin: 0; color: var(--text-secondary); }
+.subtitle { @include ui.subtitle(18px, 1.7); }
 
-.subtitle {
-  margin-top: 14px;
-  line-height: 1.6;
-}
+.hero__chips { margin-top: 18px; }
+.hero__actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: flex-start; }
+.hero-chip { @include ui.chip-base(); background: var(--surface-container-high); color: var(--text-secondary); }
+.hero-chip--accent { background: rgba(83, 0, 183, 0.1); color: var(--brand-primary); }
 
-.hero__chips {
-  margin-top: 18px;
-}
+.btn { @include ui.button-base(); white-space: nowrap; }
+.btn--primary { @include ui.button-primary(); }
+.btn--ghost { @include ui.button-secondary(); }
 
-.hero__actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-}
-
-.hero-chip {
-  display: inline-flex;
-  align-items: center;
-  min-height: 34px;
-  padding: 0 14px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(203, 213, 225, 0.8);
-  color: #475569;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.hero-chip--accent {
-  color: #5b21b6;
-  background: rgba(237, 233, 254, 0.96);
-  border-color: rgba(196, 181, 253, 0.9);
-}
-
-.btn {
-  @include ui.button-base();
-  white-space: nowrap;
-}
-
-.btn--primary {
-  @include ui.button-primary();
-}
-
-.btn--ghost {
-  @include ui.button-ghost();
-}
-
-.state,
-.setup-callout,
-.summary-card,
-.schedule__panel,
-.course-card,
-.empty {
-  border-radius: 28px;
-  border: 1px solid rgba(226, 232, 240, 0.9);
-  background: rgba(255, 255, 255, 0.96);
-}
-
-.state {
-  @include ui.state-card(16px 18px, 28px);
-}
-
-.state--error {
-  color: #b91c1c;
-  border-color: rgba(248, 113, 113, 0.38);
-}
-
-.state--loading {
-  color: #475569;
-}
+.state { @include ui.state-card(16px 18px, 28px); }
+.state--error { color: var(--state-danger); background: rgba(182, 62, 62, 0.08); }
+.state--loading { color: var(--text-secondary); }
 
 .setup-callout {
+  @include ui.layer-section(22px, 28px);
   display: flex;
   justify-content: space-between;
   gap: 16px;
   align-items: center;
-  padding: 20px 22px;
-  border-radius: 28px;
-  border: 1px solid rgba(196, 181, 253, 0.7);
-  background: linear-gradient(135deg, rgba(245, 243, 255, 0.98), rgba(255, 255, 255, 0.96));
+  background: rgba(247, 242, 255, 0.98);
 }
-
-.setup-callout h2 {
-  margin: 6px 0;
-}
-
-.setup-callout p:last-child {
-  margin: 0;
-}
+.setup-callout h2 { margin: 6px 0; }
+.setup-callout p:last-child { margin: 0; }
 
 .schedule__summary,
 .week-grid,
 .schedule__courses,
 .course-grid,
 .today-list,
-.day-card__list {
-  display: grid;
-  gap: 16px;
-}
+.day-card__list { display: grid; gap: 16px; }
 
-.schedule__summary {
-  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
-}
+.schedule__summary { grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr); }
 
 .summary-card,
 .schedule__panel,
-.course-card {
-  padding: 22px;
-}
+.course-card { @include ui.layer-section(24px, 30px); }
 
-.summary-card {
-  display: grid;
-  gap: 18px;
-}
-
-.summary-card__header {
-  align-items: flex-start;
-}
-
+.summary-card { display: grid; gap: 18px; }
+.summary-card__header { align-items: flex-start; }
 .summary-card__header h2,
 .panel__header h2,
 .section-title h3,
 .day-card h3,
-.course-card h4 {
-  margin: 6px 0 0;
-}
+.course-card h4 { margin: 6px 0 0; }
 
 .summary-card__header span,
 .panel__header span,
 .day-tag,
-.course-status {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 30px;
-  padding: 0 12px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
-}
+.course-status { @include ui.chip-base(); }
 
 .summary-card__header span,
 .panel__header span,
-.day-tag {
-  background: rgba(237, 233, 254, 0.96);
-  color: #5b21b6;
-}
+.day-tag { background: rgba(83, 0, 183, 0.1); color: var(--brand-primary); }
 
 .summary-card--today {
-  background: linear-gradient(135deg, rgba(244, 247, 255, 0.98), rgba(255, 255, 255, 0.96));
+  background:
+    radial-gradient(circle at top right, rgba(83, 0, 183, 0.08), transparent 32%),
+    var(--surface-container-low);
 }
-
-.summary-card--pending {
-  background: linear-gradient(135deg, rgba(255, 247, 237, 0.98), rgba(255, 255, 255, 0.96));
-}
+.summary-card--pending { background: rgba(255, 248, 234, 0.98); }
 
 .summary-empty,
-.pending-course {
-  padding: 18px;
-  border-radius: 20px;
-  background: rgba(248, 250, 252, 0.95);
-  border: 1px dashed rgba(148, 163, 184, 0.35);
-}
-
-.pending-course {
-  display: grid;
-  gap: 10px;
-}
-
+.pending-course { @include ui.layer-card(18px, 20px); }
+.pending-course { display: grid; gap: 10px; }
 .today-list,
-.day-card__list {
-  gap: 12px;
-}
-
+.day-card__list { gap: 12px; }
 .today-item,
-.slot-card {
-  padding: 16px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.94);
-  border: 1px solid rgba(226, 232, 240, 0.88);
-}
-
-.today-item {
-  align-items: center;
-}
-
+.slot-card { @include ui.layer-card(16px, 20px); }
+.today-item { align-items: center; }
 .today-item strong,
 .slot-card__body strong,
-.course-card h4 {
-  color: #0f172a;
-}
-
+.course-card h4 { color: var(--text-primary); }
 .today-item span,
 .slot-card__time strong,
 .slot-card__time span,
-.course-code {
-  color: #5b21b6;
-  font-weight: 700;
-}
-
+.course-code { color: var(--brand-primary); font-weight: 700; }
 .today-item span,
-.slot-card__time {
-  min-width: 120px;
-  text-align: right;
-}
+.slot-card__time { min-width: 120px; text-align: right; }
 
-.schedule__panel {
-  display: grid;
-  gap: 18px;
-}
-
+.schedule__panel { display: grid; gap: 18px; }
 .panel__header,
 .section-title,
-.course-card {
-  align-items: flex-start;
-}
+.course-card { align-items: flex-start; }
+.panel__header p { margin-top: 6px; }
 
-.panel__header p {
-  margin-top: 6px;
-}
-
-.week-grid {
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-}
-
+.week-grid { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
 .day-card {
   display: grid;
   gap: 14px;
   min-height: 220px;
   padding: 18px;
   border-radius: 24px;
-  background: #f8fafc;
-  border: 1px dashed rgba(148, 163, 184, 0.44);
+  background: var(--surface-container-lowest);
 }
-
-.day-card--today {
-  background: linear-gradient(180deg, rgba(245, 243, 255, 0.96), rgba(248, 250, 252, 0.98));
-  border-style: solid;
-  border-color: rgba(167, 139, 250, 0.55);
-}
-
+.day-card--today { background: rgba(247, 242, 255, 0.98); }
 .day-card__empty {
   display: grid;
   place-items: center;
   min-height: 120px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.88);
-  color: #94a3b8;
+  background: var(--surface-container-high);
+  color: var(--text-secondary);
 }
-
-.slot-card {
-  align-items: flex-start;
-}
-
-.slot-card__time {
-  display: grid;
-  gap: 2px;
-}
-
-.slot-card__time span {
-  font-size: 13px;
-}
-
-.slot-card__body {
-  display: grid;
-  gap: 4px;
-}
-
+.slot-card { align-items: flex-start; }
+.slot-card__time { display: grid; gap: 2px; }
+.slot-card__time span { font-size: 13px; }
+.slot-card__body { display: grid; gap: 4px; }
 .slot-card__code {
   margin: 0;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  color: #6366f1;
+  color: var(--brand-primary);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
+.slot-card__body small { line-height: 1.5; }
 
-.slot-card__body small {
-  line-height: 1.5;
-}
-
-.schedule__courses {
-  gap: 16px;
-}
-
-.course-grid {
-  gap: 14px;
-}
-
-.course-card {
-  align-items: center;
-}
-
-.course-card--configured {
-  border-color: rgba(167, 243, 208, 0.9);
-  background: linear-gradient(180deg, #ffffff, #f0fdf4);
-}
-
-.course-card__copy {
-  display: grid;
-  gap: 6px;
-}
-
-.course-code {
-  margin: 0;
-  font-size: 12px;
-}
-
-.course-status {
-  background: rgba(220, 252, 231, 0.96);
-  color: #166534;
-}
-
-.course-status--pending {
-  background: rgba(254, 243, 199, 0.96);
-  color: #b45309;
-}
-
-.empty {
-  padding: 18px;
-  color: #64748b;
-}
+.schedule__courses { gap: 16px; }
+.course-grid { gap: 14px; }
+.course-card { align-items: center; }
+.course-card--configured { background: rgba(239, 250, 244, 0.98); }
+.course-card__copy { display: grid; gap: 6px; }
+.course-code { margin: 0; font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; }
+.course-status { background: rgba(22, 101, 52, 0.1); color: var(--state-success); }
+.course-status--pending { background: rgba(217, 119, 6, 0.12); color: #b45309; }
+.empty { @include ui.empty-card(); }
 
 @media (max-width: 1120px) {
-  .schedule__summary {
-    grid-template-columns: 1fr;
-  }
-
-  .week-grid {
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  }
+  .schedule__summary { grid-template-columns: 1fr; }
+  .week-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
 }
 
 @media (max-width: 780px) {
   .summary-card,
   .schedule__panel,
-  .course-card {
-    padding: 18px;
-  }
-
+  .course-card { padding: 20px 18px; }
   .hero__actions,
   .setup-callout,
   .course-card__actions,
@@ -413,19 +190,9 @@ h1 {
   .day-card__header,
   .summary-card__header,
   .panel__header,
-  .course-card {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
+  .course-card { flex-direction: column; align-items: flex-start; }
   .hero__actions .btn,
-  .course-card__actions .btn {
-    width: 100%;
-  }
-
+  .course-card__actions .btn { width: 100%; }
   .today-item span,
-  .slot-card__time {
-    min-width: 0;
-    text-align: left;
-  }
+  .slot-card__time { min-width: 0; text-align: left; }
 }

@@ -1,36 +1,27 @@
-﻿.course-schedule {
-  display: grid;
-  gap: 24px;
-}
+@use '../../../../../styles/ui-system' as ui;
 
-.course-schedule__hero {
+.course-schedule { @include ui.page-root(30px); }
+
+.course-schedule__hero,
+.hero__actions,
+.step-actions,
+.step-panel__header,
+.preview-card__header,
+.time-card__header,
+.preview-day header,
+.block-adjuster {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
+  align-items: center;
   flex-wrap: wrap;
 }
 
-.back {
-  display: inline-block;
-  margin-bottom: 12px;
-  color: #4f46e5;
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.eyebrow {
-  margin: 0 0 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 12px;
-  color: #6366f1;
-  font-weight: 700;
-}
-
+.back { display: inline-block; margin-bottom: 12px; color: var(--brand-primary); text-decoration: none; font-weight: 700; }
+.eyebrow { @include ui.eyebrow(8px); }
 h1 {
   margin: 0 0 12px;
-  font-size: clamp(2.2rem, 4vw, 3.4rem);
-  line-height: 0.98;
+  @include ui.title-display(2.35rem, 4.4vw, 4rem, 0.95);
 }
 
 .subtitle,
@@ -44,44 +35,16 @@ h1 {
 .block-adjuster p,
 .schedule-status,
 .time-card__end small,
-.time-card__saved-info {
-  margin: 0;
-  color: #475569;
-}
-
-.hero__actions,
-.step-actions {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-}
+.time-card__saved-info { margin: 0; color: var(--text-secondary); }
 
 .btn,
 .day-chip,
-.step {
-  border-radius: 999px;
-  padding: 11px 18px;
-  font-weight: 700;
-  border: 1px solid transparent;
-  cursor: pointer;
-  text-decoration: none;
-  font-size: 14px;
-}
-
-.btn--primary {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: #fff;
-}
-
+.step { @include ui.button-base(999px); }
+.btn--primary { @include ui.button-primary(); }
 .btn--ghost,
 .day-chip,
 .step,
-.counter button {
-  background: #fff;
-  border-color: rgba(148, 163, 184, 0.45);
-  color: #0f172a;
-}
+.counter button { @include ui.button-secondary(); }
 
 .summary-card,
 .editor-card,
@@ -91,17 +54,11 @@ h1 {
 .progress-card,
 .preview-day,
 .schedule-status,
-.time-card__explanation {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(226, 232, 240, 0.95);
-  border-radius: 24px;
-}
+.time-card__explanation { @include ui.layer-section(24px, 26px); }
 
 .summary-card,
 .editor-card,
-.preview-card {
-  padding: 24px;
-}
+.preview-card { padding: 24px; }
 
 .summary-card {
   display: grid;
@@ -111,16 +68,16 @@ h1 {
 
 .course-code {
   margin: 0 0 8px;
-  font-size: 12px;
-  color: #4f46e5;
+  font-size: 11px;
+  color: var(--brand-primary);
   font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
 }
 
 .summary-card h2,
 .step-panel h3,
-.preview-card h3 {
-  margin: 0 0 8px;
-}
+.preview-card h3 { margin: 0 0 8px; }
 
 .summary-grid {
   display: grid;
@@ -128,32 +85,25 @@ h1 {
   gap: 12px;
 }
 
-.summary-grid div {
-  padding: 16px;
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(238, 242, 255, 0.95), rgba(248, 250, 252, 0.95));
-  border: 1px solid rgba(199, 210, 254, 0.65);
-}
+.summary-grid div { @include ui.layer-card(16px, 18px); }
 
-.label {
-  display: block;
-  margin-bottom: 8px;
-  font-size: 12px;
-  color: #64748b;
-}
-
+.label,
 .label-inline {
   display: block;
-  margin-bottom: 4px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  color: #475569;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
 }
+.label { margin-bottom: 8px; }
+.label-inline { margin-bottom: 4px; }
 
 .summary-grid strong,
 .progress-card strong {
+  font-family: 'Space Grotesk', sans-serif;
   font-size: 28px;
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .steps {
@@ -172,26 +122,19 @@ h1 {
 .step span {
   width: 30px;
   height: 30px;
-  border-radius: 999px;
+  border-radius: 12px;
   display: grid;
   place-items: center;
-  background: rgba(148, 163, 184, 0.18);
+  background: var(--surface-container-high);
 }
 
-.step.is-active {
-  border-color: rgba(99, 102, 241, 0.55);
-  background: linear-gradient(180deg, rgba(238, 242, 255, 0.95), rgba(248, 250, 252, 0.95));
-}
-
+.step.is-active { background: rgba(247, 242, 255, 0.98); }
 .step.is-active span {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-container));
   color: #fff;
 }
 
-.step:disabled {
-  opacity: 0.55;
-  cursor: default;
-}
+.step:disabled { opacity: 0.55; cursor: default; }
 
 .planner-layout {
   display: grid;
@@ -204,93 +147,46 @@ h1 {
 .step-panel,
 .time-grid,
 .preview-grid,
-.day-selector {
-  display: grid;
-  gap: 16px;
-}
+.day-selector { display: grid; gap: 16px; }
 
-.step-panel__header,
-.preview-card__header,
-.time-card__header,
-.preview-day header,
-.block-adjuster {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  align-items: center;
-}
-
-.day-selector {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.day-chip {
-  min-height: 52px;
-}
-
-.day-chip.is-selected {
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
-  color: #fff;
-  border-color: transparent;
-}
-
-.time-grid {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
+.day-selector { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.day-chip { min-height: 52px; }
+.day-chip.is-selected { @include ui.button-primary(); }
+.time-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
 .time-card,
 .progress-card,
 .preview-day,
 .schedule-status,
-.time-card__explanation {
-  padding: 18px;
-}
+.time-card__explanation { padding: 18px; }
 
 .counter {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-
 .counter button {
   width: 34px;
   height: 34px;
-  border-radius: 999px;
-  font-weight: 700;
+  min-height: 34px;
+  padding: 0;
 }
-
 .counter strong {
   min-width: 28px;
   text-align: center;
   font-size: 20px;
 }
 
-.schedule-status.is-valid {
-  color: #166534;
-  border-color: rgba(74, 222, 128, 0.4);
-}
+.schedule-status.is-valid { color: var(--state-success); background: rgba(22, 101, 52, 0.08); }
+.schedule-status.is-error { color: var(--state-danger); background: rgba(182, 62, 62, 0.08); }
 
-.schedule-status.is-error {
-  color: #b91c1c;
-  border-color: rgba(248, 113, 113, 0.4);
-}
-
-.block-adjuster {
-  padding: 14px 16px;
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(248, 250, 252, 0.98), rgba(255, 255, 255, 0.98));
-  border: 1px solid rgba(226, 232, 240, 0.95);
-}
-
-.time-card__end {
-  text-align: right;
-}
-
+.block-adjuster { @include ui.layer-card(14px 16px, 18px); }
+.time-card__end { text-align: right; }
 .time-card__end strong,
 .time-card__explanation strong {
   display: block;
   font-size: 20px;
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .time-card__body {
@@ -304,111 +200,63 @@ h1 {
   display: grid;
   gap: 6px;
   align-content: center;
-  background: linear-gradient(180deg, rgba(238, 242, 255, 0.9), rgba(255, 255, 255, 0.95));
+  background: var(--surface-container-high);
 }
 
 .time-card__saved-info {
   padding-top: 12px;
-  border-top: 1px solid rgba(226, 232, 240, 0.95);
+  border-top: 1px solid rgba(86, 96, 107, 0.12);
   font-size: 13px;
 }
 
-label {
-  display: grid;
-  gap: 8px;
-}
-
+label { display: grid; gap: 8px; }
 label span {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  color: #475569;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
 }
-
 input,
-select {
-  width: 100%;
-  min-width: 0;
-  border-radius: 14px;
-  border: 1px solid rgba(148, 163, 184, 0.45);
-  padding: 12px 14px;
-  font: inherit;
-  color: #0f172a;
-  background: #fff;
-}
+select { @include ui.input-field(12px 14px, 14px); background: var(--surface-container-lowest); }
 
 .progress-card {
-  background: linear-gradient(180deg, rgba(238, 242, 255, 0.95), rgba(255, 255, 255, 0.95));
+  background: rgba(247, 242, 255, 0.98);
   display: grid;
   gap: 10px;
 }
-
-.progress-card span {
-  color: #64748b;
-  font-size: 13px;
-}
-
+.progress-card span { color: var(--text-secondary); font-size: 13px; }
 .progress-bar {
   height: 12px;
   border-radius: 999px;
-  background: rgba(99, 102, 241, 0.12);
+  background: var(--surface-container-high);
   overflow: hidden;
 }
-
 .progress-bar__fill {
   height: 100%;
-  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-container));
 }
 
-.state {
-  padding: 14px 16px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.92);
-}
-
-.state--loading {
-  color: #475569;
-  border: 1px solid rgba(148, 163, 184, 0.4);
-}
-
-.state--error {
-  color: #b91c1c;
-  border: 1px solid rgba(248, 113, 113, 0.4);
-}
-
-.state--success {
-  color: #166534;
-  border: 1px solid rgba(74, 222, 128, 0.4);
-}
+.state { @include ui.state-card(14px 16px, 16px); }
+.state--loading { color: var(--text-secondary); }
+.state--error { color: var(--state-danger); background: rgba(182, 62, 62, 0.08); }
+.state--success { color: var(--state-success); background: rgba(22, 101, 52, 0.08); }
 
 @media (max-width: 1180px) {
   .summary-card,
   .planner-layout,
   .day-selector,
-  .time-grid {
-    grid-template-columns: 1fr;
-  }
+  .time-grid { grid-template-columns: 1fr; }
 }
 
 @media (max-width: 760px) {
   .summary-grid,
   .steps,
-  .time-card__body {
-    grid-template-columns: 1fr;
-  }
-
-  .step-actions {
-    justify-content: stretch;
-  }
-
-  .step-actions .btn {
-    flex: 1;
-  }
-
+  .time-card__body { grid-template-columns: 1fr; }
+  .step-actions { justify-content: stretch; }
+  .step-actions .btn { flex: 1; }
   .block-adjuster,
   .time-card__header,
   .preview-day header,
-  .step-panel__header {
-    align-items: flex-start;
-    flex-direction: column;
-  }
+  .step-panel__header { align-items: flex-start; flex-direction: column; }
 }

@@ -1,19 +1,30 @@
 @use '../../../../../styles/ui-system' as ui;
 
 .courses {
-  @include ui.page-root();
+  @include ui.page-root(30px);
 }
 
-.courses__hero {
+.courses__hero,
+.hero__actions,
+.course-card__footer,
+.course-card__header,
+.course-card__status,
+.course-panel__header,
+.metrics-row {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  gap: 24px;
+  gap: 16px;
+}
+
+.courses__hero,
+.hero__actions,
+.course-card__footer,
+.course-card__header {
   flex-wrap: wrap;
 }
 
 .hero__copy {
-  @include ui.hero-copy(720px);
+  @include ui.hero-copy(760px);
 }
 
 .eyebrow {
@@ -21,31 +32,16 @@
 }
 
 h1 {
-  @include ui.title-display(2rem, 3.6vw, 3.3rem, 1.05);
+  @include ui.title-display(2.4rem, 4.6vw, 4rem, 0.95);
 }
 
 .subtitle {
-  margin: 14px 0 0;
-  max-width: 640px;
-  color: #475569;
-  font-size: 15px;
-  line-height: 1.6;
-}
-
-.hero__actions,
-.course-card__footer {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
+  @include ui.subtitle(18px, 1.72);
+  max-width: 70ch;
 }
 
 .btn {
   @include ui.button-base();
-  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
-}
-
-.btn:hover {
-  transform: translateY(-1px);
 }
 
 .btn--primary {
@@ -53,31 +49,27 @@ h1 {
 }
 
 .btn--ghost {
-  @include ui.button-ghost();
-  background: rgba(255, 255, 255, 0.88);
+  @include ui.button-secondary();
 }
 
 .state,
 .empty {
-  padding: 16px 18px;
-  border-radius: 20px;
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  background: rgba(255, 255, 255, 0.86);
+  @include ui.state-card();
 }
 
 .state--loading {
-  color: #475569;
+  color: var(--text-secondary);
 }
 
 .state--error {
-  color: #b91c1c;
-  border-color: rgba(248, 113, 113, 0.3);
+  color: var(--state-danger);
+  background: rgba(182, 62, 62, 0.08);
 }
 
 .stats {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
+  gap: 18px;
 }
 
 .stat-card {
@@ -102,33 +94,37 @@ h1 {
 .courses__summary span,
 .panel-empty,
 .course-card__professor {
-  color: #475569;
+  color: var(--text-secondary);
 }
 
 .stat-card__label {
   display: block;
   margin-bottom: 10px;
-  font-size: 13px;
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .stat-card strong {
   display: block;
-  font-size: 2rem;
-  line-height: 1;
-  color: #0f172a;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2.25rem;
+  line-height: 0.94;
+  color: var(--text-primary);
 }
 
 .stat-card small {
   display: block;
-  margin-top: 8px;
-  color: #334155;
+  margin-top: 12px;
+  color: var(--text-secondary);
 }
 
 .courses__controls {
+  @include ui.layer-section(24px, 28px);
   display: flex;
   justify-content: space-between;
   align-items: end;
-  gap: 16px;
+  gap: 18px;
   flex-wrap: wrap;
 }
 
@@ -137,55 +133,47 @@ h1 {
   gap: 8px;
   min-width: min(420px, 100%);
   font-weight: 600;
-  color: #334155;
+  color: var(--text-primary);
+}
+
+.search-field span {
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .search-field input {
-  @include ui.input-field(15px 16px, 18px);
-  background: rgba(255, 255, 255, 0.88);
-  font-size: 15px;
+  @include ui.input-field(16px 18px, 18px);
 }
 
 .courses__summary {
   display: inline-flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 10px;
   padding: 14px 16px;
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.76);
-  border: 1px solid rgba(148, 163, 184, 0.18);
+  border-radius: 20px;
+  background: var(--surface-container-high);
 }
 
 .courses__summary strong {
-  font-size: 1.35rem;
-  color: #0f172a;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.45rem;
+  color: var(--text-primary);
 }
 
 .courses__grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
+  gap: 22px;
 }
 
 .course-card {
+  @include ui.layer-section(24px, 30px);
   display: grid;
   gap: 18px;
-  padding: 22px;
-  border-radius: 28px;
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.94)),
-    linear-gradient(135deg, rgba(91, 61, 245, 0.12), rgba(11, 182, 212, 0.08));
-  border: 1px solid rgba(203, 213, 225, 0.55);
-  box-shadow: 0 20px 48px rgba(148, 163, 184, 0.12);
-}
-
-.course-card__header,
-.course-card__status,
-.course-panel__header,
-.metrics-row {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
+    radial-gradient(circle at top right, rgba(83, 0, 183, 0.09), transparent 30%),
+    var(--surface-container-low);
 }
 
 .course-card__header,
@@ -197,35 +185,29 @@ h1 {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 .pill,
 .status-chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 700;
+  @include ui.chip-base();
 }
 
 .pill {
-  color: #334155;
-  background: rgba(241, 245, 249, 0.9);
-  border: 1px solid rgba(203, 213, 225, 0.65);
+  background: var(--surface-container-high);
+  color: var(--text-secondary);
 }
 
 .pill--code {
-  color: #4c1d95;
-  background: rgba(237, 233, 254, 0.96);
-  border-color: rgba(196, 181, 253, 0.9);
+  background: rgba(83, 0, 183, 0.1);
+  color: var(--brand-primary);
 }
 
 .course-card h2 {
   margin: 0;
-  font-size: 1.55rem;
-  color: #0f172a;
+  font-size: clamp(1.4rem, 2.4vw, 1.9rem);
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
 }
 
 .course-card__professor {
@@ -238,65 +220,59 @@ h1 {
 }
 
 .status-chip {
-  color: #166534;
-  background: rgba(220, 252, 231, 0.95);
+  background: rgba(22, 101, 52, 0.1);
+  color: var(--state-success);
 }
 
 .status-chip--muted {
-  color: #475569;
-  background: rgba(226, 232, 240, 0.9);
-}
-
-.icon-link {
-  color: #5b3df5;
-  text-decoration: none;
-  font-weight: 700;
+  background: var(--surface-container-high);
+  color: var(--text-secondary);
 }
 
 .course-card__body {
   display: grid;
   grid-template-columns: 1.15fr 0.85fr;
-  gap: 16px;
+  gap: 18px;
 }
 
 .course-panel {
-  padding: 18px;
-  border-radius: 22px;
-  background: rgba(248, 250, 252, 0.88);
-  border: 1px solid rgba(226, 232, 240, 0.95);
+  @include ui.layer-card(20px, 24px);
 }
 
 .course-panel--accent {
-  background: linear-gradient(180deg, rgba(245, 243, 255, 0.96), rgba(238, 242, 255, 0.9));
+  background:
+    radial-gradient(circle at top right, rgba(83, 0, 183, 0.08), transparent 34%),
+    var(--surface-container-lowest);
 }
 
 .course-panel__header h3 {
   margin: 0;
   font-size: 1rem;
-  color: #0f172a;
+  color: var(--text-primary);
 }
 
 .course-panel__header span {
-  font-size: 13px;
-  color: #5b3df5;
+  font-size: 11px;
+  color: var(--brand-primary);
   font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .schedule-list {
-  margin: 14px 0 0;
+  margin: 16px 0 0;
   padding: 0;
   list-style: none;
   display: grid;
-  gap: 10px;
+  gap: 12px;
 }
 
 .schedule-list li {
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.92);
-  color: #1e293b;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: var(--surface-container-high);
+  color: var(--text-primary);
   font-weight: 600;
-  border: 1px solid rgba(226, 232, 240, 0.9);
 }
 
 .course-panel__meta {
@@ -306,20 +282,20 @@ h1 {
 
 .evaluation-highlight {
   margin-top: 16px;
-  padding: 14px;
+  padding: 16px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.84);
-  border: 1px solid rgba(196, 181, 253, 0.45);
+  background: rgba(83, 0, 183, 0.06);
 }
 
 .evaluation-highlight strong {
   display: block;
-  color: #0f172a;
+  color: var(--text-primary);
+  font-family: 'Space Grotesk', sans-serif;
 }
 
 .evaluation-highlight p {
   margin: 6px 0 0;
-  color: #475569;
+  color: var(--text-secondary);
 }
 
 .metrics-row {
@@ -332,16 +308,14 @@ h1 {
 }
 
 .metrics-row strong {
-  font-size: 1.35rem;
-  color: #5b21b6;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.5rem;
+  color: var(--brand-primary);
 }
 
 .panel-empty {
+  @include ui.empty-card(14px);
   margin-top: 14px;
-  padding: 14px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px dashed rgba(148, 163, 184, 0.34);
 }
 
 @media (max-width: 1180px) {
@@ -365,12 +339,13 @@ h1 {
 
 @media (max-width: 640px) {
   .courses {
-    gap: 18px;
+    gap: 22px;
   }
 
   .course-card,
-  .stat-card {
-    padding: 18px;
+  .stat-card,
+  .courses__controls {
+    padding: 20px 18px;
   }
 
   .hero__actions,
@@ -380,6 +355,11 @@ h1 {
   .metrics-row {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .hero__actions .btn,
+  .course-card__footer .btn {
+    width: 100%;
   }
 
   .search-field {

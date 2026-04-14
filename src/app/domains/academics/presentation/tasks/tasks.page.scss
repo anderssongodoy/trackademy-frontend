@@ -1,8 +1,6 @@
 @use '../../../../../styles/ui-system' as ui;
 
-.tasks {
-  @include ui.page-root();
-}
+.tasks { @include ui.page-root(30px); }
 
 .tasks__hero,
 .filters,
@@ -13,235 +11,102 @@
   gap: 16px;
 }
 
-.hero__copy {
-  max-width: 760px;
-}
-
-.eyebrow {
-  @include ui.eyebrow();
-}
-
-h1,
-h2,
-p {
-  margin-top: 0;
-}
-
-h1 {
-  margin-bottom: 0;
-  @include ui.title-display(2rem, 3.8vw, 3.1rem, 1.03);
-}
-
+.hero__copy { @include ui.hero-copy(800px); }
+.eyebrow { @include ui.eyebrow(); }
+h1, h2, p { margin-top: 0; }
+h1 { margin-bottom: 0; @include ui.title-display(2.35rem, 4.4vw, 4rem, 0.95); }
 .subtitle,
-.field span,
-.field input,
-.field select,
 .task-item p,
 .task-item__meta,
-.empty-card {
-  color: #475569;
-}
+.empty-card { color: var(--text-secondary); }
+.subtitle { @include ui.subtitle(18px, 1.7); }
 
-.subtitle {
-  margin: 14px 0 0;
-  line-height: 1.6;
-}
+.state { @include ui.state-card(); }
+.empty-card { @include ui.empty-card(); }
+.state--loading { color: var(--text-secondary); }
+.state--error { color: var(--state-danger); background: rgba(182, 62, 62, 0.08); }
 
-.state,
-.stat-card,
-.task-item,
-.empty-card {
-  border-radius: 24px;
-  border: 1px solid rgba(226, 232, 240, 0.88);
-  background: rgba(255, 255, 255, 0.94);
-}
-
-.state,
-.empty-card {
-  @include ui.state-card(14px 16px, 24px);
-}
-
-.state--loading {
-  color: #475569;
-}
-
-.state--error {
-  color: #b91c1c;
-  border-color: rgba(248, 113, 113, 0.3);
-}
-
-.stats {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-}
-
-.stat-card {
-  @include ui.stat-card();
-}
-
-.stat-card--soft {
-  @include ui.stat-card-tone(soft);
-}
-
-.stat-card--mint {
-  @include ui.stat-card-tone(mint);
-}
-
-.stat-card--warm {
-  @include ui.stat-card-tone(warm);
-}
-
+.stats,
+.task-list { display: grid; gap: 18px; }
+.stats { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.stat-card { @include ui.stat-card(); }
+.stat-card--soft { @include ui.stat-card-tone(soft); }
+.stat-card--mint { @include ui.stat-card-tone(mint); }
+.stat-card--warm { @include ui.stat-card-tone(warm); }
 .stat-card span {
   display: block;
-  font-size: 13px;
-  color: #64748b;
+  font-size: 11px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
 }
-
 .stat-card strong {
   display: block;
-  margin-top: 8px;
-  font-size: 2rem;
-  color: #0f172a;
+  margin-top: 10px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2.2rem;
+  color: var(--text-primary);
 }
+.stat-card small { display: block; margin-top: 12px; color: var(--text-secondary); }
 
-.stat-card small {
-  display: block;
-  margin-top: 8px;
-  color: #334155;
-}
-
-.filters {
-  align-items: end;
-}
-
-.field {
-  display: grid;
-  gap: 8px;
-  flex: 1 1 320px;
-}
-
-.field--compact {
-  flex: 0 1 240px;
-}
-
+.filters { align-items: end; @include ui.layer-section(22px, 28px); }
+.field { display: grid; gap: 8px; flex: 1 1 320px; }
+.field--compact { flex: 0 1 240px; }
 .field span {
-  font-size: 14px;
+  font-size: 11px;
   font-weight: 700;
-  color: #0f172a;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
 }
-
 .field input,
-.field select {
-  @include ui.input-field();
-  background: rgba(248, 250, 252, 0.9);
-}
-
-.task-list {
-  display: grid;
-  gap: 18px;
-}
+.field select { @include ui.input-field(); }
 
 .task-item {
-  padding: 22px;
+  @include ui.layer-section(24px, 30px);
   display: grid;
   gap: 16px;
 }
-
-.task-item__head {
-  align-items: flex-start;
-}
-
+.task-item__head { align-items: flex-start; }
 .course-code {
   margin: 0 0 8px;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
-  color: #5b3df5;
+  color: var(--brand-primary);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.12em;
 }
-
 .task-item__meta {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
   font-size: 13px;
 }
-
 .task-item__meta span {
-  padding: 6px 10px;
-  border-radius: 999px;
-  background: rgba(226, 232, 240, 0.75);
+  @include ui.chip-base();
+  background: var(--surface-container-high);
 }
+.task-chip { @include ui.chip-base(); }
+.task-chip--danger { color: #991b1b; background: rgba(254, 226, 226, 0.95); }
+.task-chip--warning { color: #92400e; background: rgba(254, 243, 199, 0.95); }
+.task-chip--brand { color: var(--brand-primary); background: rgba(83, 0, 183, 0.1); }
+.task-chip--success { color: var(--state-success); background: rgba(22, 101, 52, 0.1); }
+.task-chip--neutral { color: var(--text-secondary); background: var(--surface-container-high); }
 
-.task-chip {
-  display: inline-flex;
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.task-chip--danger {
-  color: #991b1b;
-  background: rgba(254, 226, 226, 0.95);
-}
-
-.task-chip--warning {
-  color: #92400e;
-  background: rgba(254, 243, 199, 0.95);
-}
-
-.task-chip--brand {
-  color: #312e81;
-  background: rgba(224, 231, 255, 0.95);
-}
-
-.task-chip--success {
-  color: #166534;
-  background: rgba(220, 252, 231, 0.95);
-}
-
-.task-chip--neutral {
-  color: #475569;
-  background: rgba(226, 232, 240, 0.95);
-}
-
-.btn {
-  @include ui.button-base();
-  text-align: center;
-}
-
-.btn--primary {
-  @include ui.button-primary();
-}
-
-.btn--ghost {
-  @include ui.button-ghost();
-  background: #fff;
-}
+.btn { @include ui.button-base(); text-align: center; }
+.btn--primary { @include ui.button-primary(); }
+.btn--ghost { @include ui.button-secondary(); }
 
 @media (max-width: 1080px) {
-  .stats {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+  .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 760px) {
-  .stats {
-    grid-template-columns: 1fr;
-  }
-
+  .stats { grid-template-columns: 1fr; }
   .filters,
   .task-item__head,
-  .task-item__actions {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
+  .task-item__actions { flex-direction: column; align-items: flex-start; }
   .btn,
   .field,
-  .field--compact {
-    width: 100%;
-  }
+  .field--compact { width: 100%; }
 }
