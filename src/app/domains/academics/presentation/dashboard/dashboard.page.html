@@ -1,24 +1,4 @@
 <main class="dashboard">
-  <header class="dashboard__hero">
-    <div class="hero__copy">
-      <p class="eyebrow">Dashboard</p>
-      <h1>{{ heroTitle }}</h1>
-      <p class="subtitle">Cursos, clases, notas y ritmo del ciclo en una vista mas clara para decidir rapido.</p>
-
-      <div class="hero__chips">
-        <span class="chip">{{ todayLabel }}</span>
-        <span class="chip chip--accent">{{ currentPeriod?.periodoEtiqueta || 'Periodo pendiente' }}</span>
-        <span class="chip">{{ onboardingStatusLabel }}</span>
-        <span class="chip">{{ quickFocusLabel }}</span>
-      </div>
-    </div>
-
-    <div class="hero__actions">
-      <a class="btn btn--ghost" routerLink="/app/calendario">Abrir calendario</a>
-      <a class="btn btn--primary" routerLink="/app/cursos">Abrir cursos</a>
-    </div>
-  </header>
-
   @if (isLoading) {
     <div class="state state--loading">Cargando tu informacion...</div>
   }
@@ -28,264 +8,222 @@
   }
 
   @if (!isLoading && !loadError && summary) {
-    <section class="stats" aria-label="Resumen del periodo">
-      <article class="stat-card">
-        <span>Cursos activos</span>
-        <strong>{{ summary.cursosActivos }}</strong>
-        <small>cursos del periodo actual</small>
-      </article>
-
-      <article class="stat-card">
-        <span>Clases proximas</span>
-        <strong>{{ upcomingSessions.length }}</strong>
-        <small>{{ configuredScheduleLabel }}</small>
-      </article>
-
-      <article class="stat-card">
-        <span>Evaluaciones pendientes</span>
-        <strong>{{ summary.evaluacionesPendientes }}</strong>
-        <small>{{ dueSoonCount }} caen en los proximos 7 dias</small>
-      </article>
-
-      <article class="stat-card">
-        <span>Avance del ciclo</span>
-        <strong>{{ cycleProgressPercent }}%</strong>
-        <small>{{ currentWeekLabel }}</small>
-      </article>
-    </section>
-
-    <section class="setup-panel">
-      <article class="setup-highlight">
-        <div class="setup-highlight__copy">
-          <p class="setup-highlight__eyebrow">Primeros pasos</p>
-          <h2>Deja Trackademy listo para ayudarte de verdad</h2>
-          <p>
-            Tu progreso de arranque va en {{ setupCompletedCount }}/{{ setupSteps.length }} pasos.
-            Lo siguiente recomendado es: <strong>{{ nextSetupLabel }}</strong>.
-          </p>
-        </div>
-
-        <div class="setup-highlight__meter">
-          <strong>{{ setupProgressPercent }}%</strong>
-          <span>progreso de configuracion inicial</span>
-          <div class="progress">
-            <div class="progress__bar" [style.width.%]="setupProgressPercent"></div>
+    <section class="dashboard__frame">
+      <header class="dashboard__hero">
+        <div class="hero__copy">
+          <div class="hero__pills">
+            <span class="hero-pill hero-pill--accent">{{ currentPeriod?.periodoEtiqueta || 'Periodo pendiente' }}</span>
+            <span class="hero-pill">{{ currentWeekLabel }}</span>
+            <span class="hero-pill">{{ onboardingStatusLabel }}</span>
           </div>
-        </div>
-      </article>
 
-      <div class="setup-grid">
-        @for (step of setupSteps; track step.key) {
-          <article
-            class="setup-card"
-            [class.setup-card--done]="step.status === 'done'"
-            [class.setup-card--pending]="step.status === 'pending'"
-            [class.setup-card--progress]="step.status === 'in_progress'"
-            [class.setup-card--upcoming]="step.status === 'upcoming'">
-            <div class="setup-card__header">
-              <span class="setup-badge">{{ setupStepLabel(step) }}</span>
-              <strong>{{ step.title }}</strong>
+          <h1>{{ heroTitle }}</h1>
+          <p class="hero__summary">{{ heroSummary }}</p>
+        </div>
+
+        <div class="hero__cta">
+          <span class="hero__cta-label">Foco recomendado</span>
+          <strong>{{ nextSetupStep?.title || 'Tu dashboard ya esta alineado' }}</strong>
+          <a class="btn btn--primary" [routerLink]="nextSetupStep?.ctaLink || '/app/horario'">
+            {{ nextSetupStep?.ctaLabel || 'Abrir horario' }}
+          </a>
+        </div>
+      </header>
+
+      <section class="metric-strip" aria-label="Resumen del periodo">
+        <article class="metric-block metric-block--violet">
+          <span class="metric-block__label">Cursos activos</span>
+          <strong>{{ summary.cursosActivos }}</strong>
+          <small>{{ configuredScheduleLabel }}</small>
+        </article>
+
+        <article class="metric-block metric-block--mint">
+          <span class="metric-block__label">Clases de hoy</span>
+          <strong>{{ classesTodayCount }}</strong>
+          <small>{{ todaySessions.length > 0 ? 'Agenda lista para hoy' : 'Sin sesiones para hoy' }}</small>
+        </article>
+
+        <article class="metric-block metric-block--warm">
+          <span class="metric-block__label">Pendientes criticos</span>
+          <strong>{{ summary.evaluacionesPendientes }}</strong>
+          <small>{{ dueSoonCount }} caen dentro de los proximos 7 dias</small>
+        </article>
+
+        <article class="metric-block metric-block--soft">
+          <span class="metric-block__label">Meta del ciclo</span>
+          <strong>{{ currentPeriod?.metaPromedioCiclo ?? '--' }}</strong>
+          <small>{{ cycleProgressLabel }}</small>
+        </article>
+      </section>
+
+      <section class="dashboard__content">
+        <div class="dashboard__main">
+          <article class="evaluation-card">
+            <div class="evaluation-card__copy">
+              <p class="eyebrow">Proxima evaluacion</p>
+
+              @if (!nextEvaluation) {
+                <div class="empty-card">No hay una evaluacion con fecha calculada para destacar todavia.</div>
+              }
+
+              @if (nextEvaluation) {
+                <h2>{{ nextEvaluation.nombreCurso }}</h2>
+                <p class="evaluation-card__title">{{ nextEvaluation.evaluacionCodigo }}</p>
+                <p class="evaluation-card__description">
+                  {{ nextEvaluation.descripcion || nextEvaluation.tipo || 'Evaluacion academica programada en tu periodo actual.' }}
+                </p>
+
+                <div class="evaluation-card__facts">
+                  <div class="fact-tile">
+                    <strong>{{ nextEvaluationCountdownDays }}</strong>
+                    <span>Dias</span>
+                  </div>
+                  <div class="fact-tile">
+                    <strong>{{ nextEvaluationWeekLabel }}</strong>
+                    <span>Semana</span>
+                  </div>
+                  <div class="fact-tile">
+                    <strong>{{ nextEvaluationWeightLabel }}</strong>
+                    <span>Peso</span>
+                  </div>
+                </div>
+
+                <div class="evaluation-card__actions">
+                  <a class="btn btn--primary" [routerLink]="['/app/cursos', nextEvaluation.usuarioPeriodoCursoId]">Ver curso</a>
+                  <a class="btn btn--ghost" routerLink="/app/notas">Registrar nota</a>
+                </div>
+              }
             </div>
-            <p>{{ step.description }}</p>
-            <small>{{ step.detail }}</small>
-            <a class="btn" [class.btn--primary]="step.status !== 'upcoming'" [class.btn--ghost]="step.status === 'upcoming'" [routerLink]="step.ctaLink">{{ step.ctaLabel }}</a>
+
+            <div class="evaluation-card__visual" aria-hidden="true">
+              <div class="evaluation-card__orb"></div>
+              @if (nextEvaluation) {
+                <div class="evaluation-card__date-chip">{{ nextEvaluationDateLabel }}</div>
+              }
+            </div>
           </article>
-        }
-      </div>
-    </section>
 
-    <section class="dashboard__quick-actions">
-      <a class="quick-action quick-action--whatsapp" routerLink="/app/perfil" fragment="whatsapp-channel">
-        <span class="quick-action__eyebrow">WhatsApp</span>
-        <strong>Canal MVP</strong>
-        <small>Genera tu codigo y abre el chat oficial.</small>
-      </a>
-
-      <a class="quick-action" routerLink="/app/notas">
-        <span class="quick-action__eyebrow">Notas</span>
-        <strong>{{ summary.evaluacionesPendientes }} pendientes</strong>
-        <small>Registra lo que ya toca cerrar.</small>
-      </a>
-
-      <a class="quick-action" routerLink="/app/tareas">
-        <span class="quick-action__eyebrow">Tareas</span>
-        <strong>{{ dueSoonCount }} por venir</strong>
-        <small>Entregables que se acercan esta semana.</small>
-      </a>
-
-      <a class="quick-action" routerLink="/app/recordatorios">
-        <span class="quick-action__eyebrow">Recordatorios</span>
-        <strong>{{ periodEvents.length + upcomingSessions.length }}</strong>
-        <small>Alertas utiles desde agenda y periodo.</small>
-      </a>
-
-      <a class="quick-action" routerLink="/app/perfil">
-        <span class="quick-action__eyebrow">Perfil</span>
-        <strong>{{ currentPeriod?.metaPromedioCiclo ?? '--' }}</strong>
-        <small>Meta de promedio del ciclo.</small>
-      </a>
-    </section>
-
-    <section class="focus-grid">
-      <article class="focus-card">
-        <div class="focus-card__header">
-          <h3>Siguiente evaluacion</h3>
-          <a class="inline-link" routerLink="/app/notas">Ir a notas</a>
-        </div>
-
-        @if (!nextEvaluation) {
-          <div class="empty-card">No hay evaluaciones proximas con fecha calculada.</div>
-        }
-
-        @if (nextEvaluation) {
-          <div class="focus-card__body">
-            <span class="eyebrow-label">{{ nextEvaluation.codigoCurso }}</span>
-            <strong>{{ nextEvaluation.evaluacionCodigo }}</strong>
-            <p>{{ nextEvaluation.nombreCurso }}</p>
-            <small>{{ nextEvaluation.descripcion || nextEvaluation.tipo || 'Evaluacion programada' }}</small>
-            <div class="focus-card__footer">
-              <span>{{ nextEvaluation.fechaEstimada ? formatEventDate(nextEvaluation.fechaEstimada) : currentWeekLabel }}</span>
-              <a class="btn btn--ghost" [routerLink]="['/app/cursos', nextEvaluation.usuarioPeriodoCursoId]">Abrir curso</a>
+          <article class="schedule-card">
+            <div class="section-heading">
+              <div>
+                <h3>Horario del dia</h3>
+                <p>{{ classesTodayCount > 0 ? 'Tus bloques mas cercanos de hoy.' : 'Mostrando la siguiente actividad disponible.' }}</p>
+              </div>
+              <a class="inline-link" routerLink="/app/horario">Ver semana completa</a>
             </div>
-          </div>
-        }
-      </article>
 
-      <article class="focus-card">
-        <div class="focus-card__header">
-          <h3>Proxima clase</h3>
-          <a class="inline-link" routerLink="/app/horario">Ver horario</a>
-        </div>
-
-        @if (!nextSession) {
-          <div class="empty-card">No hay clases proximas dentro del rango disponible.</div>
-        }
-
-        @if (nextSession) {
-          <div class="focus-card__body">
-            <span class="eyebrow-label">{{ nextSession.codigoCurso || nextSession.tipo || 'Agenda' }}</span>
-            <strong>{{ nextSession.titulo }}</strong>
-            <p>{{ nextSession.subtitulo || 'Sesion programada' }}</p>
-            <div class="focus-card__footer">
-              <span>{{ formatEventDate(nextSession.inicio, true) }}</span>
-              <a class="btn btn--ghost" routerLink="/app/horario">Abrir horario</a>
-            </div>
-          </div>
-        }
-      </article>
-
-      <article class="focus-card">
-        <div class="focus-card__header">
-          <h3>Evento del periodo</h3>
-          <a class="inline-link" routerLink="/app/calendario">Ver calendario</a>
-        </div>
-
-        @if (!nextPeriodEvent) {
-          <div class="empty-card">No hay eventos institucionales proximos.</div>
-        }
-
-        @if (nextPeriodEvent) {
-          <div class="focus-card__body">
-            <span class="eyebrow-label">{{ nextPeriodEvent.tipo || 'Periodo' }}</span>
-            <strong>{{ nextPeriodEvent.titulo }}</strong>
-            <p>{{ nextPeriodEvent.subtitulo || 'Evento institucional' }}</p>
-            <div class="focus-card__footer">
-              <span>{{ formatEventDate(nextPeriodEvent.inicio) }}</span>
-              <a class="btn btn--ghost" routerLink="/app/calendario">Abrir calendario</a>
-            </div>
-          </div>
-        }
-      </article>
-    </section>
-
-    <section class="dashboard__grid">
-      <article class="panel panel--wide">
-        <div class="panel__header">
-          <h3>Entregas y evaluaciones proximas</h3>
-          <a class="inline-link" routerLink="/app/notas">Ver todas</a>
-        </div>
-
-        @if (upcomingEvaluations.length === 0) {
-          <div class="empty-card">No hay evaluaciones proximas con fecha disponible.</div>
-        }
-
-        @if (upcomingEvaluations.length > 0) {
-          <div class="list-grid">
-            @for (item of upcomingEvaluations; track item.usuarioPeriodoCursoId + '-' + item.evaluacionCodigo) {
-              <article class="list-card">
-                <div>
-                  <p class="list-card__eyebrow">{{ item.codigoCurso }}</p>
-                  <h4>{{ item.evaluacionCodigo }}</h4>
-                  <p class="list-card__meta">{{ item.nombreCurso }}</p>
-                </div>
-                <div class="list-card__side">
-                  <strong>{{ item.fechaEstimada ? formatEventDate(item.fechaEstimada) : 'Fecha pendiente' }}</strong>
-                  <span>{{ item.semana != null ? 'Semana ' + item.semana : 'Semana por definir' }}</span>
-                </div>
-              </article>
+            @if (todaySessions.length === 0) {
+              <div class="empty-card">Todavia no hay sesiones en agenda. Configura tus bloques para activar esta vista.</div>
             }
-          </div>
-        }
-      </article>
 
-      <article class="panel">
-        <div class="panel__header">
-          <h3>Clases proximas</h3>
-          <a class="inline-link" routerLink="/app/horario">Abrir horario</a>
-        </div>
-
-        @if (upcomingSessions.length === 0) {
-          <div class="empty-card">No hay sesiones proximas cargadas.</div>
-        }
-
-        @if (upcomingSessions.length > 0) {
-          <div class="agenda-list">
-            @for (item of upcomingSessions; track item.inicio + '-' + item.titulo) {
-              <div class="agenda-item">
-                <strong>{{ item.titulo }}</strong>
-                <span>{{ item.subtitulo || item.codigoCurso || 'Sesion' }}</span>
-                <small>{{ formatEventDate(item.inicio, true) }}</small>
+            @if (todaySessions.length > 0) {
+              <div class="schedule-list">
+                @for (item of todaySessions; track item.inicio + '-' + item.titulo) {
+                  <article class="schedule-row" [class.schedule-row--accent]="$index === 0">
+                    <div class="schedule-row__time">
+                      <strong>{{ scheduleTimeLabel(item) }}</strong>
+                      <span>{{ scheduleDateLabel(item) }}</span>
+                    </div>
+                    <div class="schedule-row__content">
+                      <h4>{{ item.titulo }}</h4>
+                      <p>{{ scheduleRowMeta(item) || 'Sesion academica programada' }}</p>
+                    </div>
+                    <span class="schedule-row__tag">{{ scheduleRowTag(item) }}</span>
+                  </article>
+                }
               </div>
             }
-          </div>
-        }
-      </article>
-
-      <article class="panel">
-        <div class="panel__header">
-          <h3>Indicadores personales</h3>
-          <a class="inline-link" routerLink="/app/perfil">Ver perfil</a>
+          </article>
         </div>
 
-        <div class="metric-stack">
-          <div class="metric-card">
-            <strong>{{ summary.notasRegistradas }}</strong>
-            <span>notas registradas</span>
-          </div>
-          <div class="metric-card">
-            <strong>{{ currentPeriod?.metaPromedioCiclo ?? '--' }}</strong>
-            <span>meta de promedio</span>
-          </div>
-          <div class="metric-card">
-            <strong>{{ currentPeriod?.horasEstudioSemanaObjetivo ?? '--' }}</strong>
-            <span>horas objetivo por semana</span>
-          </div>
-        </div>
-      </article>
+        <aside class="dashboard__rail">
+          <article class="rail-card rail-card--floating">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <h3>Acciones rapidas</h3>
+                <p>Atajos para mover lo importante.</p>
+              </div>
+            </div>
 
-      <article class="panel panel--full">
-        <div class="panel__header">
-          <h3>Ritmo del ciclo</h3>
-          <span>{{ cycleProgressLabel }}</span>
-        </div>
+            <div class="quick-actions">
+              <a class="quick-action" routerLink="/app/notas">
+                <div>
+                  <strong>Registrar nota</strong>
+                  <span>{{ summary.notasRegistradas }} registradas</span>
+                </div>
+                <span class="quick-action__arrow">›</span>
+              </a>
 
-        <div class="progress-block">
-          <div class="progress">
-            <div class="progress__bar" [style.width.%]="cycleProgressPercent"></div>
-          </div>
-          <p class="muted">Periodo actual: {{ currentPeriod?.periodoEtiqueta || 'Sin periodo' }}</p>
-        </div>
-      </article>
+              <a class="quick-action" routerLink="/app/recordatorios">
+                <div>
+                  <strong>Nuevo recordatorio</strong>
+                  <span>{{ periodEvents.length + upcomingSessions.length }} eventos en radar</span>
+                </div>
+                <span class="quick-action__arrow">›</span>
+              </a>
+
+              <a class="quick-action" routerLink="/app/cursos">
+                <div>
+                  <strong>Ver cursos</strong>
+                  <span>{{ courses.length }} cursos del periodo</span>
+                </div>
+                <span class="quick-action__arrow">›</span>
+              </a>
+            </div>
+          </article>
+
+          <article class="rail-card">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <h3>Pulso del momento</h3>
+                <p>Lo que mas conviene mirar ahora.</p>
+              </div>
+            </div>
+
+            <div class="pulse-list">
+              @for (item of pulseItems; track item.title) {
+                <article class="pulse-item" [class.pulse-item--violet]="item.tone === 'violet'" [class.pulse-item--green]="item.tone === 'green'" [class.pulse-item--amber]="item.tone === 'amber'">
+                  <span class="pulse-item__dot"></span>
+                  <div>
+                    <strong>{{ item.title }}</strong>
+                    <p>{{ item.detail }}</p>
+                    <small>{{ item.meta }}</small>
+                  </div>
+                </article>
+              }
+            </div>
+          </article>
+
+          <article class="rail-card">
+            <div class="section-heading section-heading--compact">
+              <div>
+                <h3>{{ calendarMonthLabel }}</h3>
+                <p>Eventos marcados desde clases y calendario del periodo.</p>
+              </div>
+            </div>
+
+            <div class="mini-calendar">
+              <div class="mini-calendar__weekdays">
+                @for (label of calendarWeekdayLabels; track label + $index) {
+                  <span>{{ label }}</span>
+                }
+              </div>
+
+              <div class="mini-calendar__grid">
+                @for (cell of calendarCells; track cell.isoDate || $index) {
+                  <span
+                    class="mini-calendar__day"
+                    [class.mini-calendar__day--muted]="!cell.isCurrentMonth"
+                    [class.mini-calendar__day--today]="cell.isToday"
+                    [class.mini-calendar__day--active]="cell.isActive">
+                    {{ cell.dayNumber }}
+                  </span>
+                }
+              </div>
+            </div>
+          </article>
+        </aside>
+      </section>
     </section>
   }
 </main>

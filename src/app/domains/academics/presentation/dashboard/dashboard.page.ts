@@ -15,6 +15,21 @@ interface SetupStep {
   detail: string;
 }
 
+interface PulseItem {
+  tone: 'violet' | 'green' | 'amber';
+  title: string;
+  detail: string;
+  meta: string;
+}
+
+interface CalendarCell {
+  dayNumber: number | null;
+  isoDate: string | null;
+  isCurrentMonth: boolean;
+  isToday: boolean;
+  isActive: boolean;
+}
+
 @Component({
   selector: 'app-dashboard-page',
   imports: [CommonModule, RouterLink],
@@ -71,12 +86,6 @@ export class DashboardPage implements OnInit {
     }
 
     return fullName.split(' ')[0] || fullName;
-  }
-
-  get heroTitle(): string {
-    return this.displayName
-      ? `${this.displayName}, este es tu panorama de hoy`
-      : 'Tu panorama academico para hoy';
   }
 
   get configuredCourseCount(): number {
@@ -162,19 +171,8 @@ export class DashboardPage implements OnInit {
     return this.setupSteps.filter((step) => step.status === 'done').length;
   }
 
-  get setupProgressPercent(): number {
-    return Math.round((this.setupCompletedCount / this.setupSteps.length) * 100);
-  }
-
   get nextSetupStep(): SetupStep | null {
     return this.setupSteps.find((step) => step.status !== 'done') ?? null;
-  }
-
-  get nextSetupLabel(): string {
-    if (!this.nextSetupStep) {
-      return 'Base inicial completa';
-    }
-    return this.nextSetupStep.title;
   }
 
   get upcomingEvaluations(): MyEvaluation[] {
@@ -205,23 +203,15 @@ export class DashboardPage implements OnInit {
     return `${this.summary.progresoPeriodoPct}% del ciclo completado`;
   }
 
-  get todayLabel(): string {
-    return new Intl.DateTimeFormat('es-PE', {
-      weekday: 'long',
-      day: 'numeric',
-      month: 'long'
-    }).format(new Date());
-  }
-
   get onboardingStatusLabel(): string {
     const status = this.currentPeriod?.onboardingEstado?.toLowerCase();
     if (status === 'completado') {
-      return 'Perfil academico listo';
+      return 'Perfil listo';
     }
     if (status === 'en_progreso') {
-      return 'Perfil academico en progreso';
+      return 'Perfil en progreso';
     }
-    return 'Perfil academico pendiente';
+    return 'Perfil pendiente';
   }
 
   get nextEvaluation(): MyEvaluation | null {
@@ -253,20 +243,151 @@ export class DashboardPage implements OnInit {
     return `${value} bloque${value === 1 ? '' : 's'} en agenda`;
   }
 
-  get quickFocusLabel(): string {
-    if (this.nextSetupStep && this.nextSetupStep.status !== 'done') {
-      return `Lo siguiente: ${this.nextSetupStep.title}`;
+  get heroLeadCount(): number {
+    return this.dueSoonCount > 0 ? this.dueSoonCount : this.summary?.evaluacionesPendientes ?? 0;
+  }
+
+  get heroLeadLabel(): string {
+    const count = this.heroLeadCount;
+    return count === 1 ? 'evaluacion pendiente' : 'evaluaciones pendientes';
+  }
+
+  get heroTitle(): string {
+    const name = this.displayName ?? 'hola';
+    return `Hola, ${name}, tienes ${this.heroLeadCount} ${this.heroLeadLabel} esta semana.`;
+  }
+
+  get heroSummary(): string {
+    if (this.pendingCourseCount > 0) {
+      return `${this.pendingCourseCount} curso${this.pendingCourseCount === 1 ? '' : 's'} todavia necesitan bloques para que el sistema pueda ordenar mejor tu ciclo.`;
     }
+
+    if (this.todaySessions.length > 0) {
+      return `Tu dia ya tiene ${this.todaySessions.length} clase${this.todaySessions.length === 1 ? '' : 's'} identificada${this.todaySessions.length === 1 ? '' : 's'} y ${this.summary?.evaluacionesPendientes ?? 0} evaluaciones siguen abiertas.`;
+    }
+
+    if (this.nextSetupStep) {
+      return `Tu base academica ya avanzo ${this.setupCompletedCount}/${this.setupSteps.length} pasos. Lo siguiente que mas impacto tiene es ${this.nextSetupStep.title.toLowerCase()}.`;
+    }
+
+    return `Mantienes ${this.cycleProgressLabel.toLowerCase()} con ${this.summary?.cursosActivos ?? 0} curso${(this.summary?.cursosActivos ?? 0) === 1 ? '' : 's'} activos.`;
+  }
+
+  get todaySessions(): MyCalendarEvent[] {
+    const todayItems = this.upcomingSessions.filter((item) => this.isSameDay(item.inicio, new Date()));
+    if (todayItems.length > 0) {
+      return todayItems.slice(0, 4);
+    }
+    return this.upcomingSessions.slice(0, 4);
+  }
+
+  get classesTodayCount(): number {
+    return this.upcomingSessions.filter((item) => this.isSameDay(item.inicio, new Date())).length;
+  }
+
+  get nextEvaluationCountdownDays(): string {
+    if (!this.nextEvaluation?.fechaEstimada) {
+      return '--';
+    }
+
+    const start = this.startOfToday().getTime();
+    const target = new Date(`${this.nextEvaluation.fechaEstimada}T00:00:00`).getTime();
+    const diff = Math.max(Math.ceil((target - start) / 86400000), 0);
+    return diff.toString().padStart(2, '0');
+  }
+
+  get nextEvaluationWeekLabel(): string {
+    if (this.nextEvaluation?.semana == null) {
+      return '--';
+    }
+    return this.nextEvaluation.semana.toString().padStart(2, '0');
+  }
+
+  get nextEvaluationWeightLabel(): string {
+    if (this.nextEvaluation?.porcentaje == null) {
+      return '--';
+    }
+    return `${Math.round(this.nextEvaluation.porcentaje)}%`;
+  }
+
+  get nextEvaluationDateLabel(): string {
+    if (!this.nextEvaluation?.fechaEstimada) {
+      return 'Fecha pendiente';
+    }
+    return this.formatDate(this.nextEvaluation.fechaEstimada, { day: '2-digit', month: 'long' });
+  }
+
+  get pulseItems(): PulseItem[] {
+    const items: PulseItem[] = [];
+
     if (this.nextEvaluation) {
-      return `Siguiente nota: ${this.nextEvaluation.evaluacionCodigo}`;
+      items.push({
+        tone: 'violet',
+        title: `${this.nextEvaluation.codigoCurso} · ${this.nextEvaluation.evaluacionCodigo}`,
+        detail: this.nextEvaluation.nombreCurso,
+        meta: this.nextEvaluationDateLabel
+      });
     }
+
     if (this.nextSession) {
-      return `Siguiente clase: ${this.nextSession.titulo}`;
+      items.push({
+        tone: 'green',
+        title: this.nextSession.titulo,
+        detail: this.nextSession.subtitulo || this.nextSession.nombreCurso || 'Sesion programada',
+        meta: this.formatDate(this.nextSession.inicio, { weekday: 'short', hour: '2-digit', minute: '2-digit' })
+      });
     }
-    if (this.nextPeriodEvent) {
-      return `Siguiente evento: ${this.nextPeriodEvent.titulo}`;
+
+    if (this.nextSetupStep) {
+      items.push({
+        tone: 'amber',
+        title: this.nextSetupStep.title,
+        detail: this.nextSetupStep.detail,
+        meta: this.nextSetupStep.status === 'in_progress' ? 'En progreso' : 'Siguiente foco'
+      });
+    } else if (this.nextPeriodEvent) {
+      items.push({
+        tone: 'amber',
+        title: this.nextPeriodEvent.titulo,
+        detail: this.nextPeriodEvent.subtitulo || 'Evento institucional',
+        meta: this.formatDate(this.nextPeriodEvent.inicio, { day: '2-digit', month: 'short' })
+      });
     }
-    return 'Sin eventos proximos';
+
+    return items.slice(0, 3);
+  }
+
+  get calendarMonthLabel(): string {
+    return this.capitalize(
+      new Intl.DateTimeFormat('es-PE', { month: 'long', year: 'numeric' }).format(new Date())
+    );
+  }
+
+  get calendarWeekdayLabels(): string[] {
+    return ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+  }
+
+  get calendarCells(): CalendarCell[] {
+    const today = this.startOfToday();
+    const year = today.getFullYear();
+    const month = today.getMonth();
+    const firstOfMonth = new Date(year, month, 1);
+    const offset = (firstOfMonth.getDay() + 6) % 7;
+    const firstCellDate = new Date(year, month, 1 - offset);
+
+    return Array.from({ length: 35 }, (_, index) => {
+      const cellDate = new Date(firstCellDate);
+      cellDate.setDate(firstCellDate.getDate() + index);
+      const isoDate = cellDate.toISOString().slice(0, 10);
+
+      return {
+        dayNumber: cellDate.getDate(),
+        isoDate,
+        isCurrentMonth: cellDate.getMonth() === month,
+        isToday: this.isSameDay(isoDate, today),
+        isActive: this.isCalendarActive(isoDate)
+      };
+    });
   }
 
   formatEventDate(value: string | null, includeTime = false): string {
@@ -280,6 +401,40 @@ export class DashboardPage implements OnInit {
     ).format(new Date(value));
   }
 
+  scheduleRowMeta(item: MyCalendarEvent): string {
+    const parts = [
+      item.subtitulo || item.nombreCurso || '',
+      item.codigoCurso || item.tipo || ''
+    ].filter(Boolean);
+
+    return parts.join(' · ');
+  }
+
+  scheduleTimeLabel(item: MyCalendarEvent): string {
+    return new Intl.DateTimeFormat('es-PE', {
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(new Date(item.inicio));
+  }
+
+  scheduleDateLabel(item: MyCalendarEvent): string {
+    return this.capitalize(new Intl.DateTimeFormat('es-PE', {
+      weekday: 'short',
+      day: '2-digit',
+      month: 'short'
+    }).format(new Date(item.inicio)));
+  }
+
+  scheduleRowTag(item: MyCalendarEvent): string {
+    if (item.tipo) {
+      return item.tipo;
+    }
+    if (item.codigoCurso) {
+      return item.codigoCurso;
+    }
+    return 'Agenda';
+  }
+
   setupStepLabel(step: SetupStep): string {
     switch (step.status) {
       case 'done':
@@ -291,6 +446,25 @@ export class DashboardPage implements OnInit {
       default:
         return 'Proximamente';
     }
+  }
+
+  private isCalendarActive(isoDate: string): boolean {
+    return [...this.upcomingSessions, ...this.periodEvents].some((item) => item.inicio.slice(0, 10) === isoDate);
+  }
+
+  private isSameDay(value: string, baseDate: Date): boolean {
+    const date = new Date(value);
+    return date.getFullYear() === baseDate.getFullYear()
+      && date.getMonth() === baseDate.getMonth()
+      && date.getDate() === baseDate.getDate();
+  }
+
+  private formatDate(value: string, options: Intl.DateTimeFormatOptions): string {
+    return this.capitalize(new Intl.DateTimeFormat('es-PE', options).format(new Date(value)));
+  }
+
+  private capitalize(value: string): string {
+    return value.charAt(0).toUpperCase() + value.slice(1);
   }
 
   private startOfToday(): Date {
