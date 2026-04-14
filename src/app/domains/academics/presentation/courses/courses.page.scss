@@ -1,43 +1,290 @@
 @use '../../../../../styles/ui-system' as ui;
 
+:host {
+  display: block;
+}
+
 .courses {
-  @include ui.page-root(30px);
+  @include ui.page-root(24px);
+}
+
+.courses__frame {
+  display: grid;
+  gap: 22px;
 }
 
 .courses__hero,
-.hero__actions,
+.hero__pills,
+.courses__toolbar,
+.toolbar__controls,
 .course-card__footer,
-.course-card__header,
-.course-card__status,
-.course-panel__header,
-.metrics-row {
+.course-card__signals,
+.insight-card__actions {
   display: flex;
-  justify-content: space-between;
   gap: 16px;
 }
 
 .courses__hero,
-.hero__actions,
-.course-card__footer,
-.course-card__header {
+.courses__toolbar,
+.course-card__footer {
+  justify-content: space-between;
+}
+
+.courses__hero,
+.courses__toolbar,
+.toolbar__controls {
+  align-items: end;
+}
+
+.courses__hero {
   flex-wrap: wrap;
 }
 
 .hero__copy {
-  @include ui.hero-copy(760px);
+  @include ui.hero-copy(640px);
+  display: grid;
+  gap: 14px;
 }
 
-.eyebrow {
-  @include ui.eyebrow();
+.hero__pills {
+  flex-wrap: wrap;
+}
+
+.hero-pill {
+  @include ui.chip-base();
+  background: var(--surface-container-high);
+  color: var(--text-secondary);
+}
+
+.hero-pill--accent {
+  background: rgba(83, 0, 183, 0.12);
+  color: var(--brand-primary);
 }
 
 h1 {
-  @include ui.title-display(2.4rem, 4.6vw, 4rem, 0.95);
+  @include ui.title-display(2.2rem, 4vw, 3.5rem, 0.98);
 }
 
-.subtitle {
-  @include ui.subtitle(18px, 1.72);
-  max-width: 70ch;
+.hero__summary,
+.metric-block small,
+.course-card__professor,
+.meta-box span,
+.signal-chip,
+.course-card__insight span,
+.insight-card p,
+.insight-card__stats span,
+.empty,
+.state {
+  color: var(--text-secondary);
+}
+
+.hero__summary {
+  @include ui.subtitle(0, 1.72);
+  max-width: 64ch;
+}
+
+.metric-strip {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  flex: 1 1 420px;
+}
+
+.metric-block {
+  @include ui.stat-card();
+  display: grid;
+  gap: 8px;
+}
+
+.metric-block--mint {
+  @include ui.stat-card-tone(mint);
+}
+
+.metric-block--soft {
+  @include ui.stat-card-tone(soft);
+}
+
+.metric-block--warm {
+  @include ui.stat-card-tone(warm);
+}
+
+.metric-block__label,
+.pill,
+.meta-box span,
+.signal-chip,
+.insight-card__eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.metric-block strong,
+.meta-box strong,
+.insight-card__stats strong {
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.metric-block strong {
+  font-size: clamp(1.8rem, 3vw, 2.4rem);
+  line-height: 0.92;
+}
+
+.courses__toolbar {
+  @include ui.layer-section(22px, 28px);
+  flex-wrap: wrap;
+}
+
+.filter-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-chip {
+  @include ui.button-base(999px);
+  min-height: 38px;
+  padding: 0 16px;
+  color: var(--text-secondary);
+  background: var(--surface-container-high);
+}
+
+.filter-chip--active {
+  color: var(--brand-primary);
+  background: rgba(83, 0, 183, 0.12);
+}
+
+.search-field {
+  min-width: min(380px, 100%);
+}
+
+.search-field input {
+  @include ui.input-field(15px 18px, 18px);
+}
+
+.search-field input:focus {
+  @include ui.input-focus();
+}
+
+.courses__summary {
+  @include ui.soft-panel(14px 16px, 18px);
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  color: var(--text-primary);
+  font-weight: 700;
+}
+
+.courses__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.course-card,
+.insight-card {
+  @include ui.layer-card(22px, 28px);
+  display: grid;
+  gap: 18px;
+  min-height: 100%;
+}
+
+.course-card {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 249, 252, 0.98));
+}
+
+.course-card__badges,
+.course-meta-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.course-card__badges {
+  grid-auto-flow: column;
+  justify-content: start;
+  grid-auto-columns: max-content;
+}
+
+.pill {
+  @include ui.chip-base();
+  background: rgba(236, 239, 244, 0.94);
+  color: var(--text-secondary);
+}
+
+.pill--code {
+  background: rgba(83, 0, 183, 0.1);
+  color: var(--brand-primary);
+}
+
+.course-card__body {
+  display: grid;
+  gap: 16px;
+}
+
+.course-card__heading h2,
+.insight-card h3 {
+  margin: 0;
+}
+
+.course-card__heading h2 {
+  font-size: clamp(1.5rem, 2.4vw, 1.9rem);
+  line-height: 1.02;
+}
+
+.course-card__professor {
+  margin: 10px 0 0;
+}
+
+.course-meta-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.meta-box {
+  @include ui.soft-panel(16px, 20px);
+  display: grid;
+  gap: 8px;
+  background: rgba(241, 244, 248, 0.92);
+}
+
+.meta-box strong {
+  font-size: 1.05rem;
+  line-height: 1.02;
+  color: var(--text-primary);
+}
+
+.course-card__signals {
+  flex-wrap: wrap;
+}
+
+.signal-chip {
+  @include ui.chip-base();
+  background: rgba(83, 0, 183, 0.1);
+  color: var(--brand-primary);
+}
+
+.signal-chip--muted,
+.signal-chip--neutral {
+  background: rgba(232, 236, 242, 0.94);
+  color: var(--text-secondary);
+}
+
+.course-card__footer {
+  align-items: end;
+  gap: 14px;
+  padding-top: 4px;
+}
+
+.course-card__insight {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.course-card__insight strong {
+  color: var(--text-primary);
+  font-size: 0.95rem;
+  line-height: 1.4;
 }
 
 .btn {
@@ -52,8 +299,58 @@ h1 {
   @include ui.button-secondary();
 }
 
-.state,
-.empty {
+.insight-card {
+  align-content: space-between;
+  background:
+    radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.14), transparent 30%),
+    linear-gradient(160deg, var(--brand-primary), var(--brand-primary-container));
+  color: #fff;
+  box-shadow: 0 18px 40px rgba(83, 0, 183, 0.18);
+}
+
+.insight-card__eyebrow,
+.insight-card p,
+.insight-card__stats span {
+  color: rgba(255, 255, 255, 0.76);
+}
+
+.insight-card h3 {
+  font-size: clamp(1.7rem, 2.6vw, 2.25rem);
+  line-height: 1.02;
+}
+
+.insight-card__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.insight-card__stats div {
+  @include ui.soft-panel(16px, 20px);
+  display: grid;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.insight-card__stats strong {
+  font-size: 1.8rem;
+  line-height: 0.94;
+  color: #fff;
+}
+
+.insight-card .btn--ghost {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.insight-card .btn--primary {
+  background: #fff;
+  color: var(--brand-primary);
+  box-shadow: none;
+}
+
+.empty,
+.state {
   @include ui.state-card();
 }
 
@@ -66,303 +363,47 @@ h1 {
   background: rgba(182, 62, 62, 0.08);
 }
 
-.stats {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 18px;
-}
-
-.stat-card {
-  @include ui.stat-card();
-}
-
-.stat-card--soft {
-  @include ui.stat-card-tone(soft);
-}
-
-.stat-card--mint {
-  @include ui.stat-card-tone(mint);
-}
-
-.stat-card--warm {
-  @include ui.stat-card-tone(warm);
-}
-
-.stat-card__label,
-.course-panel__meta,
-.metrics-row span,
-.courses__summary span,
-.panel-empty,
-.course-card__professor {
-  color: var(--text-secondary);
-}
-
-.stat-card__label {
-  display: block;
-  margin-bottom: 10px;
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.stat-card strong {
-  display: block;
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 2.25rem;
-  line-height: 0.94;
-  color: var(--text-primary);
-}
-
-.stat-card small {
-  display: block;
-  margin-top: 12px;
-  color: var(--text-secondary);
-}
-
-.courses__controls {
-  @include ui.layer-section(24px, 28px);
-  display: flex;
-  justify-content: space-between;
-  align-items: end;
-  gap: 18px;
-  flex-wrap: wrap;
-}
-
-.search-field {
-  display: grid;
-  gap: 8px;
-  min-width: min(420px, 100%);
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.search-field span {
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.search-field input {
-  @include ui.input-field(16px 18px, 18px);
-}
-
-.courses__summary {
-  display: inline-flex;
-  align-items: baseline;
-  gap: 10px;
-  padding: 14px 16px;
-  border-radius: 20px;
-  background: var(--surface-container-high);
-}
-
-.courses__summary strong {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.45rem;
-  color: var(--text-primary);
-}
-
-.courses__grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px;
-}
-
-.course-card {
-  @include ui.layer-section(24px, 30px);
-  display: grid;
-  gap: 18px;
-  background:
-    radial-gradient(circle at top right, rgba(83, 0, 183, 0.09), transparent 30%),
-    var(--surface-container-low);
-}
-
-.course-card__header,
-.metrics-row {
-  align-items: flex-start;
-}
-
-.course-card__badges {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 14px;
-}
-
-.pill,
-.status-chip {
-  @include ui.chip-base();
-}
-
-.pill {
-  background: var(--surface-container-high);
-  color: var(--text-secondary);
-}
-
-.pill--code {
-  background: rgba(83, 0, 183, 0.1);
-  color: var(--brand-primary);
-}
-
-.course-card h2 {
-  margin: 0;
-  font-size: clamp(1.4rem, 2.4vw, 1.9rem);
-  letter-spacing: -0.03em;
-  color: var(--text-primary);
-}
-
-.course-card__professor {
-  margin: 10px 0 0;
-}
-
-.course-card__status {
-  flex-direction: column;
-  align-items: flex-end;
-}
-
-.status-chip {
-  background: rgba(22, 101, 52, 0.1);
-  color: var(--state-success);
-}
-
-.status-chip--muted {
-  background: var(--surface-container-high);
-  color: var(--text-secondary);
-}
-
-.course-card__body {
-  display: grid;
-  grid-template-columns: 1.15fr 0.85fr;
-  gap: 18px;
-}
-
-.course-panel {
-  @include ui.layer-card(20px, 24px);
-}
-
-.course-panel--accent {
-  background:
-    radial-gradient(circle at top right, rgba(83, 0, 183, 0.08), transparent 34%),
-    var(--surface-container-lowest);
-}
-
-.course-panel__header h3 {
-  margin: 0;
-  font-size: 1rem;
-  color: var(--text-primary);
-}
-
-.course-panel__header span {
-  font-size: 11px;
-  color: var(--brand-primary);
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-
-.schedule-list {
-  margin: 16px 0 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 12px;
-}
-
-.schedule-list li {
-  padding: 12px 14px;
-  border-radius: 16px;
-  background: var(--surface-container-high);
-  color: var(--text-primary);
-  font-weight: 600;
-}
-
-.course-panel__meta {
-  margin: 14px 0 0;
-  font-size: 13px;
-}
-
-.evaluation-highlight {
-  margin-top: 16px;
-  padding: 16px;
-  border-radius: 18px;
-  background: rgba(83, 0, 183, 0.06);
-}
-
-.evaluation-highlight strong {
-  display: block;
-  color: var(--text-primary);
-  font-family: 'Space Grotesk', sans-serif;
-}
-
-.evaluation-highlight p {
-  margin: 6px 0 0;
-  color: var(--text-secondary);
-}
-
-.metrics-row {
-  margin-top: 16px;
-}
-
-.metrics-row div {
-  display: grid;
-  gap: 4px;
-}
-
-.metrics-row strong {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.5rem;
-  color: var(--brand-primary);
-}
-
-.panel-empty {
-  @include ui.empty-card(14px);
-  margin-top: 14px;
-}
-
-@media (max-width: 1180px) {
-  .stats,
+@media (max-width: 1220px) {
+  .metric-strip,
   .courses__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-@media (max-width: 860px) {
-  .stats,
+@media (max-width: 900px) {
+  .metric-strip,
   .courses__grid,
-  .course-card__body {
+  .course-meta-grid,
+  .insight-card__stats {
     grid-template-columns: 1fr;
   }
 
-  .course-card__status {
-    align-items: flex-start;
-  }
-}
-
-@media (max-width: 640px) {
-  .courses {
-    gap: 22px;
-  }
-
-  .course-card,
-  .stat-card,
-  .courses__controls {
-    padding: 20px 18px;
-  }
-
-  .hero__actions,
+  .toolbar__controls,
   .course-card__footer,
-  .course-card__header,
-  .course-panel__header,
-  .metrics-row {
+  .insight-card__actions {
     flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .hero__actions .btn,
-  .course-card__footer .btn {
-    width: 100%;
+    align-items: stretch;
   }
 
   .search-field {
     min-width: 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .courses__toolbar,
+  .course-card,
+  .insight-card,
+  .metric-block {
+    padding: 20px 18px;
+  }
+
+  .metric-strip {
+    grid-template-columns: 1fr;
+  }
+
+  .course-card__footer .btn,
+  .insight-card__actions .btn {
+    width: 100%;
   }
 }
