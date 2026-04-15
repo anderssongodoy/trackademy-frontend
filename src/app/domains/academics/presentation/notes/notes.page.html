@@ -1,12 +1,4 @@
 <main class="notes">
-  <header class="notes__hero">
-    <div class="hero__copy">
-      <p class="eyebrow">Notas</p>
-      <h1>Un lugar para registrar y revisar tu avance real</h1>
-      <p class="subtitle">Cada curso muestra solo la siguiente nota que toca registrar. Hasta que esa evaluacion no se cierre, no avanzas a la siguiente.</p>
-    </div>
-  </header>
-
   @if (isLoading) {
     <div class="state state--loading">Cargando evaluaciones...</div>
   }
@@ -16,211 +8,163 @@
   }
 
   @if (!isLoading && !loadError) {
-    @if (pendingDueCount > 0) {
-      <section class="setup-callout">
-        <div>
-          <p class="eyebrow">Siguiente paso recomendado</p>
-          <h2>Registra primero las notas que ya deberias tener</h2>
-          <p>Tienes {{ pendingDueCount }} evaluacion{{ pendingDueCount === 1 ? '' : 'es' }} cuya fecha ya llego. Si las cierras, el dashboard y tus promedios empiezan a reflejar tu situacion real.</p>
+    <section class="notes__frame">
+      <header class="notes__hero">
+        <div class="hero__top">
+          <label class="search-field">
+            <input type="text" [value]="searchQuery" (input)="searchQuery = $any($event.target).value" placeholder="Buscar registros..." />
+          </label>
         </div>
-      </section>
-    }
 
-    <section class="stats">
-      <article class="stat-card">
-        <span>Promedio visible</span>
-        <strong>{{ stats.average }}</strong>
-        <small>solo con evaluaciones registradas</small>
-      </article>
+        <section class="notes__overview">
+          <article class="hero-metric">
+            <span class="hero-metric__eyebrow">Promedio actual</span>
+            <strong>{{ stats.average }}</strong>
+            <small>{{ pendingDueCount > 0 ? '+' + pendingDueCount + ' pendientes urgentes' : 'Sin alertas vencidas' }}</small>
+          </article>
 
-      <article class="stat-card stat-card--soft">
-        <span>Cursos aprobando</span>
-        <strong>{{ stats.approvedCourses }}</strong>
-        <small>promedios de 13 o mas</small>
-      </article>
+          <article class="metric-card metric-card--soft">
+            <span>Mejor visible</span>
+            <strong>{{ stats.bestGrade }}</strong>
+            <small>{{ stats.graded }} evaluaciones registradas</small>
+          </article>
 
-      <article class="stat-card stat-card--mint">
-        <span>Mejor nota</span>
-        <strong>{{ stats.bestGrade }}</strong>
-        <small>tu pico visible hasta ahora</small>
-      </article>
+          <article class="metric-card metric-card--soft">
+            <span>Cursos aprobando</span>
+            <strong>{{ stats.approvedCourses }}</strong>
+            <small>sobre {{ groupedEvaluations.length }} cursos visibles</small>
+          </article>
+        </section>
+      </header>
 
-      <article class="stat-card stat-card--warm">
-        <span>Evaluaciones</span>
-        <strong>{{ stats.graded }}/{{ stats.total }}</strong>
-        <small>registradas sobre visibles</small>
-      </article>
-    </section>
-
-    @if (courseMetrics.length > 0) {
-      <section class="charts">
-        <article class="chart-card">
-          <div class="chart-card__header">
+      <section class="notes__insights">
+        <article class="progress-card">
+          <div class="progress-card__header">
             <div>
-              <h2>Notas por curso</h2>
-              <p>Promedio visible por codigo de curso.</p>
+              <h2>Progreso visible</h2>
+              <p>Lectura sintetica del ritmo de notas registradas.</p>
+            </div>
+            <div class="progress-card__chips">
+              <span>Promedio</span>
+              <span>Esfuerzo</span>
             </div>
           </div>
 
-          <div class="bars-chart">
-            @for (bar of barChartBars; track bar.code) {
-              <div class="bars-chart__item">
-                <div class="bars-chart__bar-wrap">
-                  <div class="bars-chart__bar" [style.height.px]="bar.height">
-                    <span>{{ bar.value.toFixed(1) }}</span>
-                  </div>
+          <div class="progress-track">
+            @for (point of monthlyProgress; track point.label) {
+              <div class="progress-point">
+                <div class="progress-point__line">
+                  <span [style.height.%]="point.value"></span>
                 </div>
-                <strong>{{ bar.code }}</strong>
+                <strong>{{ point.label }}</strong>
               </div>
             }
           </div>
         </article>
 
-        <article class="chart-card">
-          <div class="chart-card__header">
-            <div>
-              <h2>Comparativa visible</h2>
-              <p>Tu promedio por curso frente a tu promedio visible actual.</p>
-            </div>
+        <article class="alerts-card">
+          <div class="alerts-card__header">
+            <h2>Alertas criticas</h2>
           </div>
 
-          @if (compareMetrics.length >= 3) {
-            <div class="radar-chart">
-              <svg viewBox="0 0 340 270" aria-label="Comparativa por curso">
-                <polygon points="170,37 258,86 258,184 170,233 82,184 82,86" class="radar-chart__grid"></polygon>
-                <polygon points="170,61 234,97 234,173 170,209 106,173 106,97" class="radar-chart__grid"></polygon>
-                <polygon points="170,84 210,107 210,163 170,186 130,163 130,107" class="radar-chart__grid"></polygon>
-                <polygon points="170,108 186,118 186,152 170,162 154,152 154,118" class="radar-chart__grid"></polygon>
+          @if (alerts.length === 0) {
+            <div class="empty-card empty-card--soft">No hay cursos con alerta critica visible.</div>
+          }
 
-                <polygon [attr.points]="compareBaselinePolygon" class="radar-chart__baseline"></polygon>
-                <polygon [attr.points]="compareUserPolygon" class="radar-chart__value"></polygon>
-
-                @for (label of compareLabels; track label.code) {
-                  <text [attr.x]="label.x" [attr.y]="label.y" text-anchor="middle" class="radar-chart__label">
-                    {{ label.code }}
-                  </text>
-                }
-              </svg>
-
-              <div class="radar-chart__legend">
-                <span><i class="legend-dot legend-dot--value"></i> Tu promedio</span>
-                <span><i class="legend-dot legend-dot--baseline"></i> Promedio visible</span>
-              </div>
+          @if (alerts.length > 0) {
+            <div class="alerts-list">
+              @for (alert of alerts; track alert.code) {
+                <article class="alert-item">
+                  <strong>{{ alert.course }}</strong>
+                  <p>Promedio: {{ alert.average }}</p>
+                  <span>{{ alert.detail }}</span>
+                </article>
+              }
             </div>
-          } @else {
-            <div class="empty-card">Necesitas al menos 3 cursos con notas para ver esta comparativa.</div>
           }
         </article>
       </section>
-    }
 
-    <section class="filters">
-      <label class="field">
-        <span>Buscar evaluacion o curso</span>
-        <input type="text" [value]="searchQuery" (input)="searchQuery = $any($event.target).value" placeholder="Ej. parcial, redes, lab" />
-      </label>
+      <section class="filters">
+        <label class="field field--compact">
+          <span>Curso</span>
+          <select [(ngModel)]="selectedCourseId">
+            <option value="all">Todos los cursos</option>
+            @for (course of courseOptions; track course.value) {
+              <option [value]="course.value">{{ course.label }}</option>
+            }
+          </select>
+        </label>
+      </section>
 
-      <label class="field field--compact">
-        <span>Curso</span>
-        <select [(ngModel)]="selectedCourseId">
-          <option value="all">Todos los cursos</option>
-          @for (course of courseOptions; track course.value) {
-            <option [value]="course.value">{{ course.label }}</option>
-          }
-        </select>
-      </label>
-    </section>
+      @if (groupedEvaluations.length === 0) {
+        <div class="empty-card">No encontramos evaluaciones con los filtros actuales.</div>
+      }
 
-    @if (groupedEvaluations.length === 0) {
-      <div class="empty-card">No encontramos evaluaciones con los filtros actuales.</div>
-    }
+      @if (groupedEvaluations.length > 0) {
+        <section class="operations-panel">
+          <div class="operations-panel__header">
+            <h2>Operaciones por curso</h2>
+          </div>
 
-    @if (groupedEvaluations.length > 0) {
-      <section class="course-groups">
-        @for (group of groupedEvaluations; track group.usuarioPeriodoCursoId) {
-          @if (currentEvaluation(group); as currentItem) {
-            <article class="course-card">
-              <div class="course-card__header">
-                <div>
-                  <p class="course-code">{{ group.codigoCurso }}</p>
-                  <h2>{{ group.nombreCurso }}</h2>
-                </div>
-                <a class="btn btn--ghost" [routerLink]="['/app/cursos', group.usuarioPeriodoCursoId]">Abrir curso</a>
-              </div>
+          <div class="operations-table">
+            <div class="operations-table__head">
+              <span>Curso</span>
+              <span>Promedio actual</span>
+              <span>Siguiente evaluacion</span>
+              <span>Registro rapido</span>
+              <span>Accion</span>
+            </div>
 
-              <div class="course-card__stats">
-                <div>
-                  <span>Promedio</span>
-                  <strong>{{ group.promedio }}</strong>
-                </div>
-                <div>
-                  <span>Registradas</span>
-                  <strong>{{ group.registradas }}</strong>
-                </div>
-                <div>
-                  <span>Pendientes</span>
-                  <strong>{{ group.pendientes }}</strong>
-                </div>
-                <div>
-                  <span>Peso total</span>
-                  <strong>{{ group.totalPeso }}%</strong>
-                </div>
-              </div>
-
-              <div class="evaluation-list">
-                <article class="evaluation-item">
-                  <div class="evaluation-item__meta">
-                    <div class="evaluation-item__head">
-                      <div>
-                        <strong>{{ currentItem.evaluacionCodigo }}</strong>
-                        <p>{{ currentItem.descripcion || currentItem.tipo || 'Evaluacion sin descripcion adicional' }}</p>
-                      </div>
-                      <span class="status-chip" [class.status-chip--done]="currentItem.nota != null">{{ statusLabel(currentItem) }}</span>
-                    </div>
-
-                    <div class="evaluation-item__details">
-                      <span>{{ evaluationDateLabel(currentItem) }}</span>
-                      <span>{{ weightLabel(currentItem) }}</span>
-                      @if (currentItem.semana != null) {
-                        <span>Semana {{ currentItem.semana }}</span>
-                      }
-                      <span>{{ currentItem.nota != null ? 'Ultima evaluacion registrada' : 'Siguiente evaluacion a registrar' }}</span>
-                    </div>
+            @for (group of groupedEvaluations; track group.usuarioPeriodoCursoId) {
+              @if (currentEvaluation(group); as currentItem) {
+                <article class="operation-row">
+                  <div class="operation-row__course">
+                    <strong>{{ group.nombreCurso }}</strong>
+                    <span>Codigo: {{ group.codigoCurso }}</span>
                   </div>
 
-                  <div class="evaluation-item__action">
-                    <label class="grade-field">
-                      <span>Nota</span>
-                      <input
-                        type="number"
-                        min="0"
-                        max="20"
-                        step="0.1"
-                        [value]="draftValue(currentItem)"
-                        [disabled]="!canEditEvaluation(currentItem)"
-                        (input)="updateDraft(currentItem, $any($event.target).value)" />
-                    </label>
+                  <div class="operation-row__average">
+                    <span>{{ group.promedio }}</span>
+                  </div>
 
+                  <div class="operation-row__next">
+                    <strong>{{ currentItem.evaluacionCodigo }}</strong>
+                    <span>{{ weightLabel(currentItem) }} · {{ evaluationDateLabel(currentItem) }}</span>
+                  </div>
+
+                  <div class="operation-row__input">
+                    <input
+                      type="number"
+                      min="0"
+                      max="20"
+                      step="0.1"
+                      [value]="draftValue(currentItem)"
+                      [disabled]="!canEditEvaluation(currentItem)"
+                      (input)="updateDraft(currentItem, $any($event.target).value)" />
+                  </div>
+
+                  <div class="operation-row__action">
                     <button class="btn btn--primary" type="button" [disabled]="isSaving(currentItem) || !canEditEvaluation(currentItem)" (click)="saveGrade(currentItem)">
                       {{ isSaving(currentItem) ? 'Guardando...' : 'Guardar' }}
                     </button>
                   </div>
 
                   @if (!canEditEvaluation(currentItem) && currentItem.nota == null) {
-                    <div class="inline-feedback">{{ editBlockReason(currentItem) }}</div>
+                    <div class="operation-row__feedback">{{ editBlockReason(currentItem) }}</div>
                   }
 
                   @if (feedback(currentItem); as feedbackItem) {
-                    <div class="inline-feedback" [class.inline-feedback--error]="feedbackItem.type === 'error'">
+                    <div class="operation-row__feedback" [class.operation-row__feedback--error]="feedbackItem.type === 'error'">
                       {{ feedbackItem.message }}
                     </div>
                   }
                 </article>
-              </div>
-            </article>
-          }
-        }
-      </section>
-    }
+              }
+            }
+          </div>
+        </section>
+      }
+    </section>
   }
 </main>
