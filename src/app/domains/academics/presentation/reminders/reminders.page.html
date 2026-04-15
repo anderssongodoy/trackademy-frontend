@@ -1,89 +1,111 @@
 <main class="reminders-page">
-  <section class="reminders-hero">
-    <div class="reminders-hero__copy">
-      <p class="eyebrow">Recordatorios</p>
-      <h1>Alertas reales para no perder el hilo del ciclo</h1>
-      <p>
-        Esta vista junta pendientes de nota, clases cercanas y eventos del periodo para que veas
-        que requiere accion y que solo conviene tener presente.
-      </p>
-    </div>
+  @if (isLoading) {
+    <div class="state-card">Cargando recordatorios reales...</div>
+  }
 
-    <div class="reminders-stats">
-      <article class="stat-card stat-card--slate">
-        <span>Total</span>
-        <strong>{{ stats.total }}</strong>
-        <small>alertas visibles</small>
-      </article>
-      <article class="stat-card stat-card--lilac">
-        <span>Accionables</span>
-        <strong>{{ stats.actionable }}</strong>
-        <small>pendientes de nota</small>
-      </article>
-      <article class="stat-card stat-card--mint">
-        <span>Hoy</span>
-        <strong>{{ stats.today }}</strong>
-        <small>cosas que ya corren</small>
-      </article>
-      <article class="stat-card stat-card--amber">
-        <span>Vencidos</span>
-        <strong>{{ stats.overdue }}</strong>
-        <small>necesitan atencion</small>
-      </article>
-    </div>
-  </section>
+  @if (loadError) {
+    <div class="state-card state-card--error">{{ loadError }}</div>
+  }
 
-  <section class="reminders-shell">
-    <header class="reminders-toolbar">
-      <div>
-        <h2>Tu radar del periodo</h2>
-        <p>Se actualiza con calendario y evaluaciones reales.</p>
-      </div>
+  @if (!isLoading && !loadError) {
+    <section class="reminders-frame">
+      <header class="reminders-hero">
+        <div class="reminders-hero__copy">
+          <h1>Recordatorios Academicos</h1>
+          <p>Gestion estrategica de compromisos, tramites y alertas derivadas del calendario y de tus evaluaciones reales.</p>
+        </div>
+      </header>
 
-      <div class="filter-pills">
-        <button type="button" [class.is-active]="selectedFilter === 'all'" (click)="selectedFilter = 'all'">Todo</button>
-        <button type="button" [class.is-active]="selectedFilter === 'actionable'" (click)="selectedFilter = 'actionable'">Accionables</button>
-        <button type="button" [class.is-active]="selectedFilter === 'informative'" (click)="selectedFilter = 'informative'">Informativos</button>
-      </div>
-    </header>
-
-    <section *ngIf="isLoading" class="state-card">
-      <p>Cargando recordatorios reales...</p>
-    </section>
-
-    <section *ngIf="!isLoading && loadError" class="state-card state-card--error">
-      <p>{{ loadError }}</p>
-    </section>
-
-    <section *ngIf="!isLoading && !loadError && !filteredReminders.length" class="state-card">
-      <p>No hay recordatorios para este filtro.</p>
-    </section>
-
-    <section *ngIf="!isLoading && !loadError && filteredReminders.length" class="reminders-list">
-      <article *ngFor="let item of filteredReminders; trackBy: trackReminder" class="reminder-card">
-        <div class="reminder-card__top">
-          <span class="reminder-kind" [ngClass]="kindClass(item)">{{ kindLabel(item) }}</span>
-          <span class="reminder-chip" [ngClass]="urgencyClass(item)">{{ urgencyLabel(item) }}</span>
+      <section class="radar-card">
+        <div class="radar-card__header">
+          <h2>Radar de {{ currentPeriod?.periodoEtiqueta || 'Periodo actual' }}</h2>
+          <span>Semana 12 de 16</span>
         </div>
 
-        <div class="reminder-card__body">
-          <div class="reminder-card__main">
-            <p class="reminder-card__course">{{ item.courseLabel }}</p>
-            <h3>{{ item.title }}</h3>
-            <p class="reminder-card__subtitle">{{ item.subtitle }}</p>
-            <p class="reminder-card__description">{{ item.description }}</p>
+        <div class="radar-line">
+          @for (point of radarPoints; track point.label) {
+            <article class="radar-point" [class.radar-point--active]="point.active" [class.radar-point--accent]="point.accent">
+              <span class="radar-point__dot"></span>
+              <strong>{{ point.label }}</strong>
+              <small>{{ point.caption }}</small>
+            </article>
+          }
+        </div>
+      </section>
+
+      <section class="reminders-layout">
+        <div class="reminders-main">
+          <div class="filter-pills">
+            <button type="button" [class.is-active]="selectedFilter === 'all'" (click)="setFilter('all')">Todos</button>
+            <button type="button" [class.is-active]="selectedFilter === 'grade'" (click)="setFilter('grade')">Pagos</button>
+            <button type="button" [class.is-active]="selectedFilter === 'class'" (click)="setFilter('class')">Tramites</button>
+            <button type="button" [class.is-active]="selectedFilter === 'period'" (click)="setFilter('period')">Otros</button>
           </div>
 
-          <div class="reminder-card__meta">
-            <strong>{{ item.dateLabel }}</strong>
-            <span>{{ item.timeLabel }}</span>
-          </div>
+          @if (!filteredReminders.length) {
+            <div class="state-card">No hay recordatorios para este filtro.</div>
+          }
+
+          @if (filteredReminders.length) {
+            <section class="reminders-list">
+              @for (item of filteredReminders; track trackReminder($index, item)) {
+                <article class="reminder-card">
+                  <div class="reminder-card__icon" [class]="kindClass(item)"></div>
+
+                  <div class="reminder-card__copy">
+                    <div class="reminder-card__head">
+                      <div>
+                        <span class="reminder-kind" [class]="kindClass(item)">{{ kindLabel(item) }}</span>
+                        <h3>{{ item.title }}</h3>
+                      </div>
+                      <span class="reminder-chip" [class]="urgencyClass(item)">{{ urgencyLabel(item) }}</span>
+                    </div>
+
+                    <p>{{ item.subtitle }}</p>
+
+                    <div class="reminder-card__meta">
+                      <span>{{ item.dateLabel }}</span>
+                      <span>{{ item.timeLabel }}</span>
+                    </div>
+                  </div>
+
+                  <div class="reminder-card__action">
+                    <a [routerLink]="item.actionLink">{{ item.actionLabel }}</a>
+                  </div>
+                </article>
+              }
+            </section>
+          }
         </div>
 
-        <div class="reminder-card__actions">
-          <a [routerLink]="item.actionLink">{{ item.actionLabel }}</a>
-        </div>
-      </article>
+        <aside class="reminders-side">
+          <article class="suggestions-card">
+            <h2>Sugerencias IA</h2>
+            <p>Basado en tu historial academico y calendario visible.</p>
+
+            <div class="suggestions-list">
+              @for (item of suggestions; track item.id) {
+                <article class="suggestion-item">
+                  <strong>{{ item.title }}</strong>
+                  <p>{{ item.description }}</p>
+                </article>
+              }
+            </div>
+
+            <a class="suggestions-card__cta" routerLink="/app/calendario">Anadir todo al calendario</a>
+          </article>
+
+          <article class="support-card">
+            <h2>Soporte academico</h2>
+
+            <div class="support-links">
+              @for (item of supportLinks; track item.label) {
+                <a [routerLink]="item.link">{{ item.label }}</a>
+              }
+            </div>
+          </article>
+        </aside>
+      </section>
     </section>
-  </section>
+  }
 </main>

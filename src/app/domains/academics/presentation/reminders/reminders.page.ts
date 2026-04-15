@@ -5,7 +5,7 @@ import { forkJoin } from 'rxjs';
 
 import { MeUseCase, MyCalendarEvent, MyCurrentPeriod, MyEvaluation } from '../../application/me-use-case';
 
-type ReminderFilter = 'all' | 'actionable' | 'informative';
+type ReminderFilter = 'all' | 'grade' | 'class' | 'period';
 type ReminderUrgency = 'overdue' | 'today' | 'soon' | 'upcoming';
 type ReminderKind = 'grade' | 'class' | 'period';
 
@@ -24,6 +24,13 @@ interface ReminderItem {
   actionLink: string;
 }
 
+interface RadarPoint {
+  label: string;
+  active: boolean;
+  accent: boolean;
+  caption: string;
+}
+
 @Component({
   selector: 'app-reminders-page',
   imports: [CommonModule, RouterLink],
@@ -35,6 +42,7 @@ export class RemindersPage implements OnInit {
 
   isLoading = true;
   loadError = '';
+  currentPeriod: MyCurrentPeriod | null = null;
   selectedFilter: ReminderFilter = 'all';
   reminderItems: ReminderItem[] = [];
 
@@ -43,14 +51,10 @@ export class RemindersPage implements OnInit {
   }
 
   get filteredReminders(): ReminderItem[] {
-    switch (this.selectedFilter) {
-      case 'actionable':
-        return this.reminderItems.filter((item) => item.kind === 'grade');
-      case 'informative':
-        return this.reminderItems.filter((item) => item.kind !== 'grade');
-      default:
-        return this.reminderItems;
+    if (this.selectedFilter === 'all') {
+      return this.reminderItems;
     }
+    return this.reminderItems.filter((item) => item.kind === this.selectedFilter);
   }
 
   get stats() {
@@ -62,6 +66,31 @@ export class RemindersPage implements OnInit {
     };
   }
 
+  get radarPoints(): RadarPoint[] {
+    return [
+      { label: 'Inicio', active: true, accent: false, caption: 'Arranque del ciclo' },
+      { label: 'Hoy', active: true, accent: this.stats.overdue > 0 || this.stats.today > 0, caption: this.stats.overdue > 0 ? `Vencimiento cuota ${this.stats.overdue}` : 'Sin alertas vencidas' },
+      { label: 'Talleres', active: this.reminderItems.some((item) => item.title.toLowerCase().includes('taller')), accent: false, caption: 'Modulo extracurricular' },
+      { label: 'Retiros', active: this.reminderItems.some((item) => item.title.toLowerCase().includes('retiro')), accent: false, caption: 'Tramites del periodo' },
+      { label: 'Finales', active: this.reminderItems.some((item) => item.kind === 'grade' && item.urgency === 'upcoming'), accent: false, caption: 'Cierre del ciclo' }
+    ];
+  }
+
+  get suggestions(): ReminderItem[] {
+    return this.reminderItems.slice(0, 3);
+  }
+
+  get supportLinks(): Array<{ label: string; link: string }> {
+    return [
+      { label: 'Guia de Tramites', link: '/app/perfil' },
+      { label: 'Cronograma de Pagos', link: '/app/calendario' }
+    ];
+  }
+
+  setFilter(filter: ReminderFilter): void {
+    this.selectedFilter = filter;
+  }
+
   trackReminder(_index: number, item: ReminderItem): string {
     return item.id;
   }
@@ -69,13 +98,13 @@ export class RemindersPage implements OnInit {
   urgencyLabel(item: ReminderItem): string {
     switch (item.urgency) {
       case 'overdue':
-        return 'Vencido';
+        return 'Muy urgente';
       case 'today':
         return 'Hoy';
       case 'soon':
-        return 'Muy pronto';
+        return 'Pronto';
       default:
-        return 'En camino';
+        return 'En radar';
     }
   }
 
@@ -95,11 +124,11 @@ export class RemindersPage implements OnInit {
   kindLabel(item: ReminderItem): string {
     switch (item.kind) {
       case 'grade':
-        return 'Pendiente';
+        return 'Pagos';
       case 'class':
-        return 'Clase';
+        return 'Academico';
       default:
-        return 'Periodo';
+        return 'Otros';
     }
   }
 
@@ -120,6 +149,7 @@ export class RemindersPage implements OnInit {
 
     this.meUseCase.getCurrentPeriod().subscribe({
       next: (period) => {
+        this.currentPeriod = period;
         const todayIso = this.toIsoDate(new Date());
         const endIso = this.resolveCalendarEnd(period);
 
@@ -183,7 +213,7 @@ export class RemindersPage implements OnInit {
   private toCalendarReminder(item: MyCalendarEvent): ReminderItem | null {
     const start = new Date(item.inicio);
     const diffDays = this.diffInDays(start, this.startOfToday());
-    if (diffDays > 10) {
+    if (diffDays > 14) {
       return null;
     }
 
