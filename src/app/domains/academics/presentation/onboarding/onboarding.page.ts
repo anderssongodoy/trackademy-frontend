@@ -36,6 +36,7 @@ interface CourseDetailForm {
   styleUrl: './onboarding.page.scss'
 })
 export class OnboardingPage implements OnInit {
+  readonly studyHourPresets = [10, 20, 30];
   private readonly fb = inject(UntypedFormBuilder);
   private readonly catalogUseCase = inject(CatalogUseCase);
   private readonly onboardingUseCase = inject(OnboardingUseCase);
@@ -200,6 +201,57 @@ export class OnboardingPage implements OnInit {
         done: this.selectedCourseIds.size > 0
       }
     ];
+  }
+
+  get stepCards(): Array<{ index: number; title: string; subtitle: string; done: boolean; active: boolean }> {
+    return [
+      {
+        index: 1,
+        title: 'Datos base',
+        subtitle: 'Perfil académico general',
+        done: this.currentStep > 1 || this.form.valid,
+        active: this.currentStep === 1
+      },
+      {
+        index: 2,
+        title: 'Cursos seleccionados',
+        subtitle: 'Previsualiza tu carga lectiva',
+        done: this.selectedCourseIds.size > 0,
+        active: this.currentStep === 2
+      },
+      {
+        index: 3,
+        title: 'Documentación',
+        subtitle: 'Verificación por PDF',
+        done: this.pdfDetectedCourses.length > 0 || this.pdfDetectedSummary.length > 0,
+        active: false
+      }
+    ];
+  }
+
+  get currentStepLabel(): string {
+    return `Paso ${this.currentStep} de 2`;
+  }
+
+  get progressPercent(): number {
+    return this.currentStep === 2 ? 100 : 50;
+  }
+
+  get projectedGpa(): string {
+    const target = Number(this.form.get('metaPromedioCiclo')?.value ?? 0);
+    const hours = Number(this.form.get('horasEstudioSemanaObjetivo')?.value ?? 0);
+    const projected = Math.min(20, target + Math.max(0, hours - 8) * 0.04);
+    return projected.toFixed(1);
+  }
+
+  isStudyHourPreset(value: number): boolean {
+    return Number(this.form.get('horasEstudioSemanaObjetivo')?.value ?? 0) === value;
+  }
+
+  selectStudyHourPreset(value: number): void {
+    this.form.get('horasEstudioSemanaObjetivo')?.setValue(value);
+    this.form.get('horasEstudioSemanaObjetivo')?.markAsDirty();
+    this.form.get('horasEstudioSemanaObjetivo')?.markAsTouched();
   }
 
   private loadCourses(carreraId: number): void {
