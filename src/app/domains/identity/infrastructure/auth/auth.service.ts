@@ -164,8 +164,9 @@ export class AuthService {
       type: 'standard',
       theme: 'outline',
       size: 'large',
-      shape: 'pill',
+      shape: 'rectangular',
       text: 'continue_with',
+      logo_alignment: 'left',
       width: Math.max(container.clientWidth - 2, 280)
     });
 
