@@ -137,24 +137,27 @@
   width: 100%;
   display: inline-flex;
   align-items: center;
-  gap: 16px;
-  min-height: 52px;
-  border-radius: 16px;
-  padding: 0 20px;
-  border: 1px solid #cfd6e3;
+  gap: 12px;
+  min-height: 40px;
+  height: 40px;
+  border-radius: 4px;
+  padding: 0 12px;
+  border: 1px solid #dadce0;
   background: #fff;
-  color: #2d3642;
-  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
-  font-size: 0.95rem;
+  color: #3c4043;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
   font-weight: 500;
+  letter-spacing: 0.25px;
   cursor: pointer;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
-  transition: transform 140ms ease, box-shadow 140ms ease;
+  box-shadow: none;
+  transition: background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
 }
 
 .provider:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 16px rgba(84, 0, 194, 0.08);
+  background: #f8f9fa;
+  border-color: #d2e3fc;
+  box-shadow: 0 1px 2px rgba(60, 64, 67, 0.15);
 }
 
 .provider:disabled {
@@ -164,21 +167,22 @@
 
 .provider span:last-child {
   flex: 1;
-  text-align: left;
+  text-align: center;
   line-height: 1;
+  transform: translateX(-12px);
 }
 
 .provider__icon {
-  width: 24px;
-  height: 24px;
+  width: 18px;
+  height: 18px;
   display: grid;
   place-items: center;
   flex: 0 0 auto;
 }
 
 .provider__icon svg {
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
 }
 
 .divider {
@@ -219,37 +223,45 @@
 :host ::ng-deep .google .abcRioButton {
   width: 100% !important;
   min-width: 100% !important;
-  border-radius: 14px !important;
+  border-radius: 4px !important;
   box-shadow: none !important;
 }
 
 :host ::ng-deep .google .nsm7Bb-HzV7m-LgbsSe,
 :host ::ng-deep .google .abcRioButton {
-  height: 52px !important;
-  border: 1px solid #cfd6e3 !important;
+  height: 40px !important;
+  border: 1px solid #dadce0 !important;
   border-radius: 16px !important;
   background: #fff !important;
-  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08) !important;
+  box-shadow: none !important;
 }
 
 :host ::ng-deep .google .nsm7Bb-HzV7m-LgbsSe-Bz112c,
 :host ::ng-deep .google .nsm7Bb-HzV7m-LgbsSe-MJoBVe,
 :host ::ng-deep .google .abcRioButtonContents {
-  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif !important;
-  font-size: 0.95rem !important;
+  font-family: Arial, sans-serif !important;
+  font-size: 14px !important;
   font-weight: 500 !important;
-  color: #2d3642 !important;
-  text-align: left !important;
+  color: #3c4043 !important;
+  text-align: center !important;
+  letter-spacing: 0.25px !important;
 }
 
 :host ::ng-deep .google .nsm7Bb-HzV7m-LgbsSe-MJoBVe,
 :host ::ng-deep .google .abcRioButtonIcon {
-  margin-right: 16px !important;
+  margin-right: 12px !important;
 }
 
 :host ::ng-deep .google .nsm7Bb-HzV7m-LgbsSe-Bz112c {
-  padding-left: 20px !important;
-  padding-right: 20px !important;
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+}
+
+:host ::ng-deep .google .nsm7Bb-HzV7m-LgbsSe:hover,
+:host ::ng-deep .google .abcRioButton:hover {
+  background: #f8f9fa !important;
+  border-color: #d2e3fc !important;
+  box-shadow: 0 1px 2px rgba(60, 64, 67, 0.15) !important;
 }
 
 .hint,
