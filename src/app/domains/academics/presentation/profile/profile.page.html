@@ -1,20 +1,4 @@
 <main class="profile">
-  <header class="profile__hero">
-    <div class="hero__copy">
-      <p class="eyebrow">Perfil</p>
-      <h1>{{ heroTitle }}</h1>
-      <p class="subtitle">Aqui ajustas tus datos personales, tus objetivos y, si hace falta, tambien reconfiguras campus, carrera y cursos del periodo actual.</p>
-
-      @if (period) {
-        <div class="hero__chips">
-          <span class="status-chip">{{ onboardingStatusLabel }}</span>
-          <span class="hero-chip">{{ period.periodoEtiqueta || 'Periodo actual' }}</span>
-          <span class="hero-chip">{{ periodRangeLabel }}</span>
-        </div>
-      }
-    </div>
-  </header>
-
   @if (isLoading) {
     <div class="state state--loading">Cargando perfil...</div>
   }
@@ -24,417 +8,311 @@
   }
 
   @if (!isLoading && !loadError && period) {
-    <section class="stats">
-      <article class="stat-card">
-        <span>Ciclo actual</span>
-        <strong>{{ period.cicloActual || '--' }}</strong>
-        <small>nivel configurado para este periodo</small>
-      </article>
-
-      <article class="stat-card stat-card--soft">
-        <span>Meta de promedio</span>
-        <strong>{{ period.metaPromedioCiclo }}</strong>
-        <small>objetivo academico del ciclo</small>
-      </article>
-
-      <article class="stat-card stat-card--mint">
-        <span>Horas objetivo</span>
-        <strong>{{ period.horasEstudioSemanaObjetivo }}</strong>
-        <small>horas por semana fuera de clase</small>
-      </article>
-    </section>
-
-    <section class="profile__layout">
-      <section class="profile-card">
-        <div class="profile-card__header">
-          <div>
-            <h2>Datos personales</h2>
-            <p>Este es el lugar correcto para actualizar como te llamamos y tu correo institucional.</p>
-          </div>
+    <section class="profile__frame">
+      <header class="identity-card">
+        <div class="identity-card__avatar">
+          <span>{{ profileInitials }}</span>
         </div>
 
-        <form class="profile-form" [formGroup]="personalForm" (ngSubmit)="savePersonal()">
-          <div class="form-grid">
-            <label class="field">
-              <span>Nombre completo</span>
-              <input type="text" formControlName="nombre" placeholder="Tu nombre completo" />
-              <small>Se usa como identidad principal dentro del sistema.</small>
-            </label>
+        <div class="identity-card__copy">
+          <div class="identity-card__chips">
+            <span class="profile-chip profile-chip--accent">{{ period.periodoEtiqueta || 'Periodo actual' }}</span>
+            <span class="profile-chip">Ciclo {{ period.cicloActual || '--' }}</span>
+          </div>
 
-            <label class="field">
-              <span>Nombre preferido</span>
-              <input type="text" formControlName="nombrePreferido" placeholder="Como prefieres que te llamemos" />
-              <small>Si existe, lo priorizamos en encabezados y saludos.</small>
-            </label>
+          <h1>{{ fullDisplayName }}</h1>
+          <p class="identity-card__career">{{ careerName }}</p>
 
-            <label class="field">
+          <div class="identity-card__meta">
+            <article>
               <span>Correo institucional</span>
-              <input type="email" formControlName="emailInstitucional" placeholder="u2020xxxx@utp.edu.pe" />
-              <small>Opcional, pero debe ser un correo valido si decides usarlo.</small>
+              <strong>{{ period.emailInstitucional || 'Pendiente' }}</strong>
+            </article>
+            <article>
+              <span>Campus</span>
+              <strong>{{ campusName }}</strong>
+            </article>
+            <article>
+              <span>Estado</span>
+              <strong>{{ onboardingStatusLabel }}</strong>
+            </article>
+          </div>
+        </div>
+      </header>
+
+      <section class="profile__grid">
+        <div class="profile__main">
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <h2>Informacion general</h2>
+                <p>Actualiza como te mostramos y tu identidad institucional.</p>
+              </div>
+            </div>
+
+            <form class="profile-form" [formGroup]="personalForm" (ngSubmit)="savePersonal()">
+              <div class="form-grid">
+                <label class="field">
+                  <span>Nombre completo</span>
+                  <input type="text" formControlName="nombre" placeholder="Tu nombre completo" />
+                </label>
+
+                <label class="field">
+                  <span>Nombre preferido</span>
+                  <input type="text" formControlName="nombrePreferido" placeholder="Como prefieres que te llamemos" />
+                </label>
+
+                <label class="field">
+                  <span>Correo institucional</span>
+                  <input type="email" formControlName="emailInstitucional" placeholder="u2020xxxx@utp.edu.pe" />
+                </label>
+              </div>
+
+              @if (personalError) {
+                <div class="state state--error">{{ personalError }}</div>
+              }
+
+              @if (personalSuccess) {
+                <div class="state state--success">{{ personalSuccess }}</div>
+              }
+
+              <div class="panel__actions">
+                <button class="btn btn--primary" type="submit" [disabled]="isSavingPersonal">
+                  {{ isSavingPersonal ? 'Guardando...' : 'Guardar datos' }}
+                </button>
+              </div>
+            </form>
+          </article>
+
+          <article class="panel">
+            <div class="panel__header">
+              <div>
+                <h2>Objetivos del semestre</h2>
+                <p>Define tus metas academicas sin tocar la estructura del periodo.</p>
+              </div>
+            </div>
+
+            <form class="goals-grid" [formGroup]="goalsForm" (ngSubmit)="saveGoals()">
+              <label class="goal-card">
+                <span>Meta de promedio ponderado</span>
+                <input type="number" formControlName="metaPromedioCiclo" min="0" max="20" step="0.1" />
+              </label>
+
+              <label class="goal-card">
+                <span>Horas de estudio por semana</span>
+                <input type="number" formControlName="horasEstudioSemanaObjetivo" min="1" max="80" step="1" />
+              </label>
+
+              @if (goalsError) {
+                <div class="state state--error">{{ goalsError }}</div>
+              }
+
+              @if (goalsSuccess) {
+                <div class="state state--success">{{ goalsSuccess }}</div>
+              }
+
+              <div class="panel__actions">
+                <button class="btn btn--primary" type="submit" [disabled]="isSavingGoals">
+                  {{ isSavingGoals ? 'Guardando...' : 'Guardar objetivos' }}
+                </button>
+              </div>
+            </form>
+          </article>
+
+          <article class="progress-card">
+            <div>
+              <h2>Progreso del ciclo</h2>
+              <p>Tu base academica ya esta lista para operar con cursos, calendario y seguimiento.</p>
+            </div>
+
+            <div class="progress-card__stats">
+              <div>
+                <strong>{{ currentCoursesCount }}</strong>
+                <span>cursos activos</span>
+              </div>
+              <div>
+                <strong>{{ period.metaPromedioCiclo }}</strong>
+                <span>meta promedio</span>
+              </div>
+              <div>
+                <strong>{{ period.horasEstudioSemanaObjetivo }}</strong>
+                <span>horas objetivo</span>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <aside class="profile__side">
+          <article class="side-card side-card--accent" id="whatsapp-channel">
+            <span class="side-card__eyebrow">Trackademy Bot</span>
+            <h2>{{ whatsappSummaryLabel }}</h2>
+            <p>Canal MVP para consultas rapidas y seguimiento desde WhatsApp.</p>
+
+            @if (isWhatsappLoading) {
+              <div class="state state--loading">Consultando estado de WhatsApp...</div>
+            } @else {
+              @if (whatsappStatus?.linked) {
+                <div class="side-card__meta">
+                  <strong>{{ whatsappStatus?.phoneNumberMasked || 'Numero vinculado' }}</strong>
+                  <small>Vinculado: {{ whatsappStatus?.linkedAt ? (whatsappStatus?.linkedAt | date:'dd/MM/yyyy HH:mm') : 'sin fecha' }}</small>
+                </div>
+              } @else {
+                <div class="side-card__meta">
+                  <strong>{{ whatsappLinkCode?.code || 'Sin codigo activo' }}</strong>
+                  <small>{{ whatsappExpiryLabel }}</small>
+                </div>
+              }
+
+              <div class="side-card__actions">
+                @if (!whatsappStatus?.linked) {
+                  <button class="btn btn--primary" type="button" (click)="generateWhatsappCode()" [disabled]="isGeneratingWhatsappCode">
+                    {{ isGeneratingWhatsappCode ? 'Generando...' : (whatsappHasActiveCode ? 'Generar nuevo codigo' : 'Vincular con WhatsApp') }}
+                  </button>
+                }
+
+                @if (whatsappHasActiveCode && !whatsappStatus?.linked) {
+                  <button class="btn btn--ghost" type="button" (click)="openWhatsappDeepLink()">Abrir WhatsApp</button>
+                }
+
+                @if (whatsappStatus?.linked) {
+                  <button class="btn btn--ghost" type="button" (click)="unlinkWhatsapp()" [disabled]="isUnlinkingWhatsapp">
+                    {{ isUnlinkingWhatsapp ? 'Desvinculando...' : 'Desvincular' }}
+                  </button>
+                }
+              </div>
+            }
+
+            @if (whatsappError) {
+              <div class="state state--error">{{ whatsappError }}</div>
+            }
+
+            @if (whatsappSuccess) {
+              <div class="state state--success">{{ whatsappSuccess }}</div>
+            }
+          </article>
+
+          <article class="side-card">
+            <span class="side-card__eyebrow">Integracion de calendario</span>
+            <div class="sync-grid">
+              @for (account of calendarSyncAccounts; track account.provider) {
+                <article class="sync-item" [class.sync-item--connected]="account.conectado">
+                  <div>
+                    <strong>{{ syncProviderLabel(account.provider) }}</strong>
+                    <p>{{ syncStatusLabel(account) }}</p>
+                  </div>
+                </article>
+              }
+            </div>
+          </article>
+
+          <article class="side-card">
+            <span class="side-card__eyebrow">Reconfigurar ciclo actual</span>
+            <p>Usa este bloque solo si cambiaste campus, carrera o la lista de cursos del periodo.</p>
+            <a class="btn btn--ghost" href="#reconfig-panel">
+              Reconfigurar ciclo actual
+            </a>
+          </article>
+        </aside>
+      </section>
+
+      <section class="panel panel--wide" id="reconfig-panel">
+        <div class="panel__header">
+          <div>
+            <h2>Configuracion academica</h2>
+            <p>Ajusta campus, carrera y cursos solo cuando necesites rehacer el contexto del periodo.</p>
+          </div>
+        </div>
+
+        <div class="warning-box">
+          Si quitas un curso, tambien se borraran su horario configurado y sus notas registradas en este periodo.
+        </div>
+
+        <form class="reconfig-form" [formGroup]="configForm" (ngSubmit)="saveConfiguration()">
+          <div class="reconfig-grid">
+            <label class="field">
+              <span>Campus</span>
+              <select formControlName="campusId">
+                @for (campus of campuses; track campus.id) {
+                  <option [ngValue]="campus.id">{{ campus.nombre }}</option>
+                }
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Carrera</span>
+              <select formControlName="carreraId">
+                @for (career of careers; track career.id) {
+                  <option [ngValue]="career.id">{{ career.nombre }}</option>
+                }
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Ciclo actual</span>
+              <input type="number" formControlName="cicloActual" min="1" max="12" step="1" />
             </label>
           </div>
 
-          @if (personalError) {
-            <div class="state state--error">{{ personalError }}</div>
-          }
-
-          @if (personalSuccess) {
-            <div class="state state--success">{{ personalSuccess }}</div>
-          }
-
-          <div class="profile-form__actions">
-            <button class="btn btn--primary" type="submit" [disabled]="isSavingPersonal">
-              {{ isSavingPersonal ? 'Guardando...' : 'Guardar datos personales' }}
-            </button>
-          </div>
-        </form>
-      </section>
-
-      <aside class="profile-card profile-card--aside">
-        <div class="profile-card__header">
-          <div>
-            <h2>Identidad del periodo</h2>
-            <p>Un resumen mas claro del contexto activo, sin ese bloque suelto del hero.</p>
-          </div>
-        </div>
-
-        <div class="summary-list">
-          <article class="summary-item summary-item--highlight">
-            <span>Como te mostramos</span>
-            <strong>{{ displayName }}</strong>
-            <small>{{ period.nombre || 'Sin nombre base' }}</small>
-          </article>
-
-          <article class="summary-item">
-            <span>Periodo</span>
-            <strong>{{ period.periodoEtiqueta || 'Sin etiqueta' }}</strong>
-            <small>{{ periodRangeLabel }}</small>
-          </article>
-
-          <article class="summary-item">
-            <span>Campus</span>
-            <strong>{{ campusName }}</strong>
-          </article>
-
-          <article class="summary-item">
-            <span>Carrera</span>
-            <strong>{{ careerName }}</strong>
-          </article>
-
-          <article class="summary-item">
-            <span>Onboarding completado</span>
-            <strong>
-              @if (period.onboardingCompletadoAt) {
-                {{ period.onboardingCompletadoAt | date:'dd/MM/yyyy HH:mm' }}
-              } @else {
-                Sin registro
-              }
-            </strong>
-          </article>
-        </div>
-      </aside>
-    </section>
-
-    <section class="profile__layout">
-      <section class="profile-card">
-        <div class="profile-card__header">
-          <div>
-            <h2>Objetivos personales</h2>
-            <p>Actualiza lo que quieres perseguir este ciclo sin tocar cursos ni horarios.</p>
-          </div>
-        </div>
-
-        <form class="profile-form" [formGroup]="goalsForm" (ngSubmit)="saveGoals()">
           <label class="field">
-            <span>Meta de promedio final</span>
-            <input type="number" formControlName="metaPromedioCiclo" min="0" max="20" step="0.1" />
-            <small>Escala de 0 a 20.</small>
+            <span>Buscar cursos</span>
+            <input type="text" [value]="courseQuery" (input)="onCourseQueryChange($any($event.target).value)" placeholder="Ej. Estructuras, CS201" />
           </label>
 
-          <label class="field">
-            <span>Horas de estudio por semana</span>
-            <input type="number" formControlName="horasEstudioSemanaObjetivo" min="1" max="80" step="1" />
-            <small>Tiempo objetivo fuera del horario de clases.</small>
-          </label>
-
-          @if (goalsError) {
-            <div class="state state--error">{{ goalsError }}</div>
+          @if (configInfo) {
+            <div class="state state--loading">{{ configInfo }}</div>
           }
 
-          @if (goalsSuccess) {
-            <div class="state state--success">{{ goalsSuccess }}</div>
-          }
-
-          <div class="profile-form__actions">
-            <button class="btn btn--primary" type="submit" [disabled]="isSavingGoals">
-              {{ isSavingGoals ? 'Guardando...' : 'Guardar objetivos' }}
-            </button>
+          <div class="reconfig-meta">
+            <strong>{{ selectedCourseIds.size }} curso{{ selectedCourseIds.size === 1 ? '' : 's' }} seleccionado{{ selectedCourseIds.size === 1 ? '' : 's' }}</strong>
+            <span>{{ addedCourseCount }} agregado{{ addedCourseCount === 1 ? '' : 's' }} · {{ removedCourseCount }} eliminado{{ removedCourseCount === 1 ? '' : 's' }}</span>
           </div>
-        </form>
-      </section>
 
-      <aside class="profile-card profile-card--aside">
-        <div class="profile-card__header">
-          <div>
-            <h2>Base academica</h2>
-            <p>Lo que ya define este ciclo y luego impacta en cursos, horario y notas.</p>
-          </div>
-        </div>
-
-        <div class="summary-list">
-          <article class="summary-item">
-            <span>Ciclo</span>
-            <strong>{{ period.cicloActual || 'Sin definir' }}</strong>
-          </article>
-          <article class="summary-item">
-            <span>Objetivo de promedio</span>
-            <strong>{{ period.metaPromedioCiclo }}</strong>
-          </article>
-          <article class="summary-item">
-            <span>Horas objetivo</span>
-            <strong>{{ period.horasEstudioSemanaObjetivo }}</strong>
-          </article>
-          <article class="summary-item">
-            <span>Estado del perfil base</span>
-            <strong>{{ onboardingStatusLabel }}</strong>
-          </article>
-        </div>
-      </aside>
-    </section>
-
-    <section class="profile-card profile-card--wide">
-      <div class="profile-card__header">
-        <div>
-          <h2>Sincronizacion de calendario</h2>
-          <p>Ya dejamos lista la base para Google Calendar y Outlook. En este bloque veras que proveedor esta conectado cuando activemos el OAuth real.</p>
-        </div>
-      </div>
-
-      <div class="reconfig-meta">
-        <strong>{{ connectedCalendarProviders }} proveedor{{ connectedCalendarProviders === 1 ? '' : 'es' }} conectado{{ connectedCalendarProviders === 1 ? '' : 's' }}</strong>
-        <span>Por ahora solo dejamos visible el estado. La conexion real sera el siguiente paso.</span>
-      </div>
-
-      <div class="sync-grid">
-        @for (account of calendarSyncAccounts; track account.provider) {
-          <article class="sync-card" [class.sync-card--connected]="account.conectado">
-            <div class="sync-card__top">
-              <div>
-                <span class="sync-card__eyebrow">{{ syncProviderLabel(account.provider) }}</span>
-                <h3>{{ syncStatusLabel(account) }}</h3>
-              </div>
-              <span class="status-chip" [class.status-chip--pending]="!account.conectado">{{ account.conectado ? 'Listo para usar' : 'Pendiente' }}</span>
-            </div>
-
-            <p>{{ syncHint(account) }}</p>
-
-            @if (account.lastSyncAt) {
-              <small>Ultimo sync: {{ account.lastSyncAt | date:'dd/MM/yyyy HH:mm' }}</small>
-            } @else {
-              <small>Aun no hay un primer sync registrado.</small>
-            }
-          </article>
-        }
-      </div>
-    </section>
-
-    <section class="profile-card profile-card--wide" id="whatsapp-channel">
-      <div class="profile-card__header">
-        <div>
-          <h2>Integraciones y canales</h2>
-          <p>WhatsApp en esta fase sirve solo para consultas. El alumno debe iniciar la conversacion desde su propio chat.</p>
-        </div>
-        <span class="status-chip" [class.status-chip--pending]="!isWhatsappLinked">{{ whatsappConnectionLabel }}</span>
-      </div>
-
-      @if (isWhatsappLoading) {
-        <div class="state state--loading">Consultando estado de WhatsApp...</div>
-      }
-
-      @if (!isWhatsappLoading) {
-        <div class="channel-grid">
-          <article class="channel-card channel-card--accent">
-            <span class="channel-card__eyebrow">Canal oficial</span>
-            <h3>Vincula tu WhatsApp personal</h3>
-            <p>
-              Genera un codigo temporal, abre el chat oficial de Trackademy y envia ese primer mensaje para validar tu numero.
-            </p>
-
-            @if (whatsappStatus?.linked) {
-              <div class="channel-meta">
-                <strong>{{ whatsappStatus?.phoneNumberMasked || 'Numero vinculado' }}</strong>
-                <small>
-                  Vinculado:
-                  {{ whatsappStatus?.linkedAt ? (whatsappStatus?.linkedAt | date:'dd/MM/yyyy HH:mm') : 'sin fecha' }}
-                </small>
-                <small>
-                  Ultima interaccion:
-                  {{ whatsappStatus?.lastInteractionAt ? (whatsappStatus?.lastInteractionAt | date:'dd/MM/yyyy HH:mm') : 'sin actividad' }}
-                </small>
-              </div>
-            } @else {
-              <div class="channel-meta">
-                <strong>{{ whatsappLinkCode?.officialWhatsappNumber || 'Numero oficial entregado por backend' }}</strong>
-                <small>{{ whatsappExpiryLabel }}</small>
-                <small>Comandos MVP: menu, resumen, pendientes, hoy y cursos.</small>
-              </div>
-            }
-          </article>
-
-          <article class="channel-card">
-            <span class="channel-card__eyebrow">Estado actual</span>
-
-            @if (whatsappStatus?.linked) {
-              <h3>Numero verificado</h3>
-              <p>Tu cuenta ya puede consultar informacion del dashboard desde WhatsApp.</p>
-            } @else if (whatsappHasActiveCode) {
-              <h3>Codigo listo para enviar</h3>
-              <p>Abre WhatsApp o copia este codigo y envialo al numero oficial antes de que expire.</p>
-            } @else {
-              <h3>Falta iniciar la conversacion</h3>
-              <p>Genera un codigo nuevo y usa el deep link para arrancar la prueba real desde el chat.</p>
+          <div class="selected-courses">
+            @if (selectedCoursesList.length === 0) {
+              <p class="selected-empty">Todavia no hay cursos confirmados en esta reconfiguracion.</p>
             }
 
-            @if (whatsappLinkCode && !whatsappStatus?.linked) {
-              <div class="whatsapp-code-box">
-                <span>Codigo temporal</span>
-                <strong>{{ whatsappLinkCode.code }}</strong>
-                <small>{{ whatsappLinkCode.instructions }}</small>
-              </div>
-            }
-
-            <div class="channel-actions">
-              @if (!whatsappStatus?.linked) {
-                <button class="btn btn--primary" type="button" (click)="generateWhatsappCode()" [disabled]="isGeneratingWhatsappCode">
-                  {{ isGeneratingWhatsappCode ? 'Generando...' : (whatsappHasActiveCode ? 'Generar nuevo codigo' : 'Conectar WhatsApp') }}
-                </button>
-              }
-
-              @if (whatsappHasActiveCode && !whatsappStatus?.linked) {
-                <button class="btn btn--ghost" type="button" (click)="openWhatsappDeepLink()">Abrir WhatsApp</button>
-                <button class="btn btn--ghost" type="button" (click)="copyWhatsappCode()">Copiar codigo</button>
-              }
-
-              @if (whatsappStatus?.linked) {
-                <button class="btn btn--ghost" type="button" (click)="unlinkWhatsapp()" [disabled]="isUnlinkingWhatsapp">
-                  {{ isUnlinkingWhatsapp ? 'Desvinculando...' : 'Desvincular' }}
-                </button>
-              }
-            </div>
-          </article>
-        </div>
-      }
-
-      @if (whatsappError) {
-        <div class="state state--error">{{ whatsappError }}</div>
-      }
-
-      @if (whatsappSuccess) {
-        <div class="state state--success">{{ whatsappSuccess }}</div>
-      }
-    </section>
-
-    <section class="profile-card profile-card--wide">
-      <div class="profile-card__header">
-        <div>
-          <h2>Reconfigurar ciclo</h2>
-          <p>Usa este bloque solo si te equivocaste en campus, carrera o cursos del periodo actual.</p>
-        </div>
-      </div>
-
-      <div class="warning-box">
-        Si quitas un curso, tambien se borraran su horario configurado y sus notas registradas en este periodo. Los cursos nuevos entraran sin horario ni notas.
-      </div>
-
-      <form class="reconfig-form" [formGroup]="configForm" (ngSubmit)="saveConfiguration()">
-        <div class="reconfig-grid">
-          <label class="field">
-            <span>Campus</span>
-            <select formControlName="campusId">
-              @for (campus of campuses; track campus.id) {
-                <option [ngValue]="campus.id">{{ campus.nombre }}</option>
-              }
-            </select>
-          </label>
-
-          <label class="field">
-            <span>Carrera</span>
-            <select formControlName="carreraId">
-              @for (career of careers; track career.id) {
-                <option [ngValue]="career.id">{{ career.nombre }}</option>
-              }
-            </select>
-          </label>
-
-          <label class="field">
-            <span>Ciclo actual</span>
-            <input type="number" formControlName="cicloActual" min="1" max="12" step="1" />
-          </label>
-        </div>
-
-        <label class="field">
-          <span>Buscar cursos</span>
-          <input type="text" [value]="courseQuery" (input)="onCourseQueryChange($any($event.target).value)" placeholder="Ej. Estructuras, CS201" />
-          <small>Selecciona exactamente los cursos que deben quedar en este periodo.</small>
-        </label>
-
-        @if (configInfo) {
-          <div class="state state--loading">{{ configInfo }}</div>
-        }
-
-        <div class="reconfig-meta">
-          <strong>{{ selectedCourseIds.size }} curso{{ selectedCourseIds.size === 1 ? '' : 's' }} seleccionado{{ selectedCourseIds.size === 1 ? '' : 's' }}</strong>
-          <span>
-            {{ addedCourseCount }} agregado{{ addedCourseCount === 1 ? '' : 's' }} ·
-            {{ removedCourseCount }} eliminado{{ removedCourseCount === 1 ? '' : 's' }}
-          </span>
-        </div>
-
-        <div class="selected-courses">
-          @if (selectedCoursesList.length === 0) {
-            <p class="selected-empty">Todavia no hay cursos confirmados en esta reconfiguracion.</p>
-          }
-
-          @for (course of selectedCoursesList; track course.id) {
-            <button class="selected-chip" type="button" (click)="removeSelectedCourse(course.id)">
-              <span>{{ course.label }}</span>
-              <strong>Quitar</strong>
-            </button>
-          }
-        </div>
-
-        <div class="course-picker">
-          @if (isCoursesLoading) {
-            <div class="state state--loading">Cargando cursos para esta carrera...</div>
-          }
-
-          @if (!isCoursesLoading) {
-            @for (course of availableCourses; track course.id) {
-              <button class="course-option" type="button" [class.course-option--selected]="isSelected(course.id)" (click)="toggleCourse(course)">
-                <div>
-                  <strong>{{ course.codigo }}</strong>
-                  <p>{{ course.nombre }}</p>
-                </div>
-                <span>{{ isSelected(course.id) ? 'Seleccionado' : 'Agregar' }}</span>
+            @for (course of selectedCoursesList; track course.id) {
+              <button class="selected-chip" type="button" (click)="removeSelectedCourse(course.id)">
+                <span>{{ course.label }}</span>
+                <strong>Quitar</strong>
               </button>
             }
+          </div>
+
+          <div class="course-picker">
+            @if (isCoursesLoading) {
+              <div class="state state--loading">Cargando cursos para esta carrera...</div>
+            }
+
+            @if (!isCoursesLoading) {
+              @for (course of availableCourses; track course.id) {
+                <button class="course-option" type="button" [class.course-option--selected]="isSelected(course.id)" (click)="toggleCourse(course)">
+                  <div>
+                    <strong>{{ course.codigo }}</strong>
+                    <p>{{ course.nombre }}</p>
+                  </div>
+                  <span>{{ isSelected(course.id) ? 'Seleccionado' : 'Agregar' }}</span>
+                </button>
+              }
+            }
+          </div>
+
+          @if (configError) {
+            <div class="state state--error">{{ configError }}</div>
           }
-        </div>
 
-        @if (configError) {
-          <div class="state state--error">{{ configError }}</div>
-        }
+          @if (configSuccess) {
+            <div class="state state--success">{{ configSuccess }}</div>
+          }
 
-        @if (configSuccess) {
-          <div class="state state--success">{{ configSuccess }}</div>
-        }
-
-        <div class="profile-form__actions">
-          <button class="btn btn--primary" type="submit" [disabled]="isSavingConfig">
-            {{ isSavingConfig ? 'Guardando...' : 'Aplicar reconfiguracion' }}
-          </button>
-        </div>
-      </form>
+          <div class="panel__actions">
+            <button class="btn btn--primary" type="submit" [disabled]="isSavingConfig">
+              {{ isSavingConfig ? 'Guardando...' : 'Aplicar reconfiguracion' }}
+            </button>
+          </div>
+        </form>
+      </section>
     </section>
   }
 </main>

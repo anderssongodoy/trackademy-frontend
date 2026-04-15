@@ -93,6 +93,21 @@ export class ProfilePage implements OnInit {
     return fullName.split(' ')[0] || fullName;
   }
 
+  get fullDisplayName(): string {
+    return this.period?.nombre?.trim() || 'Perfil academico';
+  }
+
+  get profileInitials(): string {
+    const source = this.fullDisplayName
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part.charAt(0).toUpperCase())
+      .join('');
+
+    return source || 'TA';
+  }
+
   get heroTitle(): string {
     if (!this.period) {
       return 'Tu configuracion academica del ciclo actual';
@@ -118,6 +133,20 @@ export class ProfilePage implements OnInit {
 
   get careerName(): string {
     return this.careers.find((item) => item.id === this.period?.carreraId)?.nombre || 'Sin carrera definida';
+  }
+
+  get currentCoursesCount(): number {
+    return this.currentCourses.length;
+  }
+
+  get whatsappSummaryLabel(): string {
+    if (this.isWhatsappLinked) {
+      return 'Vinculado con WhatsApp';
+    }
+    if (this.whatsappHasActiveCode) {
+      return 'Codigo listo para vincular';
+    }
+    return 'Pendiente de vinculacion';
   }
 
   get periodRangeLabel(): string {
