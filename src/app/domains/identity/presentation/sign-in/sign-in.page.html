@@ -10,14 +10,13 @@
           </span>
           <span class="brand__text">
             <strong>Trackademy</strong>
-            <span>Systems Engineering</span>
           </span>
         </a>
 
         <span class="signin__eyebrow">Acceso institucional</span>
-        <h1>Bienvenido de nuevo, ingeniero.</h1>
+        <h1>Bienvenido de nuevo.</h1>
         <p class="muted">
-          Inicia con tu cuenta autorizada y entra directo a tu espacio académico. No usamos correo ni contraseña propios.
+          Inicia con tu cuenta autorizada y entra directo a tu espacio academico. No usamos correo ni contrasena propios.
         </p>
       </div>
 
@@ -34,12 +33,12 @@
           <span>@if (!microsoftLoading()) { Continuar con Microsoft } @else { Conectando con Microsoft... }</span>
         </button>
 
-        <div class="divider"><span>o continúa con</span></div>
+        <div class="divider"><span>o continua con</span></div>
 
         <div id="google-signin-button" class="google"></div>
 
         @if (googleUnavailable()) {
-          <p class="hint">Google no está disponible en este momento. Puedes entrar con Microsoft mientras tanto.</p>
+          <p class="hint">Google no esta disponible en este momento. Puedes entrar con Microsoft mientras tanto.</p>
         }
 
         @if (authError()) {
@@ -49,12 +48,10 @@
 
       <div class="signin__notes">
         <article class="note note--accent">
-          <strong>Solo proveedores autorizados</strong>
-          <p>El acceso se resuelve con OAuth real. Trackademy no almacena tu contraseña institucional.</p>
+          <strong>No almacenamos tu contrasena</strong>
         </article>
         <article class="note">
-          <strong>Configuración por periodo</strong>
-          <p>Al entrar, validamos tu periodo vigente y te enviamos al onboarding si el ciclo todavía no está listo.</p>
+          <strong>Validamos tu periodo al entrar</strong>
         </article>
       </div>
     </section>
@@ -65,27 +62,31 @@
           <div class="visual-card__top">
             <span class="visual-card__badge">
               <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M5 19h14v2H5v-2zm1-2V7h3v10H6zm5 0V3h3v14h-3zm5 0v-6h3v6h-3z"></path>
+                <path d="M4 6h16v2H4zm0 5h10v2H4zm0 5h16v2H4z"></path>
               </svg>
             </span>
             <span class="visual-card__line"></span>
           </div>
 
-          <div class="visual-card__metrics">
+          <div class="visual-card__modules">
             <article>
-              <span>Algoritmos</span>
-              <strong>94%</strong>
+              <span>Cursos</span>
+              <strong>Catalogo y detalle</strong>
             </article>
             <article>
-              <span>Sistemas</span>
-              <strong>A+</strong>
+              <span>Horario</span>
+              <strong>Semana operativa</strong>
+            </article>
+            <article>
+              <span>Notas</span>
+              <strong>Registro rapido</strong>
             </article>
           </div>
 
           <div class="visual-card__progress">
             <div class="visual-card__caption">
-              <span>Progreso del semestre</span>
-              <strong>85%</strong>
+              <span>Flujo del ciclo</span>
+              <strong>Onboarding -> Dashboard</strong>
             </div>
             <span class="visual-card__bar"></span>
           </div>
@@ -94,20 +95,16 @@
 
       <div class="signin__story">
         <span class="signin__story-kicker">Academic Command Center</span>
-        <h2>Tu éxito académico comienza con una buena <em>organización</em>.</h2>
+        <h2>Tu operacion academica comienza con una buena <em>organizacion</em>.</h2>
         <p class="signin__subtitle">
-          Diseñado para la mente analítica del ingeniero de sistemas. Todo bajo control, desde cursos y horarios hasta notas, tareas y recordatorios del ciclo.
+          Todo bajo control, desde cursos y horarios hasta notas, tareas y recordatorios del ciclo.
         </p>
       </div>
 
-      <div class="signin__social-proof">
-        <div class="avatars" aria-hidden="true">
-          <span>A</span>
-          <span>L</span>
-          <span>M</span>
-          <span>+5k</span>
-        </div>
-        <p>Estudiantes optimizando su semestre con contexto real del periodo actual.</p>
+      <div class="signin__summary">
+        <span>OAuth real con Google y Microsoft</span>
+        <span>Onboarding por periodo</span>
+        <span>Dashboard con contexto real</span>
       </div>
 
       <div class="signin__compass" aria-hidden="true">
