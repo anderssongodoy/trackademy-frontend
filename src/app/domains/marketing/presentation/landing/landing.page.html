@@ -1,93 +1,90 @@
 <section class="landing">
   <nav class="topbar">
     <a class="brand" routerLink="/">
-      <span class="brand__icon">T</span>
-      <span class="brand__text">
-        <strong>Trackademy</strong>
-        <small>Panel académico</small>
-      </span>
+      <span class="brand__mark"></span>
+      <span class="brand__text">Trackademy</span>
     </a>
+
+    <div class="topbar__meta">
+      <span>Academic command center</span>
+      <span>Ingeniería de Sistemas</span>
+    </div>
 
     <div class="nav-actions">
       @if (!signedIn()) {
         <a class="ghost-btn" routerLink="/auth/sign-in">Iniciar sesión</a>
       } @else {
-        <a class="primary-btn" routerLink="/app/dashboard">Ir al dashboard</a>
+        <a class="ghost-btn" routerLink="/app/dashboard">Ir al dashboard</a>
       }
     </div>
   </nav>
 
   <section class="hero">
     <div class="hero__copy">
-      <span class="hero__eyebrow">Trackademy para Ing. de Sistemas</span>
-      <h1>Deja de improvisar tu ciclo y empieza a verlo como un sistema.</h1>
+      <span class="hero__eyebrow">Trackademy para Ingeniería de Sistemas</span>
+      <h1>Domina tu carrera de <span>Ingeniería de Sistemas</span> con Trackademy</h1>
       <p class="hero__subtitle">
-        Cursos, horario, notas, tareas y calendario en un mismo flujo para que sepas qué configurar primero y qué te toca después.
+        La suite académica pensada para estudiantes de ingeniería que necesitan operar su semestre con precisión, no improvisación.
       </p>
 
       <div class="hero__actions">
         @if (!signedIn()) {
-          <a class="primary-btn" routerLink="/auth/sign-in">Entrar con tu cuenta</a>
+          <a class="primary-btn" routerLink="/auth/sign-in">Ingresar ahora</a>
         } @else {
-          <a class="primary-btn" routerLink="/app/dashboard">Abrir tu dashboard</a>
+          <a class="primary-btn" routerLink="/app/dashboard">Abrir dashboard</a>
         }
-        <a class="secondary-btn" routerLink="/auth/sign-in">Probar el onboarding</a>
-      </div>
-
-      <div class="hero__benefits">
-        @for (benefit of benefits; track benefit.title) {
-          <article class="benefit-pill">
-            <strong>{{ benefit.title }}</strong>
-            <span>{{ benefit.description }}</span>
-          </article>
-        }
+        <a class="secondary-btn" routerLink="/auth/sign-in">Ver onboarding →</a>
       </div>
     </div>
 
-    <aside class="hero__panel">
-      <div class="hero__panel-card hero__panel-card--primary">
-        <span class="panel__eyebrow">Ruta sugerida</span>
-        <h2>Qué hacer después del onboarding</h2>
-        <ol class="panel__steps">
-          @for (step of previewSteps; track step; let index = $index) {
-            <li>
-              <span>{{ index + 1 }}</span>
-              <p>{{ step }}</p>
-            </li>
-          }
-        </ol>
-      </div>
+    <div class="hero__mockup">
+      <div class="hero__screen">
+        <div class="hero__screen-top">
+          <span class="hero__screen-pill"></span>
+          <span class="hero__screen-pill hero__screen-pill--wide"></span>
+          <span class="hero__screen-dot"></span>
+        </div>
 
-      <div class="hero__panel-grid">
-        <article class="hero__panel-card">
-          <span class="metric">Horario</span>
-          <strong>Semana aterrizada</strong>
-          <p>Bloques, calendario y recordatorios empiezan a tener sentido.</p>
-        </article>
-
-        <article class="hero__panel-card">
-          <span class="metric">Notas</span>
-          <strong>Seguimiento real</strong>
-          <p>Registra solo lo que ya toca y evita una lectura falsa del ciclo.</p>
-        </article>
+        <div class="hero__screen-body">
+          <div class="hero__screen-sidebar"></div>
+          <div class="hero__screen-panel">
+            <div class="hero__screen-metrics">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <div class="hero__screen-chart">
+              <div class="hero__bars">
+                @for (bar of [34, 42, 30, 48, 56, 44, 72, 64, 70, 82, 76, 88]; track $index) {
+                  <span [style.height.%]="bar"></span>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </aside>
+    </div>
+
+    <div class="hero__benefits">
+      @for (benefit of benefits; track benefit.title) {
+        <article class="benefit-pill">
+          <strong>{{ benefit.title }}</strong>
+          <p>{{ benefit.description }}</p>
+        </article>
+      }
+    </div>
   </section>
 
   <section class="features">
-    <div class="features__header">
-      <h2>Lo importante no es tener más módulos, sino que te digan qué hacer.</h2>
-      <p>Trackademy está armado para priorizar configuración, seguimiento y decisiones rápidas.</p>
+    <div class="section-heading">
+      <h2>Centraliza tu operación académica</h2>
+      <p>Trackademy organiza el periodo como un sistema conectado, no como módulos sueltos que obligan a pensar todo dos veces.</p>
     </div>
 
     <div class="features__grid">
       @for (feature of features; track feature.title) {
-        <article class="feature-card" [attr.data-tone]="feature.tone">
-          <div class="feature-card__icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path [attr.d]="feature.icon"></path>
-            </svg>
-          </div>
+        <article class="feature-card">
+          <span class="feature-card__eyebrow">{{ feature.eyebrow }}</span>
           <h3>{{ feature.title }}</h3>
           <p>{{ feature.description }}</p>
         </article>
@@ -95,16 +92,94 @@
     </div>
   </section>
 
-  <section class="cta">
-    <div class="cta__content">
-      <span class="hero__eyebrow">Empieza con contexto real</span>
-      <h2>Configura tu ciclo una vez y usa el resto del producto con mucha menos fricción.</h2>
+  <section class="architecture">
+    <div class="section-heading">
+      <h2>Arquitectura de alto rendimiento</h2>
+      <p>Una vista pública que promete orden, y una experiencia interna que realmente lo entrega desde onboarding hasta seguimiento diario.</p>
     </div>
 
-    @if (!signedIn()) {
-      <a class="primary-btn" routerLink="/auth/sign-in">Iniciar sesión</a>
-    } @else {
-      <a class="primary-btn" routerLink="/app/dashboard">Ir al dashboard</a>
-    }
+    <div class="architecture__grid">
+      <article class="architecture__preview">
+        <div class="architecture__preview-top">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+
+        <div class="architecture__preview-body">
+          @for (column of previewColumns; track column.label) {
+            <div class="preview-column">
+              <span class="preview-column__label">{{ column.label }}</span>
+              @for (value of column.values; track value) {
+                <div class="preview-column__cell">{{ value }}</div>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="architecture__preview-chart">
+          <div class="chart-lines">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div class="chart-bars">
+            @for (bar of [28, 52, 36, 66, 44, 74, 58, 80]; track $index) {
+              <span [style.height.%]="bar"></span>
+            }
+          </div>
+        </div>
+      </article>
+
+      <div class="architecture__side">
+        @for (card of architectureCards; track card.title) {
+          <article class="architecture-card">
+            <span class="architecture-card__metric">{{ card.metric }}</span>
+            <h3>{{ card.title }}</h3>
+            <p>{{ card.description }}</p>
+          </article>
+        }
+      </div>
+    </div>
   </section>
+
+  <section class="cta">
+    <div class="cta__content">
+      <h2>Optimiza tu tiempo, potencia tu carrera.</h2>
+      <p>Desde la configuración inicial hasta el cierre del ciclo, Trackademy mantiene tu operación académica bajo control.</p>
+    </div>
+
+    <div class="cta__actions">
+      @if (!signedIn()) {
+        <a class="primary-btn" routerLink="/auth/sign-in">Empezar ahora</a>
+      } @else {
+        <a class="primary-btn" routerLink="/app/dashboard">Ir al dashboard</a>
+      }
+      <a class="secondary-btn" routerLink="/auth/sign-in">Ver onboarding →</a>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div>
+      <a class="brand brand--footer" routerLink="/">
+        <span class="brand__mark"></span>
+        <span class="brand__text">Trackademy</span>
+      </a>
+      <p>Academic command center para estudiantes de Ingeniería de Sistemas.</p>
+    </div>
+
+    <div class="footer__links">
+      <span>Plataforma</span>
+      <a routerLink="/auth/sign-in">Iniciar sesión</a>
+      <a routerLink="/auth/sign-in">Onboarding</a>
+      <a routerLink="/auth/sign-in">Dashboard</a>
+    </div>
+
+    <div class="footer__links">
+      <span>Producto</span>
+      <a routerLink="/auth/sign-in">Cursos</a>
+      <a routerLink="/auth/sign-in">Notas</a>
+      <a routerLink="/auth/sign-in">Calendario</a>
+    </div>
+  </footer>
 </section>
