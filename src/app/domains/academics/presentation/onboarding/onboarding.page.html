@@ -1,25 +1,17 @@
-﻿<main class="onboarding">
-  <header class="onboarding__header">
-    <div class="header__copy">
-      <p class="kicker">Onboarding académico</p>
-      <h1>Configura tu periodo académico</h1>
-      <p class="subtitle">Arranca con lo esencial. El resto lo puedes completar luego desde el dashboard.</p>
-    </div>
-    <div>
-      <button type="button" class="ghost-btn ghost-btn--danger" (click)="signOut()">Cerrar sesión</button>
+<main class="onboarding">
+  <header class="onboarding__topbar">
+    <a class="onboarding__brand" href="/">
+      <span class="onboarding__brand-mark"></span>
+      <span class="onboarding__brand-text">Trackademy</span>
+    </a>
+
+    <div class="onboarding__progress">
+      <span>{{ currentStepLabel }}</span>
+      <div class="onboarding__progress-bar">
+        <span [style.width.%]="progressPercent"></span>
+      </div>
     </div>
   </header>
-
-  <div class="steps">
-    <div class="step" [class.step--active]="currentStep === 1">
-      <span class="step__index">1</span>
-      <span>Datos base</span>
-    </div>
-    <div class="step" [class.step--active]="currentStep === 2">
-      <span class="step__index">2</span>
-      <span>Cursos</span>
-    </div>
-  </div>
 
   @if (isLoading) {
     <div class="state state--loading">Cargando catálogos...</div>
@@ -30,87 +22,48 @@
   }
 
   @if (!isLoading && !loadingError) {
-    <div class="layout">
-      <form class="form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
-        @if (currentStep === 1) {
-          <section class="card card--pdf">
-            <div class="card__header">
+    <section class="onboarding__shell">
+      <aside class="onboarding__rail">
+        <div class="rail-card rail-card--steps">
+          <p class="rail-card__label">Tu progreso</p>
+          <div class="step-rail">
+            @for (step of stepCards; track step.index) {
+              <article class="step-rail__item" [class.step-rail__item--active]="step.active" [class.step-rail__item--done]="step.done">
+                <span class="step-rail__dot">{{ step.done ? '✓' : step.index }}</span>
+                <div>
+                  <strong>{{ step.title }}</strong>
+                  <p>{{ step.subtitle }}</p>
+                </div>
+              </article>
+            }
+          </div>
+        </div>
+
+        <div class="rail-card rail-card--metric">
+          <p class="rail-card__label">Proyección académica</p>
+          <strong>{{ projectedGpa }}</strong>
+          <p>Basado en tu meta actual y las horas de estudio estimadas para este ciclo.</p>
+        </div>
+      </aside>
+
+      <section class="onboarding__center">
+        <div class="hero">
+          <div>
+            <h1>Bienvenido al ciclo 2024-1</h1>
+            <p>Configura tu perfil académico para empezar a trackear tu semestre con contexto real.</p>
+          </div>
+          <button type="button" class="ghost-btn ghost-btn--danger" (click)="signOut()">Cerrar sesión</button>
+        </div>
+
+        <form class="setup-card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+          @if (currentStep === 1) {
+            <div class="setup-card__header">
               <div>
-                <div class="pdf-title-row">
-                  <h2>Sube tu PDF de matrícula</h2>
-                  <span class="pdf-badge">Experimental</span>
-                </div>
-                <p>Si ya descargaste tu horario o matrícula del ciclo, Trackademy intentará completar datos base y detectar cursos. En PDFs escaneados puede acertar solo una parte.</p>
-              </div>
-              <div class="course-meta">
-                <span>Más rápido que llenarlo a mano</span>
+                <p class="section-kicker">Datos base</p>
+                <h2>Información inicial del ciclo</h2>
               </div>
             </div>
 
-            <div class="pdf-import">
-              <label class="pdf-input">
-                <span class="label-text">PDF de matrícula u horario</span>
-                <input type="file" accept="application/pdf" (change)="onPdfSelected($event)" [disabled]="isUploadingPdf" />
-              </label>
-
-              <div class="pdf-status">
-                @if (selectedPdfName) {
-                  <span class="pdf-status__file">{{ selectedPdfName }}</span>
-                }
-                @if (isUploadingPdf) {
-                  <span class="pdf-status__hint">Leyendo y detectando cursos...</span>
-                }
-                @if (pdfSuccess) {
-                  <span class="pdf-status__hint pdf-status__hint--success">{{ pdfSuccess }}</span>
-                }
-              </div>
-            </div>
-
-            @if (pdfError) {
-              <div class="state state--error state--inline">{{ pdfError }}</div>
-            }
-
-            @if (pdfWarnings.length > 0) {
-              <div class="pdf-warnings">
-                @for (warning of pdfWarnings; track warning) {
-                  <div class="pdf-warning">{{ warning }}</div>
-                }
-              </div>
-            }
-
-            <div class="pdf-note">
-              <strong>Qué esperar ahora:</strong> suele detectar mejor nombre, código del alumno, correo institucional y periodo.
-              La detección de cursos, docentes, secciones y horarios todavía depende bastante de la calidad del PDF y del OCR.
-            </div>
-
-            @if (pdfDetectedSummary.length > 0) {
-              <div class="pdf-detected-summary">
-                @for (item of pdfDetectedSummary; track item.label) {
-                  <div class="pdf-detected-summary__item">
-                    <span class="pdf-detected-summary__label">{{ item.label }}</span>
-                    <span class="pdf-detected-summary__value">{{ item.value }}</span>
-                  </div>
-                }
-              </div>
-            }
-
-            @if (pdfDetectedCourses.length > 0) {
-              <div class="pdf-detected">
-                <p class="pdf-detected__title">Cursos detectados en el PDF</p>
-                <div class="pdf-detected__list">
-                  @for (course of pdfDetectedCourses; track course.cursoId) {
-                    <span class="pdf-detected__item">{{ course.codigo }} · {{ course.nombre }}</span>
-                  }
-                </div>
-              </div>
-            }
-          </section>
-
-          <section class="card">
-            <div class="card__header">
-              <h2>Datos base</h2>
-              <p>Confirma tu campus, carrera y periodo activo.</p>
-            </div>
             <div class="grid">
               <label>
                 <span class="label-text">Nombre completo</span>
@@ -124,22 +77,12 @@
                   <span class="field-error">{{ getControlError('nombre') }}</span>
                 }
               </label>
+
               <label>
-                <span class="label-text">Nombre preferido (opcional)</span>
+                <span class="label-text">Nombre preferido</span>
                 <input type="text" formControlName="nombrePreferido" placeholder="Cómo te llamamos" />
               </label>
-              <label>
-                <span class="label-text">Correo institucional (opcional)</span>
-                <input
-                  type="email"
-                  formControlName="emailInstitucional"
-                  placeholder="u2020xxxxx@utp.edu.pe"
-                  [class.field-invalid]="getControlError('emailInstitucional')"
-                />
-                @if (getControlError('emailInstitucional')) {
-                  <span class="field-error">{{ getControlError('emailInstitucional') }}</span>
-                }
-              </label>
+
               <label>
                 <span class="label-text">Campus</span>
                 <select formControlName="campusId" [class.field-invalid]="getControlError('campusId')">
@@ -152,16 +95,11 @@
                   <span class="field-error">{{ getControlError('campusId') }}</span>
                 }
               </label>
+
               <label>
                 <span class="label-text">Carrera</span>
                 @if (fixedCareer) {
-                  <input
-                    type="text"
-                    [value]="fixedCareer.nombre"
-                    readonly
-                    placeholder="Ingeniería de Sistemas e Informática"
-                  />
-                  <span class="field-note">Carrera fija para esta configuracion inicial.</span>
+                  <input type="text" [value]="fixedCareer.nombre" readonly />
                 } @else {
                   <select formControlName="carreraId" [class.field-invalid]="getControlError('carreraId')">
                     <option [ngValue]="null">Selecciona carrera</option>
@@ -172,10 +110,13 @@
                 }
                 @if (getControlError('carreraId')) {
                   <span class="field-error">{{ getControlError('carreraId') }}</span>
+                } @else if (fixedCareer) {
+                  <span class="field-note">Carrera fija para esta configuración inicial.</span>
                 }
               </label>
+
               <label>
-                <span class="label-text">Periodo</span>
+                <span class="label-text">Periodo actual</span>
                 <select formControlName="periodoId" [class.field-invalid]="getControlError('periodoId')">
                   <option [ngValue]="null">Selecciona periodo</option>
                   @for (period of periods; track period.id) {
@@ -186,8 +127,9 @@
                   <span class="field-error">{{ getControlError('periodoId') }}</span>
                 }
               </label>
+
               <label>
-                <span class="label-text">Ciclo actual</span>
+                <span class="label-text">Ciclo académico</span>
                 <input
                   type="number"
                   formControlName="cicloActual"
@@ -199,8 +141,9 @@
                   <span class="field-error">{{ getControlError('cicloActual') }}</span>
                 }
               </label>
-              <label>
-                <span class="label-text">Meta de promedio</span>
+
+              <label class="grid__full">
+                <span class="label-text">Meta de promedio ponderado</span>
                 <input
                   type="number"
                   formControlName="metaPromedioCiclo"
@@ -213,58 +156,65 @@
                   <span class="field-error">{{ getControlError('metaPromedioCiclo') }}</span>
                 }
               </label>
-              <label>
-                <span class="label-text">Horas de estudio / semana</span>
-                <input
-                  type="number"
-                  formControlName="horasEstudioSemanaObjetivo"
-                  min="1"
-                  max="80"
-                  [class.field-invalid]="getControlError('horasEstudioSemanaObjetivo')"
-                />
+
+              <div class="grid__full study-target">
+                <div class="study-target__head">
+                  <span class="label-text">Horas de estudio estimadas (semanales)</span>
+                  <input
+                    type="number"
+                    formControlName="horasEstudioSemanaObjetivo"
+                    min="1"
+                    max="80"
+                    [class.field-invalid]="getControlError('horasEstudioSemanaObjetivo')"
+                  />
+                </div>
+                <div class="study-target__chips">
+                  @for (preset of studyHourPresets; track preset) {
+                    <button
+                      type="button"
+                      class="study-chip"
+                      [class.study-chip--active]="isStudyHourPreset(preset)"
+                      (click)="selectStudyHourPreset(preset)"
+                    >
+                      @if (preset === 10) { 10-15h } @else if (preset === 20) { 15-25h } @else { 25h+ }
+                    </button>
+                  }
+                </div>
                 @if (getControlError('horasEstudioSemanaObjetivo')) {
                   <span class="field-error">{{ getControlError('horasEstudioSemanaObjetivo') }}</span>
                 }
-              </label>
+              </div>
             </div>
-          </section>
-        }
+          }
 
-        @if (currentStep === 2) {
-          <section class="card">
-            <div class="card__header">
+          @if (currentStep === 2) {
+            <div class="setup-card__header">
               <div>
-                <h2>Cursos del periodo</h2>
-                <p>Selecciona los cursos que llevas actualmente.</p>
+                <p class="section-kicker">Carga académica</p>
+                <h2>Cursos seleccionados para este periodo</h2>
               </div>
-              <div class="course-meta">
-                <span>{{ filteredCourses.length }} cursos</span>
-              </div>
+              <div class="course-meta">{{ filteredCourses.length }} visibles</div>
             </div>
 
             <div class="course-tools">
-              <div class="course-tools__row">
-                <label class="search">
-                  <span class="label-text">Buscar curso</span>
-                  <input
-                    type="text"
-                    [value]="courseQuery"
-                    (input)="onCourseQueryChange($any($event.target).value)"
-                    placeholder="Código o nombre"
-                  />
-                </label>
-                <label class="toggle">
-                  <input
-                    type="checkbox"
-                    [checked]="showSelectedOnly"
-                    (change)="toggleShowSelected($any($event.target).checked)"
-                  />
-                  <span>Solo seleccionados</span>
-                </label>
-              </div>
-              <div class="course-tools__summary">
-                Mostrando {{ filteredCourses.length }} de {{ courses.length }} cursos
-              </div>
+              <label class="search">
+                <span class="label-text">Buscar curso</span>
+                <input
+                  type="text"
+                  [value]="courseQuery"
+                  (input)="onCourseQueryChange($any($event.target).value)"
+                  placeholder="Código o nombre"
+                />
+              </label>
+
+              <label class="toggle">
+                <input
+                  type="checkbox"
+                  [checked]="showSelectedOnly"
+                  (change)="toggleShowSelected($any($event.target).checked)"
+                />
+                <span>Solo seleccionados</span>
+              </label>
             </div>
 
             @if (!form.get('carreraId')?.value) {
@@ -272,7 +222,7 @@
             }
 
             @if (courseError) {
-              <div class="state state--error">{{ courseError }}</div>
+              <div class="state state--error state--inline">{{ courseError }}</div>
             }
 
             @if (form.get('carreraId')?.value && !courseError && filteredCourses.length === 0) {
@@ -283,7 +233,7 @@
               <div class="course-list-wrapper">
                 <div class="course-list">
                   @for (course of visibleCourses; track course.id) {
-                    <label class="course-item">
+                    <label class="course-item" [class.course-item--selected]="selectedCourseIds.has(course.id)">
                       <input
                         type="checkbox"
                         [checked]="selectedCourseIds.has(course.id)"
@@ -297,37 +247,101 @@
                   }
                 </div>
               </div>
-              <div class="course-actions">
-                @if (isCourseLoading) {
-                  <span class="course-loading">Cargando cursos...</span>
-                }
-              </div>
+
+              @if (isCourseLoading) {
+                <div class="course-loading">Cargando cursos...</div>
+              }
             }
-          </section>
-        }
-
-        @if (submitError) {
-          <div class="state state--error">{{ submitError }}</div>
-        }
-
-        <div class="actions">
-          @if (currentStep > 1) {
-            <button type="button" class="ghost-btn action-btn" (click)="prevStep()">Atrás</button>
           }
-          @if (currentStep < 2) {
-            <button type="button" class="primary-btn action-btn" (click)="nextStep()">Continuar</button>
+
+          @if (submitError) {
+            <div class="state state--error state--inline">{{ submitError }}</div>
           }
-          @if (currentStep === 2) {
-            <button type="submit" class="primary-btn action-btn action-btn--primary" [disabled]="isSubmitting">
-              {{ isSubmitting ? 'Guardando...' : 'Guardar onboarding' }}
-            </button>
+
+          <div class="actions">
+            @if (currentStep === 1) {
+              <button type="button" class="ghost-btn action-btn" (click)="nextStep()">Siguiente paso</button>
+            }
+            @if (currentStep === 2) {
+              <button type="button" class="ghost-btn action-btn" (click)="prevStep()">Atrás</button>
+              <button type="submit" class="primary-btn action-btn action-btn--primary" [disabled]="isSubmitting">
+                {{ isSubmitting ? 'Guardando...' : 'Guardar onboarding' }}
+              </button>
+            }
+          </div>
+        </form>
+      </section>
+
+      <aside class="onboarding__support">
+        <div class="support-card support-card--upload">
+          <label class="upload-zone">
+            <input type="file" accept="application/pdf" (change)="onPdfSelected($event)" [disabled]="isUploadingPdf" />
+            <span class="upload-zone__icon">◫</span>
+            <strong>Arrastra aquí tu PDF de matrícula</strong>
+            <p>Detectaremos campus, cursos y datos automáticos cuando el documento lo permita.</p>
+            <span class="upload-zone__link">o buscar un archivo</span>
+          </label>
+
+          @if (selectedPdfName) {
+            <p class="upload-meta">{{ selectedPdfName }}</p>
+          }
+          @if (isUploadingPdf) {
+            <p class="upload-meta">Leyendo y detectando cursos...</p>
+          }
+          @if (pdfSuccess) {
+            <p class="upload-meta upload-meta--success">{{ pdfSuccess }}</p>
+          }
+          @if (pdfError) {
+            <div class="state state--error state--inline">{{ pdfError }}</div>
+          }
+          @if (pdfWarnings.length > 0) {
+            <div class="warning-list">
+              @for (warning of pdfWarnings; track warning) {
+                <div class="warning-list__item">{{ warning }}</div>
+              }
+            </div>
           }
         </div>
-      </form>
 
-      <aside class="side">
-        <div class="side__card">
-          <p class="side__title">Checklist rápido</p>
+        <div class="support-card">
+          <p class="support-card__label">Cursos detectados ({{ pdfDetectedCourses.length }})</p>
+          @if (pdfDetectedCourses.length > 0) {
+            <div class="detected-list">
+              @for (course of pdfDetectedCourses; track course.cursoId) {
+                <div class="detected-list__item">
+                  <strong>{{ course.codigo }}</strong>
+                  <span>{{ course.nombre }}</span>
+                </div>
+              }
+            </div>
+          } @else {
+            <div class="support-empty">
+              Sube tu matrícula para previsualizar tus cursos aquí.
+            </div>
+          }
+        </div>
+
+        @if (pdfDetectedSummary.length > 0) {
+          <div class="support-card">
+            <p class="support-card__label">Lectura preliminar</p>
+            <div class="summary-grid">
+              @for (item of pdfDetectedSummary; track item.label) {
+                <div class="summary-grid__item">
+                  <span>{{ item.label }}</span>
+                  <strong>{{ item.value }}</strong>
+                </div>
+              }
+            </div>
+          </div>
+        } @else {
+          <div class="support-card support-card--visual">
+            <div class="support-card__photo"></div>
+            <p>Organiza tu vida académica con la precisión de un arquitecto de sistemas.</p>
+          </div>
+        }
+
+        <div class="support-card">
+          <p class="support-card__label">Checklist rápido</p>
           <div class="checklist">
             @for (item of checklistItems; track item.label) {
               <div class="checklist__item" [class.checklist__item--done]="item.done">
@@ -337,23 +351,7 @@
             }
           </div>
         </div>
-        <div class="side__card highlight">
-          <p class="side__title">Cursos seleccionados</p>
-          <p class="side__value">{{ selectedCourseIds.size }}</p>
-          @if (selectedCourses.length > 0) {
-            <div class="selected-course-list">
-              @for (course of selectedCourses; track course.id) {
-                <div class="selected-course-item">
-                  <span class="selected-course-item__code">{{ course.codigo }}</span>
-                  <span class="selected-course-item__name">{{ course.nombre }}</span>
-                </div>
-              }
-            </div>
-          } @else {
-            <p class="side__subtitle">Aun no has marcado cursos para este ciclo.</p>
-          }
-        </div>
       </aside>
-    </div>
+    </section>
   }
 </main>
