@@ -7,6 +7,7 @@ import { forkJoin } from 'rxjs';
 import { MeUseCase, MyCourse, MyEvaluation } from '../../application/me-use-case';
 
 type TaskStatusFilter = 'all' | 'pending' | 'done';
+type TaskTimeFilter = 'all' | 'today' | 'week' | 'soon';
 
 interface TaskItem {
   usuarioPeriodoCursoId: number;
@@ -20,6 +21,7 @@ interface TaskItem {
   estado: 'pending' | 'done';
   urgencia: 'atrasada' | 'hoy' | 'proxima' | 'sin-fecha' | 'completada';
   porcentaje: string;
+  fechaEstimada: string | null;
 }
 
 @Component({
@@ -38,6 +40,7 @@ export class TasksPage implements OnInit {
   selectedCourseId = 'all';
   searchQuery = '';
   selectedStatus: TaskStatusFilter = 'all';
+  selectedTime: TaskTimeFilter = 'all';
 
   ngOnInit(): void {
     forkJoin({
@@ -76,6 +79,7 @@ export class TasksPage implements OnInit {
     return this.taskItems.filter((item) => {
       const matchesCourse = this.selectedCourseId === 'all' || `${item.usuarioPeriodoCursoId}` === this.selectedCourseId;
       const matchesStatus = this.selectedStatus === 'all' || item.estado === this.selectedStatus;
+      const matchesTime = this.matchesTimeFilter(item, this.selectedTime);
       const matchesQuery = !query || [
         item.codigoCurso,
         item.nombreCurso,
@@ -83,7 +87,7 @@ export class TasksPage implements OnInit {
         item.subtitulo
       ].some((value) => value.toLowerCase().includes(query));
 
-      return matchesCourse && matchesStatus && matchesQuery;
+      return matchesCourse && matchesStatus && matchesTime && matchesQuery;
     }).sort((left, right) => left.fechaSort - right.fechaSort);
   }
 
@@ -96,16 +100,39 @@ export class TasksPage implements OnInit {
     };
   }
 
+  get productivityPercent(): number {
+    const total = this.taskItems.length;
+    if (total === 0) {
+      return 0;
+    }
+    return Math.round((this.taskItems.filter((item) => item.estado === 'done').length / total) * 100);
+  }
+
+  get upcomingMilestones(): TaskItem[] {
+    return this.taskItems
+      .filter((item) => item.estado === 'pending' && item.fechaEstimada)
+      .sort((left, right) => left.fechaSort - right.fechaSort)
+      .slice(0, 3);
+  }
+
+  setStatus(status: TaskStatusFilter): void {
+    this.selectedStatus = status;
+  }
+
+  setTimeFilter(filter: TaskTimeFilter): void {
+    this.selectedTime = filter;
+  }
+
   urgencyLabel(item: TaskItem): string {
     switch (item.urgencia) {
       case 'atrasada':
-        return 'Atrasada';
+        return 'Entrega hoy';
       case 'hoy':
         return 'Hoy';
       case 'proxima':
-        return 'Proxima';
+        return 'Pronto';
       case 'completada':
-        return 'Completada';
+        return 'Realizada';
       default:
         return 'Sin fecha';
     }
@@ -124,6 +151,38 @@ export class TasksPage implements OnInit {
       default:
         return 'task-chip--neutral';
     }
+  }
+
+  milestoneDateLabel(item: TaskItem): string {
+    if (!item.fechaEstimada) {
+      return 'Sin fecha';
+    }
+    return new Date(item.fechaEstimada).toLocaleDateString('es-PE', { month: 'short', day: '2-digit' });
+  }
+
+  private matchesTimeFilter(item: TaskItem, filter: TaskTimeFilter): boolean {
+    if (filter === 'all') {
+      return true;
+    }
+
+    if (!item.fechaEstimada) {
+      return false;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const target = new Date(`${item.fechaEstimada}T00:00:00`);
+    const diff = Math.floor((target.getTime() - today.getTime()) / 86400000);
+
+    if (filter === 'today') {
+      return diff === 0;
+    }
+
+    if (filter === 'week') {
+      return diff >= 0 && diff <= 7;
+    }
+
+    return diff > 0 && diff <= 14;
   }
 
   private isTaskLike(item: MyEvaluation): boolean {
@@ -167,7 +226,8 @@ export class TasksPage implements OnInit {
       fechaSort: date ? date.getTime() : Number.MAX_SAFE_INTEGER,
       estado: item.nota != null ? 'done' : 'pending',
       urgencia,
-      porcentaje: item.porcentaje != null ? `${item.porcentaje}%` : 'Sin peso'
+      porcentaje: item.porcentaje != null ? `${item.porcentaje}%` : 'Sin peso',
+      fechaEstimada: item.fechaEstimada
     };
   }
 }
