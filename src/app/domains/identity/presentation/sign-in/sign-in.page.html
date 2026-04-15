@@ -1,35 +1,24 @@
 <section class="signin">
   <div class="signin__shell">
-    <section class="signin__intro">
-      <a class="back" routerLink="/">Volver al inicio</a>
-
-      <span class="signin__eyebrow">Acceso seguro</span>
-      <h1>Entra una vez y deja tu ciclo listo para trabajar de verdad.</h1>
-      <p class="signin__subtitle">
-        Inicias sesión, completas tu configuración base y desde ahí Trackademy te va guiando entre horario, notas, calendario y recordatorios.
-      </p>
-
-      <div class="signin__rail">
-        <article class="rail-card rail-card--primary">
-          <strong>1. Configura tu periodo</strong>
-          <p>Campus, ciclo y cursos para que el sistema tenga contexto real.</p>
-        </article>
-        <article class="rail-card">
-          <strong>2. Arma tu horario</strong>
-          <p>Sin eso, el calendario y los recordatorios siempre estarán a medias.</p>
-        </article>
-        <article class="rail-card">
-          <strong>3. Registra notas</strong>
-          <p>Solo cuando ya toca, para leer el ciclo sin falsa sensación de avance.</p>
-        </article>
-      </div>
-    </section>
-
     <section class="signin__card">
       <div class="header">
-        <div class="logo">T</div>
-        <h2>Bienvenido a Trackademy</h2>
-        <p class="muted">Usa tu cuenta autorizada para entrar al panel académico.</p>
+        <a class="brand" routerLink="/">
+          <span class="brand__mark">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M4 6.2L12 2l8 4.2v11.6L12 22l-8-4.2V6.2zm8-2.17L6 7.1v9.8l6 3.07 6-3.07V7.1l-6-3.07zm-4.6 4.3h9.2v1.6H7.4v-1.6zm0 3.1h9.2v1.6H7.4v-1.6zm0 3.1h6v1.6h-6v-1.6z"></path>
+            </svg>
+          </span>
+          <span class="brand__text">
+            <strong>Trackademy</strong>
+            <span>Systems Engineering</span>
+          </span>
+        </a>
+
+        <span class="signin__eyebrow">Acceso institucional</span>
+        <h1>Bienvenido de nuevo, ingeniero.</h1>
+        <p class="muted">
+          Inicia con tu cuenta autorizada y entra directo a tu espacio académico. No usamos correo ni contraseña propios.
+        </p>
       </div>
 
       <div class="providers">
@@ -42,15 +31,15 @@
               <rect x="13" y="13" width="9" height="9" fill="#ffb900"></rect>
             </svg>
           </span>
-          <span>@if (!microsoftLoading()) { Continuar con Microsoft } @else { Conectando... }</span>
+          <span>@if (!microsoftLoading()) { Continuar con Microsoft } @else { Conectando con Microsoft... }</span>
         </button>
 
-        <div class="divider"><span>o entra con Google</span></div>
+        <div class="divider"><span>o continúa con</span></div>
 
         <div id="google-signin-button" class="google"></div>
 
         @if (googleUnavailable()) {
-          <p class="hint">Google no está disponible en este momento. Puedes continuar con Microsoft.</p>
+          <p class="hint">Google no está disponible en este momento. Puedes entrar con Microsoft mientras tanto.</p>
         }
 
         @if (authError()) {
@@ -59,14 +48,72 @@
       </div>
 
       <div class="signin__notes">
-        <article>
-          <strong>OAuth real</strong>
-          <p>No almacenamos tus credenciales; solo recibimos el resultado autenticado.</p>
+        <article class="note note--accent">
+          <strong>Solo proveedores autorizados</strong>
+          <p>El acceso se resuelve con OAuth real. Trackademy no almacena tu contraseña institucional.</p>
         </article>
-        <article>
-          <strong>Tu ciclo se configura por periodo</strong>
-          <p>Cuando empieza un nuevo ciclo, Trackademy te pedirá volver a confirmar campus, cursos y base académica.</p>
+        <article class="note">
+          <strong>Configuración por periodo</strong>
+          <p>Al entrar, validamos tu periodo vigente y te enviamos al onboarding si el ciclo todavía no está listo.</p>
         </article>
+      </div>
+    </section>
+
+    <section class="signin__intro">
+      <div class="signin__visual">
+        <div class="visual-card">
+          <div class="visual-card__top">
+            <span class="visual-card__badge">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M5 19h14v2H5v-2zm1-2V7h3v10H6zm5 0V3h3v14h-3zm5 0v-6h3v6h-3z"></path>
+              </svg>
+            </span>
+            <span class="visual-card__line"></span>
+          </div>
+
+          <div class="visual-card__metrics">
+            <article>
+              <span>Algoritmos</span>
+              <strong>94%</strong>
+            </article>
+            <article>
+              <span>Sistemas</span>
+              <strong>A+</strong>
+            </article>
+          </div>
+
+          <div class="visual-card__progress">
+            <div class="visual-card__caption">
+              <span>Progreso del semestre</span>
+              <strong>85%</strong>
+            </div>
+            <span class="visual-card__bar"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="signin__story">
+        <span class="signin__story-kicker">Academic Command Center</span>
+        <h2>Tu éxito académico comienza con una buena <em>organización</em>.</h2>
+        <p class="signin__subtitle">
+          Diseñado para la mente analítica del ingeniero de sistemas. Todo bajo control, desde cursos y horarios hasta notas, tareas y recordatorios del ciclo.
+        </p>
+      </div>
+
+      <div class="signin__social-proof">
+        <div class="avatars" aria-hidden="true">
+          <span>A</span>
+          <span>L</span>
+          <span>M</span>
+          <span>+5k</span>
+        </div>
+        <p>Estudiantes optimizando su semestre con contexto real del periodo actual.</p>
+      </div>
+
+      <div class="signin__compass" aria-hidden="true">
+        <span class="signin__compass-ring"></span>
+        <span class="signin__compass-leg signin__compass-leg--left"></span>
+        <span class="signin__compass-leg signin__compass-leg--right"></span>
       </div>
     </section>
   </div>
