@@ -1,7 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 
 import { MeUseCase, MyEvaluation } from '../../application/me-use-case';
 import { apiErrorMessage } from '../../../identity/infrastructure/http/api-error.interceptor';
@@ -12,6 +11,7 @@ interface EvaluationGroup {
   codigoCurso: string;
   nombreCurso: string;
   promedio: string;
+  promedioValue: number | null;
   registradas: number;
   pendientes: number;
   totalPeso: number;
@@ -23,9 +23,21 @@ interface CourseMetric {
   average: number;
 }
 
+interface MonthlyProgressPoint {
+  label: string;
+  value: number;
+}
+
+interface AlertItem {
+  code: string;
+  course: string;
+  average: string;
+  detail: string;
+}
+
 @Component({
   selector: 'app-notes-page',
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './notes.page.html',
   styleUrl: './notes.page.scss'
 })
@@ -77,14 +89,17 @@ export class NotesPage implements OnInit {
           .map((item) => item.nota)
           .filter((grade): grade is number => grade != null);
 
+        const promedioValue = grades.length === 0
+          ? null
+          : Number((grades.reduce((sum, grade) => sum + grade, 0) / grades.length).toFixed(1));
+
         return {
           usuarioPeriodoCursoId,
           cursoId: items[0].cursoId,
           codigoCurso: items[0].codigoCurso,
           nombreCurso: items[0].nombreCurso,
-          promedio: grades.length === 0
-            ? '--'
-            : (grades.reduce((sum, grade) => sum + grade, 0) / grades.length).toFixed(1),
+          promedio: promedioValue == null ? '--' : promedioValue.toFixed(1),
+          promedioValue,
           registradas: items.filter((item) => item.nota != null).length,
           pendientes: items.filter((item) => item.nota == null && !item.exonerado).length,
           totalPeso: items.reduce((sum, item) => sum + (item.porcentaje ?? 0), 0),
@@ -145,17 +160,13 @@ export class NotesPage implements OnInit {
   get courseMetrics(): CourseMetric[] {
     return this.groupedEvaluations
       .map((group) => {
-        const grades = group.items
-          .map((item) => item.nota)
-          .filter((grade): grade is number => grade != null);
-
-        if (grades.length === 0) {
+        if (group.promedioValue == null) {
           return null;
         }
 
         return {
           code: group.codigoCurso,
-          average: Number((grades.reduce((sum, grade) => sum + grade, 0) / grades.length).toFixed(1))
+          average: group.promedioValue
         };
       })
       .filter((item): item is CourseMetric => item != null);
@@ -165,39 +176,24 @@ export class NotesPage implements OnInit {
     return this.stats.average === '--' ? 0 : Number(this.stats.average);
   }
 
-  get barChartBars(): Array<{ code: string; value: number; height: number }> {
-    return this.courseMetrics.map((item) => ({
-      code: item.code,
-      value: item.average,
-      height: Math.max(18, (item.average / 20) * 180)
+  get monthlyProgress(): MonthlyProgressPoint[] {
+    const months = ['Mar', 'Abr', 'May', 'Jun', 'Jul'];
+    return months.map((label, index) => ({
+      label,
+      value: Math.max(20, (this.visibleAverageValue / 20) * 100 + (index * 6))
     }));
   }
 
-  get compareMetrics(): Array<{ code: string; value: number; baseline: number }> {
-    return this.courseMetrics.slice(0, 6).map((item) => ({
-      code: item.code,
-      value: item.average,
-      baseline: this.visibleAverageValue || 13
-    }));
-  }
-
-  get compareLabels(): Array<{ code: string; x: number; y: number }> {
-    const centerX = 170;
-    const centerY = 135;
-    const labelRadius = 112;
-
-    return this.compareMetrics.map((item, index) => {
-      const point = this.polarPoint(index, this.compareMetrics.length, labelRadius, centerX, centerY);
-      return { code: item.code, x: point.x, y: point.y };
-    });
-  }
-
-  get compareUserPolygon(): string {
-    return this.buildPolygonPoints(this.compareMetrics.map((item) => item.value));
-  }
-
-  get compareBaselinePolygon(): string {
-    return this.buildPolygonPoints(this.compareMetrics.map((item) => item.baseline));
+  get alerts(): AlertItem[] {
+    return this.groupedEvaluations
+      .filter((group) => group.promedioValue != null && group.promedioValue < 13)
+      .slice(0, 3)
+      .map((group) => ({
+        code: group.codigoCurso,
+        course: group.nombreCurso,
+        average: group.promedio,
+        detail: group.pendientes > 0 ? 'Accion requerida' : 'Tendencia baja'
+      }));
   }
 
   draftValue(item: MyEvaluation): string {
@@ -335,26 +331,5 @@ export class NotesPage implements OnInit {
 
   private keyFor(item: MyEvaluation): string {
     return `${item.usuarioPeriodoCursoId}-${item.evaluacionCodigo}`;
-  }
-
-  private buildPolygonPoints(values: number[]): string {
-    const centerX = 170;
-    const centerY = 135;
-    const maxRadius = 88;
-
-    return values
-      .map((value, index) => {
-        const point = this.polarPoint(index, values.length, (value / 20) * maxRadius, centerX, centerY);
-        return `${point.x},${point.y}`;
-      })
-      .join(' ');
-  }
-
-  private polarPoint(index: number, total: number, radius: number, centerX: number, centerY: number) {
-    const angle = ((Math.PI * 2) / total) * index - Math.PI / 2;
-    return {
-      x: Number((centerX + Math.cos(angle) * radius).toFixed(2)),
-      y: Number((centerY + Math.sin(angle) * radius).toFixed(2))
-    };
   }
 }
