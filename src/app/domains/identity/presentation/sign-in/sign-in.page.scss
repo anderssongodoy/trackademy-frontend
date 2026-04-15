@@ -137,23 +137,24 @@
   width: 100%;
   display: inline-flex;
   align-items: center;
-  gap: 18px;
-  min-height: 54px;
-  border-radius: 14px;
-  padding: 0 18px;
-  border: 1px solid rgba(175, 183, 196, 0.7);
+  gap: 16px;
+  min-height: 52px;
+  border-radius: 16px;
+  padding: 0 20px;
+  border: 1px solid #cfd6e3;
   background: #fff;
   color: #2d3642;
-  font-size: 0.92rem;
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
-  box-shadow: none;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08);
   transition: transform 140ms ease, box-shadow 140ms ease;
 }
 
 .provider:hover {
   transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgba(84, 0, 194, 0.06);
+  box-shadow: 0 4px 16px rgba(84, 0, 194, 0.08);
 }
 
 .provider:disabled {
@@ -164,6 +165,7 @@
 .provider span:last-child {
   flex: 1;
   text-align: left;
+  line-height: 1;
 }
 
 .provider__icon {
@@ -203,6 +205,10 @@
   width: 100%;
 }
 
+:host ::ng-deep .google > div {
+  width: 100% !important;
+}
+
 :host ::ng-deep .google div,
 :host ::ng-deep .google iframe {
   width: 100% !important;
@@ -219,16 +225,18 @@
 
 :host ::ng-deep .google .nsm7Bb-HzV7m-LgbsSe,
 :host ::ng-deep .google .abcRioButton {
-  height: 54px !important;
-  border: 1px solid rgba(175, 183, 196, 0.7) !important;
+  height: 52px !important;
+  border: 1px solid #cfd6e3 !important;
+  border-radius: 16px !important;
   background: #fff !important;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.08) !important;
 }
 
 :host ::ng-deep .google .nsm7Bb-HzV7m-LgbsSe-Bz112c,
 :host ::ng-deep .google .nsm7Bb-HzV7m-LgbsSe-MJoBVe,
 :host ::ng-deep .google .abcRioButtonContents {
-  font-family: inherit !important;
-  font-size: 0.92rem !important;
+  font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif !important;
+  font-size: 0.95rem !important;
   font-weight: 500 !important;
   color: #2d3642 !important;
   text-align: left !important;
@@ -236,7 +244,12 @@
 
 :host ::ng-deep .google .nsm7Bb-HzV7m-LgbsSe-MJoBVe,
 :host ::ng-deep .google .abcRioButtonIcon {
-  margin-right: 18px !important;
+  margin-right: 16px !important;
+}
+
+:host ::ng-deep .google .nsm7Bb-HzV7m-LgbsSe-Bz112c {
+  padding-left: 20px !important;
+  padding-right: 20px !important;
 }
 
 .hint,
