@@ -114,32 +114,6 @@
             </div>
           </article>
         }
-
-        <article class="insight-card">
-          <span class="insight-card__eyebrow">Radar academico</span>
-          <h3>{{ coursesWithoutScheduleCount }} curso{{ coursesWithoutScheduleCount === 1 ? '' : 's' }} aun necesitan horario</h3>
-          <p>
-            {{ nextPendingCourse
-              ? 'La siguiente evaluacion pendiente cae en ' + nextPendingCourse.nombre + '. Conviene revisar ese curso primero.'
-              : 'Tu carga actual no tiene una evaluacion urgente detectada. Este es un buen momento para terminar de ordenar horarios.' }}
-          </p>
-
-          <div class="insight-card__stats">
-            <div>
-              <strong>{{ averageGradeLabel }}</strong>
-              <span>promedio visible</span>
-            </div>
-            <div>
-              <strong>{{ currentPeriod?.horasEstudioSemanaObjetivo ?? '--' }}</strong>
-              <span>meta de estudio</span>
-            </div>
-          </div>
-
-          <div class="insight-card__actions">
-            <a class="btn btn--ghost" routerLink="/app/horario">Configurar horario</a>
-            <a class="btn btn--primary" routerLink="/app/notas">Abrir notas</a>
-          </div>
-        </article>
       </section>
     </section>
   }

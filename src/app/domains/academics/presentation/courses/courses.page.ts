@@ -14,7 +14,6 @@ interface CourseCardView extends MyCourse {
   nextEvaluationDate: string | null;
   primaryScheduleLabel: string;
   secondaryScheduleLabel: string;
-  scheduleLocations: string[];
   weeklyHoursLabel: string;
   sessionsCount: number;
   hasSchedule: boolean;
@@ -89,23 +88,6 @@ export class CoursesPage implements OnInit {
     return this.courseCards.reduce((total, course) => total + course.pendingEvaluations, 0);
   }
 
-  get coursesWithoutScheduleCount(): number {
-    return this.courseCards.filter((course) => !course.hasSchedule).length;
-  }
-
-  get averageGradeLabel(): string {
-    const grades = this.courseCards
-      .map((course) => course.averageGrade)
-      .filter((grade): grade is number => grade != null);
-
-    if (grades.length === 0) {
-      return 'Sin notas';
-    }
-
-    const total = grades.reduce((sum, grade) => sum + grade, 0);
-    return (total / grades.length).toFixed(1);
-  }
-
   get filterOptions(): CourseFilterOption[] {
     const options: CourseFilterOption[] = [
       { key: 'all', label: 'Todos', count: this.courseCards.length },
@@ -117,16 +99,6 @@ export class CoursesPage implements OnInit {
     ];
 
     return options.filter((option) => option.key === 'all' || option.count > 0);
-  }
-
-  get nextPendingCourse(): CourseCardView | null {
-    return this.courseCards
-      .filter((course) => course.pendingEvaluations > 0)
-      .sort((left, right) => {
-        const leftDate = left.nextEvaluationDate ? new Date(left.nextEvaluationDate).getTime() : Number.MAX_SAFE_INTEGER;
-        const rightDate = right.nextEvaluationDate ? new Date(right.nextEvaluationDate).getTime() : Number.MAX_SAFE_INTEGER;
-        return leftDate - rightDate;
-      })[0] ?? null;
   }
 
   get totalWeeklyHoursLabel(): string {
@@ -233,7 +205,6 @@ export class CoursesPage implements OnInit {
         nextEvaluationDate: nextEvaluation?.fechaEstimada ?? null,
         primaryScheduleLabel: this.buildPrimaryScheduleLabel(courseSchedule),
         secondaryScheduleLabel: this.buildSecondaryScheduleLabel(courseSchedule),
-        scheduleLocations: [...new Set(courseSchedule.map((entry) => entry.ubicacion).filter(Boolean))] as string[],
         weeklyHoursLabel: weeklyHours > 0 ? `${this.formatHours(weeklyHours)} h/sem` : 'Horario pendiente',
         sessionsCount: courseSchedule.length,
         hasSchedule: courseSchedule.length > 0,
@@ -248,8 +219,19 @@ export class CoursesPage implements OnInit {
       return 'Horario pendiente';
     }
 
+    const uniqueDays = [...new Set(courseSchedule.map((entry) => this.dayLabel(entry.diaSemana)))];
     const first = courseSchedule[0];
-    return `${this.dayLabel(first.diaSemana)} ${first.horaInicio?.slice(0, 5) || '--:--'}`;
+    const start = first.horaInicio?.slice(0, 5) || '--:--';
+
+    if (uniqueDays.length === 1) {
+      return `${uniqueDays[0]} ${start}`;
+    }
+
+    if (uniqueDays.length === 2) {
+      return `${uniqueDays[0]} / ${uniqueDays[1]}`;
+    }
+
+    return `${uniqueDays.length} dias por semana`;
   }
 
   private buildSecondaryScheduleLabel(courseSchedule: MyScheduleEntry[]): string {
@@ -258,9 +240,11 @@ export class CoursesPage implements OnInit {
     }
 
     const first = courseSchedule[0];
+    const start = first.horaInicio?.slice(0, 5);
+    const end = first.horaFin?.slice(0, 5);
+    const timeRange = start && end ? `${start} - ${end}` : null;
     const type = first.tipoSesion?.trim();
-    const place = first.ubicacion?.trim();
-    return [type, place].filter(Boolean).join(' · ') || 'Sesion registrada';
+    return [timeRange, type].filter(Boolean).join(' · ') || 'Sesion registrada';
   }
 
   private resolveModalityTag(value: string | null): string {

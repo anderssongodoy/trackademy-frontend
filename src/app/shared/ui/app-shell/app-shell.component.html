@@ -1,5 +1,21 @@
-﻿<div class="app-shell" [class.app-shell--menu-open]="mobileOpen()" [class.app-shell--collapsed]="collapsed()">
+<div class="app-shell" [class.app-shell--menu-open]="mobileOpen()" [class.app-shell--collapsed]="collapsed()">
   <aside class="sidebar">
+    <button
+      class="sidebar__edge-toggle"
+      type="button"
+      (click)="toggleMenu()"
+      [attr.aria-label]="collapsed() ? 'Expandir menu lateral' : 'Contraer menu lateral'"
+      [title]="collapsed() ? 'Expandir' : 'Contraer'"
+    >
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        @if (!collapsed()) {
+          <path d="M15 6l-6 6 6 6"></path>
+        } @else {
+          <path d="M9 6l6 6-6 6"></path>
+        }
+      </svg>
+    </button>
+
     <div class="sidebar__brand">
       <span class="brand__mark">T</span>
       <div class="brand__text">
@@ -21,10 +37,16 @@
       }
     </nav>
 
-    <div class="sidebar__footer">
-      <button class="nav-cta" type="button" (click)="signOut()" aria-label="Cerrar sesion" title="Cerrar sesion">
-        <span class="nav-cta__icon">⇠</span>
-        <span class="nav-cta__label">Cerrar sesion</span>
+    <div class="sidebar__utility">
+      <button class="sidebar__signout" type="button" (click)="signOut()" aria-label="Cerrar sesion" title="Cerrar sesion">
+        <span class="sidebar__signout-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24">
+            <path d="M14 7V5a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h5a2 2 0 0 0 2-2v-2"></path>
+            <path d="M10 12h10"></path>
+            <path d="M17 8l4 4-4 4"></path>
+          </svg>
+        </span>
+        <span class="sidebar__signout-label">Cerrar sesion</span>
       </button>
     </div>
   </aside>
@@ -36,10 +58,6 @@
         <span></span>
         <span></span>
       </button>
-      <div class="topbar__spacer"></div>
-      <div class="topbar__actions">
-        <button class="topbar__secondary" type="button" (click)="signOut()">Cerrar sesion</button>
-      </div>
     </header>
     <div class="app-shell__content">
       <router-outlet></router-outlet>

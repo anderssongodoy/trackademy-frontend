@@ -18,12 +18,17 @@
           </div>
 
           <h1>{{ heroTitle }}</h1>
-          <p class="hero__summary">{{ heroSummary }}</p>
+          @if (heroSummary) {
+            <p class="hero__summary">{{ heroSummary }}</p>
+          }
         </div>
 
         <div class="hero__cta">
           <span class="hero__cta-label">Foco recomendado</span>
-          <strong>{{ nextSetupStep?.title || 'Tu dashboard ya esta alineado' }}</strong>
+          <strong>{{ nextSetupStep?.title || 'Dashboard alineado' }}</strong>
+          @if (nextSetupStep) {
+            <p class="hero__cta-detail">{{ nextSetupStep.detail }}</p>
+          }
           <a class="btn btn--primary" [routerLink]="nextSetupStep?.ctaLink || '/app/horario'">
             {{ nextSetupStep?.ctaLabel || 'Abrir horario' }}
           </a>
@@ -32,24 +37,48 @@
 
       <section class="metric-strip" aria-label="Resumen del periodo">
         <article class="metric-block metric-block--violet">
+          <span class="metric-block__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M4 7.5 12 4l8 3.5-8 3.5L4 7.5Z" />
+              <path d="M7 10.5v4.2c0 .5.28.96.73 1.18 1.4.7 2.85 1.12 4.27 1.12 1.42 0 2.87-.42 4.27-1.12.45-.22.73-.68.73-1.18v-4.2" />
+            </svg>
+          </span>
           <span class="metric-block__label">Cursos activos</span>
           <strong>{{ summary.cursosActivos }}</strong>
           <small>{{ configuredScheduleLabel }}</small>
         </article>
 
         <article class="metric-block metric-block--mint">
+          <span class="metric-block__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <rect x="5" y="4" width="14" height="16" rx="3" />
+              <path d="M8 2.8v3.4M16 2.8v3.4M8 10h8M8 14h5" />
+            </svg>
+          </span>
           <span class="metric-block__label">Clases de hoy</span>
           <strong>{{ classesTodayCount }}</strong>
-          <small>{{ todaySessions.length > 0 ? 'Agenda lista para hoy' : 'Sin sesiones para hoy' }}</small>
+          <small>{{ todaySessions.length > 0 ? 'Agenda activa' : 'Sin bloques hoy' }}</small>
         </article>
 
         <article class="metric-block metric-block--warm">
+          <span class="metric-block__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M12 4 20 8.5v7L12 20l-8-4.5v-7L12 4Z" />
+              <path d="M12 8v4m0 3h.01" />
+            </svg>
+          </span>
           <span class="metric-block__label">Pendientes criticos</span>
           <strong>{{ summary.evaluacionesPendientes }}</strong>
-          <small>{{ dueSoonCount }} caen dentro de los proximos 7 dias</small>
+          <small>{{ dueSoonCount }} en 7 dias</small>
         </article>
 
         <article class="metric-block metric-block--soft">
+          <span class="metric-block__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M5 17.5 10.2 12.3l3.2 3.2L19 9.8" />
+              <path d="M14 9.8h5v5" />
+            </svg>
+          </span>
           <span class="metric-block__label">Meta del ciclo</span>
           <strong>{{ currentPeriod?.metaPromedioCiclo ?? '--' }}</strong>
           <small>{{ cycleProgressLabel }}</small>
@@ -73,21 +102,6 @@
                   {{ nextEvaluation.descripcion || nextEvaluation.tipo || 'Evaluacion academica programada en tu periodo actual.' }}
                 </p>
 
-                <div class="evaluation-card__facts">
-                  <div class="fact-tile">
-                    <strong>{{ nextEvaluationCountdownDays }}</strong>
-                    <span>Dias</span>
-                  </div>
-                  <div class="fact-tile">
-                    <strong>{{ nextEvaluationWeekLabel }}</strong>
-                    <span>Semana</span>
-                  </div>
-                  <div class="fact-tile">
-                    <strong>{{ nextEvaluationWeightLabel }}</strong>
-                    <span>Peso</span>
-                  </div>
-                </div>
-
                 <div class="evaluation-card__actions">
                   <a class="btn btn--primary" [routerLink]="['/app/cursos', nextEvaluation.usuarioPeriodoCursoId]">Ver curso</a>
                   <a class="btn btn--ghost" routerLink="/app/notas">Registrar nota</a>
@@ -95,19 +109,29 @@
               }
             </div>
 
-            <div class="evaluation-card__visual" aria-hidden="true">
-              <div class="evaluation-card__orb"></div>
-              @if (nextEvaluation) {
-                <div class="evaluation-card__date-chip">{{ nextEvaluationDateLabel }}</div>
-              }
-            </div>
+            @if (nextEvaluation) {
+              <div class="evaluation-card__aside">
+                <div class="evaluation-glance">
+                  <span class="evaluation-glance__label">Fecha</span>
+                  <strong>{{ nextEvaluationDateLabel }}</strong>
+                </div>
+                <div class="evaluation-glance">
+                  <span class="evaluation-glance__label">Codigo</span>
+                  <strong>{{ nextEvaluation.evaluacionCodigo }}</strong>
+                </div>
+                <div class="evaluation-glance evaluation-glance--accent">
+                  <span class="evaluation-glance__label">Tipo</span>
+                  <strong>{{ nextEvaluationTypeLabel }}</strong>
+                </div>
+              </div>
+            }
           </article>
 
           <article class="schedule-card">
             <div class="section-heading">
               <div>
-                <h3>Horario del dia</h3>
-                <p>{{ classesTodayCount > 0 ? 'Tus bloques mas cercanos de hoy.' : 'Mostrando la siguiente actividad disponible.' }}</p>
+                <h3>{{ scheduleHeading }}</h3>
+                <p>{{ scheduleSummary }}</p>
               </div>
               <a class="inline-link" routerLink="/app/horario">Ver semana completa</a>
             </div>
@@ -122,6 +146,7 @@
                   <article class="schedule-row" [class.schedule-row--accent]="$index === 0">
                     <div class="schedule-row__time">
                       <strong>{{ scheduleTimeLabel(item) }}</strong>
+                      <em>{{ scheduleTimeRangeLabel(item) }}</em>
                       <span>{{ scheduleDateLabel(item) }}</span>
                     </div>
                     <div class="schedule-row__content">
@@ -141,33 +166,41 @@
             <div class="section-heading section-heading--compact">
               <div>
                 <h3>Acciones rapidas</h3>
-                <p>Atajos para mover lo importante.</p>
               </div>
             </div>
 
             <div class="quick-actions">
               <a class="quick-action" routerLink="/app/notas">
-                <div>
-                  <strong>Registrar nota</strong>
-                  <span>{{ summary.notasRegistradas }} registradas</span>
-                </div>
-                <span class="quick-action__arrow">›</span>
+                <span class="quick-action__icon quick-action__icon--violet" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M8 6.5h8M8 11.5h8M8 16.5h5" />
+                    <path d="M6 4.5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-11a2 2 0 0 1 2-2Z" />
+                  </svg>
+                </span>
+                <strong>Registrar nota</strong>
+                <span class="quick-action__arrow" aria-hidden="true">›</span>
               </a>
 
               <a class="quick-action" routerLink="/app/recordatorios">
-                <div>
-                  <strong>Nuevo recordatorio</strong>
-                  <span>{{ periodEvents.length + upcomingSessions.length }} eventos en radar</span>
-                </div>
-                <span class="quick-action__arrow">›</span>
+                <span class="quick-action__icon quick-action__icon--warm" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M12 5.5a4 4 0 0 1 4 4v2.2c0 .47.16.92.46 1.28L18 15.5H6l1.54-2.52c.3-.36.46-.81.46-1.28V9.5a4 4 0 0 1 4-4Z" />
+                    <path d="M10 18a2 2 0 0 0 4 0" />
+                  </svg>
+                </span>
+                <strong>Nuevo recordatorio</strong>
+                <span class="quick-action__arrow" aria-hidden="true">›</span>
               </a>
 
               <a class="quick-action" routerLink="/app/cursos">
-                <div>
-                  <strong>Ver cursos</strong>
-                  <span>{{ courses.length }} cursos del periodo</span>
-                </div>
-                <span class="quick-action__arrow">›</span>
+                <span class="quick-action__icon quick-action__icon--blue" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none">
+                    <path d="M5 6.5A2.5 2.5 0 0 1 7.5 4H19v14H7.5A2.5 2.5 0 0 0 5 20.5V6.5Z" />
+                    <path d="M5 6.5A2.5 2.5 0 0 1 7.5 4H19v14H7.5A2.5 2.5 0 0 0 5 20.5m0-14v14" />
+                  </svg>
+                </span>
+                <strong>Ver cursos</strong>
+                <span class="quick-action__arrow" aria-hidden="true">›</span>
               </a>
             </div>
           </article>
@@ -175,8 +208,7 @@
           <article class="rail-card">
             <div class="section-heading section-heading--compact">
               <div>
-                <h3>Pulso del momento</h3>
-                <p>Lo que mas conviene mirar ahora.</p>
+                <h3>Prioridades</h3>
               </div>
             </div>
 
@@ -186,40 +218,10 @@
                   <span class="pulse-item__dot"></span>
                   <div>
                     <strong>{{ item.title }}</strong>
-                    <p>{{ item.detail }}</p>
                     <small>{{ item.meta }}</small>
                   </div>
                 </article>
               }
-            </div>
-          </article>
-
-          <article class="rail-card">
-            <div class="section-heading section-heading--compact">
-              <div>
-                <h3>{{ calendarMonthLabel }}</h3>
-                <p>Eventos marcados desde clases y calendario del periodo.</p>
-              </div>
-            </div>
-
-            <div class="mini-calendar">
-              <div class="mini-calendar__weekdays">
-                @for (label of calendarWeekdayLabels; track label + $index) {
-                  <span>{{ label }}</span>
-                }
-              </div>
-
-              <div class="mini-calendar__grid">
-                @for (cell of calendarCells; track cell.isoDate || $index) {
-                  <span
-                    class="mini-calendar__day"
-                    [class.mini-calendar__day--muted]="!cell.isCurrentMonth"
-                    [class.mini-calendar__day--today]="cell.isToday"
-                    [class.mini-calendar__day--active]="cell.isActive">
-                    {{ cell.dayNumber }}
-                  </span>
-                }
-              </div>
             </div>
           </article>
         </aside>
