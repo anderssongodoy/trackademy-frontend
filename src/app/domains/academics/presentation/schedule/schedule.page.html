@@ -13,20 +13,13 @@
         <article class="hero-banner">
           <span class="hero-banner__eyebrow">{{ currentPeriod?.periodoEtiqueta || 'Periodo actual' }}</span>
           <h1>Horario Academico</h1>
-          <p>
-            {{ todaySchedule?.entries?.length
-              ? 'Hoy tienes ' + todaySchedule!.entries.length + ' bloque' + (todaySchedule!.entries.length === 1 ? '' : 's') + ' y ' + todayPendingCutoffLabel.toLowerCase() + '.'
-              : 'Todavia no hay carga para hoy. Usa esta vista para entender tu semana completa.' }}
-          </p>
+          <p class="hero-banner__callout">Proxima clase: {{ nextClassMessage }}</p>
         </article>
 
         <article class="hero-meter">
-          <span class="hero-meter__eyebrow">Hoy</span>
+          <span class="hero-meter__eyebrow">{{ heroMeterEyebrow }}</span>
           <strong>{{ todaySchedule?.entries?.length || 0 }}</strong>
-          <p>clases pendientes</p>
-          <div class="hero-meter__bar">
-            <span [style.width.%]="courses.length ? (configuredCoursesCount / courses.length) * 100 : 0"></span>
-          </div>
+          <p>sesiones de hoy</p>
           <small>{{ todayPendingCutoffLabel }}</small>
         </article>
       </header>
@@ -49,7 +42,6 @@
               <h2>Vista semanal</h2>
               <p>Un tablero operativo para ver carga, duracion y contexto por bloque.</p>
             </div>
-            <span>{{ totalWeeklyHours }} totales</span>
           </div>
 
           <div class="week-grid">
@@ -58,25 +50,24 @@
               <div class="week-grid__header" [class.week-grid__header--active]="day.isToday">{{ day.short }}</div>
             }
 
-            <div class="week-grid__hours">
+            <div class="week-grid__hours" [style.grid-template-rows]="'repeat(' + hourLineCount + ', ' + hourRowRem + 'rem)'">
               @for (hour of hourLabels; track hour) {
                 <span>{{ hour }}</span>
               }
             </div>
 
-            <div class="week-grid__canvas">
-              <div class="week-grid__lines">
+            <div class="week-grid__canvas" [style.min-height.rem]="canvasHeightRem">
+              <div class="week-grid__lines" [style.grid-template-rows]="'repeat(' + hourLineCount + ', ' + hourRowRem + 'rem)'">
                 @for (hour of hourLabels; track hour) {
                   <span></span>
                 }
               </div>
 
               @for (block of gridBlocks; track block.key) {
-                <article class="grid-block" [class]="blockToneClass(block)" [ngStyle]="blockStyle(block)">
-                  <strong>{{ block.courseCode }}</strong>
+                <article class="grid-block" [ngClass]="blockToneClass(block)" [ngStyle]="blockStyle(block)">
+                  <span class="grid-block__tag">{{ block.meta }}</span>
                   <h3>{{ block.courseName }}</h3>
-                  <p>{{ block.meta }}</p>
-                  <small>{{ block.context }}</small>
+                  <p>{{ block.timeLabel }}</p>
                 </article>
               }
             </div>
@@ -84,12 +75,11 @@
 
           <div class="week-panel__legend">
             <div class="legend">
-              <span><i class="legend__dot legend__dot--violet"></i>Fundamental</span>
+              <span><i class="legend__dot legend__dot--violet"></i>Clase presencial</span>
               <span><i class="legend__dot legend__dot--orange"></i>Laboratorio</span>
               <span><i class="legend__dot legend__dot--green"></i>Virtual</span>
               <span><i class="legend__dot legend__dot--slate"></i>Tutoria</span>
             </div>
-            <strong>Total de horas semanales: {{ totalWeeklyHours }}</strong>
           </div>
         </section>
 
@@ -98,21 +88,21 @@
             <div class="rail-card__header">
               <div>
                 <h2>Agenda de hoy</h2>
-                <p>{{ todaySchedule?.day || 'Hoy' }}</p>
+                <p>{{ railAgendaLabel }}</p>
               </div>
             </div>
 
-            @if (!todaySchedule || todaySchedule.entries.length === 0) {
-              <div class="empty-card">No tienes clases registradas para hoy.</div>
+            @if (!railAgenda || railAgenda.entries.length === 0) {
+              <div class="empty-card">No tienes clases registradas en tu agenda inmediata.</div>
             }
 
-            @if (todaySchedule && todaySchedule.entries.length > 0) {
+            @if (railAgenda && railAgenda.entries.length > 0) {
               <div class="today-list">
-                @for (entry of todaySchedule.entries; track entry.usuarioPeriodoCursoId + '-' + entry.bloqueNro + '-' + entry.diaSemana) {
+                @for (entry of railAgenda.entries; track entry.usuarioPeriodoCursoId + '-' + entry.bloqueNro + '-' + entry.diaSemana) {
                   <article class="today-item">
                     <span class="today-item__dot"></span>
                     <div>
-                      <strong>{{ entry.horaInicio || '--:--' }} - {{ entry.horaFin || '--:--' }}</strong>
+                      <strong>{{ displayTime(entry.horaInicio) }} - {{ displayTime(entry.horaFin) }}</strong>
                       <h3>{{ entry.nombre }}</h3>
                       <p>{{ sessionMeta(entry) }}</p>
                     </div>
@@ -128,6 +118,7 @@
                 <h2>Cursos por configurar</h2>
                 <p>Materias activas sin horario asignado.</p>
               </div>
+              <span class="rail-card__alert">!</span>
             </div>
 
             @if (pendingCoursesCount === 0) {
@@ -138,12 +129,14 @@
               <div class="pending-list">
                 @for (course of courses; track course.usuarioPeriodoCursoId) {
                   @if (!hasSchedule(course.usuarioPeriodoCursoId)) {
-                    <article class="pending-course">
+                    <article class="pending-course" [ngClass]="pendingCourseAccent(course)">
                       <div>
                         <strong>{{ course.nombre }}</strong>
                         <p>{{ course.modalidad || 'Sin modalidad' }}</p>
                       </div>
-                      <a class="inline-link" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Configurar</a>
+                      <a class="pending-course__action" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']" aria-label="Configurar horario">
+                        <span>+</span>
+                      </a>
                     </article>
                   }
                 }

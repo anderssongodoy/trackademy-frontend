@@ -18,10 +18,9 @@ interface ScheduleGridBlock {
   dayNumber: number;
   topRem: number;
   heightRem: number;
-  courseCode: string;
   courseName: string;
   meta: string;
-  context: string;
+  timeLabel: string;
   tone: 'violet' | 'orange' | 'green' | 'slate';
 }
 
@@ -33,6 +32,7 @@ interface ScheduleGridBlock {
 })
 export class SchedulePage implements OnInit {
   private readonly meUseCase = inject(MeUseCase);
+  private readonly hourSlotRem = 7.4;
 
   readonly days = [
     { label: 'Lunes', short: 'Lun' },
@@ -43,8 +43,6 @@ export class SchedulePage implements OnInit {
     { label: 'Sabado', short: 'Sab' },
     { label: 'Domingo', short: 'Dom' }
   ];
-
-  readonly hourLabels = ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00'];
 
   currentPeriod: MyCurrentPeriod | null = null;
   courses: MyCourse[] = [];
@@ -97,6 +95,85 @@ export class SchedulePage implements OnInit {
     return this.scheduleByDay.find((day) => day.isToday) ?? null;
   }
 
+  get railAgenda(): DaySchedule | null {
+    return this.todaySchedule;
+  }
+
+  get railAgendaLabel(): string {
+    return this.todaySchedule?.day || this.todayDayLabel;
+  }
+
+  get displayStartMinutes(): number {
+    if (this.schedule.length === 0) {
+      return 8 * 60;
+    }
+
+    const earliest = Math.min(...this.schedule.map((entry) => this.toMinutes(entry.horaInicio)));
+    const rounded = Math.floor(earliest / 60) * 60;
+    return Math.max(rounded - 60, 7 * 60);
+  }
+
+  get displayEndMinutes(): number {
+    if (this.schedule.length === 0) {
+      return 19 * 60;
+    }
+
+    const latest = Math.max(...this.schedule.map((entry) => {
+      const end = this.toMinutes(entry.horaFin);
+      if (end > 0) {
+        return end;
+      }
+      return this.toMinutes(entry.horaInicio) + (entry.duracionMin ?? 60);
+    }));
+
+    const rounded = Math.ceil(latest / 60) * 60;
+    return Math.min(Math.max(rounded + 60, this.displayStartMinutes + 6 * 60), 23 * 60);
+  }
+
+  get hourLabels(): string[] {
+    const labels: string[] = [];
+    for (let minutes = this.displayStartMinutes; minutes <= this.displayEndMinutes; minutes += 60) {
+      labels.push(this.formatMinutes(minutes));
+    }
+    return labels;
+  }
+
+  get hourLineCount(): number {
+    return Math.max(this.hourLabels.length, 1);
+  }
+
+  get hourRowRem(): number {
+    return this.hourSlotRem;
+  }
+
+  get canvasHeightRem(): number {
+    return Math.max(this.hourLineCount * this.hourRowRem, 10.4);
+  }
+
+  get nextClassMessage(): string {
+    const todayNumber = this.resolveTodayDayNumber();
+    const currentMinutes = this.currentClockMinutes();
+    const upcoming = [...this.schedule]
+      .sort((a, b) => {
+        const aRank = this.nextSessionRank(a, todayNumber, currentMinutes);
+        const bRank = this.nextSessionRank(b, todayNumber, currentMinutes);
+        if (aRank !== bRank) {
+          return aRank - bRank;
+        }
+        return (a.horaInicio || '').localeCompare(b.horaInicio || '');
+      })[0];
+
+    if (!upcoming) {
+      return 'Sin clases registradas';
+    }
+
+    return `${upcoming.nombre} a las ${this.normalizeTime(upcoming.horaInicio)}`;
+  }
+
+  get heroMeterEyebrow(): string {
+    return `Hoy: ${this.todayDayLabel}`;
+  }
+
   get nextPendingCourse(): MyCourse | null {
     return this.courses.find((course) => !this.hasSchedule(course.usuarioPeriodoCursoId)) ?? null;
   }
@@ -114,22 +191,25 @@ export class SchedulePage implements OnInit {
     return `Terminas a las ${this.normalizeTime(last.horaFin)}`;
   }
 
+  get todayDayLabel(): string {
+    return this.days[this.resolveTodayDayNumber() - 1]?.label || 'Hoy';
+  }
+
   get gridBlocks(): ScheduleGridBlock[] {
     return this.schedule.map((entry) => {
       const startMinutes = this.toMinutes(entry.horaInicio);
       const durationMinutes = entry.duracionMin ?? Math.max(this.toMinutes(entry.horaFin) - startMinutes, 60);
-      const topRem = Math.max((startMinutes - 480) / 60 * 3, 0);
-      const heightRem = Math.max(durationMinutes / 60 * 3, 2.6);
+      const topRem = Math.max(((startMinutes - this.displayStartMinutes) / 60) * this.hourSlotRem, 0);
+      const heightRem = (durationMinutes / 60) * this.hourSlotRem;
 
       return {
         key: `${entry.usuarioPeriodoCursoId}-${entry.bloqueNro}-${entry.diaSemana}`,
         dayNumber: entry.diaSemana ?? 1,
         topRem,
         heightRem,
-        courseCode: entry.codigo,
         courseName: entry.nombre,
         meta: this.sessionMeta(entry),
-        context: this.sessionContext(entry),
+        timeLabel: `${this.displayTime(entry.horaInicio)} - ${this.displayTime(entry.horaFin)}`,
         tone: this.resolveTone(entry)
       };
     });
@@ -142,7 +222,7 @@ export class SchedulePage implements OnInit {
 
     const totalMinutes = day.entries.reduce((sum, entry) => sum + (entry.duracionMin ?? 0), 0);
     const hours = totalMinutes / 60;
-    return `${day.entries.length} bloque${day.entries.length === 1 ? '' : 's'} · ${hours.toFixed(totalMinutes % 60 === 0 ? 0 : 1)} h`;
+    return `${day.entries.length} bloque${day.entries.length === 1 ? '' : 's'} - ${hours.toFixed(totalMinutes % 60 === 0 ? 0 : 1)} h`;
   }
 
   sessionMeta(entry: MyScheduleEntry): string {
@@ -153,9 +233,23 @@ export class SchedulePage implements OnInit {
     return entry.ubicacion || entry.urlVirtual || 'Ubicacion pendiente';
   }
 
+  displayTime(value: string | null): string {
+    return this.normalizeTime(value);
+  }
+
+  pendingCourseAccent(course: MyCourse): string {
+    const normalized = `${course.modalidad || ''}`.toLowerCase();
+    if (normalized.includes('virtual') || normalized.includes('remoto')) {
+      return 'pending-course--green';
+    }
+    return 'pending-course--danger';
+  }
+
   blockStyle(block: ScheduleGridBlock): Record<string, string> {
+    const columnWidth = 100 / 7;
     return {
-      gridColumn: `${block.dayNumber + 1}`,
+      left: `calc(${(block.dayNumber - 1) * columnWidth}% + 0.08rem)`,
+      width: `calc(${columnWidth}% - 0.16rem)`,
       top: `${block.topRem}rem`,
       height: `${block.heightRem}rem`
     };
@@ -200,6 +294,21 @@ export class SchedulePage implements OnInit {
     return day === 0 ? 7 : day;
   }
 
+  private currentClockMinutes(): number {
+    const now = new Date();
+    return (now.getHours() * 60) + now.getMinutes();
+  }
+
+  private nextSessionRank(entry: MyScheduleEntry, todayNumber: number, currentMinutes: number): number {
+    const dayNumber = entry.diaSemana ?? todayNumber;
+    const startMinutes = this.toMinutes(entry.horaInicio);
+    const dayOffset = (dayNumber - todayNumber + 7) % 7;
+    if (dayOffset === 0 && startMinutes < currentMinutes) {
+      return 7 * 1440 + startMinutes;
+    }
+    return dayOffset * 1440 + startMinutes;
+  }
+
   private toMinutes(value: string | null): number {
     const trimmed = value?.trim();
     if (!trimmed) {
@@ -216,5 +325,11 @@ export class SchedulePage implements OnInit {
     }
     const [hours = '--', minutes = '--'] = trimmed.split(':');
     return `${hours.padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+  }
+
+  private formatMinutes(value: number): string {
+    const hours = Math.floor(value / 60);
+    const minutes = value % 60;
+    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
   }
 }
