@@ -18,7 +18,6 @@ interface SetupStep {
 interface PulseItem {
   tone: 'violet' | 'green' | 'amber';
   title: string;
-  detail: string;
   meta: string;
 }
 
@@ -249,40 +248,42 @@ export class DashboardPage implements OnInit {
 
   get heroLeadLabel(): string {
     const count = this.heroLeadCount;
-    return count === 1 ? 'evaluacion pendiente' : 'evaluaciones pendientes';
+    return count === 1 ? 'evaluacion' : 'evaluaciones';
   }
 
   get heroTitle(): string {
     const name = this.displayName ?? 'hola';
-    return `Hola, ${name}, tienes ${this.heroLeadCount} ${this.heroLeadLabel} esta semana.`;
+    return `Hola, ${name}. ${this.heroLeadCount} ${this.heroLeadLabel} esta semana.`;
   }
 
   get heroSummary(): string {
-    if (this.pendingCourseCount > 0) {
-      return `${this.pendingCourseCount} curso${this.pendingCourseCount === 1 ? '' : 's'} todavia necesitan bloques para que el sistema pueda ordenar mejor tu ciclo.`;
-    }
-
-    if (this.todaySessions.length > 0) {
-      return `Tu dia ya tiene ${this.todaySessions.length} clase${this.todaySessions.length === 1 ? '' : 's'} identificada${this.todaySessions.length === 1 ? '' : 's'} y ${this.summary?.evaluacionesPendientes ?? 0} evaluaciones siguen abiertas.`;
-    }
-
     if (this.nextSetupStep) {
-      return `Tu base academica ya avanzo ${this.setupCompletedCount}/${this.setupSteps.length} pasos. Lo siguiente que mas impacto tiene es ${this.nextSetupStep.title.toLowerCase()}.`;
+      return this.cycleProgressLabel;
     }
 
-    return `Mantienes ${this.cycleProgressLabel.toLowerCase()} con ${this.summary?.cursosActivos ?? 0} curso${(this.summary?.cursosActivos ?? 0) === 1 ? '' : 's'} activos.`;
+    return '';
   }
 
   get todaySessions(): MyCalendarEvent[] {
     const todayItems = this.upcomingSessions.filter((item) => this.isSameDay(item.inicio, new Date()));
     if (todayItems.length > 0) {
-      return todayItems.slice(0, 4);
+      return this.uniqueSessionsByCourse(todayItems).slice(0, 4);
     }
-    return this.upcomingSessions.slice(0, 4);
+    return this.uniqueSessionsByCourse(this.upcomingSessions).slice(0, 4);
   }
 
   get classesTodayCount(): number {
     return this.upcomingSessions.filter((item) => this.isSameDay(item.inicio, new Date())).length;
+  }
+
+  get scheduleHeading(): string {
+    return this.classesTodayCount > 0 ? 'Horario del dia' : 'Proximas sesiones';
+  }
+
+  get scheduleSummary(): string {
+    return this.classesTodayCount > 0
+      ? 'Tus bloques mas cercanos de hoy.'
+      : 'Mostrando las siguientes sesiones detectadas en tu agenda.';
   }
 
   get nextEvaluationCountdownDays(): string {
@@ -317,15 +318,18 @@ export class DashboardPage implements OnInit {
     return this.formatDate(this.nextEvaluation.fechaEstimada, { day: '2-digit', month: 'long' });
   }
 
+  get nextEvaluationTypeLabel(): string {
+    return this.nextEvaluation?.tipo || 'Evaluacion';
+  }
+
   get pulseItems(): PulseItem[] {
     const items: PulseItem[] = [];
 
     if (this.nextEvaluation) {
       items.push({
         tone: 'violet',
-        title: `${this.nextEvaluation.codigoCurso} · ${this.nextEvaluation.evaluacionCodigo}`,
-        detail: this.nextEvaluation.nombreCurso,
-        meta: this.nextEvaluationDateLabel
+        title: this.nextEvaluation.nombreCurso,
+        meta: `${this.nextEvaluation.evaluacionCodigo} · ${this.nextEvaluationDateLabel}`
       });
     }
 
@@ -333,7 +337,6 @@ export class DashboardPage implements OnInit {
       items.push({
         tone: 'green',
         title: this.nextSession.titulo,
-        detail: this.nextSession.subtitulo || this.nextSession.nombreCurso || 'Sesion programada',
         meta: this.formatDate(this.nextSession.inicio, { weekday: 'short', hour: '2-digit', minute: '2-digit' })
       });
     }
@@ -342,14 +345,12 @@ export class DashboardPage implements OnInit {
       items.push({
         tone: 'amber',
         title: this.nextSetupStep.title,
-        detail: this.nextSetupStep.detail,
         meta: this.nextSetupStep.status === 'in_progress' ? 'En progreso' : 'Siguiente foco'
       });
     } else if (this.nextPeriodEvent) {
       items.push({
         tone: 'amber',
         title: this.nextPeriodEvent.titulo,
-        detail: this.nextPeriodEvent.subtitulo || 'Evento institucional',
         meta: this.formatDate(this.nextPeriodEvent.inicio, { day: '2-digit', month: 'short' })
       });
     }
@@ -417,6 +418,14 @@ export class DashboardPage implements OnInit {
     }).format(new Date(item.inicio));
   }
 
+  scheduleTimeRangeLabel(item: MyCalendarEvent): string {
+    const end = new Intl.DateTimeFormat('es-PE', {
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(new Date(item.fin));
+    return `Hasta ${end}`;
+  }
+
   scheduleDateLabel(item: MyCalendarEvent): string {
     return this.capitalize(new Intl.DateTimeFormat('es-PE', {
       weekday: 'short',
@@ -461,6 +470,21 @@ export class DashboardPage implements OnInit {
 
   private formatDate(value: string, options: Intl.DateTimeFormatOptions): string {
     return this.capitalize(new Intl.DateTimeFormat('es-PE', options).format(new Date(value)));
+  }
+
+  private uniqueSessionsByCourse(items: MyCalendarEvent[]): MyCalendarEvent[] {
+    const seen = new Set<string>();
+    return items.filter((item) => {
+      const key = item.usuarioPeriodoCursoId?.toString()
+        || item.cursoId?.toString()
+        || item.codigoCurso
+        || item.titulo;
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
   }
 
   private capitalize(value: string): string {

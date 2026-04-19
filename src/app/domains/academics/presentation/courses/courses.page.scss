@@ -18,8 +18,7 @@
 .courses__toolbar,
 .toolbar__controls,
 .course-card__footer,
-.course-card__signals,
-.insight-card__actions {
+.course-card__signals {
   display: flex;
   gap: 16px;
 }
@@ -33,6 +32,10 @@
 .courses__hero,
 .courses__toolbar,
 .toolbar__controls {
+  flex: 1 1 460px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  min-width: 0;
   align-items: end;
 }
 
@@ -88,6 +91,7 @@ h1 {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 16px;
   flex: 1 1 420px;
+  min-width: 0;
 }
 
 .metric-block {
@@ -155,7 +159,9 @@ h1 {
 }
 
 .search-field {
-  min-width: min(380px, 100%);
+  flex: 1 1 360px;
+  min-width: 0;
+  max-width: 520px;
 }
 
 .search-field input {
@@ -170,6 +176,7 @@ h1 {
   @include ui.soft-panel(14px 16px, 18px);
   display: inline-flex;
   align-items: center;
+  flex: 0 0 auto;
   white-space: nowrap;
   color: var(--text-primary);
   font-weight: 700;
@@ -181,8 +188,7 @@ h1 {
   gap: 20px;
 }
 
-.course-card,
-.insight-card {
+.course-card {
   @include ui.layer-card(22px, 28px);
   display: grid;
   gap: 18px;
@@ -208,13 +214,13 @@ h1 {
 
 .pill {
   @include ui.chip-base();
-  background: rgba(236, 239, 244, 0.94);
-  color: var(--text-secondary);
+  background: rgba(231, 236, 243, 0.94);
+  color: #475569;
 }
 
 .pill--code {
-  background: rgba(83, 0, 183, 0.1);
-  color: var(--brand-primary);
+  background: rgba(83, 0, 183, 0.16);
+  color: #5300b7;
 }
 
 .course-card__body {
@@ -259,14 +265,14 @@ h1 {
 
 .signal-chip {
   @include ui.chip-base();
-  background: rgba(83, 0, 183, 0.1);
-  color: var(--brand-primary);
+  background: rgba(83, 0, 183, 0.16);
+  color: #5300b7;
 }
 
 .signal-chip--muted,
 .signal-chip--neutral {
   background: rgba(232, 236, 242, 0.94);
-  color: var(--text-secondary);
+  color: #5b6473;
 }
 
 .course-card__footer {
@@ -299,56 +305,6 @@ h1 {
   @include ui.button-secondary();
 }
 
-.insight-card {
-  align-content: space-between;
-  background:
-    radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.14), transparent 30%),
-    linear-gradient(160deg, var(--brand-primary), var(--brand-primary-container));
-  color: #fff;
-  box-shadow: 0 18px 40px rgba(83, 0, 183, 0.18);
-}
-
-.insight-card__eyebrow,
-.insight-card p,
-.insight-card__stats span {
-  color: rgba(255, 255, 255, 0.76);
-}
-
-.insight-card h3 {
-  font-size: clamp(1.7rem, 2.6vw, 2.25rem);
-  line-height: 1.02;
-}
-
-.insight-card__stats {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-}
-
-.insight-card__stats div {
-  @include ui.soft-panel(16px, 20px);
-  display: grid;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.14);
-}
-
-.insight-card__stats strong {
-  font-size: 1.8rem;
-  line-height: 0.94;
-  color: #fff;
-}
-
-.insight-card .btn--ghost {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.14);
-}
-
-.insight-card .btn--primary {
-  background: #fff;
-  color: var(--brand-primary);
-  box-shadow: none;
-}
-
 .empty,
 .state {
   @include ui.state-card();
@@ -373,14 +329,12 @@ h1 {
 @media (max-width: 900px) {
   .metric-strip,
   .courses__grid,
-  .course-meta-grid,
-  .insight-card__stats {
+  .course-meta-grid {
     grid-template-columns: 1fr;
   }
 
   .toolbar__controls,
-  .course-card__footer,
-  .insight-card__actions {
+  .course-card__footer {
     flex-direction: column;
     align-items: stretch;
   }
@@ -393,7 +347,6 @@ h1 {
 @media (max-width: 640px) {
   .courses__toolbar,
   .course-card,
-  .insight-card,
   .metric-block {
     padding: 20px 18px;
   }
@@ -402,8 +355,7 @@ h1 {
     grid-template-columns: 1fr;
   }
 
-  .course-card__footer .btn,
-  .insight-card__actions .btn {
+  .course-card__footer .btn {
     width: 100%;
   }
 }
