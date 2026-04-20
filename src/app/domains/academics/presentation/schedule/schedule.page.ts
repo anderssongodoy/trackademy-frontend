@@ -198,7 +198,11 @@ export class SchedulePage implements OnInit {
   get gridBlocks(): ScheduleGridBlock[] {
     return this.schedule.map((entry) => {
       const startMinutes = this.toMinutes(entry.horaInicio);
-      const durationMinutes = entry.duracionMin ?? Math.max(this.toMinutes(entry.horaFin) - startMinutes, 60);
+      const endMinutes = this.toMinutes(entry.horaFin);
+      const apiRangeMinutes = endMinutes - startMinutes;
+      const durationMinutes = apiRangeMinutes > 0
+        ? apiRangeMinutes
+        : (entry.duracionMin ?? 60);
       const topRem = Math.max(((startMinutes - this.displayStartMinutes) / 60) * this.hourSlotRem, 0);
       const heightRem = (durationMinutes / 60) * this.hourSlotRem;
 
