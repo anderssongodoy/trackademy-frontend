@@ -139,6 +139,22 @@ export class ProfilePage implements OnInit {
     return this.currentCourses.length;
   }
 
+  get academicStatusTone(): 'ready' | 'pending' | 'progress' {
+    const status = this.period?.onboardingEstado?.toLowerCase();
+    if (status === 'completado') {
+      return 'ready';
+    }
+    if (status === 'en_progreso') {
+      return 'progress';
+    }
+    return 'pending';
+  }
+
+  get progressPercent(): number {
+    const current = Math.min(this.currentCoursesCount, 12);
+    return Math.round((current / 12) * 100);
+  }
+
   get whatsappSummaryLabel(): string {
     if (this.isWhatsappLinked) {
       return 'Vinculado con WhatsApp';
@@ -167,11 +183,18 @@ export class ProfilePage implements OnInit {
     return `${start} - ${end}`;
   }
 
-  get selectedCoursesList(): Array<{ id: number; label: string }> {
-    return [...this.selectedCourseIds].map((id) => ({
-      id,
-      label: this.selectedCourseLabels.get(id) || `Curso ${id}`
-    }));
+  get selectedCoursesList(): Array<{ id: number; label: string; code: string; name: string }> {
+    return [...this.selectedCourseIds].map((id) => {
+      const label = this.selectedCourseLabels.get(id) || `Curso ${id}`;
+      const [code, ...nameParts] = label.split(' - ');
+
+      return {
+        id,
+        label,
+        code: nameParts.length ? code : `ID ${id}`,
+        name: nameParts.length ? nameParts.join(' - ') : label
+      };
+    });
   }
 
   get removedCourseCount(): number {
@@ -549,7 +572,7 @@ export class ProfilePage implements OnInit {
 
     this.isCoursesLoading = true;
 
-    this.catalogUseCase.getCourses(Number(carreraId), this.courseQuery, 30, 0).subscribe({
+    this.catalogUseCase.getCourses(Number(carreraId), this.courseQuery, 256, 0).subscribe({
       next: (courses) => {
         this.availableCourses = courses;
         courses.forEach((course) => {

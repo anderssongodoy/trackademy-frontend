@@ -8,11 +8,6 @@ import { CatalogCourseDetail, CatalogCourseEvaluation, CatalogCourseUnit, Catalo
 import { MeUseCase, MyCourse, MyEvaluation, MyScheduleEntry } from '../../application/me-use-case';
 import { apiErrorMessage } from '../../../identity/infrastructure/http/api-error.interceptor';
 
-interface HeroFact {
-  label: string;
-  value: string;
-}
-
 @Component({
   selector: 'app-course-detail-page',
   imports: [CommonModule, ReactiveFormsModule, RouterLink],
@@ -156,25 +151,16 @@ export class CourseDetailPage implements OnInit {
     }));
   }
 
-  get heroFacts(): HeroFact[] {
-    if (!this.courseDetail) {
-      return [];
-    }
-
-    return [
-      { label: 'Creditos', value: `${this.courseDetail.curso.creditos}` },
-      { label: 'Horas semanales', value: `${this.courseDetail.curso.horasSemanales}` },
-      { label: 'Bloques reales', value: `${this.configuredSessionsCount}` },
-      { label: 'Periodo', value: this.courseDetail.periodoTexto || 'Sin periodo' }
-    ];
-  }
-
   get modalityLabel(): string {
     return this.course?.modalidad || this.courseDetail?.curso.modalidad || 'No definida';
   }
 
   get professorLabel(): string {
     return this.course?.profesor || 'Profesor pendiente de confirmar';
+  }
+
+  get sectionLabel(): string {
+    return this.course?.seccion ? `Seccion ${this.course.seccion}` : 'Seccion pendiente de confirmar';
   }
 
   get nextEvaluationLabel(): string {
@@ -184,33 +170,33 @@ export class CourseDetailPage implements OnInit {
     return this.nextEvaluation.descripcion || this.nextEvaluation.tipo || this.nextEvaluation.evaluacionCodigo;
   }
 
-  get overviewCards(): Array<{ label: string; value: string; detail: string; tone: 'violet' | 'mint' | 'warm' | 'soft' }> {
-    return [
-      {
-        label: 'Promedio actual',
-        value: this.averageGradeLabel,
-        detail: `${this.gradedEvaluationsCount} evaluaciones con nota`,
-        tone: 'soft'
-      },
-      {
-        label: 'Pendientes',
-        value: `${this.pendingEvaluationsCount}`,
-        detail: 'evaluaciones por registrar',
-        tone: 'warm'
-      },
-      {
-        label: 'Avance del curso',
-        value: `${this.progressPercent}%`,
-        detail: `${this.gradedEvaluationsCount}/${this.evaluations.length || 0} atendidas`,
-        tone: 'mint'
-      },
-      {
-        label: 'Version del silabo',
-        value: this.courseDetail?.version || '--',
-        detail: `${this.courseDetail?.anio || '--'}`,
-        tone: 'violet'
-      }
-    ];
+  get syllabusVersionLabel(): string {
+    return this.courseDetail?.periodoTexto || 'Metadata del catalogo';
+  }
+
+  get syllabusSupportLabel(): string {
+    return 'Solo metadata del catalogo';
+  }
+
+  get periodLabel(): string {
+    return this.courseDetail?.periodoTexto || 'Periodo no disponible';
+  }
+
+  get heroSummary(): string {
+    return this.courseDetail?.sumilla || 'Todavia no hay sumilla disponible para este curso.';
+  }
+
+  get nextEvaluationMeta(): string {
+    if (!this.nextEvaluation) {
+      return 'Sin evaluaciones pendientes';
+    }
+
+    const parts = [
+      this.nextEvaluation.evaluacionCodigo,
+      this.evaluationSubtitle(this.nextEvaluation)
+    ].filter(Boolean);
+
+    return parts.join(' - ');
   }
 
   saveMetadata(): void {
@@ -265,15 +251,19 @@ export class CourseDetailPage implements OnInit {
   }
 
   evaluationSubtitle(item: MyEvaluation): string {
+    const parts: string[] = [];
+    const syllabusEvaluation = this.syllabusEvaluationFor(item.evaluacionCodigo);
+    const week = item.semana ?? syllabusEvaluation?.semana ?? null;
+
     if (item.fechaEstimada) {
-      return new Date(item.fechaEstimada).toLocaleDateString('es-PE', { day: '2-digit', month: 'short' });
+      parts.push(new Date(item.fechaEstimada).toLocaleDateString('es-PE', { day: '2-digit', month: 'short' }));
     }
 
-    if (item.semana != null) {
-      return `Semana ${item.semana}`;
+    if (week != null) {
+      parts.push(`Semana ${week}`);
     }
 
-    return 'Fecha por definir';
+    return parts.join(' - ') || 'Fecha por definir';
   }
 
   evaluationStatusLabel(item: MyEvaluation): string {
@@ -291,7 +281,15 @@ export class CourseDetailPage implements OnInit {
 
   syllabusEvaluationLabel(item: CatalogCourseEvaluation): string {
     const parts = [item.tipo, item.descripcion, item.semana != null ? `Semana ${item.semana}` : null].filter(Boolean);
-    return parts.join(' · ') || 'Evaluacion';
+    return parts.join(' - ') || 'Evaluacion';
+  }
+
+  private syllabusEvaluationFor(code: string | null | undefined): CatalogCourseEvaluation | null {
+    if (!code || !this.courseDetail) {
+      return null;
+    }
+
+    return this.courseDetail.evaluaciones.find((item) => item.codigo === code) ?? null;
   }
 
   private patchMetadataForm(course: MyCourse): void {

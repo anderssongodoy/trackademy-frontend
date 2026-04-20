@@ -16,7 +16,6 @@
 .schedule__hero,
 .setup-callout,
 .schedule__layout,
-.week-panel__header,
 .week-panel__legend,
 .rail-card__header,
 .pending-course {
@@ -27,7 +26,6 @@
 .schedule__hero,
 .setup-callout,
 .schedule__layout,
-.week-panel__header,
 .week-panel__legend,
 .pending-course {
   justify-content: space-between;
@@ -35,7 +33,6 @@
 
 .schedule__hero,
 .setup-callout,
-.week-panel__header,
 .week-panel__legend,
 .pending-course {
   align-items: center;
@@ -50,6 +47,10 @@
 
 .schedule__hero {
   align-items: stretch;
+}
+
+.schedule__layout {
+  align-items: flex-start;
 }
 
 .hero-banner {
@@ -85,6 +86,7 @@ h1 {
 .hero-meter small,
 .rail-card p,
 .today-item p,
+.today-item small,
 .pending-course p,
 .empty-card,
 .state {
@@ -92,16 +94,24 @@ h1 {
   color: var(--text-secondary);
 }
 
-.hero-banner p,
-.hero-meter p,
-.hero-meter small {
+.hero-banner p {
   color: rgba(255, 255, 255, 0.8);
+}
+
+.hero-banner__callout {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0.75rem 1rem;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px);
 }
 
 .hero-meter {
   width: min(300px, 100%);
   display: grid;
-  gap: 10px;
+  gap: 8px;
   background: rgba(255, 255, 255, 0.98);
 }
 
@@ -111,20 +121,6 @@ h1 {
   font-size: clamp(2.2rem, 4vw, 3rem);
   line-height: 0.92;
   color: var(--brand-primary);
-}
-
-.hero-meter__bar {
-  height: 8px;
-  border-radius: 999px;
-  background: rgba(86, 96, 107, 0.14);
-  overflow: hidden;
-}
-
-.hero-meter__bar span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-container));
 }
 
 .setup-callout {
@@ -147,13 +143,11 @@ h1 {
 .week-panel {
   flex: 1 1 0;
   display: grid;
-  gap: 18px;
+  gap: 14px;
 }
 
-.week-panel__header span {
-  @include ui.chip-base();
-  background: rgba(83, 0, 183, 0.1);
-  color: var(--brand-primary);
+.week-panel__header {
+  display: block;
 }
 
 .week-panel__header h2,
@@ -198,13 +192,12 @@ h1 {
 .week-grid__hours {
   grid-column: 1;
   display: grid;
-  grid-template-rows: repeat(6, 3rem);
   padding-top: 0.5rem;
   background: rgba(250, 251, 253, 0.98);
 }
 
 .week-grid__hours span {
-  padding: 0.9rem 1rem 0;
+  padding: 0.55rem 1rem 0;
   font-size: 0.8rem;
   color: var(--text-secondary);
 }
@@ -212,9 +205,6 @@ h1 {
 .week-grid__canvas {
   grid-column: 2 / span 7;
   position: relative;
-  min-height: 18rem;
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
   background:
     linear-gradient(to right, rgba(86, 96, 107, 0.06) 1px, transparent 1px);
   background-size: calc(100% / 7) 100%;
@@ -224,7 +214,6 @@ h1 {
   position: absolute;
   inset: 0;
   display: grid;
-  grid-template-rows: repeat(6, 3rem);
   pointer-events: none;
 }
 
@@ -234,13 +223,15 @@ h1 {
 
 .grid-block {
   position: absolute;
-  margin: 0.5rem 0.35rem 0;
-  padding: 0.7rem 0.75rem;
-  border-radius: 16px;
+  margin: 0.26rem 0.04rem 0;
+  padding: 0.7rem 0.72rem 0.64rem;
+  border-radius: 18px;
   display: grid;
-  gap: 4px;
+  align-content: start;
+  gap: 0.26rem;
   overflow: hidden;
-  box-shadow: 0 8px 24px rgba(17, 24, 39, 0.06);
+  box-shadow: 0 10px 28px rgba(17, 24, 39, 0.07);
+  z-index: 1;
 }
 
 .grid-block strong,
@@ -249,38 +240,74 @@ h1 {
   color: var(--text-primary);
 }
 
-.grid-block h3 {
-  margin: 0;
-  font-size: 0.92rem;
-  line-height: 1.2;
-  color: var(--text-primary);
+.grid-block__tag {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  padding: 0.18rem 0.46rem;
+  border-radius: 999px;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
-.grid-block p,
-.grid-block small {
+.grid-block h3 {
   margin: 0;
-  font-size: 0.75rem;
-  color: var(--text-secondary);
+  font-size: 0.84rem;
+  line-height: 1.12;
+  color: var(--text-primary);
+  white-space: normal;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+.grid-block p {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.12;
+  color: rgba(25, 28, 29, 0.76);
+  font-weight: 600;
 }
 
 .grid-block--violet {
-  background: rgba(237, 233, 254, 0.98);
-  box-shadow: inset 3px 0 0 #7c3aed;
+  background: linear-gradient(180deg, rgba(243, 238, 255, 0.98), rgba(236, 229, 255, 0.98));
+  box-shadow: inset 3px 0 0 #6d28d9;
 }
 
 .grid-block--orange {
-  background: rgba(255, 237, 213, 0.98);
+  background: linear-gradient(180deg, rgba(255, 244, 230, 0.98), rgba(255, 235, 209, 0.98));
   box-shadow: inset 3px 0 0 #d97706;
 }
 
 .grid-block--green {
-  background: rgba(209, 250, 229, 0.98);
+  background: linear-gradient(180deg, rgba(224, 250, 238, 0.98), rgba(208, 245, 228, 0.98));
   box-shadow: inset 3px 0 0 #10b981;
 }
 
 .grid-block--slate {
-  background: rgba(241, 245, 249, 0.98);
+  background: linear-gradient(180deg, rgba(243, 246, 250, 0.98), rgba(234, 239, 245, 0.98));
   box-shadow: inset 3px 0 0 #94a3b8;
+}
+
+.grid-block--violet .grid-block__tag {
+  background: rgba(109, 40, 217, 0.12);
+  color: #5b21b6;
+}
+
+.grid-block--orange .grid-block__tag {
+  background: rgba(217, 119, 6, 0.12);
+  color: #b45309;
+}
+
+.grid-block--green .grid-block__tag {
+  background: rgba(16, 185, 129, 0.14);
+  color: #047857;
+}
+
+.grid-block--slate .grid-block__tag {
+  background: rgba(100, 116, 139, 0.12);
+  color: #475569;
 }
 
 .week-panel__legend {
@@ -310,7 +337,7 @@ h1 {
 .schedule__rail {
   width: min(320px, 100%);
   display: grid;
-  gap: 16px;
+  gap: 14px;
 }
 
 .rail-card {
@@ -318,10 +345,47 @@ h1 {
   gap: 16px;
 }
 
+.rail-card__icon,
+.rail-card__alert {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  font-weight: 800;
+  flex: 0 0 auto;
+}
+
+.rail-card__icon {
+  color: var(--brand-primary);
+  background: rgba(83, 0, 183, 0.1);
+}
+
+.rail-card__alert {
+  color: #b42318;
+  background: rgba(217, 45, 32, 0.1);
+}
+
 .today-list,
 .pending-list {
   display: grid;
   gap: 12px;
+}
+
+.today-list {
+  position: relative;
+  padding-left: 8px;
+}
+
+.today-list::before {
+  content: '';
+  position: absolute;
+  left: 13px;
+  top: 8px;
+  bottom: 8px;
+  width: 2px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, rgba(83, 0, 183, 0.14), rgba(83, 0, 183, 0.02));
 }
 
 .today-item,
@@ -334,6 +398,9 @@ h1 {
   display: flex;
   align-items: flex-start;
   gap: 12px;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
 }
 
 .today-item__dot {
@@ -343,6 +410,9 @@ h1 {
   border-radius: 999px;
   background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-container));
   flex: 0 0 auto;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.98);
 }
 
 .today-item h3 {
@@ -350,10 +420,27 @@ h1 {
   font-size: 1rem;
 }
 
-.inline-link {
-  color: var(--brand-primary);
+.pending-course__action {
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--text-primary);
+  font-size: 1.15rem;
   font-weight: 700;
   text-decoration: none;
+  box-shadow: inset 0 0 0 1px rgba(86, 96, 107, 0.12);
+}
+
+.pending-course--danger {
+  box-shadow: inset 3px 0 0 #d92d20;
+}
+
+.pending-course--green {
+  box-shadow: inset 3px 0 0 #10b981;
 }
 
 .rail-card--stats {
@@ -375,6 +462,7 @@ h1 {
 .empty-card,
 .state {
   @include ui.state-card();
+  color: var(--text-secondary);
 }
 
 .state--loading {

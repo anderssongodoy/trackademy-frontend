@@ -9,11 +9,11 @@
 
   @if (!isLoading && !loadError && course && courseDetail) {
     <section class="course-detail__frame">
-      <header class="hero-card">
-        <div class="hero-card__main">
+      <header class="hero">
+        <div class="hero__body">
           <a class="back" routerLink="/app/cursos">Volver a cursos</a>
 
-          <div class="hero-card__badges">
+          <div class="hero__pills">
             <span class="pill pill--code">{{ course.codigo }}</span>
             <span class="pill">{{ modalityLabel }}</span>
             <span class="pill" [class.pill--soft]="!course.activo">{{ course.activo ? 'Activo' : 'Inactivo' }}</span>
@@ -21,65 +21,45 @@
 
           <h1>{{ course.nombre }}</h1>
 
-          <div class="hero-card__facts">
-            @for (fact of heroFacts; track fact.label) {
-              <div class="hero-fact">
-                <span>{{ fact.label }}</span>
-                <strong>{{ fact.value }}</strong>
-              </div>
-            }
-          </div>
+          <p class="hero__meta">
+            <span>{{ courseDetail.curso.creditos }} creditos</span>
+            <span>{{ courseDetail.curso.horasSemanales }} horas semanales</span>
+            <span>{{ periodLabel }}</span>
+          </p>
 
-          <div class="hero-card__summary">
-            <div>
-              <span class="hero-card__eyebrow">Panorama del curso</span>
-              <p>{{ courseDetail.sumilla || 'Todavia no hay sumilla disponible para este curso.' }}</p>
+          <p class="hero__summary">{{ heroSummary }}</p>
+
+          <div class="hero__footer">
+            <div class="hero__info">
+              <span class="eyebrow">Profesor titular</span>
+              <strong>{{ professorLabel }}</strong>
+              <small>{{ sectionLabel }}</small>
             </div>
 
-            <div class="hero-professor">
-              <span class="hero-card__eyebrow">Profesor titular</span>
-              <strong>{{ professorLabel }}</strong>
-              <small>{{ course.seccion ? 'Seccion ' + course.seccion : 'Seccion pendiente de confirmar' }}</small>
+            <div class="hero__info">
+              <span class="eyebrow">Silabo visible</span>
+              <strong>{{ syllabusVersionLabel }}</strong>
+              <small>{{ syllabusSupportLabel }}</small>
             </div>
           </div>
         </div>
-
-        <aside class="hero-card__aside">
-          <div class="hero-focus">
-            <span class="hero-card__eyebrow">Siguiente foco</span>
-            <strong>{{ nextEvaluation?.evaluacionCodigo || 'Sin pendientes' }}</strong>
-            <p>{{ nextEvaluationLabel }}</p>
-            <small>{{ nextEvaluation ? evaluationSubtitle(nextEvaluation) : 'No hay evaluaciones por registrar' }}</small>
-          </div>
-
-          <div class="hero-actions">
-            <a class="btn btn--ghost" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Ajustar horario</a>
-            <a class="btn btn--primary" routerLink="/app/notas">Abrir notas</a>
-          </div>
-        </aside>
       </header>
-
-      <section class="overview-strip" aria-label="Resumen del curso">
-        @for (item of overviewCards; track item.label) {
-          <article class="metric-card" [class.metric-card--soft]="item.tone === 'soft'" [class.metric-card--mint]="item.tone === 'mint'" [class.metric-card--warm]="item.tone === 'warm'" [class.metric-card--violet]="item.tone === 'violet'">
-            <span>{{ item.label }}</span>
-            <strong>{{ item.value }}</strong>
-            <small>{{ item.detail }}</small>
-          </article>
-        }
-      </section>
 
       <section class="detail-grid">
         <div class="detail-grid__main">
           <article class="panel panel--evaluations">
             <div class="panel__header">
               <div>
-                <h2>Registro de evaluaciones</h2>
-                <p>Seguimiento real de notas y entregables del curso.</p>
+                <h2>Evaluaciones del curso</h2>
+                <p>Registro real y distribucion oficial del silabo en un solo bloque.</p>
               </div>
-              <div class="panel__stat">
-                <span>Promedio actual</span>
-                <strong>{{ averageGradeLabel }}</strong>
+
+              <div class="panel__header-actions">
+                <div class="summary-chip summary-chip--compact">
+                  <span>Promedio actual</span>
+                  <strong>{{ averageGradeLabel }}</strong>
+                </div>
+                <a class="btn btn--ghost" routerLink="/app/notas">Abrir notas</a>
               </div>
             </div>
 
@@ -94,10 +74,10 @@
                     <div class="evaluation-row__content">
                       <span class="evaluation-row__code">{{ item.evaluacionCodigo }}</span>
                       <h3>{{ item.descripcion || item.tipo || 'Evaluacion' }}</h3>
-                      <p>{{ evaluationStatusLabel(item) }} · {{ evaluationSubtitle(item) }}</p>
+                      <p>{{ evaluationStatusLabel(item) }} - {{ evaluationSubtitle(item) }}</p>
                     </div>
 
-                    <div class="evaluation-row__weight">
+                    <div class="evaluation-row__meta">
                       <span>Peso</span>
                       <strong>{{ item.porcentaje != null ? item.porcentaje + '%' : '--' }}</strong>
                     </div>
@@ -111,11 +91,56 @@
             }
           </article>
 
+        </div>
+
+        <aside class="detail-grid__rail">
+          <article class="panel panel--schedule">
+            <div class="panel__header">
+              <div>
+                <h2>Horario del curso</h2>
+                <p>Bloques reales guardados para esta seccion.</p>
+              </div>
+              <a class="btn btn--ghost" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Ajustar horario</a>
+            </div>
+
+            @if (groupedSchedule.length === 0) {
+              <div class="empty-card empty-card--cta">
+                <p>Este curso aun no tiene horarios configurados.</p>
+                <a class="btn btn--primary" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Crear horario</a>
+              </div>
+            }
+
+            @if (groupedSchedule.length > 0) {
+              <div class="schedule-groups">
+                @for (group of groupedSchedule; track group.key) {
+                  <section class="schedule-group">
+                    <header>
+                      <strong>{{ group.label }}</strong>
+                      <span>{{ group.items.length }} sesion{{ group.items.length === 1 ? '' : 'es' }}</span>
+                    </header>
+
+                    <div class="schedule-group__list">
+                      @for (entry of group.items; track entry.bloqueNro) {
+                        <article class="schedule-item">
+                          <div>
+                            <strong>{{ formatScheduleEntry(entry) }}</strong>
+                            <small>{{ entry.tipoSesion || 'Clase' }}</small>
+                          </div>
+                          <span>{{ entry.ubicacion || entry.urlVirtual || 'Ubicacion pendiente' }}</span>
+                        </article>
+                      }
+                    </div>
+                  </section>
+                }
+              </div>
+            }
+          </article>
+
           <article class="panel panel--metadata">
             <div class="panel__header">
               <div>
                 <h2>Informacion de seccion</h2>
-                <p>Estos datos sí dependen de tu configuracion real.</p>
+                <p>Estos datos si dependen de tu configuracion real.</p>
               </div>
             </div>
 
@@ -151,128 +176,66 @@
             }
           </article>
 
-          <article class="panel">
-            <div class="panel__header">
-              <div>
-                <h2>Marco academico</h2>
-                <p>Lo que si trae el catalogo para contextualizar el curso.</p>
-              </div>
-            </div>
-
-            <div class="text-grid">
-              <section class="text-card">
-                <h3>Logro general</h3>
-                <p>{{ courseDetail.logroGeneral || 'No disponible.' }}</p>
-              </section>
-
-              <section class="text-card">
-                <h3>Metodologia</h3>
-                <p>{{ courseDetail.metodologia || 'No disponible.' }}</p>
-              </section>
-
-              <section class="text-card text-card--wide">
-                <h3>Fundamentacion</h3>
-                <p>{{ courseDetail.fundamentacion || 'No disponible.' }}</p>
-              </section>
-            </div>
-          </article>
-        </div>
-
-        <aside class="detail-grid__rail">
-          <article class="panel">
-            <div class="panel__header">
-              <div>
-                <h2>Horario del curso</h2>
-                <p>Bloques reales guardados para esta seccion.</p>
-              </div>
-              <a class="inline-link" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Editar</a>
-            </div>
-
-            @if (groupedSchedule.length === 0) {
-              <div class="empty-card empty-card--cta">
-                <p>Este curso aun no tiene horarios de clase configurados.</p>
-                <a class="btn btn--primary" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Crear horario</a>
-              </div>
-            }
-
-            @if (groupedSchedule.length > 0) {
-              <div class="schedule-groups">
-                @for (group of groupedSchedule; track group.key) {
-                  <section class="schedule-group">
-                    <header>
-                      <strong>{{ group.label }}</strong>
-                      <span>{{ group.items.length }} sesion{{ group.items.length === 1 ? '' : 'es' }}</span>
-                    </header>
-
-                    <div class="schedule-group__list">
-                      @for (entry of group.items; track entry.bloqueNro) {
-                        <article class="schedule-item">
-                          <div>
-                            <strong>{{ formatScheduleEntry(entry) }}</strong>
-                            <small>{{ entry.tipoSesion || 'Clase' }}</small>
-                          </div>
-                          <span>{{ entry.ubicacion || entry.urlVirtual || 'Ubicacion pendiente' }}</span>
-                        </article>
-                      }
-                    </div>
-                  </section>
-                }
-              </div>
-            }
-          </article>
-
-          <article class="panel">
-            <div class="panel__header">
-              <div>
-                <h2>Sistema de evaluacion</h2>
-                <p>Distribucion del silabo oficial.</p>
-              </div>
-            </div>
-
-            <div class="syllabus-evaluations">
-              @for (item of courseDetail.evaluaciones; track item.codigo) {
-                <article class="syllabus-evaluation">
-                  <div>
-                    <strong>{{ item.codigo }}</strong>
-                    <span>{{ syllabusEvaluationLabel(item) }}</span>
-                  </div>
-                  <strong>{{ item.porcentaje ?? 0 }}%</strong>
-                </article>
-              }
-            </div>
-          </article>
-
-          <article class="panel">
-            <div class="panel__header">
-              <div>
-                <h2>Contenido programatico</h2>
-                <p>{{ courseDetail.unidades.length }} unidades disponibles.</p>
-              </div>
-            </div>
-
-            <div class="units-list">
-              @for (unit of courseDetail.unidades; track trackUnit($index, unit)) {
-                <article class="unit-card">
-                  <div class="unit-card__head">
-                    <span class="unit-index">{{ unit.nro < 10 ? '0' + unit.nro : unit.nro }}</span>
-                    <div>
-                      <h3>{{ unit.titulo }}</h3>
-                      <small>Semanas {{ unit.semanaInicio ?? '--' }} a {{ unit.semanaFin ?? '--' }}</small>
-                    </div>
-                  </div>
-
-                  @if (topicsFor(unit).length > 0) {
-                    <ul>
-                      @for (topic of topicsFor(unit).slice(0, 3); track topic) {
-                        <li>{{ topic }}</li>
-                      }
-                    </ul>
-                  }
-                </article>
-              }
-            </div>
-          </article>
         </aside>
+      </section>
+
+      <section class="detail-stack">
+        <article class="panel panel--academic">
+          <div class="panel__header">
+            <div>
+              <h2>Resumen del silabo</h2>
+              <p>Los apartados base del curso, ordenados como lectura y no como mosaico.</p>
+            </div>
+          </div>
+
+          <div class="prose-grid">
+            <section class="prose-block">
+              <span class="eyebrow">Logro general</span>
+              <p>{{ courseDetail.logroGeneral || 'No disponible.' }}</p>
+            </section>
+
+            <section class="prose-block">
+              <span class="eyebrow">Metodologia</span>
+              <p>{{ courseDetail.metodologia || 'No disponible.' }}</p>
+            </section>
+
+            <section class="prose-block prose-block--wide">
+              <span class="eyebrow">Fundamentacion</span>
+              <p>{{ courseDetail.fundamentacion || 'No disponible.' }}</p>
+            </section>
+          </div>
+        </article>
+
+        <article class="panel panel--units">
+          <div class="panel__header">
+            <div>
+              <h2>Unidades del curso</h2>
+              <p>{{ courseDetail.unidades.length }} unidades disponibles.</p>
+            </div>
+          </div>
+
+          <div class="units-list">
+            @for (unit of courseDetail.unidades; track trackUnit($index, unit)) {
+              <article class="unit-card">
+                <div class="unit-card__head">
+                  <span class="unit-index">{{ unit.nro < 10 ? '0' + unit.nro : unit.nro }}</span>
+                  <div>
+                    <h3>{{ unit.titulo }}</h3>
+                    <small>Semanas {{ unit.semanaInicio ?? '--' }} a {{ unit.semanaFin ?? '--' }}</small>
+                  </div>
+                </div>
+
+                @if (topicsFor(unit).length > 0) {
+                  <ul>
+                    @for (topic of topicsFor(unit).slice(0, 3); track topic) {
+                      <li>{{ topic }}</li>
+                    }
+                  </ul>
+                }
+              </article>
+            }
+          </div>
+        </article>
       </section>
     </section>
   }
