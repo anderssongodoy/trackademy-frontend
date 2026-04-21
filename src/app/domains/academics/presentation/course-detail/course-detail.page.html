@@ -10,9 +10,20 @@
   @if (!isLoading && !loadError && course && courseDetail) {
     <section class="hero-panel">
       <div class="hero-panel__top">
-        <div class="hero-panel__badges">
-          <span>{{ course.codigo }}</span>
-          <span>{{ course.activo ? 'Activo' : 'Inactivo' }}</span>
+        <div class="hero-main">
+          <div class="hero-panel__badges">
+            <span>{{ course.codigo }}</span>
+            <span>{{ course.activo ? 'Activo' : 'Inactivo' }}</span>
+          </div>
+
+          <h1>{{ course.nombre }}</h1>
+
+          <div class="hero-meta">
+            <span>{{ courseDetail.curso.creditos }} Creditos</span>
+            <span>{{ courseDetail.curso.horasSemanales }} Horas Semanales</span>
+            <span>{{ modalityLabel }}</span>
+            <span>{{ cycleLabel }}</span>
+          </div>
         </div>
 
         <aside class="hero-side">
@@ -26,15 +37,6 @@
             <small>{{ sectionLabel }}</small>
           </div>
         </aside>
-      </div>
-
-      <h1>{{ course.nombre }}</h1>
-
-      <div class="hero-meta">
-        <span>{{ courseDetail.curso.creditos }} Creditos</span>
-        <span>{{ courseDetail.curso.horasSemanales }} Horas Semanales</span>
-        <span>{{ modalityLabel }}</span>
-        <span>{{ cycleLabel }}</span>
       </div>
 
       <div class="hero-divider"></div>
