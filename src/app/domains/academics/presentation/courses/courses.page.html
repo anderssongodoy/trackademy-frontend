@@ -16,21 +16,34 @@
 
       <div class="summary-cards" aria-label="Resumen de cursos">
         <article class="summary-card summary-card--green">
-          <span></span>
+          <span aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M20 6 9 17l-5-5"></path>
+            </svg>
+          </span>
           <strong>{{ activeCoursesCount }}</strong>
           <small>Activos</small>
         </article>
 
         <article class="summary-card summary-card--purple">
-          <span></span>
+          <span aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M7 3v4M17 3v4M4 9h16M6 5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"></path>
+            </svg>
+          </span>
           <strong>{{ configuredCoursesCount }}</strong>
           <small>Con horario</small>
         </article>
 
         <article class="summary-card summary-card--orange">
-          <span></span>
+          <span aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M12 7v6l4 2"></path>
+              <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
+            </svg>
+          </span>
           <strong>{{ pendingEvaluationsCount }}</strong>
-          <small>Pendientes</small>
+          <small>Eval. pendientes</small>
         </article>
       </div>
     </section>
@@ -84,7 +97,7 @@
 
           <footer>
             <span class="pending" [class.pending--empty]="course.pendingEvaluations === 0">
-              {{ course.pendingEvaluations === 0 ? 'Sin pendientes' : course.pendingEvaluations + ' pendiente' + (course.pendingEvaluations === 1 ? '' : 's') }}
+              {{ course.pendingEvaluations === 0 ? 'Sin evaluaciones' : course.pendingEvaluations + ' eval. pendiente' + (course.pendingEvaluations === 1 ? '' : 's') }}
             </span>
             <a [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId]">Ir al curso -></a>
           </footer>
