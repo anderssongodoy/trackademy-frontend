@@ -15,9 +15,17 @@
           <span>{{ course.activo ? 'Activo' : 'Inactivo' }}</span>
         </div>
 
-        <button class="syllabus-button" type="button" (click)="downloadCurrentSyllabus()" [disabled]="!hasDownloadableSyllabus || isDownloadingCurrentSyllabus">
-          {{ isDownloadingCurrentSyllabus ? 'Descargando...' : 'Ver Silabo (PDF)' }}
-        </button>
+        <aside class="hero-side">
+          <button class="syllabus-button" type="button" (click)="downloadCurrentSyllabus()" [disabled]="!hasDownloadableSyllabus || isDownloadingCurrentSyllabus">
+            {{ isDownloadingCurrentSyllabus ? 'Descargando...' : 'Ver Silabo (PDF)' }}
+          </button>
+
+          <div class="professor-card">
+            <span>Profesor titular</span>
+            <strong>{{ professorLabel }}</strong>
+            <small>{{ sectionLabel }}</small>
+          </div>
+        </aside>
       </div>
 
       <h1>{{ course.nombre }}</h1>
@@ -36,12 +44,6 @@
           <span>Sumilla del curso</span>
           <p>{{ heroSummary }}</p>
         </div>
-
-        <aside class="professor-card">
-          <span>Profesor titular</span>
-          <strong>{{ professorLabel }}</strong>
-          <small>{{ sectionLabel }}</small>
-        </aside>
       </div>
 
       @if (downloadError) {

@@ -25,7 +25,6 @@
 .hero-panel__badges,
 .hero-meta,
 .hero-bottom,
-.professor-card,
 .panel header,
 .evaluation-row,
 .schedule-row,
@@ -35,6 +34,7 @@
 }
 
 .hero-panel__top {
+  align-items: flex-start;
   justify-content: space-between;
   gap: 20px;
 }
@@ -58,6 +58,13 @@
 
 .hero-panel__badges span:last-child {
   color: #35e5a4;
+}
+
+.hero-side {
+  display: grid;
+  gap: 14px;
+  justify-items: stretch;
+  min-width: 250px;
 }
 
 .syllabus-button {
@@ -106,12 +113,11 @@ h1 {
 }
 
 .hero-bottom {
-  justify-content: space-between;
-  gap: 34px;
+  display: block;
 }
 
 .hero-summary {
-  max-width: 650px;
+  max-width: none;
 }
 
 .hero-summary span,
@@ -132,9 +138,8 @@ h1 {
 }
 
 .professor-card {
-  min-width: 250px;
-  align-items: flex-start;
-  flex-direction: column;
+  display: grid;
+  gap: 4px;
   padding: 18px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.1);
@@ -506,6 +511,10 @@ h1 {
   .schedule-row {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .hero-side {
+    width: 100%;
   }
 
   .right-column,
