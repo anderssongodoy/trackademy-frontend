@@ -70,10 +70,13 @@
           <div class="evaluation-list">
             @for (item of evaluations; track trackEvaluation($index, item)) {
               <article class="evaluation-row">
-                <div class="evaluation-icon"></div>
+                <div class="evaluation-code">{{ item.evaluacionCodigo }}</div>
                 <div class="evaluation-copy">
                   <strong>{{ item.descripcion || item.tipo || item.evaluacionCodigo }}</strong>
-                  <span>{{ item.nota != null ? 'Finalizado' : 'Pendiente' }} - {{ evaluationSubtitle(item) }}</span>
+                  <span>{{ evaluationSubtitle(item) }}</span>
+                  @if (item.observacion) {
+                    <small>{{ item.observacion }}</small>
+                  }
                 </div>
                 <div class="evaluation-weight">
                   <span>Peso</span>
@@ -98,7 +101,7 @@
           <form class="section-form" [formGroup]="metadataForm">
             <label>
               <span>Seccion</span>
-              <input type="text" formControlName="seccion" placeholder="Seccion" />
+              <input type="text" formControlName="seccion" placeholder="No registrada" />
             </label>
             <label>
               <span>Modalidad</span>
@@ -133,11 +136,11 @@
                 <article class="schedule-row">
                   <div>
                     <span>{{ group.label }}</span>
-                    <strong>{{ entry.tipoSesion || 'Clase' }}</strong>
+                    <strong>{{ scheduleTypeLabel(entry) }}</strong>
                   </div>
                   <div>
                     <strong>{{ formatScheduleEntry(entry) }}</strong>
-                    <span>{{ entry.ubicacion || entry.urlVirtual || 'Ubicacion pendiente' }}</span>
+                    <span>{{ scheduleLocationLabel(entry) }}</span>
                   </div>
                 </article>
               }
@@ -148,17 +151,28 @@
         <article class="panel program-panel">
           <h2>Contenido Programatico</h2>
 
+          @if (courseDetail.unidades.length === 0) {
+            <div class="empty-row">El silabo no tiene unidades registradas.</div>
+          }
+
           <div class="program-list">
             @for (unit of courseDetail.unidades; track trackUnit($index, unit)) {
-              <article class="program-item" [class.program-item--active]="$index === 1">
+              <article class="program-item">
                 <div class="program-item__head">
                   <span>{{ unit.nro | number:'2.0-0' }}</span>
-                  <strong>{{ unit.titulo }}</strong>
+                  <div>
+                    <strong>{{ unit.titulo }}</strong>
+                    <small>Semana {{ unit.semanaInicio ?? '--' }} a {{ unit.semanaFin ?? '--' }}</small>
+                  </div>
                 </div>
 
-                @if ($index === 1) {
+                @if (unit.logroEspecifico) {
+                  <p>{{ unit.logroEspecifico }}</p>
+                }
+
+                @if (topicsFor(unit).length > 0) {
                   <ul>
-                    @for (topic of topicsFor(unit).slice(0, 3); track topic) {
+                    @for (topic of topicsFor(unit); track topic) {
                       <li>{{ topic }}</li>
                     }
                   </ul>

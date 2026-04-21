@@ -233,12 +233,18 @@ h1 {
   background: #fafafa;
 }
 
-.evaluation-icon {
-  width: 48px;
-  height: 48px;
+.evaluation-code {
+  width: 58px;
+  min-height: 48px;
   flex: 0 0 auto;
   border-radius: 12px;
-  background: #ececef;
+  display: grid;
+  place-items: center;
+  background: #f2eaff;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.03em;
 }
 
 .evaluation-copy {
@@ -253,9 +259,12 @@ h1 {
 }
 
 .evaluation-copy span,
+.evaluation-copy small,
 .evaluation-weight span,
 .schedule-row span,
 .section-form span,
+.program-item p,
+.program-item small,
 .program-item li,
 .empty-row {
   color: var(--muted);
@@ -265,6 +274,13 @@ h1 {
   display: block;
   margin-top: 5px;
   font-size: 0.84rem;
+}
+
+.evaluation-copy small {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.78rem;
+  line-height: 1.35;
 }
 
 .evaluation-weight {
@@ -390,7 +406,7 @@ h1 {
   border: 1px solid #ededf0;
 }
 
-.program-item--active {
+.program-item:hover {
   background: #fff;
   border-color: #d7bcff;
   box-shadow: 0 0 0 1px #e4d4ff;
@@ -398,6 +414,7 @@ h1 {
 
 .program-item__head {
   gap: 16px;
+  align-items: flex-start;
 }
 
 .program-item__head span {
@@ -414,18 +431,28 @@ h1 {
 }
 
 .program-item__head strong {
+  display: block;
   color: var(--text);
   line-height: 1.35;
 }
 
-.program-item--active .program-item__head strong {
-  color: var(--accent);
+.program-item__head small {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.program-item p {
+  margin-top: 14px;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 .program-item ul {
   display: grid;
-  gap: 12px;
-  margin: 22px 0 0;
+  gap: 8px;
+  margin: 14px 0 0;
   padding-left: 22px;
 }
 

@@ -76,7 +76,9 @@ export class CourseDetailPage implements OnInit {
           )
         }).subscribe({
           next: ({ evaluations, schedules, catalogCourse }) => {
-            this.evaluations = evaluations;
+            this.evaluations = evaluations
+              .slice()
+              .sort((left, right) => this.evaluationSortValue(left) - this.evaluationSortValue(right));
             this.catalogCourse = catalogCourse;
             this.scheduleEntries = schedules
               .filter((item) => item.usuarioPeriodoCursoId === id)
@@ -185,11 +187,11 @@ export class CourseDetailPage implements OnInit {
   }
 
   get professorLabel(): string {
-    return this.course?.profesor || 'Profesor pendiente de confirmar';
+    return this.course?.profesor || 'Profesor no registrado';
   }
 
   get sectionLabel(): string {
-    return this.course?.seccion ? `Seccion ${this.course.seccion}` : 'Seccion pendiente de confirmar';
+    return this.course?.seccion ? `Seccion ${this.course.seccion}` : 'Seccion no registrada';
   }
 
   get syllabusVersionLabel(): string {
@@ -217,7 +219,7 @@ export class CourseDetailPage implements OnInit {
   }
 
   get heroSummary(): string {
-    return this.courseDetail?.sumilla || 'Todavia no hay sumilla disponible para este curso.';
+    return this.courseDetail?.sumilla || 'Sumilla no disponible en el silabo.';
   }
 
   get cycleLabel(): string {
@@ -289,16 +291,26 @@ export class CourseDetailPage implements OnInit {
     return `${start} - ${end}`;
   }
 
+  scheduleTypeLabel(entry: MyScheduleEntry): string {
+    return entry.tipoSesion?.trim() || 'Tipo no registrado';
+  }
+
+  scheduleLocationLabel(entry: MyScheduleEntry): string {
+    return entry.ubicacion?.trim() || entry.urlVirtual?.trim() || 'Ubicacion no registrada';
+  }
+
   evaluationSubtitle(item: MyEvaluation): string {
+    const status = item.nota != null ? 'Finalizado' : 'Pendiente';
+
     if (item.fechaEstimada) {
-      return new Date(item.fechaEstimada).toLocaleDateString('es-PE', { day: '2-digit', month: 'short' });
+      return `${status} - ${this.formatDateOnly(item.fechaEstimada)}`;
     }
 
     if (item.semana != null) {
-      return `Semana ${item.semana}`;
+      return `${status} - Semana ${item.semana}`;
     }
 
-    return 'Fecha por definir';
+    return `${status} - Fecha no registrada`;
   }
 
   syllabusEvaluationLabel(item: CatalogCourseEvaluation): string {
@@ -347,6 +359,29 @@ export class CourseDetailPage implements OnInit {
       default:
         return 'Sin dia';
     }
+  }
+
+  private evaluationSortValue(item: MyEvaluation): number {
+    if (item.fechaEstimada) {
+      const [year, month, day] = item.fechaEstimada.split('-').map(Number);
+      if (year && month && day) {
+        return new Date(year, month - 1, day).getTime();
+      }
+    }
+
+    return item.semana != null ? item.semana * 10_000 : Number.MAX_SAFE_INTEGER;
+  }
+
+  private formatDateOnly(value: string): string {
+    const [year, month, day] = value.split('-').map(Number);
+    if (!year || !month || !day) {
+      return value;
+    }
+
+    return new Date(year, month - 1, day).toLocaleDateString('es-PE', {
+      day: '2-digit',
+      month: 'short'
+    });
   }
 
   private downloadSyllabus(
