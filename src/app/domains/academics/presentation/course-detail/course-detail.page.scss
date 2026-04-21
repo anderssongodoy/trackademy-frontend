@@ -391,6 +391,7 @@ h1 {
 }
 
 .schedule-panel h2,
+.syllabus-context-panel h2,
 .program-panel h2 {
   margin-bottom: 24px;
 }
@@ -425,6 +426,37 @@ h1 {
 
 .program-list {
   gap: 16px;
+}
+
+.syllabus-context-list {
+  display: grid;
+  gap: 18px;
+}
+
+.syllabus-context-list section {
+  display: grid;
+  gap: 8px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.syllabus-context-list section:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.syllabus-context-list span {
+  color: var(--accent);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.syllabus-context-list p {
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.55;
 }
 
 .program-item {

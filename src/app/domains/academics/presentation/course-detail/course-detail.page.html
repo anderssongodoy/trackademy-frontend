@@ -162,8 +162,39 @@
           </div>
         </article>
 
+        <article class="panel syllabus-context-panel">
+          <h2>Contexto del silabo</h2>
+
+          <div class="syllabus-context-list">
+            @if (courseDetail.logroGeneral) {
+              <section>
+                <span>Logro general</span>
+                <p>{{ courseDetail.logroGeneral }}</p>
+              </section>
+            }
+
+            @if (courseDetail.fundamentacion) {
+              <section>
+                <span>Fundamentacion</span>
+                <p>{{ courseDetail.fundamentacion }}</p>
+              </section>
+            }
+
+            @if (courseDetail.metodologia) {
+              <section>
+                <span>Metodologia</span>
+                <p>{{ courseDetail.metodologia }}</p>
+              </section>
+            }
+
+            @if (!courseDetail.logroGeneral && !courseDetail.fundamentacion && !courseDetail.metodologia) {
+              <div class="empty-row">El silabo no tiene contexto academico registrado.</div>
+            }
+          </div>
+        </article>
+
         <article class="panel program-panel">
-          <h2>Contenido Programatico</h2>
+          <h2>Unidades del curso</h2>
 
           @if (courseDetail.unidades.length === 0) {
             <div class="empty-row">El silabo no tiene unidades registradas.</div>
