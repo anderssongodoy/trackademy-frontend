@@ -173,6 +173,7 @@ h1 {
 
 .left-column,
 .right-column,
+.full-width-stack,
 .evaluation-list,
 .schedule-list,
 .program-list {
@@ -353,7 +354,7 @@ h1 {
 
 .section-form {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 16px;
 }
 
@@ -455,8 +456,8 @@ h1 {
 
 .syllabus-context-list p {
   color: var(--muted);
-  font-size: 0.92rem;
-  line-height: 1.55;
+  font-size: 1rem;
+  line-height: 1.65;
 }
 
 .program-item {
@@ -550,6 +551,10 @@ h1 {
 
   .right-column {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .section-form {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 

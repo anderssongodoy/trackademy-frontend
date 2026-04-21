@@ -97,6 +97,37 @@
           </div>
         </article>
 
+      </div>
+
+      <div class="right-column">
+        <article class="panel schedule-panel">
+          <h2>Horario del Curso</h2>
+
+          @if (groupedSchedule.length === 0) {
+            <div class="empty-row">
+              <p>Este curso aun no tiene horario configurado.</p>
+              <a [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Crear horario</a>
+            </div>
+          }
+
+          <div class="schedule-list">
+            @for (group of groupedSchedule; track group.key) {
+              @for (entry of group.items; track entry.bloqueNro) {
+                <article class="schedule-row">
+                  <div>
+                    <span>{{ group.label }}</span>
+                    <strong>{{ scheduleTypeLabel(entry) }}</strong>
+                  </div>
+                  <div>
+                    <strong>{{ formatScheduleEntry(entry) }}</strong>
+                    <span>{{ scheduleLocationLabel(entry) }}</span>
+                  </div>
+                </article>
+              }
+            }
+          </div>
+        </article>
+
         <article class="panel section-panel">
           <header>
             <div>
@@ -132,36 +163,9 @@
           }
         </article>
       </div>
+    </section>
 
-      <div class="right-column">
-        <article class="panel schedule-panel">
-          <h2>Horario del Curso</h2>
-
-          @if (groupedSchedule.length === 0) {
-            <div class="empty-row">
-              <p>Este curso aun no tiene horario configurado.</p>
-              <a [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Crear horario</a>
-            </div>
-          }
-
-          <div class="schedule-list">
-            @for (group of groupedSchedule; track group.key) {
-              @for (entry of group.items; track entry.bloqueNro) {
-                <article class="schedule-row">
-                  <div>
-                    <span>{{ group.label }}</span>
-                    <strong>{{ scheduleTypeLabel(entry) }}</strong>
-                  </div>
-                  <div>
-                    <strong>{{ formatScheduleEntry(entry) }}</strong>
-                    <span>{{ scheduleLocationLabel(entry) }}</span>
-                  </div>
-                </article>
-              }
-            }
-          </div>
-        </article>
-
+    <section class="full-width-stack">
         <article class="panel syllabus-context-panel">
           <h2>Contexto del silabo</h2>
 
@@ -226,7 +230,6 @@
             }
           </div>
         </article>
-      </div>
     </section>
   }
 </main>
