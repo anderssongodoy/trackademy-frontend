@@ -58,12 +58,15 @@
         <article class="panel evaluations-panel">
           <header>
             <div>
-              <h2>Registro de Evaluaciones</h2>
-              <p>Seguimiento de rendimiento academico actual</p>
+              <h2>Evaluaciones del curso</h2>
+              <p>Resumen sincronizado del silabo y tus notas registradas</p>
             </div>
-            <div class="average-box">
-              <span>Promedio actual</span>
-              <strong>{{ averageGradeLabel }}</strong>
+            <div class="evaluation-actions">
+              <div class="average-box">
+                <span>Promedio actual</span>
+                <strong>{{ averageGradeLabel }}</strong>
+              </div>
+              <a routerLink="/app/notas">Registrar notas</a>
             </div>
           </header>
 
