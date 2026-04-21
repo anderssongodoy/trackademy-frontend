@@ -12,6 +12,7 @@ interface CourseCardView extends MyCourse {
   pendingEvaluations: number;
   nextEvaluationLabel: string;
   nextEvaluationDate: string | null;
+  nextEvaluationWeightLabel: string;
   primaryScheduleLabel: string;
   secondaryScheduleLabel: string;
   weeklyHoursLabel: string;
@@ -203,6 +204,7 @@ export class CoursesPage implements OnInit {
         pendingEvaluations: pendingEvaluations.length,
         nextEvaluationLabel: this.buildNextEvaluationLabel(nextEvaluation),
         nextEvaluationDate: nextEvaluation?.fechaEstimada ?? null,
+        nextEvaluationWeightLabel: this.buildNextEvaluationWeightLabel(nextEvaluation),
         primaryScheduleLabel: this.buildPrimaryScheduleLabel(courseSchedule),
         secondaryScheduleLabel: this.buildSecondaryScheduleLabel(courseSchedule),
         weeklyHoursLabel: weeklyHours > 0 ? `${this.formatHours(weeklyHours)} h/sem` : 'Horario pendiente',
@@ -244,7 +246,7 @@ export class CoursesPage implements OnInit {
     const end = first.horaFin?.slice(0, 5);
     const timeRange = start && end ? `${start} - ${end}` : null;
     const type = first.tipoSesion?.trim();
-    return [timeRange, type].filter(Boolean).join(' · ') || 'Sesion registrada';
+    return [timeRange, type].filter(Boolean).join(' - ') || 'Sesion registrada';
   }
 
   private resolveModalityTag(value: string | null): string {
@@ -306,6 +308,15 @@ export class CoursesPage implements OnInit {
     }
 
     return evaluation.evaluacionCodigo;
+  }
+
+  private buildNextEvaluationWeightLabel(evaluation?: MyEvaluation): string {
+    if (!evaluation) {
+      return 'Sin peso pendiente';
+    }
+
+    const weight = evaluation.porcentaje != null ? `${this.formatHours(evaluation.porcentaje)}%` : 'Peso pendiente';
+    return [evaluation.descripcion, weight].filter(Boolean).join(' - ');
   }
 
   private parseWeeklyHours(label: string): number {

@@ -38,7 +38,6 @@
     <section class="courses-toolbar">
       <div class="cycle-tabs" aria-label="Filtro de ciclo">
         <button class="is-active" type="button">Ciclo {{ currentPeriod?.cicloActual || 'VI' }}</button>
-        <button type="button">Todos</button>
       </div>
 
       <div class="toolbar-filter">
@@ -68,13 +67,19 @@
 
           <div class="course-meta">
             <div>
-              <span>Seccion</span>
-              <strong>{{ course.seccion || '--' }}</strong>
-            </div>
-            <div>
               <span>Horario</span>
               <strong>{{ course.primaryScheduleLabel }}</strong>
             </div>
+            <div>
+              <span>Hora</span>
+              <strong>{{ course.secondaryScheduleLabel }}</strong>
+            </div>
+          </div>
+
+          <div class="course-next">
+            <span>Proxima evaluacion</span>
+            <strong>{{ course.nextEvaluationLabel }}</strong>
+            <small>{{ course.nextEvaluationWeightLabel }}</small>
           </div>
 
           <footer>
@@ -85,13 +90,6 @@
           </footer>
         </article>
       }
-
-      <article class="notice-card">
-        <span>Aviso importante</span>
-        <h2>Inscripciones abiertas para Certificaciones</h2>
-        <p>Potencia tu perfil en AWS, Azure y Google Cloud antes de finalizar el semestre.</p>
-        <a href="https://aws.amazon.com/certification/" target="_blank" rel="noreferrer">Ver catalogo</a>
-      </article>
     </section>
   }
 </main>
