@@ -28,11 +28,35 @@ export interface CatalogPeriod {
 
 export interface CatalogCourse {
   id: number;
+  publicId: string | null;
   codigo: string;
   nombre: string;
   creditos: number;
   horasSemanales: number;
   modalidad: string;
+  cicloReferencial: number | null;
+}
+
+export interface CatalogCourseSyllabusPdf {
+  assetId: number | null;
+  originalFilename: string | null;
+  sourceFilename: string | null;
+  mimeType: string | null;
+  sizeBytes: number | null;
+  sha256: string | null;
+  storageProvider: string | null;
+  disponibleDescarga: boolean;
+}
+
+export interface CatalogCourseSyllabusVersion {
+  silaboId: number;
+  version: string | null;
+  vigente: boolean;
+  anio: number | null;
+  periodoTexto: string | null;
+  extraidoEn: string | null;
+  pdf: CatalogCourseSyllabusPdf | null;
+  pdfDownloadPath: string | null;
 }
 
 export interface CatalogCourseUnit {
@@ -56,7 +80,10 @@ export interface CatalogCourseEvaluation {
 
 export interface CatalogCourseDetail {
   curso: CatalogCourse;
+  silaboId: number | null;
   version: string | null;
+  pdf: CatalogCourseSyllabusPdf | null;
+  pdfDownloadPath: string | null;
   anio: number | null;
   periodoTexto: string | null;
   sumilla: string | null;
@@ -112,7 +139,31 @@ export class CatalogApiService {
     return this.http.get<CatalogCourse>(`${this.env.apiBaseUrl}/api/v1/catalog/cursos/${codigo}`);
   }
 
+  getCourseByPublicId(publicId: string): Observable<CatalogCourse> {
+    return this.http.get<CatalogCourse>(`${this.env.apiBaseUrl}/api/v1/catalog/cursos/public/${publicId}`);
+  }
+
   getCourseDetailByCode(codigo: string): Observable<CatalogCourseDetail> {
     return this.http.get<CatalogCourseDetail>(`${this.env.apiBaseUrl}/api/v1/catalog/cursos/${codigo}/detalle`);
+  }
+
+  getCourseDetailByPublicId(publicId: string): Observable<CatalogCourseDetail> {
+    return this.http.get<CatalogCourseDetail>(`${this.env.apiBaseUrl}/api/v1/catalog/cursos/public/${publicId}/detalle`);
+  }
+
+  getCurrentSyllabusByCode(codigo: string): Observable<CatalogCourseSyllabusVersion> {
+    return this.http.get<CatalogCourseSyllabusVersion>(`${this.env.apiBaseUrl}/api/v1/catalog/cursos/${codigo}/silabo-vigente`);
+  }
+
+  getCurrentSyllabusByPublicId(publicId: string): Observable<CatalogCourseSyllabusVersion> {
+    return this.http.get<CatalogCourseSyllabusVersion>(`${this.env.apiBaseUrl}/api/v1/catalog/cursos/public/${publicId}/silabo-vigente`);
+  }
+
+  getCourseSyllabusHistoryByCode(codigo: string): Observable<CatalogCourseSyllabusVersion[]> {
+    return this.http.get<CatalogCourseSyllabusVersion[]>(`${this.env.apiBaseUrl}/api/v1/catalog/cursos/${codigo}/silabos`);
+  }
+
+  getCourseSyllabusHistoryByPublicId(publicId: string): Observable<CatalogCourseSyllabusVersion[]> {
+    return this.http.get<CatalogCourseSyllabusVersion[]>(`${this.env.apiBaseUrl}/api/v1/catalog/cursos/public/${publicId}/silabos`);
   }
 }

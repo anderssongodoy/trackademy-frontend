@@ -8,6 +8,8 @@ import {
   CatalogCourse,
   CatalogCourseDetail,
   CatalogCourseEvaluation,
+  CatalogCourseSyllabusPdf,
+  CatalogCourseSyllabusVersion,
   CatalogCourseUnit,
   CatalogPeriod
 } from '../infrastructure/api/catalog-api.service';
@@ -36,8 +38,32 @@ export class CatalogUseCase {
     return this.api.getCourseByCode(codigo);
   }
 
+  getCourseByPublicId(publicId: string): Observable<CatalogCourse> {
+    return this.api.getCourseByPublicId(publicId);
+  }
+
   getCourseDetailByCode(codigo: string): Observable<CatalogCourseDetail> {
     return this.api.getCourseDetailByCode(codigo);
+  }
+
+  getCourseDetailByPublicId(publicId: string): Observable<CatalogCourseDetail> {
+    return this.api.getCourseDetailByPublicId(publicId);
+  }
+
+  getCurrentSyllabusByCode(codigo: string): Observable<CatalogCourseSyllabusVersion> {
+    return this.api.getCurrentSyllabusByCode(codigo);
+  }
+
+  getCurrentSyllabusByPublicId(publicId: string): Observable<CatalogCourseSyllabusVersion> {
+    return this.api.getCurrentSyllabusByPublicId(publicId);
+  }
+
+  getCourseSyllabusHistoryByCode(codigo: string): Observable<CatalogCourseSyllabusVersion[]> {
+    return this.api.getCourseSyllabusHistoryByCode(codigo);
+  }
+
+  getCourseSyllabusHistoryByPublicId(publicId: string): Observable<CatalogCourseSyllabusVersion[]> {
+    return this.api.getCourseSyllabusHistoryByPublicId(publicId);
   }
 }
 
@@ -47,6 +73,8 @@ export type {
   CatalogCourse,
   CatalogCourseDetail,
   CatalogCourseEvaluation,
+  CatalogCourseSyllabusPdf,
+  CatalogCourseSyllabusVersion,
   CatalogCourseUnit,
   CatalogPeriod
 };
