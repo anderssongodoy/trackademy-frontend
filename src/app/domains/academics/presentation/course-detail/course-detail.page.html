@@ -30,6 +30,7 @@
           <span class="pill pill--code">{{ course.codigo }}</span>
           <span class="pill">{{ course.modalidad || 'Modalidad pendiente' }}</span>
           <span class="pill">Seccion {{ course.seccion || '--' }}</span>
+          <span class="pill">{{ cycleLabel }}</span>
           <span class="pill" [class.pill--soft]="!course.activo">{{ course.activo ? 'Activo' : 'Inactivo' }}</span>
         </div>
 
@@ -50,6 +51,18 @@
           <span>Proxima evaluacion</span>
           <strong>{{ nextEvaluation?.evaluacionCodigo || 'Sin pendientes' }}</strong>
           <small>{{ nextEvaluation ? evaluationSubtitle(nextEvaluation) : 'No hay evaluaciones por registrar' }}</small>
+        </div>
+
+        <div class="focus-card focus-card--download">
+          <span>Silabo visible</span>
+          <strong>{{ syllabusVersionLabel }}</strong>
+          <small>{{ syllabusSupportLabel }}</small>
+          <button class="btn btn--primary" type="button" (click)="downloadCurrentSyllabus()" [disabled]="!hasDownloadableSyllabus || isDownloadingCurrentSyllabus">
+            {{ isDownloadingCurrentSyllabus ? 'Descargando...' : 'Descargar silabo' }}
+          </button>
+          @if (downloadError) {
+            <small class="download-error">{{ downloadError }}</small>
+          }
         </div>
 
         <div class="focus-card focus-card--soft">

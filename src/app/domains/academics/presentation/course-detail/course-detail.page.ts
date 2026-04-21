@@ -1,11 +1,19 @@
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { forkJoin } from 'rxjs';
+import { catchError, forkJoin, of } from 'rxjs';
 
-import { CatalogCourseDetail, CatalogCourseEvaluation, CatalogCourseUnit, CatalogUseCase } from '../../application/catalog-use-case';
+import {
+  CatalogCourse,
+  CatalogCourseDetail,
+  CatalogCourseEvaluation,
+  CatalogCourseUnit,
+  CatalogUseCase
+} from '../../application/catalog-use-case';
 import { MeUseCase, MyCourse, MyEvaluation, MyScheduleEntry } from '../../application/me-use-case';
+import { APP_ENV } from '../../../identity/infrastructure/config/app-environment.token';
 
 @Component({
   selector: 'app-course-detail-page',
@@ -16,6 +24,8 @@ import { MeUseCase, MyCourse, MyEvaluation, MyScheduleEntry } from '../../applic
 export class CourseDetailPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(FormBuilder);
+  private readonly http = inject(HttpClient);
+  private readonly env = inject(APP_ENV);
   private readonly meUseCase = inject(MeUseCase);
   private readonly catalogUseCase = inject(CatalogUseCase);
 
@@ -25,6 +35,7 @@ export class CourseDetailPage implements OnInit {
   });
 
   course: MyCourse | null = null;
+  catalogCourse: CatalogCourse | null = null;
   evaluations: MyEvaluation[] = [];
   scheduleEntries: MyScheduleEntry[] = [];
   courseDetail: CatalogCourseDetail | null = null;
@@ -33,6 +44,8 @@ export class CourseDetailPage implements OnInit {
   isSavingMetadata = false;
   metadataError = '';
   metadataSuccess = '';
+  downloadError = '';
+  isDownloadingCurrentSyllabus = false;
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -52,16 +65,19 @@ export class CourseDetailPage implements OnInit {
           return;
         }
 
-        this.patchMetadataForm(this.course);
+        const currentCourse = this.course;
+        this.patchMetadataForm(currentCourse);
 
         forkJoin({
-          evaluations: this.meUseCase.getMyEvaluations(this.course.cursoId),
-          detail: this.catalogUseCase.getCourseDetailByCode(this.course.codigo),
-          schedules: this.meUseCase.getMySchedule()
+          evaluations: this.meUseCase.getMyEvaluations(currentCourse.cursoId),
+          schedules: this.meUseCase.getMySchedule(),
+          catalogCourse: this.catalogUseCase.getCourseByCode(currentCourse.codigo).pipe(
+            catchError(() => of(null))
+          )
         }).subscribe({
-          next: ({ evaluations, detail, schedules }) => {
+          next: ({ evaluations, schedules, catalogCourse }) => {
             this.evaluations = evaluations;
-            this.courseDetail = detail;
+            this.catalogCourse = catalogCourse;
             this.scheduleEntries = schedules
               .filter((item) => item.usuarioPeriodoCursoId === id)
               .sort((a, b) => {
@@ -70,7 +86,21 @@ export class CourseDetailPage implements OnInit {
                 }
                 return (a.horaInicio || '').localeCompare(b.horaInicio || '');
               });
-            this.isLoading = false;
+
+            const detailRequest = catalogCourse?.publicId
+              ? this.catalogUseCase.getCourseDetailByPublicId(catalogCourse.publicId)
+              : this.catalogUseCase.getCourseDetailByCode(currentCourse.codigo);
+
+            detailRequest.subscribe({
+              next: (detail) => {
+                this.courseDetail = detail;
+                this.isLoading = false;
+              },
+              error: () => {
+                this.loadError = 'No se pudo cargar el detalle completo del curso.';
+                this.isLoading = false;
+              }
+            });
           },
           error: () => {
             this.loadError = 'No se pudo cargar el detalle completo del curso.';
@@ -150,6 +180,55 @@ export class CourseDetailPage implements OnInit {
     }));
   }
 
+  get modalityLabel(): string {
+    return this.course?.modalidad || this.courseDetail?.curso.modalidad || 'No definida';
+  }
+
+  get professorLabel(): string {
+    return this.course?.profesor || 'Profesor pendiente de confirmar';
+  }
+
+  get sectionLabel(): string {
+    return this.course?.seccion ? `Seccion ${this.course.seccion}` : 'Seccion pendiente de confirmar';
+  }
+
+  get syllabusVersionLabel(): string {
+    return this.courseDetail?.version || this.courseDetail?.periodoTexto || 'Sin silabo vigente';
+  }
+
+  get syllabusSupportLabel(): string {
+    if (!this.courseDetail?.silaboId) {
+      return 'Sin silabo vigente para este curso.';
+    }
+
+    if (this.courseDetail.pdf?.disponibleDescarga) {
+      return 'PDF disponible para descarga inmediata.';
+    }
+
+    if (this.courseDetail.pdf) {
+      return 'Hay metadata del silabo, pero el PDF no esta descargable.';
+    }
+
+    return 'Solo hay metadata basica del catalogo.';
+  }
+
+  get periodLabel(): string {
+    return this.courseDetail?.periodoTexto || 'Periodo no disponible';
+  }
+
+  get heroSummary(): string {
+    return this.courseDetail?.sumilla || 'Todavia no hay sumilla disponible para este curso.';
+  }
+
+  get cycleLabel(): string {
+    const cycle = this.catalogCourse?.cicloReferencial ?? this.courseDetail?.curso.cicloReferencial;
+    return cycle != null ? `Ciclo ${cycle}` : 'Sin ciclo referencial';
+  }
+
+  get hasDownloadableSyllabus(): boolean {
+    return Boolean(this.courseDetail?.pdfDownloadPath && this.courseDetail?.pdf?.disponibleDescarga);
+  }
+
   saveMetadata(): void {
     if (!this.course) {
       return;
@@ -181,6 +260,15 @@ export class CourseDetailPage implements OnInit {
         this.isSavingMetadata = false;
       }
     });
+  }
+
+  downloadCurrentSyllabus(): void {
+    this.downloadSyllabus(
+      this.courseDetail?.pdfDownloadPath ?? null,
+      this.courseDetail?.pdf?.originalFilename ?? null,
+      this.courseDetail?.pdf?.sourceFilename ?? null,
+      this.courseDetail?.silaboId ?? null
+    );
   }
 
   trackEvaluation(_index: number, evaluation: MyEvaluation): string {
@@ -259,5 +347,48 @@ export class CourseDetailPage implements OnInit {
       default:
         return 'Sin dia';
     }
+  }
+
+  private downloadSyllabus(
+    path: string | null,
+    originalFilename: string | null,
+    sourceFilename: string | null,
+    silaboId: number | null
+  ): void {
+    if (!path) {
+      return;
+    }
+
+    this.downloadError = '';
+    this.isDownloadingCurrentSyllabus = true;
+
+    const url = path.startsWith('http') ? path : `${this.env.apiBaseUrl}${path}`;
+    const filename = this.resolveDownloadFilename(originalFilename, sourceFilename, silaboId);
+
+    this.http.get(url, { responseType: 'blob' }).subscribe({
+      next: (blob) => {
+        const objectUrl = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = objectUrl;
+        link.download = filename;
+        link.click();
+        URL.revokeObjectURL(objectUrl);
+        this.isDownloadingCurrentSyllabus = false;
+      },
+      error: () => {
+        this.downloadError = 'No se pudo descargar el PDF del silabo.';
+        this.isDownloadingCurrentSyllabus = false;
+      }
+    });
+  }
+
+  private resolveDownloadFilename(
+    originalFilename: string | null | undefined,
+    sourceFilename: string | null | undefined,
+    silaboId: number | null | undefined
+  ): string {
+    return originalFilename?.trim()
+      || sourceFilename?.trim()
+      || `silabo-${silaboId ?? 'curso'}.pdf`;
   }
 }

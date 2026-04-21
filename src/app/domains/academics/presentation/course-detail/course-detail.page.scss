@@ -28,9 +28,6 @@
   align-items: flex-start;
 }
 
-.hero__copy {
-}
-
 .back {
   display: inline-block;
   margin-bottom: 12px;
@@ -97,6 +94,11 @@ h1 {
   border-color: rgba(148, 163, 184, 0.28);
 }
 
+.btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .state,
 .hero-card,
 .stat-card,
@@ -114,9 +116,6 @@ h1 {
 
 .state {
   padding: 16px 18px;
-}
-
-.state--loading {
 }
 
 .state--error {
@@ -181,6 +180,19 @@ h1 {
   gap: 8px;
   padding: 18px;
   background: linear-gradient(180deg, rgba(238, 242, 255, 0.95), rgba(255, 255, 255, 0.94));
+}
+
+.focus-card--download {
+  background: linear-gradient(180deg, rgba(243, 232, 255, 0.96), rgba(255, 255, 255, 0.94));
+}
+
+.focus-card--download .btn {
+  width: fit-content;
+  margin-top: 6px;
+}
+
+.download-error {
+  color: #b91c1c;
 }
 
 .focus-card--soft {
