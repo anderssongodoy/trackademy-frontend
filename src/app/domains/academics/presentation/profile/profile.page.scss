@@ -191,7 +191,8 @@ h1 {
 .selected-courses,
 .course-picker,
 .course-browser,
-.course-curation,
+.academic-builder,
+.catalog-panel,
 .selected-column {
   display: grid;
   gap: 18px;
@@ -546,19 +547,85 @@ h1 {
   color: var(--text-primary);
 }
 
-.course-curation {
-  grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
-  gap: 22px;
+.academic-builder {
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+  gap: 24px;
   align-items: start;
 }
 
+.catalog-panel {
+  gap: 18px;
+  min-width: 0;
+}
+
+.catalog-panel__intro,
+.catalog-toolbar,
 .selected-column {
   @include ui.soft-panel(20px, 22px);
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.catalog-panel__intro {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: end;
+}
+
+.catalog-panel__intro h3 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.catalog-panel__intro p {
+  margin: 6px 0 0;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.catalog-toolbar {
+  display: grid;
+  grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+}
+
+.catalog-search input {
+  @include ui.input-field();
+  width: 100%;
+}
+
+.catalog-search input:focus {
+  @include ui.input-focus();
+}
+
+.cycle-filter {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.cycle-filter button {
+  border: 0;
+  min-height: 38px;
+  padding: 0.62rem 1rem;
+  border-radius: 999px;
+  background: var(--surface-container-high);
+  color: var(--text-secondary);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.cycle-filter button.is-active {
+  background: var(--brand-primary);
+  color: #fff;
+  box-shadow: 0 12px 24px rgba(83, 0, 183, 0.16);
+}
+
+.selected-column {
   position: sticky;
   top: 24px;
-  background:
-    radial-gradient(circle at top left, rgba(83, 0, 183, 0.08), transparent 28%),
-    linear-gradient(180deg, rgba(252, 250, 255, 0.98), rgba(246, 243, 255, 0.98));
+  align-content: start;
 }
 
 .selected-column__header {
@@ -576,41 +643,57 @@ h1 {
   line-height: 1.55;
 }
 
-.selected-column__hero {
+.selected-column__metrics {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: 16px;
-  align-items: center;
-  padding: 18px 20px;
-  border-radius: 22px;
-  background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-container));
-  color: #fff;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
 }
 
-.selected-column__hero strong {
-  font: 700 3rem 'Space Grotesk', sans-serif;
-  line-height: 1;
-}
-
-.selected-column__hero div {
+.selected-column__metrics article {
   display: grid;
   gap: 4px;
+  padding: 16px;
+  border-radius: 18px;
+  background: var(--surface-container-high);
 }
 
-.selected-column__hero span,
-.selected-column__hero small {
-  color: rgba(255, 255, 255, 0.84);
+.selected-column__metrics strong {
+  font: 700 2rem 'Space Grotesk', sans-serif;
+  line-height: 1;
+  color: var(--text-primary);
 }
 
-.selected-column__hero span {
+.selected-column__metrics span,
+.selected-delta span {
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+  color: var(--text-secondary);
 }
 
-.selected-column__hero small {
-  font-size: 0.92rem;
+.selected-delta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.selected-delta span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0.38rem 0.74rem;
+  border-radius: 999px;
+  background: rgba(83, 0, 183, 0.08);
+  color: var(--brand-primary);
+}
+
+.selected-chip {
+  display: grid;
+  gap: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  box-shadow: none;
+  background: var(--surface-container-low);
 }
 
 .course-browser__header {
@@ -639,7 +722,7 @@ h1 {
 }
 
 .course-picker {
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: 14px;
 }
 
@@ -648,12 +731,11 @@ h1 {
   gap: 12px;
   align-content: start;
   text-align: left;
-  border-radius: 24px;
-  box-shadow: 0 16px 28px rgba(15, 23, 42, 0.05);
-  min-height: 172px;
-  background:
-    radial-gradient(circle at top right, rgba(83, 0, 183, 0.06), transparent 24%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(244, 247, 251, 0.98));
+  border-radius: 20px;
+  border: 1px solid rgba(15, 23, 42, 0.1);
+  box-shadow: none;
+  min-height: 178px;
+  background: rgba(255, 255, 255, 0.98);
   position: relative;
   overflow: hidden;
 }
@@ -662,16 +744,18 @@ h1 {
   content: '';
   position: absolute;
   inset: 16px auto 16px 0;
-  width: 5px;
+  width: 4px;
   border-radius: 999px;
-  background: linear-gradient(180deg, rgba(83, 0, 183, 0.55), rgba(109, 40, 217, 0.18));
+  background: rgba(83, 0, 183, 0.35);
 }
 
 .course-option--selected {
-  background:
-    radial-gradient(circle at top right, rgba(83, 0, 183, 0.12), transparent 30%),
-    linear-gradient(180deg, rgba(247, 242, 255, 0.98), rgba(241, 234, 255, 0.98));
-  box-shadow: 0 18px 30px rgba(83, 0, 183, 0.12);
+  border-color: var(--brand-primary);
+  box-shadow: 0 14px 28px rgba(83, 0, 183, 0.1);
+}
+
+.course-option--selected::before {
+  background: var(--brand-primary);
 }
 
 .course-option__head {
@@ -721,20 +805,22 @@ h1 {
   color: var(--brand-primary);
 }
 
-.course-option__footer {
+.course-option__facts {
   display: flex;
-  align-items: center;
-  justify-content: flex-start;
+  gap: 8px;
+  flex-wrap: wrap;
   margin-top: auto;
 }
 
-.course-option__footer span {
+.course-option__facts span {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 0.48rem 0.78rem;
+  min-height: 28px;
+  padding: 0.4rem 0.65rem;
   border-radius: 999px;
-  background: rgba(83, 0, 183, 0.08);
+  background: var(--surface-container-high);
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
 }
 
 .btn {
@@ -791,7 +877,7 @@ h1 {
     grid-template-columns: 1fr;
   }
 
-  .course-curation {
+  .academic-builder {
     grid-template-columns: 1fr;
   }
 
@@ -806,6 +892,16 @@ h1 {
 
   .course-browser__meta {
     justify-items: start;
+  }
+
+  .catalog-toolbar,
+  .catalog-panel__intro {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+  }
+
+  .catalog-panel__intro {
+    display: grid;
   }
 }
 

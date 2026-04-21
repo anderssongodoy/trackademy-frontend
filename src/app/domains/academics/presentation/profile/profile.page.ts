@@ -8,6 +8,19 @@ import { MeUseCase, MyCalendarSyncAccount, MyCourse, MyCurrentPeriod } from '../
 import { WhatsappLinkCodeResponse, WhatsappLinkStatusResponse, WhatsappUseCase } from '../../application/whatsapp-use-case';
 import { apiErrorMessage } from '../../../identity/infrastructure/http/api-error.interceptor';
 
+type CatalogCycleFilter = number | 'all';
+
+interface SelectedCourseView {
+  id: number;
+  label: string;
+  code: string;
+  name: string;
+  credits: number | null;
+  weeklyHours: number | null;
+  modality: string | null;
+  cycle: number | null;
+}
+
 @Component({
   selector: 'app-profile-page',
   imports: [CommonModule, ReactiveFormsModule, DatePipe],
@@ -66,9 +79,11 @@ export class ProfilePage implements OnInit {
   availableCourses: CatalogCourse[] = [];
   selectedCourseIds = new Set<number>();
   selectedCourseLabels = new Map<number, string>();
+  selectedCatalogCycle: CatalogCycleFilter = 'all';
   courseQuery = '';
   whatsappStatus: WhatsappLinkStatusResponse | null = null;
   whatsappLinkCode: WhatsappLinkCodeResponse | null = null;
+  private readonly courseCatalogById = new Map<number, CatalogCourse>();
 
   ngOnInit(): void {
     this.loadProfile();
@@ -183,8 +198,22 @@ export class ProfilePage implements OnInit {
     return `${start} - ${end}`;
   }
 
-  get selectedCoursesList(): Array<{ id: number; label: string; code: string; name: string }> {
+  get selectedCoursesList(): SelectedCourseView[] {
     return [...this.selectedCourseIds].map((id) => {
+      const catalogCourse = this.courseCatalogById.get(id);
+      if (catalogCourse) {
+        return {
+          id,
+          label: `${catalogCourse.codigo} - ${catalogCourse.nombre}`,
+          code: catalogCourse.codigo,
+          name: catalogCourse.nombre,
+          credits: catalogCourse.creditos,
+          weeklyHours: catalogCourse.horasSemanales,
+          modality: catalogCourse.modalidad,
+          cycle: catalogCourse.cicloReferencial
+        };
+      }
+
       const label = this.selectedCourseLabels.get(id) || `Curso ${id}`;
       const [code, ...nameParts] = label.split(' - ');
 
@@ -192,9 +221,37 @@ export class ProfilePage implements OnInit {
         id,
         label,
         code: nameParts.length ? code : `ID ${id}`,
-        name: nameParts.length ? nameParts.join(' - ') : label
+        name: nameParts.length ? nameParts.join(' - ') : label,
+        credits: null,
+        weeklyHours: null,
+        modality: null,
+        cycle: null
       };
     });
+  }
+
+  get availableCycles(): number[] {
+    return [...new Set(
+      this.availableCourses
+        .map((course) => course.cicloReferencial)
+        .filter((cycle): cycle is number => typeof cycle === 'number')
+    )].sort((a, b) => a - b);
+  }
+
+  get filteredAvailableCourses(): CatalogCourse[] {
+    if (this.selectedCatalogCycle === 'all') {
+      return this.availableCourses;
+    }
+
+    return this.availableCourses.filter((course) => course.cicloReferencial === this.selectedCatalogCycle);
+  }
+
+  get selectedTotalCredits(): number {
+    return this.selectedCoursesList.reduce((total, course) => total + (course.credits ?? 0), 0);
+  }
+
+  get selectedTotalHours(): number {
+    return this.selectedCoursesList.reduce((total, course) => total + (course.weeklyHours ?? 0), 0);
   }
 
   get removedCourseCount(): number {
@@ -413,7 +470,12 @@ export class ProfilePage implements OnInit {
     this.loadAvailableCourses();
   }
 
+  selectCatalogCycle(cycle: CatalogCycleFilter): void {
+    this.selectedCatalogCycle = cycle;
+  }
+
   toggleCourse(course: CatalogCourse): void {
+    this.courseCatalogById.set(course.id, course);
     if (this.selectedCourseIds.has(course.id)) {
       this.selectedCourseIds.delete(course.id);
     } else {
@@ -550,6 +612,7 @@ export class ProfilePage implements OnInit {
         return;
       }
 
+      this.selectedCatalogCycle = 'all';
       if (normalized !== this.period.carreraId) {
         this.selectedCourseIds.clear();
         this.selectedCourseLabels.clear();
@@ -576,6 +639,7 @@ export class ProfilePage implements OnInit {
       next: (courses) => {
         this.availableCourses = courses;
         courses.forEach((course) => {
+          this.courseCatalogById.set(course.id, course);
           this.selectedCourseLabels.set(course.id, `${course.codigo} - ${course.nombre}`);
         });
         this.isCoursesLoading = false;

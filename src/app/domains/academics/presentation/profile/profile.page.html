@@ -255,13 +255,6 @@
             </div>
           </article>
 
-          <article class="side-card">
-            <span class="side-card__eyebrow">Reconfigurar ciclo actual</span>
-            <p>Usa este bloque solo si cambiaste campus, carrera o la lista de cursos del periodo.</p>
-            <a class="btn btn--ghost" href="#reconfig-panel">
-              Reconfigurar ciclo actual
-            </a>
-          </article>
         </aside>
       </section>
 
@@ -303,39 +296,96 @@
             </label>
           </div>
 
-          <label class="field">
-            <span>Buscar cursos</span>
-            <input type="text" [value]="courseQuery" (input)="onCourseQueryChange($any($event.target).value)" placeholder="Ej. Estructuras, CS201" />
-          </label>
-
           @if (configInfo) {
             <div class="state state--loading">{{ configInfo }}</div>
           }
 
-          <div class="reconfig-meta">
-            <strong>{{ selectedCourseIds.size }} curso{{ selectedCourseIds.size === 1 ? '' : 's' }} activo{{ selectedCourseIds.size === 1 ? '' : 's' }}</strong>
-            <span>{{ addedCourseCount }} agregado{{ addedCourseCount === 1 ? '' : 's' }} · {{ removedCourseCount }} eliminado{{ removedCourseCount === 1 ? '' : 's' }}</span>
-          </div>
-
-          <section class="course-curation">
-            <aside class="selected-column">
-              <div class="selected-column__header">
-                <span class="side-card__eyebrow">Seleccion activa</span>
-                <h3>Base del ciclo</h3>
-                <p>Lo que dejes aqui define el contexto real con el que operan horario, calendario y notas.</p>
+          <section class="academic-builder">
+            <div class="catalog-panel">
+              <div class="catalog-panel__intro">
+                <div>
+                  <span class="side-card__eyebrow">Catalogo disponible</span>
+                  <h3>Seleccion de cursos</h3>
+                  <p>Filtra por ciclo o busca por codigo/nombre. Cada tarjeta usa solo metadata real del catalogo.</p>
+                </div>
+                <div class="course-browser__meta">
+                  <strong>{{ filteredAvailableCourses.length }}</strong>
+                  <span>visibles</span>
+                </div>
               </div>
 
-              <div class="selected-column__hero">
-                <strong>{{ selectedCourseIds.size }}</strong>
-                <div>
-                  <span>cursos confirmados</span>
-                  <small>{{ addedCourseCount }} agregado{{ addedCourseCount === 1 ? '' : 's' }} · {{ removedCourseCount }} eliminado{{ removedCourseCount === 1 ? '' : 's' }}</small>
+              <div class="catalog-toolbar">
+                <label class="catalog-search">
+                  <input type="text" [value]="courseQuery" (input)="onCourseQueryChange($any($event.target).value)" placeholder="Buscar por nombre o codigo" aria-label="Buscar cursos" />
+                </label>
+
+                <div class="cycle-filter" aria-label="Filtrar por ciclo referencial">
+                  <button type="button" [class.is-active]="selectedCatalogCycle === 'all'" (click)="selectCatalogCycle('all')">Todos</button>
+                  @for (cycle of availableCycles; track cycle) {
+                    <button type="button" [class.is-active]="selectedCatalogCycle === cycle" (click)="selectCatalogCycle(cycle)">
+                      Ciclo {{ cycle }}
+                    </button>
+                  }
                 </div>
+              </div>
+
+              <div class="course-picker">
+                @if (isCoursesLoading) {
+                  <div class="state state--loading">Cargando cursos para esta carrera...</div>
+                }
+
+                @if (!isCoursesLoading && filteredAvailableCourses.length === 0) {
+                  <div class="state state--loading">No hay cursos visibles con estos filtros.</div>
+                }
+
+                @if (!isCoursesLoading) {
+                  @for (course of filteredAvailableCourses; track course.id) {
+                    <button class="course-option" type="button" [class.course-option--selected]="isSelected(course.id)" (click)="toggleCourse(course)">
+                      <div class="course-option__head">
+                        <span class="course-option__code">{{ course.codigo }}</span>
+                        <span class="course-option__action">{{ isSelected(course.id) ? 'Seleccionado' : 'Agregar' }}</span>
+                      </div>
+                      <div class="course-option__copy">
+                        <strong>{{ course.nombre }}</strong>
+                        <small>{{ course.modalidad || 'Modalidad no registrada' }}</small>
+                      </div>
+                      <div class="course-option__facts">
+                        <span>{{ course.creditos }} credito{{ course.creditos === 1 ? '' : 's' }}</span>
+                        <span>{{ course.horasSemanales }} h/sem</span>
+                        <span>Ciclo {{ course.cicloReferencial || '--' }}</span>
+                      </div>
+                    </button>
+                  }
+                }
+              </div>
+            </div>
+
+            <aside class="selected-column">
+              <div class="selected-column__header">
+                <span class="side-card__eyebrow">Cursos seleccionados</span>
+                <h3>{{ selectedCourseIds.size }} curso{{ selectedCourseIds.size === 1 ? '' : 's' }}</h3>
+                <p>Esta sera la base operativa del periodo para horario, calendario y notas.</p>
+              </div>
+
+              <div class="selected-column__metrics">
+                <article>
+                  <strong>{{ selectedTotalCredits }}</strong>
+                  <span>creditos</span>
+                </article>
+                <article>
+                  <strong>{{ selectedTotalHours }}</strong>
+                  <span>h/sem</span>
+                </article>
+              </div>
+
+              <div class="selected-delta">
+                <span>{{ addedCourseCount }} agregado{{ addedCourseCount === 1 ? '' : 's' }}</span>
+                <span>{{ removedCourseCount }} eliminado{{ removedCourseCount === 1 ? '' : 's' }}</span>
               </div>
 
               <div class="selected-courses">
                 @if (selectedCoursesList.length === 0) {
-                  <p class="selected-empty">Todavia no hay cursos confirmados en esta reconfiguracion.</p>
+                  <p class="selected-empty">Todavia no hay cursos seleccionados.</p>
                 }
 
                 @for (course of selectedCoursesList; track course.id) {
@@ -346,65 +396,30 @@
                     </div>
                     <div class="selected-chip__copy">
                       <span>{{ course.name }}</span>
-                      <p>Incluido en la base operativa de este periodo.</p>
+                      <p>
+                        @if (course.cycle) {
+                          Ciclo {{ course.cycle }} ·
+                        }
+                        {{ course.modality || 'Modalidad no registrada' }}
+                      </p>
                     </div>
                   </button>
                 }
               </div>
+
+              @if (configError) {
+                <div class="state state--error">{{ configError }}</div>
+              }
+
+              @if (configSuccess) {
+                <div class="state state--success">{{ configSuccess }}</div>
+              }
+
+              <button class="btn btn--primary" type="submit" [disabled]="isSavingConfig">
+                {{ isSavingConfig ? 'Guardando...' : 'Guardar configuracion' }}
+              </button>
             </aside>
-
-            <div class="course-browser">
-              <div class="course-browser__header">
-                <div>
-                  <span class="side-card__eyebrow">Catalogo disponible</span>
-                  <h3>Explora y compone tu carga</h3>
-                  <p>Selecciona solo lo que de verdad debe formar parte del ciclo y deja fuera el ruido.</p>
-                </div>
-                <div class="course-browser__meta">
-                  <strong>{{ availableCourses.length }}</strong>
-                  <span>opciones visibles</span>
-                </div>
-              </div>
-
-              <div class="course-picker">
-                @if (isCoursesLoading) {
-                  <div class="state state--loading">Cargando cursos para esta carrera...</div>
-                }
-
-                @if (!isCoursesLoading) {
-                  @for (course of availableCourses; track course.id) {
-                    <button class="course-option" type="button" [class.course-option--selected]="isSelected(course.id)" (click)="toggleCourse(course)">
-                      <div class="course-option__head">
-                        <span class="course-option__code">{{ course.codigo }}</span>
-                        <span class="course-option__action">{{ isSelected(course.id) ? 'Incluido' : 'Agregar' }}</span>
-                      </div>
-                      <div class="course-option__copy">
-                        <strong>{{ course.nombre }}</strong>
-                        <small>{{ isSelected(course.id) ? 'Ya forma parte de tu configuracion actual.' : 'Disponible para sumarlo al ciclo.' }}</small>
-                      </div>
-                      <div class="course-option__footer">
-                        <span>{{ isSelected(course.id) ? 'Activo en este ciclo' : 'Sumar al contexto' }}</span>
-                      </div>
-                    </button>
-                  }
-                }
-              </div>
-            </div>
           </section>
-
-          @if (configError) {
-            <div class="state state--error">{{ configError }}</div>
-          }
-
-          @if (configSuccess) {
-            <div class="state state--success">{{ configSuccess }}</div>
-          }
-
-          <div class="panel__actions">
-            <button class="btn btn--primary" type="submit" [disabled]="isSavingConfig">
-              {{ isSavingConfig ? 'Guardando...' : 'Aplicar reconfiguracion' }}
-            </button>
-          </div>
         </form>
       </section>
     </section>
