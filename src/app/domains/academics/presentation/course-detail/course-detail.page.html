@@ -99,9 +99,12 @@
 
         <article class="panel section-panel">
           <header>
-            <h2>Informacion de Seccion</h2>
+            <div>
+              <h2>Datos editables del curso</h2>
+              <p>Seccion y profesor son datos personales de tu periodo.</p>
+            </div>
             <button type="button" (click)="saveMetadata()" [disabled]="isSavingMetadata">
-              {{ isSavingMetadata ? 'Guardando...' : 'Editar Informacion' }}
+              {{ isSavingMetadata ? 'Guardando...' : 'Guardar cambios' }}
             </button>
           </header>
 
@@ -109,6 +112,10 @@
             <label>
               <span>Seccion</span>
               <input type="text" formControlName="seccion" placeholder="No registrada" />
+            </label>
+            <label>
+              <span>Profesor</span>
+              <input type="text" formControlName="profesor" placeholder="No registrado" />
             </label>
             <label>
               <span>Modalidad</span>
