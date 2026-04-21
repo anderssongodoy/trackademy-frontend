@@ -292,7 +292,7 @@ export class CourseDetailPage implements OnInit {
   }
 
   scheduleTypeLabel(entry: MyScheduleEntry): string {
-    return entry.tipoSesion?.trim() || 'Tipo no registrado';
+    return entry.tipoSesion?.trim() || entry.modalidad?.trim() || this.modalityLabel;
   }
 
   scheduleLocationLabel(entry: MyScheduleEntry): string {

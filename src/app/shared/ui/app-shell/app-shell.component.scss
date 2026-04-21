@@ -14,6 +14,7 @@
   min-height: 100dvh;
   background: var(--surface);
   color: #202124;
+  transition: grid-template-columns 0.18s ease;
 }
 
 .sidebar {
@@ -26,11 +27,35 @@
   padding: 32px 24px;
   background: var(--sidebar);
   color: #fff;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .sidebar__edge-toggle {
-  display: none;
+  position: absolute;
+  top: 50%;
+  right: -17px;
+  z-index: 4;
+  width: 34px;
+  height: 68px;
+  border: 1px solid rgba(226, 232, 240, 0.72);
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #fff;
+  color: var(--accent);
+  box-shadow: 0 16px 32px rgba(17, 24, 39, 0.14);
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.sidebar__edge-toggle svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 2.3;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .sidebar__brand,
@@ -171,6 +196,38 @@
   padding: 38px 42px 52px;
 }
 
+.app-shell--collapsed {
+  grid-template-columns: 92px minmax(0, 1fr);
+}
+
+.app-shell--collapsed .sidebar {
+  padding-inline: 16px;
+}
+
+.app-shell--collapsed .sidebar__brand {
+  justify-content: center;
+}
+
+.app-shell--collapsed .brand__text,
+.app-shell--collapsed .nav-link span:not(.nav-link__icon),
+.app-shell--collapsed .sidebar__signout-label {
+  display: none;
+}
+
+.app-shell--collapsed .nav-link,
+.app-shell--collapsed .sidebar__signout {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.app-shell--collapsed .sidebar__utility {
+  justify-items: center;
+}
+
+.app-shell--collapsed .sidebar__signout {
+  width: 48px;
+}
+
 .scrim {
   position: fixed;
   inset: 0;
@@ -191,8 +248,16 @@
     transition: transform 0.18s ease;
   }
 
+  .sidebar__edge-toggle {
+    display: none;
+  }
+
   .app-shell--menu-open .sidebar {
     transform: translateX(0);
+  }
+
+  .app-shell--collapsed {
+    grid-template-columns: 1fr;
   }
 
   .app-shell__main {

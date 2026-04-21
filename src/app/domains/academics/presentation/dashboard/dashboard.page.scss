@@ -11,11 +11,6 @@
 .dashboard__frame {
   display: grid;
   gap: 22px;
-  padding: 18px;
-  border-radius: 32px;
-  background:
-    radial-gradient(circle at top right, rgba(83, 0, 183, 0.08), transparent 28%),
-    rgba(255, 255, 255, 0.7);
 }
 
 .dashboard__hero,
