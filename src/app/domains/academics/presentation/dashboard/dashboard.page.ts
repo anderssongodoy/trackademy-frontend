@@ -29,6 +29,35 @@ interface CalendarCell {
   isActive: boolean;
 }
 
+interface WeekLoadPoint {
+  week: number;
+  label: string;
+  count: number;
+  weight: number;
+  height: number;
+  isCurrent: boolean;
+}
+
+interface CourseRiskCard {
+  id: number;
+  code: string;
+  name: string;
+  accumulated: number;
+  registeredWeight: number;
+  pendingWeight: number;
+  neededGrade: number | null;
+  risk: 'critico' | 'atencion' | 'estable';
+  detail: string;
+}
+
+interface TimelinePoint {
+  week: number;
+  isPast: boolean;
+  isCurrent: boolean;
+  hasEvaluations: boolean;
+  evaluationCount: number;
+}
+
 @Component({
   selector: 'app-dashboard-page',
   imports: [CommonModule, RouterLink],
@@ -110,6 +139,27 @@ export class DashboardPage implements OnInit {
 
   get pendingGradesCount(): number {
     return this.evaluations.filter((item) => item.nota == null && !item.exonerado).length;
+  }
+
+  get registeredGradesCount(): number {
+    return this.evaluations.filter((item) => item.nota != null).length;
+  }
+
+  get totalEvaluationWeight(): number {
+    return this.evaluations.reduce((sum, item) => sum + (item.porcentaje ?? 0), 0);
+  }
+
+  get registeredEvaluationWeight(): number {
+    return this.evaluations
+      .filter((item) => item.nota != null)
+      .reduce((sum, item) => sum + (item.porcentaje ?? 0), 0);
+  }
+
+  get registeredWeightPercent(): number {
+    if (this.totalEvaluationWeight <= 0) {
+      return 0;
+    }
+    return Math.min(100, Math.round((this.registeredEvaluationWeight / this.totalEvaluationWeight) * 100));
   }
 
   get hasRegisteredGrades(): boolean {
@@ -253,15 +303,104 @@ export class DashboardPage implements OnInit {
 
   get heroTitle(): string {
     const name = this.displayName ?? 'hola';
-    return `Hola, ${name}. ${this.heroLeadCount} ${this.heroLeadLabel} esta semana.`;
+    return `Hola, ${name}. Tu ciclo en una vista.`;
   }
 
   get heroSummary(): string {
-    if (this.nextSetupStep) {
-      return this.cycleProgressLabel;
-    }
+    return `${this.cycleProgressLabel}. ${this.pendingGradesCount} evaluaciones pendientes y ${this.registeredWeightPercent}% del peso ya registrado.`;
+  }
 
-    return '';
+  get dashboardHeadline(): string {
+    if (this.criticalCourseCount > 0) {
+      return `${this.criticalCourseCount} curso${this.criticalCourseCount === 1 ? '' : 's'} requiere atencion`;
+    }
+    if (this.dueSoonCount > 0) {
+      return `${this.dueSoonCount} evaluacion${this.dueSoonCount === 1 ? '' : 'es'} en los proximos 7 dias`;
+    }
+    return 'Sin alertas fuertes por ahora';
+  }
+
+  get weekLoad(): WeekLoadPoint[] {
+    const maxWeek = Math.max(18, ...this.evaluations.map((item) => item.semana ?? 0));
+    const currentWeek = this.summary?.semanaActual ?? 0;
+    const raw = Array.from({ length: maxWeek }, (_, index) => {
+      const week = index + 1;
+      const items = this.evaluations.filter((item) => item.semana === week);
+      return {
+        week,
+        label: `S${week}`,
+        count: items.length,
+        weight: items.reduce((sum, item) => sum + (item.porcentaje ?? 0), 0),
+        height: 0,
+        isCurrent: week === currentWeek
+      };
+    });
+    const maxCount = Math.max(1, ...raw.map((item) => item.count));
+
+    return raw.map((item) => ({
+      ...item,
+      height: item.count === 0 ? 8 : Math.max(22, Math.round((item.count / maxCount) * 100))
+    }));
+  }
+
+  get heavyWeeks(): WeekLoadPoint[] {
+    return this.weekLoad
+      .filter((item) => item.count > 0)
+      .sort((left, right) => right.count - left.count || right.weight - left.weight)
+      .slice(0, 3);
+  }
+
+  get timelinePoints(): TimelinePoint[] {
+    const currentWeek = this.summary?.semanaActual ?? 0;
+    return this.weekLoad.map((item) => ({
+      week: item.week,
+      isPast: currentWeek > 0 && item.week < currentWeek,
+      isCurrent: item.week === currentWeek,
+      hasEvaluations: item.count > 0,
+      evaluationCount: item.count
+    }));
+  }
+
+  get courseRiskCards(): CourseRiskCard[] {
+    const grouped = new Map<number, MyEvaluation[]>();
+    this.evaluations.forEach((item) => {
+      const current = grouped.get(item.usuarioPeriodoCursoId) ?? [];
+      current.push(item);
+      grouped.set(item.usuarioPeriodoCursoId, current);
+    });
+
+    return [...grouped.entries()]
+      .map(([id, items]) => {
+        const accumulated = this.weightedAccumulated(items);
+        const registeredWeight = items
+          .filter((item) => item.nota != null)
+          .reduce((sum, item) => sum + (item.porcentaje ?? 0), 0);
+        const totalWeight = items.reduce((sum, item) => sum + (item.porcentaje ?? 0), 0);
+        const pendingWeight = Math.max(0, totalWeight - registeredWeight);
+        const neededGrade = pendingWeight > 0
+          ? Number((((13 - accumulated) * 100) / pendingWeight).toFixed(1))
+          : null;
+        const overdue = items.filter((item) => this.isEvaluationDue(item)).length;
+        const risk = this.resolveCourseRisk(accumulated, pendingWeight, neededGrade, overdue);
+
+        return {
+          id,
+          code: items[0].codigoCurso,
+          name: items[0].nombreCurso,
+          accumulated,
+          registeredWeight,
+          pendingWeight,
+          neededGrade,
+          risk: risk.risk,
+          detail: risk.detail
+        };
+      })
+      .sort((left, right) => this.riskRank(left.risk) - this.riskRank(right.risk) || left.name.localeCompare(right.name))
+      .slice(0, 5);
+  }
+
+  get criticalCourseCount(): number {
+    return this.courseRiskCards.filter((item) => item.risk !== 'estable').length;
   }
 
   get todaySessions(): MyCalendarEvent[] {
@@ -356,6 +495,24 @@ export class DashboardPage implements OnInit {
     }
 
     return items.slice(0, 3);
+  }
+
+  riskLabel(value: CourseRiskCard['risk']): string {
+    switch (value) {
+      case 'critico':
+        return 'Critico';
+      case 'atencion':
+        return 'Atencion';
+      default:
+        return 'Estable';
+    }
+  }
+
+  formatScore(value: number | null): string {
+    if (value == null || Number.isNaN(value)) {
+      return '--';
+    }
+    return value.toFixed(2).replace(/\.00$/, '').replace(/0$/, '');
   }
 
   get calendarMonthLabel(): string {
@@ -485,6 +642,58 @@ export class DashboardPage implements OnInit {
       seen.add(key);
       return true;
     });
+  }
+
+  private weightedAccumulated(items: MyEvaluation[]): number {
+    return Number(items.reduce((sum, item) => {
+      if (item.nota == null || item.porcentaje == null) {
+        return sum;
+      }
+      return sum + (item.nota * item.porcentaje / 100);
+    }, 0).toFixed(2));
+  }
+
+  private isEvaluationDue(item: MyEvaluation): boolean {
+    if (item.nota != null || item.exonerado || !item.fechaEstimada) {
+      return false;
+    }
+
+    const today = this.startOfToday().getTime();
+    const target = new Date(`${item.fechaEstimada}T00:00:00`).getTime();
+    return target <= today;
+  }
+
+  private resolveCourseRisk(
+    accumulated: number,
+    pendingWeight: number,
+    neededGrade: number | null,
+    overdue: number
+  ): { risk: CourseRiskCard['risk']; detail: string } {
+    const maxPossible = accumulated + (pendingWeight * 20 / 100);
+
+    if (maxPossible < 13) {
+      return { risk: 'critico', detail: 'No alcanza 13 incluso con notas maximas.' };
+    }
+    if (neededGrade != null && neededGrade > 18) {
+      return { risk: 'critico', detail: `Necesita ${this.formatScore(neededGrade)} en lo pendiente.` };
+    }
+    if (overdue > 0) {
+      return { risk: 'atencion', detail: `${overdue} evaluacion${overdue === 1 ? '' : 'es'} vencida${overdue === 1 ? '' : 's'}.` };
+    }
+    if (neededGrade != null && neededGrade > 15) {
+      return { risk: 'atencion', detail: `Debe promediar ${this.formatScore(neededGrade)} en lo pendiente.` };
+    }
+    return { risk: 'estable', detail: 'Riesgo bajo con la informacion actual.' };
+  }
+
+  private riskRank(value: CourseRiskCard['risk']): number {
+    if (value === 'critico') {
+      return 0;
+    }
+    if (value === 'atencion') {
+      return 1;
+    }
+    return 2;
   }
 
   private capitalize(value: string): string {

@@ -14,79 +14,132 @@
           <div class="hero__pills">
             <span class="hero-pill hero-pill--accent">{{ currentPeriod?.periodoEtiqueta || 'Periodo pendiente' }}</span>
             <span class="hero-pill">{{ currentWeekLabel }}</span>
-            <span class="hero-pill">{{ onboardingStatusLabel }}</span>
+            <span class="hero-pill">{{ currentPeriod?.campusNombre || onboardingStatusLabel }}</span>
           </div>
 
           <h1>{{ heroTitle }}</h1>
-          @if (heroSummary) {
-            <p class="hero__summary">{{ heroSummary }}</p>
-          }
+          <p class="hero__summary">{{ heroSummary }}</p>
         </div>
 
-        <div class="hero__cta">
-          <span class="hero__cta-label">Foco recomendado</span>
-          <strong>{{ nextSetupStep?.title || 'Dashboard alineado' }}</strong>
-          @if (nextSetupStep) {
-            <p class="hero__cta-detail">{{ nextSetupStep.detail }}</p>
-          }
-          <a class="btn btn--primary" [routerLink]="nextSetupStep?.ctaLink || '/app/horario'">
-            {{ nextSetupStep?.ctaLabel || 'Abrir horario' }}
+        <div class="hero__focus">
+          <span>Foco del dashboard</span>
+          <strong>{{ dashboardHeadline }}</strong>
+          <a class="btn btn--primary" [routerLink]="criticalCourseCount > 0 ? '/app/notas' : '/app/horario'">
+            {{ criticalCourseCount > 0 ? 'Revisar notas' : 'Ver horario' }}
           </a>
         </div>
       </header>
 
+      <section class="dashboard__charts">
+        <article class="chart-card chart-card--timeline">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">Linea del ciclo</span>
+              <h2>Semanas, avance y evaluaciones</h2>
+            </div>
+            <strong>{{ cycleProgressLabel }}</strong>
+          </div>
+
+          <div class="cycle-track">
+            <span class="cycle-track__fill" [style.width.%]="cycleProgressPercent"></span>
+          </div>
+
+          <div class="timeline-weeks">
+            @for (point of timelinePoints; track point.week) {
+              <div class="timeline-week" [class.timeline-week--past]="point.isPast" [class.timeline-week--current]="point.isCurrent" [class.timeline-week--active]="point.hasEvaluations">
+                <span>{{ point.week }}</span>
+                @if (point.hasEvaluations) {
+                  <strong>{{ point.evaluationCount }}</strong>
+                }
+              </div>
+            }
+          </div>
+        </article>
+
+        <article class="chart-card chart-card--bars">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">Carga academica</span>
+              <h2>Evaluaciones por semana</h2>
+            </div>
+          </div>
+
+          <div class="week-bars">
+            @for (point of weekLoad; track point.week) {
+              <div class="week-bar" [class.week-bar--current]="point.isCurrent">
+                <span class="week-bar__line" [style.height.%]="point.height"></span>
+                <small>{{ point.label }}</small>
+              </div>
+            }
+          </div>
+
+          <div class="heavy-weeks">
+            @for (week of heavyWeeks; track week.week) {
+              <span>Semana {{ week.week }}: {{ week.count }} eval.</span>
+            }
+          </div>
+        </article>
+      </section>
+
       <section class="metric-strip" aria-label="Resumen del periodo">
         <article class="metric-block metric-block--violet">
-          <span class="metric-block__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M4 7.5 12 4l8 3.5-8 3.5L4 7.5Z" />
-              <path d="M7 10.5v4.2c0 .5.28.96.73 1.18 1.4.7 2.85 1.12 4.27 1.12 1.42 0 2.87-.42 4.27-1.12.45-.22.73-.68.73-1.18v-4.2" />
-            </svg>
-          </span>
           <span class="metric-block__label">Cursos activos</span>
           <strong>{{ summary.cursosActivos }}</strong>
           <small>{{ configuredScheduleLabel }}</small>
         </article>
 
         <article class="metric-block metric-block--mint">
-          <span class="metric-block__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none">
-              <rect x="5" y="4" width="14" height="16" rx="3" />
-              <path d="M8 2.8v3.4M16 2.8v3.4M8 10h8M8 14h5" />
-            </svg>
-          </span>
           <span class="metric-block__label">Clases de hoy</span>
           <strong>{{ classesTodayCount }}</strong>
           <small>{{ todaySessions.length > 0 ? 'Agenda activa' : 'Sin bloques hoy' }}</small>
         </article>
 
         <article class="metric-block metric-block--warm">
-          <span class="metric-block__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M12 4 20 8.5v7L12 20l-8-4.5v-7L12 4Z" />
-              <path d="M12 8v4m0 3h.01" />
-            </svg>
-          </span>
-          <span class="metric-block__label">Pendientes criticos</span>
-          <strong>{{ summary.evaluacionesPendientes }}</strong>
-          <small>{{ dueSoonCount }} en 7 dias</small>
+          <span class="metric-block__label">Peso registrado</span>
+          <strong>{{ registeredWeightPercent }}%</strong>
+          <small>{{ registeredGradesCount }} notas guardadas</small>
         </article>
 
         <article class="metric-block metric-block--soft">
-          <span class="metric-block__icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24" fill="none">
-              <path d="M5 17.5 10.2 12.3l3.2 3.2L19 9.8" />
-              <path d="M14 9.8h5v5" />
-            </svg>
-          </span>
-          <span class="metric-block__label">Meta del ciclo</span>
-          <strong>{{ currentPeriod?.metaPromedioCiclo ?? '--' }}</strong>
-          <small>{{ cycleProgressLabel }}</small>
+          <span class="metric-block__label">Cursos en alerta</span>
+          <strong>{{ criticalCourseCount }}</strong>
+          <small>{{ dueSoonCount }} eval. en 7 dias</small>
         </article>
       </section>
 
       <section class="dashboard__content">
         <div class="dashboard__main">
+          <article class="risk-card">
+            <div class="section-heading">
+              <div>
+                <span class="eyebrow">Riesgo academico</span>
+                <h2>Estado por curso</h2>
+              </div>
+              <a class="inline-link" routerLink="/app/notas">Abrir notas</a>
+            </div>
+
+            <div class="risk-list">
+              @for (course of courseRiskCards; track course.id) {
+                <article class="risk-row" [class.risk-row--critical]="course.risk === 'critico'" [class.risk-row--attention]="course.risk === 'atencion'">
+                  <div class="risk-row__main">
+                    <span>{{ course.code }}</span>
+                    <strong>{{ course.name }}</strong>
+                    <small>{{ course.detail }}</small>
+                  </div>
+                  <div class="risk-row__score">
+                    <strong>{{ formatScore(course.accumulated) }}</strong>
+                    <span>{{ course.registeredWeight }}% registrado</span>
+                  </div>
+                  <div class="risk-row__need">
+                    <span>{{ riskLabel(course.risk) }}</span>
+                    <strong>{{ course.neededGrade == null ? '--' : formatScore(course.neededGrade) }}</strong>
+                    <small>nota necesaria</small>
+                  </div>
+                </article>
+              }
+            </div>
+          </article>
+
           <article class="evaluation-card">
             <div class="evaluation-card__copy">
               <p class="eyebrow">Proxima evaluacion</p>
@@ -116,12 +169,12 @@
                   <strong>{{ nextEvaluationDateLabel }}</strong>
                 </div>
                 <div class="evaluation-glance">
-                  <span class="evaluation-glance__label">Codigo</span>
-                  <strong>{{ nextEvaluation.evaluacionCodigo }}</strong>
+                  <span class="evaluation-glance__label">Semana</span>
+                  <strong>{{ nextEvaluationWeekLabel }}</strong>
                 </div>
                 <div class="evaluation-glance evaluation-glance--accent">
-                  <span class="evaluation-glance__label">Tipo</span>
-                  <strong>{{ nextEvaluationTypeLabel }}</strong>
+                  <span class="evaluation-glance__label">Peso</span>
+                  <strong>{{ nextEvaluationWeightLabel }}</strong>
                 </div>
               </div>
             }
@@ -171,34 +224,16 @@
 
             <div class="quick-actions">
               <a class="quick-action" routerLink="/app/notas">
-                <span class="quick-action__icon quick-action__icon--violet" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M8 6.5h8M8 11.5h8M8 16.5h5" />
-                    <path d="M6 4.5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-11a2 2 0 0 1 2-2Z" />
-                  </svg>
-                </span>
                 <strong>Registrar nota</strong>
                 <span class="quick-action__arrow" aria-hidden="true">›</span>
               </a>
 
               <a class="quick-action" routerLink="/app/recordatorios">
-                <span class="quick-action__icon quick-action__icon--warm" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M12 5.5a4 4 0 0 1 4 4v2.2c0 .47.16.92.46 1.28L18 15.5H6l1.54-2.52c.3-.36.46-.81.46-1.28V9.5a4 4 0 0 1 4-4Z" />
-                    <path d="M10 18a2 2 0 0 0 4 0" />
-                  </svg>
-                </span>
                 <strong>Nuevo recordatorio</strong>
                 <span class="quick-action__arrow" aria-hidden="true">›</span>
               </a>
 
               <a class="quick-action" routerLink="/app/cursos">
-                <span class="quick-action__icon quick-action__icon--blue" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" fill="none">
-                    <path d="M5 6.5A2.5 2.5 0 0 1 7.5 4H19v14H7.5A2.5 2.5 0 0 0 5 20.5V6.5Z" />
-                    <path d="M5 6.5A2.5 2.5 0 0 1 7.5 4H19v14H7.5A2.5 2.5 0 0 0 5 20.5m0-14v14" />
-                  </svg>
-                </span>
                 <strong>Ver cursos</strong>
                 <span class="quick-action__arrow" aria-hidden="true">›</span>
               </a>
