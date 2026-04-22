@@ -10,28 +10,28 @@
   @if (!isLoading && !loadError) {
     <section class="notes__frame">
       <header class="notes__hero">
-        <div class="hero__top">
-          <label class="search-field">
-            <input type="text" [value]="searchQuery" (input)="searchQuery = $any($event.target).value" placeholder="Buscar registros..." />
-          </label>
+        <div class="hero__copy">
+          <span>Centro de notas</span>
+          <h1>Registro y seguimiento academico</h1>
+          <p>Gestiona notas reales por evaluacion. Los acumulados usan el peso del silabo, no promedios simples.</p>
         </div>
 
         <section class="notes__overview">
           <article class="hero-metric">
-            <span class="hero-metric__eyebrow">Promedio actual</span>
-            <strong>{{ stats.average }}</strong>
-            <small>{{ pendingDueCount > 0 ? '+' + pendingDueCount + ' pendientes urgentes' : 'Sin alertas vencidas' }}</small>
+            <span class="hero-metric__eyebrow">{{ primaryMetricLabel }}</span>
+            <strong>{{ stats.accumulated }}</strong>
+            <small>{{ pendingDueCount > 0 ? pendingDueCount + ' evaluacion(es) vencidas sin nota' : 'Sin vencidas visibles' }}</small>
           </article>
 
           <article class="metric-card metric-card--soft">
-            <span>Mejor visible</span>
-            <strong>{{ stats.bestGrade }}</strong>
-            <small>{{ stats.graded }} evaluaciones registradas</small>
+            <span>Peso registrado</span>
+            <strong>{{ stats.registeredWeight }}</strong>
+            <small>{{ stats.graded }} de {{ stats.total }} evaluaciones con nota</small>
           </article>
 
           <article class="metric-card metric-card--soft">
-            <span>Cursos aprobando</span>
-            <strong>{{ stats.approvedCourses }}</strong>
+            <span>Cursos con alerta</span>
+            <strong>{{ stats.riskCourses }}</strong>
             <small>sobre {{ groupedEvaluations.length }} cursos visibles</small>
           </article>
         </section>
@@ -41,23 +41,26 @@
         <article class="progress-card">
           <div class="progress-card__header">
             <div>
-              <h2>Progreso visible</h2>
-              <p>Lectura sintetica del ritmo de notas registradas.</p>
-            </div>
-            <div class="progress-card__chips">
-              <span>Promedio</span>
-              <span>Esfuerzo</span>
+              <h2>Avance por curso</h2>
+              <p>Peso ya calificado y acumulado ponderado sobre 20.</p>
             </div>
           </div>
 
-          <div class="progress-track">
-            @for (point of monthlyProgress; track point.label) {
-              <div class="progress-point">
-                <div class="progress-point__line">
-                  <span [style.height.%]="point.value"></span>
+          <div class="course-progress-list">
+            @for (group of groupedEvaluations; track group.usuarioPeriodoCursoId) {
+              <article class="course-progress">
+                <div class="course-progress__copy">
+                  <strong>{{ group.nombreCurso }}</strong>
+                  <span>{{ group.codigoCurso }} - {{ group.registradas }}/{{ group.items.length }} notas</span>
                 </div>
-                <strong>{{ point.label }}</strong>
-              </div>
+                <div class="course-progress__meta">
+                  <strong>{{ group.acumulado }}</strong>
+                  <span>{{ group.progresoPeso }}%</span>
+                </div>
+                <div class="course-progress__bar">
+                  <span [style.width.%]="group.progresoPeso"></span>
+                </div>
+              </article>
             }
           </div>
         </article>
@@ -65,6 +68,7 @@
         <article class="alerts-card">
           <div class="alerts-card__header">
             <h2>Alertas criticas</h2>
+            <p>Riesgo calculado con fechas vencidas, peso pendiente y nota necesaria para llegar a 13.</p>
           </div>
 
           @if (alerts.length === 0) {
@@ -74,9 +78,9 @@
           @if (alerts.length > 0) {
             <div class="alerts-list">
               @for (alert of alerts; track alert.code) {
-                <article class="alert-item">
+                <article class="alert-item" [class.alert-item--critical]="alert.severity === 'critico'">
                   <strong>{{ alert.course }}</strong>
-                  <p>Promedio: {{ alert.average }}</p>
+                  <p>Acumulado: {{ alert.accumulated }}</p>
                   <span>{{ alert.detail }}</span>
                 </article>
               }
@@ -95,6 +99,16 @@
             }
           </select>
         </label>
+
+        <label class="field field--compact">
+          <span>Estado</span>
+          <select [(ngModel)]="selectedStatus">
+            <option value="all">Todas</option>
+            <option value="pending">Pendientes</option>
+            <option value="graded">Registradas</option>
+            <option value="due">Vencidas</option>
+          </select>
+        </label>
       </section>
 
       @if (groupedEvaluations.length === 0) {
@@ -104,15 +118,18 @@
       @if (groupedEvaluations.length > 0) {
         <section class="operations-panel">
           <div class="operations-panel__header">
-            <h2>Operaciones por curso</h2>
+            <div>
+              <h2>Registro por curso</h2>
+              <p>Se muestra la siguiente evaluacion accionable de cada curso.</p>
+            </div>
           </div>
 
           <div class="operations-table">
             <div class="operations-table__head">
               <span>Curso</span>
-              <span>Promedio actual</span>
+              <span>Acumulado</span>
               <span>Siguiente evaluacion</span>
-              <span>Registro rapido</span>
+              <span>Nota</span>
               <span>Accion</span>
             </div>
 
@@ -125,12 +142,13 @@
                   </div>
 
                   <div class="operation-row__average">
-                    <span>{{ group.promedio }}</span>
+                    <strong>{{ group.acumulado }}</strong>
+                    <span>{{ group.pesoRegistrado }}% registrado</span>
                   </div>
 
                   <div class="operation-row__next">
                     <strong>{{ currentItem.evaluacionCodigo }}</strong>
-                    <span>{{ weightLabel(currentItem) }} · {{ evaluationDateLabel(currentItem) }}</span>
+                    <span>{{ weightLabel(currentItem) }} - {{ evaluationDateLabel(currentItem) }}</span>
                   </div>
 
                   <div class="operation-row__input">

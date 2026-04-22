@@ -10,28 +10,28 @@ interface EvaluationGroup {
   cursoId: number;
   codigoCurso: string;
   nombreCurso: string;
-  promedio: string;
-  promedioValue: number | null;
+  acumulado: string;
+  acumuladoValue: number;
+  promedioRegistrado: string;
+  promedioRegistradoValue: number | null;
   registradas: number;
   pendientes: number;
+  vencidas: number;
   totalPeso: number;
+  pesoRegistrado: number;
+  pesoPendiente: number;
+  progresoPeso: number;
+  notaNecesaria: number | null;
+  riesgo: 'critico' | 'atencion' | 'estable';
+  riesgoDetalle: string;
   items: MyEvaluation[];
-}
-
-interface CourseMetric {
-  code: string;
-  average: number;
-}
-
-interface MonthlyProgressPoint {
-  label: string;
-  value: number;
 }
 
 interface AlertItem {
   code: string;
   course: string;
-  average: string;
+  severity: 'critico' | 'atencion';
+  accumulated: string;
   detail: string;
 }
 
@@ -48,7 +48,7 @@ export class NotesPage implements OnInit {
   loadError = '';
   evaluations: MyEvaluation[] = [];
   selectedCourseId = 'all';
-  searchQuery = '';
+  selectedStatus = 'all';
   draftGrades = new Map<string, string>();
   savingKeys = new Set<string>();
   feedbackByKey = new Map<string, { type: 'success' | 'error'; message: string }>();
@@ -58,19 +58,14 @@ export class NotesPage implements OnInit {
   }
 
   get filteredEvaluations(): MyEvaluation[] {
-    const query = this.searchQuery.trim().toLowerCase();
-
     return this.evaluations.filter((item) => {
       const matchesCourse = this.selectedCourseId === 'all' || `${item.usuarioPeriodoCursoId}` === this.selectedCourseId;
-      const matchesQuery = !query || [
-        item.codigoCurso,
-        item.nombreCurso,
-        item.evaluacionCodigo,
-        item.descripcion,
-        item.tipo
-      ].some((value) => value?.toLowerCase().includes(query));
+      const matchesStatus = this.selectedStatus === 'all'
+        || (this.selectedStatus === 'pending' && item.nota == null && !item.exonerado)
+        || (this.selectedStatus === 'graded' && item.nota != null)
+        || (this.selectedStatus === 'due' && this.isDue(item));
 
-      return matchesCourse && matchesQuery;
+      return matchesCourse && matchesStatus;
     });
   }
 
@@ -85,32 +80,49 @@ export class NotesPage implements OnInit {
 
     return [...groups.entries()]
       .map(([usuarioPeriodoCursoId, items]) => {
-        const grades = items
-          .map((item) => item.nota)
-          .filter((grade): grade is number => grade != null);
-
-        const promedioValue = grades.length === 0
-          ? null
-          : Number((grades.reduce((sum, grade) => sum + grade, 0) / grades.length).toFixed(1));
+        const sortedItems = items.slice().sort((left, right) => {
+          const leftDate = left.fechaEstimada ? new Date(left.fechaEstimada).getTime() : Number.MAX_SAFE_INTEGER;
+          const rightDate = right.fechaEstimada ? new Date(right.fechaEstimada).getTime() : Number.MAX_SAFE_INTEGER;
+          if (leftDate !== rightDate) {
+            return leftDate - rightDate;
+          }
+          return (left.semana ?? Number.MAX_SAFE_INTEGER) - (right.semana ?? Number.MAX_SAFE_INTEGER);
+        });
+        const totalPeso = items.reduce((sum, item) => sum + (item.porcentaje ?? 0), 0);
+        const pesoRegistrado = items
+          .filter((item) => item.nota != null)
+          .reduce((sum, item) => sum + (item.porcentaje ?? 0), 0);
+        const acumuladoValue = this.weightedAccumulated(items);
+        const promedioRegistradoValue = pesoRegistrado > 0
+          ? Number(((acumuladoValue * 100) / pesoRegistrado).toFixed(1))
+          : null;
+        const pesoPendiente = Math.max(0, totalPeso - pesoRegistrado);
+        const notaNecesaria = pesoPendiente > 0
+          ? Number((((13 - acumuladoValue) * 100) / pesoPendiente).toFixed(1))
+          : null;
+        const vencidas = items.filter((item) => this.isDue(item)).length;
+        const risk = this.resolveRisk(acumuladoValue, pesoPendiente, notaNecesaria, vencidas);
 
         return {
           usuarioPeriodoCursoId,
           cursoId: items[0].cursoId,
           codigoCurso: items[0].codigoCurso,
           nombreCurso: items[0].nombreCurso,
-          promedio: promedioValue == null ? '--' : promedioValue.toFixed(1),
-          promedioValue,
+          acumulado: this.formatScore(acumuladoValue),
+          acumuladoValue,
+          promedioRegistrado: promedioRegistradoValue == null ? '--' : this.formatScore(promedioRegistradoValue),
+          promedioRegistradoValue,
           registradas: items.filter((item) => item.nota != null).length,
           pendientes: items.filter((item) => item.nota == null && !item.exonerado).length,
-          totalPeso: items.reduce((sum, item) => sum + (item.porcentaje ?? 0), 0),
-          items: items.slice().sort((left, right) => {
-            const leftDate = left.fechaEstimada ? new Date(left.fechaEstimada).getTime() : Number.MAX_SAFE_INTEGER;
-            const rightDate = right.fechaEstimada ? new Date(right.fechaEstimada).getTime() : Number.MAX_SAFE_INTEGER;
-            if (leftDate !== rightDate) {
-              return leftDate - rightDate;
-            }
-            return (left.semana ?? Number.MAX_SAFE_INTEGER) - (right.semana ?? Number.MAX_SAFE_INTEGER);
-          })
+          vencidas,
+          totalPeso,
+          pesoRegistrado,
+          pesoPendiente,
+          progresoPeso: totalPeso > 0 ? Math.min(100, Math.round((pesoRegistrado / totalPeso) * 100)) : 0,
+          notaNecesaria,
+          riesgo: risk.riesgo,
+          riesgoDetalle: risk.detalle,
+          items: sortedItems
         };
       })
       .sort((left, right) => left.nombreCurso.localeCompare(right.nombreCurso));
@@ -129,17 +141,20 @@ export class NotesPage implements OnInit {
   }
 
   get stats() {
-    const grades = this.filteredEvaluations
-      .map((item) => item.nota)
-      .filter((grade): grade is number => grade != null);
+    const groups = this.groupedEvaluations;
+    const primaryValue = groups.length === 0
+      ? null
+      : groups.reduce((sum, group) => sum + group.acumuladoValue, 0) / groups.length;
+    const registeredWeight = groups.reduce((sum, group) => sum + group.pesoRegistrado, 0);
+    const totalWeight = groups.reduce((sum, group) => sum + group.totalPeso, 0);
 
     return {
       total: this.filteredEvaluations.length,
       pending: this.filteredEvaluations.filter((item) => item.nota == null && !item.exonerado).length,
       graded: this.filteredEvaluations.filter((item) => item.nota != null).length,
-      average: grades.length === 0 ? '--' : (grades.reduce((sum, grade) => sum + grade, 0) / grades.length).toFixed(1),
-      bestGrade: grades.length === 0 ? '--' : Math.max(...grades).toFixed(1),
-      approvedCourses: this.courseMetrics.filter((item) => item.average >= 13).length
+      accumulated: primaryValue == null ? '--' : this.formatScore(primaryValue),
+      registeredWeight: totalWeight === 0 ? '--' : `${Math.round((registeredWeight / totalWeight) * 100)}%`,
+      riskCourses: groups.filter((item) => item.riesgo !== 'estable').length
     };
   }
 
@@ -157,43 +172,21 @@ export class NotesPage implements OnInit {
     }).length;
   }
 
-  get courseMetrics(): CourseMetric[] {
-    return this.groupedEvaluations
-      .map((group) => {
-        if (group.promedioValue == null) {
-          return null;
-        }
-
-        return {
-          code: group.codigoCurso,
-          average: group.promedioValue
-        };
-      })
-      .filter((item): item is CourseMetric => item != null);
-  }
-
-  get visibleAverageValue(): number {
-    return this.stats.average === '--' ? 0 : Number(this.stats.average);
-  }
-
-  get monthlyProgress(): MonthlyProgressPoint[] {
-    const months = ['Mar', 'Abr', 'May', 'Jun', 'Jul'];
-    return months.map((label, index) => ({
-      label,
-      value: Math.max(20, (this.visibleAverageValue / 20) * 100 + (index * 6))
-    }));
-  }
-
   get alerts(): AlertItem[] {
     return this.groupedEvaluations
-      .filter((group) => group.promedioValue != null && group.promedioValue < 13)
+      .filter((group): group is EvaluationGroup & { riesgo: 'critico' | 'atencion' } => group.riesgo !== 'estable')
       .slice(0, 3)
       .map((group) => ({
         code: group.codigoCurso,
         course: group.nombreCurso,
-        average: group.promedio,
-        detail: group.pendientes > 0 ? 'Accion requerida' : 'Tendencia baja'
+        severity: group.riesgo,
+        accumulated: group.acumulado,
+        detail: group.riesgoDetalle
       }));
+  }
+
+  get primaryMetricLabel(): string {
+    return this.selectedCourseId === 'all' ? 'Acumulado medio' : 'Acumulado del curso';
   }
 
   draftValue(item: MyEvaluation): string {
@@ -331,5 +324,58 @@ export class NotesPage implements OnInit {
 
   private keyFor(item: MyEvaluation): string {
     return `${item.usuarioPeriodoCursoId}-${item.evaluacionCodigo}`;
+  }
+
+  private weightedAccumulated(items: MyEvaluation[]): number {
+    const total = items.reduce((sum, item) => {
+      if (item.nota == null || item.porcentaje == null) {
+        return sum;
+      }
+      return sum + (item.nota * item.porcentaje / 100);
+    }, 0);
+
+    return Number(total.toFixed(2));
+  }
+
+  private isDue(item: MyEvaluation): boolean {
+    if (item.nota != null || item.exonerado || !item.fechaEstimada) {
+      return false;
+    }
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const estimated = new Date(`${item.fechaEstimada}T00:00:00`);
+    return estimated.getTime() <= today.getTime();
+  }
+
+  private resolveRisk(
+    acumulado: number,
+    pesoPendiente: number,
+    notaNecesaria: number | null,
+    vencidas: number
+  ): { riesgo: EvaluationGroup['riesgo']; detalle: string } {
+    const maxPossible = acumulado + (pesoPendiente * 20 / 100);
+
+    if (maxPossible < 13) {
+      return { riesgo: 'critico', detalle: 'Ya no alcanza 13 incluso con notas maximas.' };
+    }
+
+    if (notaNecesaria != null && notaNecesaria > 18) {
+      return { riesgo: 'critico', detalle: `Necesita ${this.formatScore(notaNecesaria)} promedio en lo pendiente.` };
+    }
+
+    if (vencidas > 0) {
+      return { riesgo: 'atencion', detalle: `${vencidas} evaluacion${vencidas === 1 ? '' : 'es'} vencida${vencidas === 1 ? '' : 's'} sin nota.` };
+    }
+
+    if (notaNecesaria != null && notaNecesaria > 15) {
+      return { riesgo: 'atencion', detalle: `Debe promediar ${this.formatScore(notaNecesaria)} en lo pendiente.` };
+    }
+
+    return { riesgo: 'estable', detalle: 'Sin riesgo visible con las notas registradas.' };
+  }
+
+  private formatScore(value: number): string {
+    return value.toFixed(2).replace(/\.00$/, '').replace(/0$/, '');
   }
 }

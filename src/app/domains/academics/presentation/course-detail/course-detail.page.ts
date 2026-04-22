@@ -298,13 +298,14 @@ export class CourseDetailPage implements OnInit {
 
   evaluationSubtitle(item: MyEvaluation): string {
     const status = item.nota != null ? 'Finalizado' : 'Pendiente';
+    const week = item.semana != null ? `Semana ${item.semana}` : null;
 
     if (item.fechaEstimada) {
-      return `${status} - ${this.formatDateOnly(item.fechaEstimada)}`;
+      return [status, this.formatDateOnly(item.fechaEstimada), week].filter(Boolean).join(' - ');
     }
 
-    if (item.semana != null) {
-      return `${status} - Semana ${item.semana}`;
+    if (week) {
+      return `${status} - ${week}`;
     }
 
     return `${status} - Fecha no registrada`;
