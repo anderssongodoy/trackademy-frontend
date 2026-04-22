@@ -12,6 +12,7 @@ import {
   MyCurrentPeriod,
   MyDashboardSummary,
   MyEvaluation,
+  MyEvaluationsResponse,
   MyScheduleEntry,
   PersonalProfileUpdateRequest,
   PeriodConfigurationUpdateRequest,
@@ -74,6 +75,10 @@ export class MeUseCase {
   getMyEvaluations(cursoId?: number): Observable<MyEvaluation[]> {
     return this.api.getMyEvaluations(cursoId);
   }
+
+  getMyEvaluationsSummary(cursoId?: number): Observable<MyEvaluationsResponse> {
+    return this.api.getMyEvaluationsSummary(cursoId);
+  }
 }
 
 export type {
@@ -86,6 +91,7 @@ export type {
   MyCurrentPeriod,
   MyDashboardSummary,
   MyEvaluation,
+  MyEvaluationsResponse,
   MyScheduleEntry,
   PersonalProfileUpdateRequest,
   PeriodConfigurationUpdateRequest,

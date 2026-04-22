@@ -12,7 +12,7 @@ import {
   CatalogCourseUnit,
   CatalogUseCase
 } from '../../application/catalog-use-case';
-import { MeUseCase, MyCourse, MyEvaluation, MyScheduleEntry } from '../../application/me-use-case';
+import { MeUseCase, MyCourse, MyEvaluation, MyEvaluationsResponse, MyScheduleEntry } from '../../application/me-use-case';
 import { APP_ENV } from '../../../identity/infrastructure/config/app-environment.token';
 
 @Component({
@@ -37,6 +37,7 @@ export class CourseDetailPage implements OnInit {
   course: MyCourse | null = null;
   catalogCourse: CatalogCourse | null = null;
   evaluations: MyEvaluation[] = [];
+  evaluationsSummary: MyEvaluationsResponse | null = null;
   scheduleEntries: MyScheduleEntry[] = [];
   courseDetail: CatalogCourseDetail | null = null;
   isLoading = true;
@@ -69,14 +70,15 @@ export class CourseDetailPage implements OnInit {
         this.patchMetadataForm(currentCourse);
 
         forkJoin({
-          evaluations: this.meUseCase.getMyEvaluations(currentCourse.cursoId),
+          evaluationsSummary: this.meUseCase.getMyEvaluationsSummary(currentCourse.cursoId),
           schedules: this.meUseCase.getMySchedule(),
           catalogCourse: this.catalogUseCase.getCourseByCode(currentCourse.codigo).pipe(
             catchError(() => of(null))
           )
         }).subscribe({
-          next: ({ evaluations, schedules, catalogCourse }) => {
-            this.evaluations = evaluations
+          next: ({ evaluationsSummary, schedules, catalogCourse }) => {
+            this.evaluationsSummary = evaluationsSummary;
+            this.evaluations = evaluationsSummary.evaluaciones
               .slice()
               .sort((left, right) => this.evaluationSortValue(left) - this.evaluationSortValue(right));
             this.catalogCourse = catalogCourse;
@@ -130,16 +132,11 @@ export class CourseDetailPage implements OnInit {
   }
 
   get averageGradeLabel(): string {
-    const grades = this.evaluations
-      .map((item) => item.nota)
-      .filter((grade): grade is number => grade != null);
-
-    if (grades.length === 0) {
+    if (!this.evaluationsSummary || this.evaluationsSummary.evaluacionesRegistradas === 0) {
       return '--';
     }
 
-    const total = grades.reduce((sum, grade) => sum + grade, 0);
-    return (total / grades.length).toFixed(1);
+    return this.evaluationsSummary.promedioAcumulado.toFixed(2).replace(/\.00$/, '');
   }
 
   get progressPercent(): number {
@@ -296,7 +293,7 @@ export class CourseDetailPage implements OnInit {
   }
 
   scheduleLocationLabel(entry: MyScheduleEntry): string {
-    return entry.ubicacion?.trim() || entry.urlVirtual?.trim() || 'Ubicacion no registrada';
+    return entry.ubicacion?.trim() || entry.urlVirtual?.trim() || entry.campusNombre?.trim() || 'Ubicacion no registrada';
   }
 
   evaluationSubtitle(item: MyEvaluation): string {

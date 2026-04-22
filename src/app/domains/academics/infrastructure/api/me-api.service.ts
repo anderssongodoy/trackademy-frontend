@@ -1,6 +1,6 @@
 ﻿import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, map } from 'rxjs';
 
 import { APP_ENV } from '../../../identity/infrastructure/config/app-environment.token';
 
@@ -12,6 +12,7 @@ export interface MyCurrentPeriod {
   usuarioPeriodoId: number;
   periodoId: number;
   campusId: number;
+  campusNombre: string | null;
   carreraId: number;
   cicloActual: number;
   onboardingEstado: string;
@@ -50,6 +51,8 @@ export interface MyScheduleEntry {
   cursoId: number;
   codigo: string;
   nombre: string;
+  campusId: number | null;
+  campusNombre: string | null;
   modalidad: string;
   bloqueNro: number;
   diaSemana: number | null;
@@ -79,6 +82,14 @@ export interface MyEvaluation {
   esRezagado: boolean | null;
   observacion: string | null;
   comentarios: string | null;
+}
+
+export interface MyEvaluationsResponse {
+  promedioAcumulado: number;
+  porcentajeEvaluado: number;
+  evaluacionesRegistradas: number;
+  evaluacionesPendientes: number;
+  evaluaciones: MyEvaluation[];
 }
 
 export interface MyCalendarEvent {
@@ -224,12 +235,18 @@ export class MeApiService {
   }
 
   getMyEvaluations(cursoId?: number): Observable<MyEvaluation[]> {
+    return this.getMyEvaluationsSummary(cursoId).pipe(
+      map((response) => response.evaluaciones)
+    );
+  }
+
+  getMyEvaluationsSummary(cursoId?: number): Observable<MyEvaluationsResponse> {
     if (cursoId) {
-      return this.http.get<MyEvaluation[]>(`${this.env.apiBaseUrl}/api/v1/me/evaluaciones`, {
+      return this.http.get<MyEvaluationsResponse>(`${this.env.apiBaseUrl}/api/v1/me/evaluaciones`, {
         params: { cursoId: cursoId.toString() }
       });
     }
 
-    return this.http.get<MyEvaluation[]>(`${this.env.apiBaseUrl}/api/v1/me/evaluaciones`);
+    return this.http.get<MyEvaluationsResponse>(`${this.env.apiBaseUrl}/api/v1/me/evaluaciones`);
   }
 }
