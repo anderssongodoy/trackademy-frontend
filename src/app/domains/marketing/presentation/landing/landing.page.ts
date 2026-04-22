@@ -10,15 +10,10 @@ interface LandingFeature {
   eyebrow: string;
 }
 
-interface LandingBenefit {
+interface WorkflowStep {
+  index: string;
   title: string;
   description: string;
-}
-
-interface LandingArchitectureCard {
-  title: string;
-  description: string;
-  metric: string;
 }
 
 @Component({
@@ -34,68 +29,61 @@ export class LandingPage implements OnInit {
 
   readonly features: LandingFeature[] = [
     {
-      eyebrow: 'Control contextual',
-      title: 'Centraliza tu operación académica',
-      description: 'Convierte cursos, horario, notas y recordatorios en una sola lectura operativa del ciclo.'
+      eyebrow: 'Cursos',
+      title: 'Tu carga academica clara',
+      description: 'Selecciona los cursos del periodo y revisa creditos, horas, modalidad y ciclo referencial sin mezclar todo.'
     },
     {
-      eyebrow: 'Seguimiento honesto',
-      title: 'Toma mejores decisiones',
-      description: 'Registra solo lo que ya existe y entiende qué ajustar antes de que el periodo te arrastre.'
+      eyebrow: 'Horario',
+      title: 'Bloques visibles por dia',
+      description: 'Consulta tus clases por dia y detecta que cursos aun necesitan horario configurado.'
     },
     {
-      eyebrow: 'Integración real',
-      title: 'MVP de ingeniería integrada',
-      description: 'El producto une onboarding, estructura de cursos y dashboards sin duplicar pasos ni contexto.'
+      eyebrow: 'Silabos',
+      title: 'Detalle real del curso',
+      description: 'Accede a sumilla, unidades, evaluaciones y descarga del PDF del silabo cuando el backend lo tenga disponible.'
+    },
+    {
+      eyebrow: 'Notas',
+      title: 'Registro sin hojas sueltas',
+      description: 'Guarda notas por evaluacion y ve el acumulado segun el peso registrado, sin confundir una nota con promedio final.'
+    },
+    {
+      eyebrow: 'Dashboard',
+      title: 'Resumen accionable',
+      description: 'Ve proximas evaluaciones, horario del dia, avance del ciclo y cursos que requieren atencion.'
+    },
+    {
+      eyebrow: 'Perfil',
+      title: 'Contexto personal del periodo',
+      description: 'Mantiene campus, periodo actual, meta de promedio y objetivos basicos para que las pantallas tengan contexto.'
     }
   ];
 
-  readonly benefits: LandingBenefit[] = [
+  readonly workflow: WorkflowStep[] = [
     {
-      title: 'Dominio del ciclo',
-      description: 'Todo el periodo en un solo sistema de lectura.'
+      index: '01',
+      title: 'Configura tu periodo',
+      description: 'Trackademy calcula el periodo actual por fechas y registra tu campus, carrera, ciclo y meta.'
     },
     {
-      title: 'Configuración útil',
-      description: 'Onboarding, cursos y horario listos desde el inicio.'
+      index: '02',
+      title: 'Marca tus cursos',
+      description: 'Filtra por ciclo, busca cursos y arma la carga con la que vas a trabajar durante el semestre.'
     },
     {
-      title: 'Contexto accionable',
-      description: 'Notas, tareas y calendario conectados.'
+      index: '03',
+      title: 'Haz seguimiento',
+      description: 'Usa dashboard, notas, horario y detalle de curso para saber que viene y que falta registrar.'
     }
   ];
 
-  readonly architectureCards: LandingArchitectureCard[] = [
-    {
-      title: 'Cursos',
-      description: 'Cada curso aterriza sílabo, estructura y evaluaciones sin perder el contexto del periodo.',
-      metric: '8 módulos'
-    },
-    {
-      title: 'Tareas',
-      description: 'Entregables, laboratorios y pendientes priorizados para que sepas qué cerrar primero.',
-      metric: 'Prioridad viva'
-    },
-    {
-      title: 'Notas',
-      description: 'Un registro rápido y una lectura honesta del rendimiento actual, sin inventar analítica vacía.',
-      metric: '17.8 objetivo'
-    }
-  ];
-
-  readonly previewColumns = [
-    {
-      label: 'Curso',
-      values: ['Arquitectura de Software', 'Base de Datos II', 'Seminario de Tesis I']
-    },
-    {
-      label: 'Estado',
-      values: ['En curso', 'Pendiente crítica', 'Documentación']
-    },
-    {
-      label: 'Ritmo',
-      values: ['85%', '72%', '61%']
-    }
+  readonly proofPoints = [
+    'Cursos desde catalogo',
+    'Horario desde tu periodo',
+    'Evaluaciones desde silabo y notas',
+    'PDF de silabo solo si existe',
+    'Periodo actual segun fechas'
   ];
 
   ngOnInit(): void {

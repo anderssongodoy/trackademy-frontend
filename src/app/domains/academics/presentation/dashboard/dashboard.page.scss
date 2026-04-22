@@ -15,7 +15,6 @@
 
 .dashboard__hero,
 .dashboard__charts,
-.metric-strip,
 .dashboard__content,
 .evaluation-card,
 .evaluation-card__actions,
@@ -40,7 +39,6 @@
 .hero__copy,
 .hero__focus,
 .chart-card,
-.metric-block,
 .risk-card,
 .evaluation-card,
 .schedule-card,
@@ -49,16 +47,18 @@
 }
 
 .hero__copy {
-  flex: 1 1 auto;
+  flex: 1 1 58%;
   display: grid;
   gap: 12px;
   min-width: 0;
 }
 
 .hero__focus {
-  width: min(310px, 100%);
+  flex: 1 1 42%;
+  width: auto;
+  min-width: 500px;
   display: grid;
-  gap: 12px;
+  gap: 14px;
   align-content: start;
   background:
     linear-gradient(160deg, rgba(255, 255, 255, 0.94), rgba(245, 239, 255, 0.86));
@@ -83,7 +83,7 @@
 
 h1 {
   @include ui.title-display(2.2rem, 4.2vw, 3.7rem, 0.94);
-  max-width: 16ch;
+  max-width: 13ch;
 }
 
 .hero__summary,
@@ -104,7 +104,6 @@ h1 {
 
 .hero__focus span,
 .eyebrow,
-.metric-block__label,
 .evaluation-glance__label,
 .schedule-row__time span,
 .schedule-row__tag,
@@ -125,8 +124,92 @@ h1 {
 
 .hero__focus strong {
   font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.45rem;
+  font-size: 1.2rem;
   line-height: 1.08;
+}
+
+.hero-schedule__head {
+  display: flex;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: start;
+}
+
+.hero-schedule__head div {
+  display: grid;
+  gap: 6px;
+}
+
+.hero-schedule__head a {
+  color: var(--brand-primary);
+  font-size: 0.9rem;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.hero-schedule__empty {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.hero-schedule__list {
+  display: grid;
+  gap: 8px;
+  max-height: 236px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.hero-schedule__item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: minmax(74px, 92px) minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+  padding: 13px 16px;
+  border-radius: 18px;
+  background: rgba(241, 244, 248, 0.95);
+}
+
+.hero-schedule__item--active {
+  color: #fff;
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-container));
+  box-shadow: 0 16px 32px rgba(83, 0, 183, 0.18);
+}
+
+.hero-schedule__item time {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 1.08rem;
+  font-weight: 800;
+  line-height: 1.05;
+}
+
+.hero-schedule__item div {
+  min-width: 0;
+}
+
+.hero-schedule__item strong,
+.hero-schedule__item span {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.hero-schedule__item strong {
+  max-width: 100%;
+  color: inherit;
+}
+
+.hero-schedule__item span {
+  margin-top: 4px;
+  color: inherit;
+  font-size: 0.82rem;
+  opacity: 0.72;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .btn {
@@ -143,7 +226,7 @@ h1 {
 
 .dashboard__charts {
   display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(360px, 0.85fr);
+  grid-template-columns: minmax(360px, 0.78fr) minmax(0, 1.22fr);
 }
 
 .chart-card {
@@ -166,6 +249,130 @@ h1 {
   white-space: nowrap;
 }
 
+.coverage-chart {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  gap: 24px;
+  align-items: center;
+}
+
+.coverage-donut {
+  width: 220px;
+  height: 220px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(20, 20, 35, 0.04);
+}
+
+.coverage-donut > div {
+  width: 142px;
+  height: 142px;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 6px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.coverage-donut strong {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 2.8rem;
+  line-height: 0.9;
+  color: var(--brand-primary);
+}
+
+.coverage-donut span,
+.coverage-copy span,
+.week-focus span,
+.week-focus small {
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+}
+
+.coverage-copy {
+  display: grid;
+  gap: 12px;
+}
+
+.coverage-copy article {
+  display: grid;
+  gap: 5px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: rgba(247, 248, 251, 0.96);
+}
+
+.coverage-copy strong {
+  color: var(--text-primary);
+  line-height: 1.25;
+}
+
+.week-focus-list {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.week-focus {
+  min-height: 132px;
+  display: grid;
+  gap: 10px;
+  align-content: start;
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(247, 248, 251, 0.96);
+  box-shadow: inset 0 0 0 1px rgba(20, 20, 35, 0.04);
+}
+
+.week-focus--current {
+  color: #fff;
+  background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-container));
+  box-shadow: 0 16px 32px rgba(83, 0, 183, 0.18);
+}
+
+.week-focus--current span,
+.week-focus--current small {
+  color: rgba(255, 255, 255, 0.74);
+}
+
+.week-focus--empty {
+  opacity: 0.72;
+}
+
+.week-focus strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 1.05rem;
+  line-height: 1.2;
+}
+
+.week-focus__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.week-focus__items em {
+  padding: 5px 8px;
+  border-radius: 999px;
+  background: rgba(83, 0, 183, 0.1);
+  color: var(--brand-primary);
+  font-size: 0.78rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.week-focus--current .week-focus__items em {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.chart-card--timeline {
+  gap: 18px;
+}
+
 .cycle-track {
   height: 12px;
   overflow: hidden;
@@ -182,123 +389,43 @@ h1 {
 
 .timeline-weeks {
   display: grid;
-  grid-template-columns: repeat(18, minmax(28px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 10px;
 }
 
 .timeline-week {
-  min-height: 52px;
+  min-height: 92px;
   display: grid;
-  place-items: center;
-  gap: 4px;
-  border-radius: 14px;
+  gap: 8px;
+  align-content: center;
+  padding: 14px;
+  border-radius: 18px;
   background: rgba(241, 244, 248, 0.9);
   color: var(--text-secondary);
-  font-size: 0.82rem;
-  font-weight: 800;
 }
 
 .timeline-week--past {
   background: rgba(83, 0, 183, 0.08);
-  color: var(--brand-primary);
 }
 
 .timeline-week--current {
   color: #fff;
   background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-container));
-  box-shadow: 0 14px 30px rgba(83, 0, 183, 0.2);
+  box-shadow: 0 14px 30px rgba(83, 0, 183, 0.18);
+}
+
+.timeline-week span {
+  font-weight: 800;
+  color: inherit;
 }
 
 .timeline-week strong {
-  width: 20px;
-  height: 20px;
-  display: grid;
-  place-items: center;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.7);
   color: var(--brand-primary);
-  font-size: 0.72rem;
 }
 
-.week-bars {
-  min-height: 240px;
-  display: grid;
-  grid-template-columns: repeat(18, minmax(16px, 1fr));
-  gap: 8px;
-  align-items: end;
-}
-
-.week-bar {
-  height: 220px;
-  display: grid;
-  grid-template-rows: 1fr auto;
-  gap: 8px;
-  justify-items: center;
-  align-items: end;
-}
-
-.week-bar__line {
-  width: 100%;
-  min-height: 8px;
-  border-radius: 999px 999px 6px 6px;
-  background: linear-gradient(180deg, var(--brand-primary-container), var(--brand-primary));
-  opacity: 0.9;
-}
-
-.week-bar--current .week-bar__line {
-  background: linear-gradient(180deg, #ffb86b, #c76a00);
-}
-
-.week-bar small {
-  color: var(--text-secondary);
-  font-size: 0.68rem;
-  font-weight: 700;
-}
-
-.heavy-weeks {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.heavy-weeks span {
-  @include ui.chip-base();
-  background: var(--surface-container-high);
-  color: var(--text-secondary);
-}
-
-.metric-strip {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-}
-
-.metric-block {
-  display: grid;
-  gap: 8px;
-  background: rgba(255, 255, 255, 0.96);
-}
-
-.metric-block--violet {
-  background: linear-gradient(135deg, rgba(108, 43, 217, 0.14), rgba(255, 255, 255, 0.98));
-}
-
-.metric-block--mint {
-  background: linear-gradient(135deg, rgba(17, 185, 129, 0.14), rgba(255, 255, 255, 0.98));
-}
-
-.metric-block--warm {
-  background: linear-gradient(135deg, rgba(249, 115, 22, 0.16), rgba(255, 255, 255, 0.98));
-}
-
-.metric-block--soft {
-  background: linear-gradient(135deg, rgba(93, 106, 255, 0.14), rgba(255, 255, 255, 0.98));
-}
-
-.metric-block strong {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(2rem, 4vw, 2.7rem);
-  line-height: 0.92;
-  color: var(--brand-primary);
+.timeline-week--current strong,
+.timeline-week--current small {
+  color: rgba(255, 255, 255, 0.86);
 }
 
 .dashboard__content {
@@ -576,6 +703,7 @@ h1 {
 
   .dashboard__rail,
   .hero__focus {
+    min-width: 0;
     width: 100%;
   }
 }

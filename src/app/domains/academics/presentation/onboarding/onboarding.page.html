@@ -5,16 +5,19 @@
       <span class="onboarding__brand-text">Trackademy</span>
     </a>
 
-    <div class="onboarding__progress">
-      <span>{{ currentStepLabel }}</span>
-      <div class="onboarding__progress-bar">
-        <span [style.width.%]="progressPercent"></span>
+    <div class="onboarding__actions">
+      <button type="button" class="onboarding__signout" (click)="signOut()">Cerrar sesion</button>
+      <div class="onboarding__progress">
+        <span>{{ currentStepLabel }}</span>
+        <div class="onboarding__progress-bar">
+          <span [style.width.%]="progressPercent"></span>
+        </div>
       </div>
     </div>
   </header>
 
   @if (isLoading) {
-    <div class="state state--loading">Cargando catálogos...</div>
+    <div class="state state--loading">Cargando catalogos...</div>
   }
 
   @if (loadingError) {
@@ -29,7 +32,7 @@
           <div class="step-rail">
             @for (step of stepCards; track step.index) {
               <article class="step-rail__item" [class.step-rail__item--active]="step.active" [class.step-rail__item--done]="step.done">
-                <span class="step-rail__dot">{{ step.done ? '✓' : step.index }}</span>
+                <span class="step-rail__dot">{{ step.index }}</span>
                 <div>
                   <strong>{{ step.title }}</strong>
                   <p>{{ step.subtitle }}</p>
@@ -39,20 +42,43 @@
           </div>
         </div>
 
-        <div class="rail-card rail-card--metric">
-          <p class="rail-card__label">Proyección académica</p>
-          <strong>{{ projectedGpa }}</strong>
-          <p>Basado en tu meta actual y las horas de estudio estimadas para este ciclo.</p>
-        </div>
+        @if (currentStep === 2) {
+          <div class="rail-card rail-card--selected">
+            <p class="rail-card__label">Carga elegida</p>
+            <div class="selected-total selected-total--compact">
+              <strong>{{ selectedCourseIds.size }}</strong>
+              <span>cursos</span>
+            </div>
+            <div class="selected-stats selected-stats--compact">
+              <span>{{ selectedCredits }} creditos</span>
+              <span>{{ selectedWeeklyHours }} h/sem</span>
+            </div>
+
+            @if (selectedCourses.length > 0) {
+              <div class="selected-rail-list">
+                @for (course of selectedCourses.slice(0, 7); track course.id) {
+                  <article class="selected-rail-item">
+                    <strong>{{ course.codigo }}</strong>
+                    <span>{{ course.nombre }}</span>
+                  </article>
+                }
+              </div>
+              @if (selectedCourses.length > 7) {
+                <p class="support-note support-note--compact">+{{ selectedCourses.length - 7 }} cursos mas seleccionados.</p>
+              }
+            } @else {
+              <p class="support-empty support-empty--compact">Aun no marcaste cursos.</p>
+            }
+          </div>
+        }
       </aside>
 
       <section class="onboarding__center">
         <div class="hero">
           <div>
-            <h1>Bienvenido al ciclo 2024-1</h1>
-            <p>Configura tu perfil académico para empezar a trackear tu semestre con contexto real.</p>
+            <h1>{{ onboardingTitle }}</h1>
+            <p>Configura tu perfil academico para empezar a trackear tu semestre con contexto real.</p>
           </div>
-          <button type="button" class="ghost-btn ghost-btn--danger" (click)="signOut()">Cerrar sesión</button>
         </div>
 
         <form class="setup-card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
@@ -60,7 +86,7 @@
             <div class="setup-card__header">
               <div>
                 <p class="section-kicker">Datos base</p>
-                <h2>Información inicial del ciclo</h2>
+                <h2>Informacion inicial del ciclo</h2>
               </div>
             </div>
 
@@ -80,7 +106,7 @@
 
               <label>
                 <span class="label-text">Nombre preferido</span>
-                <input type="text" formControlName="nombrePreferido" placeholder="Cómo te llamamos" />
+                <input type="text" formControlName="nombrePreferido" placeholder="Como te llamamos" />
               </label>
 
               <label>
@@ -111,25 +137,22 @@
                 @if (getControlError('carreraId')) {
                   <span class="field-error">{{ getControlError('carreraId') }}</span>
                 } @else if (fixedCareer) {
-                  <span class="field-note">Carrera fija para esta configuración inicial.</span>
+                  <span class="field-note">Carrera fija para esta configuracion inicial.</span>
                 }
               </label>
 
               <label>
                 <span class="label-text">Periodo actual</span>
-                <select formControlName="periodoId" [class.field-invalid]="getControlError('periodoId')">
-                  <option [ngValue]="null">Selecciona periodo</option>
-                  @for (period of periods; track period.id) {
-                    <option [ngValue]="period.id">{{ period.etiqueta }}</option>
-                  }
-                </select>
+                <input type="text" [value]="selectedPeriodLabel" readonly />
                 @if (getControlError('periodoId')) {
                   <span class="field-error">{{ getControlError('periodoId') }}</span>
+                } @else {
+                  <span class="field-note">Calculado automaticamente por fecha de inicio y fin.</span>
                 }
               </label>
 
               <label>
-                <span class="label-text">Ciclo académico</span>
+                <span class="label-text">Ciclo academico</span>
                 <input
                   type="number"
                   formControlName="cicloActual"
@@ -142,15 +165,18 @@
                 }
               </label>
 
-              <label class="grid__full">
-                <span class="label-text">Meta de promedio ponderado</span>
+              <label class="grid__full score-target">
+                <span class="score-target__head">
+                  <span class="label-text">Meta de promedio ponderado</span>
+                  <strong>{{ targetScoreDisplay }} / 20</strong>
+                </span>
                 <input
-                  type="number"
+                  type="range"
                   formControlName="metaPromedioCiclo"
                   min="0"
                   max="20"
                   step="0.1"
-                  [class.field-invalid]="getControlError('metaPromedioCiclo')"
+                  [style.--score-progress]="scoreProgress"
                 />
                 @if (getControlError('metaPromedioCiclo')) {
                   <span class="field-error">{{ getControlError('metaPromedioCiclo') }}</span>
@@ -190,7 +216,7 @@
           @if (currentStep === 2) {
             <div class="setup-card__header">
               <div>
-                <p class="section-kicker">Carga académica</p>
+                <p class="section-kicker">Carga academica</p>
                 <h2>Cursos seleccionados para este periodo</h2>
               </div>
               <div class="course-meta">{{ filteredCourses.length }} visibles</div>
@@ -203,7 +229,7 @@
                   type="text"
                   [value]="courseQuery"
                   (input)="onCourseQueryChange($any($event.target).value)"
-                  placeholder="Código o nombre"
+                  placeholder="Codigo o nombre"
                 />
               </label>
 
@@ -216,6 +242,29 @@
                 <span>Solo seleccionados</span>
               </label>
             </div>
+
+            @if (availableCourseCycles.length > 0) {
+              <div class="cycle-filter" aria-label="Filtrar cursos por ciclo">
+                @for (cycle of availableCourseCycles; track cycle) {
+                  <button
+                    type="button"
+                    class="cycle-filter__item"
+                    [class.cycle-filter__item--active]="courseCycleFilter === cycle"
+                    (click)="selectCourseCycleFilter(cycle)"
+                  >
+                    Ciclo {{ cycle }}
+                  </button>
+                }
+                <button
+                  type="button"
+                  class="cycle-filter__item"
+                  [class.cycle-filter__item--active]="courseCycleFilter === null"
+                  (click)="selectCourseCycleFilter(null)"
+                >
+                  Todos
+                </button>
+              </div>
+            }
 
             @if (!form.get('carreraId')?.value) {
               <div class="empty">Selecciona una carrera para ver los cursos.</div>
@@ -240,8 +289,17 @@
                         (change)="toggleCourse(course, $any($event.target).checked)"
                       />
                       <div class="course-item__info">
-                        <span class="course-item__code">{{ course.codigo }}</span>
+                        <div class="course-item__topline">
+                          <span class="course-item__code">{{ course.codigo }}</span>
+                          @if (selectedCourseIds.has(course.id)) {
+                            <span class="course-item__selected">Seleccionado</span>
+                          }
+                        </div>
                         <span class="course-item__name">{{ course.nombre }}</span>
+                        <span class="course-item__meta">{{ course.creditos }} creditos academicos</span>
+                        <span class="course-item__detail">
+                          {{ course.modalidad }} - {{ course.horasSemanales }} h/sem - Ciclo {{ course.cicloReferencial ?? '-' }}
+                        </span>
                       </div>
                     </label>
                   }
@@ -263,7 +321,7 @@
               <button type="button" class="ghost-btn action-btn" (click)="nextStep()">Siguiente paso</button>
             }
             @if (currentStep === 2) {
-              <button type="button" class="ghost-btn action-btn" (click)="prevStep()">Atrás</button>
+              <button type="button" class="ghost-btn action-btn" (click)="prevStep()">Atras</button>
               <button type="submit" class="primary-btn action-btn action-btn--primary" [disabled]="isSubmitting">
                 {{ isSubmitting ? 'Guardando...' : 'Guardar onboarding' }}
               </button>
@@ -273,82 +331,28 @@
       </section>
 
       <aside class="onboarding__support">
-        <div class="support-card support-card--upload">
-          <label class="upload-zone">
-            <input type="file" accept="application/pdf" (change)="onPdfSelected($event)" [disabled]="isUploadingPdf" />
-            <span class="upload-zone__icon">◫</span>
-            <strong>Arrastra aquí tu PDF de matrícula</strong>
-            <p>Detectaremos campus, cursos y datos automáticos cuando el documento lo permita.</p>
-            <span class="upload-zone__link">o buscar un archivo</span>
-          </label>
+        <div class="support-card support-card--manual">
+          <p class="support-card__label">Configuracion manual</p>
+          <h3>Base del ciclo</h3>
+          <p>Completa los datos base y luego marca los cursos que vas a llevar en este periodo.</p>
 
-          @if (selectedPdfName) {
-            <p class="upload-meta">{{ selectedPdfName }}</p>
-          }
-          @if (isUploadingPdf) {
-            <p class="upload-meta">Leyendo y detectando cursos...</p>
-          }
-          @if (pdfSuccess) {
-            <p class="upload-meta upload-meta--success">{{ pdfSuccess }}</p>
-          }
-          @if (pdfError) {
-            <div class="state state--error state--inline">{{ pdfError }}</div>
-          }
-          @if (pdfWarnings.length > 0) {
-            <div class="warning-list">
-              @for (warning of pdfWarnings; track warning) {
-                <div class="warning-list__item">{{ warning }}</div>
-              }
+          <div class="summary-grid">
+            <div class="summary-grid__item">
+              <span>Campus</span>
+              <strong>{{ selectedCampusLabel }}</strong>
             </div>
-          }
-        </div>
-
-        <div class="support-card">
-          <p class="support-card__label">Cursos detectados ({{ pdfDetectedCourses.length }})</p>
-          @if (pdfDetectedCourses.length > 0) {
-            <div class="detected-list">
-              @for (course of pdfDetectedCourses; track course.cursoId) {
-                <div class="detected-list__item">
-                  <strong>{{ course.codigo }}</strong>
-                  <span>{{ course.nombre }}</span>
-                </div>
-              }
+            <div class="summary-grid__item">
+              <span>Periodo</span>
+              <strong>{{ selectedPeriodLabel }}</strong>
             </div>
-          } @else {
-            <div class="support-empty">
-              Sube tu matrícula para previsualizar tus cursos aquí.
+            <div class="summary-grid__item">
+              <span>Ciclo</span>
+              <strong>{{ selectedCycleLabel }}</strong>
             </div>
-          }
-        </div>
-
-        @if (pdfDetectedSummary.length > 0) {
-          <div class="support-card">
-            <p class="support-card__label">Lectura preliminar</p>
-            <div class="summary-grid">
-              @for (item of pdfDetectedSummary; track item.label) {
-                <div class="summary-grid__item">
-                  <span>{{ item.label }}</span>
-                  <strong>{{ item.value }}</strong>
-                </div>
-              }
+            <div class="summary-grid__item">
+              <span>Meta</span>
+              <strong>{{ targetScoreDisplay }} / 20</strong>
             </div>
-          </div>
-        } @else {
-          <div class="support-card support-card--visual">
-            <div class="support-card__photo"></div>
-            <p>Organiza tu vida académica con la precisión de un arquitecto de sistemas.</p>
-          </div>
-        }
-
-        <div class="support-card">
-          <p class="support-card__label">Checklist rápido</p>
-          <div class="checklist">
-            @for (item of checklistItems; track item.label) {
-              <div class="checklist__item" [class.checklist__item--done]="item.done">
-                <span class="checklist__icon">{{ item.done ? '✓' : '•' }}</span>
-                <span>{{ item.label }}</span>
-              </div>
-            }
           </div>
         </div>
       </aside>

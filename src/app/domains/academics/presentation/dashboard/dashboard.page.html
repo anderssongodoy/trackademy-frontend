@@ -22,90 +22,123 @@
         </div>
 
         <div class="hero__focus">
-          <span>Foco del dashboard</span>
-          <strong>{{ dashboardHeadline }}</strong>
-          <a class="btn btn--primary" [routerLink]="criticalCourseCount > 0 ? '/app/notas' : '/app/horario'">
-            {{ criticalCourseCount > 0 ? 'Revisar notas' : 'Ver horario' }}
-          </a>
+          <div class="hero-schedule__head">
+            <div>
+              <span>Horario del dia</span>
+              <strong>{{ classesTodayCount > 0 ? classesTodayCount + ' bloque' + (classesTodayCount === 1 ? '' : 's') + ' hoy' : 'Sin bloques hoy' }}</strong>
+            </div>
+            <a routerLink="/app/horario">Ver semana</a>
+          </div>
+
+          @if (todaySessions.length === 0) {
+            <p class="hero-schedule__empty">Configura tus bloques para activar esta vista.</p>
+          }
+
+          @if (todaySessions.length > 0) {
+            <div class="hero-schedule__list">
+              @for (item of todaySessions.slice(0, 4); track item.inicio + '-' + item.titulo) {
+                <article class="hero-schedule__item" [class.hero-schedule__item--active]="$index === 0">
+                  <time>{{ scheduleTimeLabel(item) }}</time>
+                  <div>
+                    <strong>{{ item.titulo }}</strong>
+                    <span>{{ scheduleRowMeta(item) || scheduleRowTag(item) }}</span>
+                  </div>
+                </article>
+              }
+            </div>
+          }
         </div>
       </header>
 
       <section class="dashboard__charts">
-        <article class="chart-card chart-card--timeline">
+        <article class="chart-card chart-card--coverage">
           <div class="section-heading">
             <div>
-              <span class="eyebrow">Linea del ciclo</span>
-              <h2>Semanas, avance y evaluaciones</h2>
+              <span class="eyebrow">Cobertura de notas</span>
+              <h2>Cuanto del ciclo ya tiene nota real</h2>
             </div>
-            <strong>{{ cycleProgressLabel }}</strong>
           </div>
 
-          <div class="cycle-track">
-            <span class="cycle-track__fill" [style.width.%]="cycleProgressPercent"></span>
+          <div class="coverage-chart">
+            <div class="coverage-donut" [style.background]="gradeCoverageBackground">
+              <div>
+                <strong>{{ registeredWeightPercent }}%</strong>
+                <span>peso registrado</span>
+              </div>
+            </div>
+            <div class="coverage-copy">
+              <article>
+                <span>Registrado</span>
+                <strong>{{ registeredGradesCount }} notas</strong>
+              </article>
+              <article>
+                <span>Pendiente</span>
+                <strong>{{ pendingWeightPercent }}% del peso</strong>
+              </article>
+              <article>
+                <span>Siguiente</span>
+                <strong>{{ nextEvaluationSummary }}</strong>
+              </article>
+            </div>
+          </div>
+        </article>
+
+        <article class="chart-card chart-card--weeks">
+          <div class="section-heading">
+            <div>
+              <span class="eyebrow">Carga proxima</span>
+              <h2>Las siguientes 6 semanas</h2>
+            </div>
           </div>
 
-          <div class="timeline-weeks">
-            @for (point of timelinePoints; track point.week) {
-              <div class="timeline-week" [class.timeline-week--past]="point.isPast" [class.timeline-week--current]="point.isCurrent" [class.timeline-week--active]="point.hasEvaluations">
-                <span>{{ point.week }}</span>
-                @if (point.hasEvaluations) {
-                  <strong>{{ point.evaluationCount }}</strong>
+          <div class="week-focus-list">
+            @for (week of weekFocusCards; track week.week) {
+              <article class="week-focus" [class.week-focus--current]="week.isCurrent" [class.week-focus--empty]="week.count === 0">
+                <div>
+                  <span>{{ week.title }}</span>
+                  <strong>{{ week.count === 0 ? 'Sin evaluaciones' : week.count + ' evaluacion' + (week.count === 1 ? '' : 'es') }}</strong>
+                </div>
+                <small>{{ week.weight }}% de peso</small>
+                @if (week.evaluations.length > 0) {
+                  <div class="week-focus__items">
+                    @for (item of week.evaluations.slice(0, 3); track item.usuarioPeriodoCursoId + '-' + item.evaluacionCodigo) {
+                      <em>{{ compactEvaluationName(item) }}</em>
+                    }
+                  </div>
                 }
-              </div>
+              </article>
             }
           </div>
         </article>
+      </section>
 
-        <article class="chart-card chart-card--bars">
-          <div class="section-heading">
-            <div>
-              <span class="eyebrow">Carga academica</span>
-              <h2>Evaluaciones por semana</h2>
+      <article class="chart-card chart-card--timeline">
+        <div class="section-heading">
+          <div>
+            <span class="eyebrow">Linea del ciclo</span>
+            <h2>Estas en semana {{ summary.semanaActual ?? '--' }}</h2>
+            <p>{{ cycleProgressLabel }}</p>
+          </div>
+          <strong>{{ cycleProgressPercent }}%</strong>
+        </div>
+
+        <div class="cycle-track">
+          <span class="cycle-track__fill" [style.width.%]="cycleProgressPercent"></span>
+        </div>
+
+        <div class="timeline-weeks">
+          @for (point of timelinePoints; track point.week) {
+            <div class="timeline-week" [class.timeline-week--past]="point.isPast" [class.timeline-week--current]="point.isCurrent" [class.timeline-week--active]="point.hasEvaluations">
+              <span>Semana {{ point.week }}</span>
+              @if (point.hasEvaluations) {
+                <strong>{{ point.evaluationCount }} eval.</strong>
+              } @else {
+                <small>Sin carga</small>
+              }
             </div>
-          </div>
-
-          <div class="week-bars">
-            @for (point of weekLoad; track point.week) {
-              <div class="week-bar" [class.week-bar--current]="point.isCurrent">
-                <span class="week-bar__line" [style.height.%]="point.height"></span>
-                <small>{{ point.label }}</small>
-              </div>
-            }
-          </div>
-
-          <div class="heavy-weeks">
-            @for (week of heavyWeeks; track week.week) {
-              <span>Semana {{ week.week }}: {{ week.count }} eval.</span>
-            }
-          </div>
-        </article>
-      </section>
-
-      <section class="metric-strip" aria-label="Resumen del periodo">
-        <article class="metric-block metric-block--violet">
-          <span class="metric-block__label">Cursos activos</span>
-          <strong>{{ summary.cursosActivos }}</strong>
-          <small>{{ configuredScheduleLabel }}</small>
-        </article>
-
-        <article class="metric-block metric-block--mint">
-          <span class="metric-block__label">Clases de hoy</span>
-          <strong>{{ classesTodayCount }}</strong>
-          <small>{{ todaySessions.length > 0 ? 'Agenda activa' : 'Sin bloques hoy' }}</small>
-        </article>
-
-        <article class="metric-block metric-block--warm">
-          <span class="metric-block__label">Peso registrado</span>
-          <strong>{{ registeredWeightPercent }}%</strong>
-          <small>{{ registeredGradesCount }} notas guardadas</small>
-        </article>
-
-        <article class="metric-block metric-block--soft">
-          <span class="metric-block__label">Cursos en alerta</span>
-          <strong>{{ criticalCourseCount }}</strong>
-          <small>{{ dueSoonCount }} eval. en 7 dias</small>
-        </article>
-      </section>
+          }
+        </div>
+      </article>
 
       <section class="dashboard__content">
         <div class="dashboard__main">
@@ -140,78 +173,6 @@
             </div>
           </article>
 
-          <article class="evaluation-card">
-            <div class="evaluation-card__copy">
-              <p class="eyebrow">Proxima evaluacion</p>
-
-              @if (!nextEvaluation) {
-                <div class="empty-card">No hay una evaluacion con fecha calculada para destacar todavia.</div>
-              }
-
-              @if (nextEvaluation) {
-                <h2>{{ nextEvaluation.nombreCurso }}</h2>
-                <p class="evaluation-card__title">{{ nextEvaluation.evaluacionCodigo }}</p>
-                <p class="evaluation-card__description">
-                  {{ nextEvaluation.descripcion || nextEvaluation.tipo || 'Evaluacion academica programada en tu periodo actual.' }}
-                </p>
-
-                <div class="evaluation-card__actions">
-                  <a class="btn btn--primary" [routerLink]="['/app/cursos', nextEvaluation.usuarioPeriodoCursoId]">Ver curso</a>
-                  <a class="btn btn--ghost" routerLink="/app/notas">Registrar nota</a>
-                </div>
-              }
-            </div>
-
-            @if (nextEvaluation) {
-              <div class="evaluation-card__aside">
-                <div class="evaluation-glance">
-                  <span class="evaluation-glance__label">Fecha</span>
-                  <strong>{{ nextEvaluationDateLabel }}</strong>
-                </div>
-                <div class="evaluation-glance">
-                  <span class="evaluation-glance__label">Semana</span>
-                  <strong>{{ nextEvaluationWeekLabel }}</strong>
-                </div>
-                <div class="evaluation-glance evaluation-glance--accent">
-                  <span class="evaluation-glance__label">Peso</span>
-                  <strong>{{ nextEvaluationWeightLabel }}</strong>
-                </div>
-              </div>
-            }
-          </article>
-
-          <article class="schedule-card">
-            <div class="section-heading">
-              <div>
-                <h3>{{ scheduleHeading }}</h3>
-                <p>{{ scheduleSummary }}</p>
-              </div>
-              <a class="inline-link" routerLink="/app/horario">Ver semana completa</a>
-            </div>
-
-            @if (todaySessions.length === 0) {
-              <div class="empty-card">Todavia no hay sesiones en agenda. Configura tus bloques para activar esta vista.</div>
-            }
-
-            @if (todaySessions.length > 0) {
-              <div class="schedule-list">
-                @for (item of todaySessions; track item.inicio + '-' + item.titulo) {
-                  <article class="schedule-row" [class.schedule-row--accent]="$index === 0">
-                    <div class="schedule-row__time">
-                      <strong>{{ scheduleTimeLabel(item) }}</strong>
-                      <em>{{ scheduleTimeRangeLabel(item) }}</em>
-                      <span>{{ scheduleDateLabel(item) }}</span>
-                    </div>
-                    <div class="schedule-row__content">
-                      <h4>{{ item.titulo }}</h4>
-                      <p>{{ scheduleRowMeta(item) || 'Sesion academica programada' }}</p>
-                    </div>
-                    <span class="schedule-row__tag">{{ scheduleRowTag(item) }}</span>
-                  </article>
-                }
-              </div>
-            }
-          </article>
         </div>
 
         <aside class="dashboard__rail">

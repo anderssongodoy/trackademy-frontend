@@ -206,7 +206,7 @@ h1 {
 }
 
 .profile__side {
-  width: min(340px, 100%);
+  width: min(420px, 100%);
 }
 
 .panel,
@@ -287,49 +287,55 @@ h1 {
 .goals-strip {
   @include ui.layer-card(20px, 24px);
   display: grid;
-  align-content: start;
-  gap: 18px;
+  gap: 0;
+  min-height: 0;
+  background:
+    radial-gradient(circle at top right, rgba(83, 0, 183, 0.08), transparent 30%),
+    rgba(255, 255, 255, 0.98);
 }
 
 .goals-strip__copy {
-  display: grid;
-  gap: 6px;
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.goals-strip__copy h2,
+.goals-strip__hint {
+  margin: 0;
+}
+
+.goals-strip__hint {
+  grid-column: 1 / -1;
+  color: var(--text-secondary);
 }
 
 .goals-inline {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-}
-
-.goals-inline__action {
-  grid-column: 1 / -1;
+  gap: 20px 10px;
 }
 
 .goal-inline {
-  @include ui.soft-panel(14px, 16px);
+  padding: 14px 16px;
+  border-radius: 18px;
   display: grid;
-  gap: 8px;
+  gap: 10px;
+  background: #f3f4f7;
+  box-shadow: none;
 }
 
 .goal-inline__value {
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 6px;
 }
 
-.goal-inline__value input {
-  min-height: 0;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  box-shadow: none;
-  font: 700 1.45rem 'Space Grotesk', sans-serif;
-  color: var(--text-primary);
-}
-
-.goals-inline__action .btn {
-  width: 100%;
+.goal-inline__value small {
+  color: var(--text-secondary);
+  font-weight: 700;
 }
 
 .panel--wide {
@@ -368,6 +374,22 @@ h1 {
 .field select:focus,
 .goal-inline input:focus {
   @include ui.input-focus();
+}
+
+.goal-inline .goal-inline__value input {
+  width: 3.5ch;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  font: 700 1.9rem 'Space Grotesk', sans-serif;
+  color: var(--text-primary);
+}
+
+.goal-inline .goal-inline__value input:focus {
+  outline: 0;
+  box-shadow: 0 2px 0 var(--brand-primary);
 }
 
 .progress-card {

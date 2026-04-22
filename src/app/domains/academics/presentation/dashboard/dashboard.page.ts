@@ -38,6 +38,15 @@ interface WeekLoadPoint {
   isCurrent: boolean;
 }
 
+interface WeekFocusCard {
+  week: number;
+  title: string;
+  count: number;
+  weight: number;
+  evaluations: MyEvaluation[];
+  isCurrent: boolean;
+}
+
 interface CourseRiskCard {
   id: number;
   code: string;
@@ -160,6 +169,15 @@ export class DashboardPage implements OnInit {
       return 0;
     }
     return Math.min(100, Math.round((this.registeredEvaluationWeight / this.totalEvaluationWeight) * 100));
+  }
+
+  get pendingWeightPercent(): number {
+    return Math.max(0, 100 - this.registeredWeightPercent);
+  }
+
+  get gradeCoverageBackground(): string {
+    const value = this.registeredWeightPercent;
+    return `conic-gradient(var(--brand-primary) 0 ${value}%, #e7eaf0 ${value}% 100%)`;
   }
 
   get hasRegisteredGrades(): boolean {
@@ -343,13 +361,6 @@ export class DashboardPage implements OnInit {
     }));
   }
 
-  get heavyWeeks(): WeekLoadPoint[] {
-    return this.weekLoad
-      .filter((item) => item.count > 0)
-      .sort((left, right) => right.count - left.count || right.weight - left.weight)
-      .slice(0, 3);
-  }
-
   get timelinePoints(): TimelinePoint[] {
     const currentWeek = this.summary?.semanaActual ?? 0;
     return this.weekLoad.map((item) => ({
@@ -359,6 +370,33 @@ export class DashboardPage implements OnInit {
       hasEvaluations: item.count > 0,
       evaluationCount: item.count
     }));
+  }
+
+  get weekFocusCards(): WeekFocusCard[] {
+    const current = Math.max(this.summary?.semanaActual ?? 1, 1);
+    return Array.from({ length: 6 }, (_, index) => {
+      const week = current + index;
+      const evaluations = this.evaluations
+        .filter((item) => item.semana === week)
+        .sort((left, right) => (left.fechaEstimada || '').localeCompare(right.fechaEstimada || ''));
+
+      return {
+        week,
+        title: index === 0 ? 'Esta semana' : `Semana ${week}`,
+        count: evaluations.length,
+        weight: evaluations.reduce((sum, item) => sum + (item.porcentaje ?? 0), 0),
+        evaluations,
+        isCurrent: index === 0
+      };
+    });
+  }
+
+  get nextEvaluationSummary(): string {
+    if (!this.nextEvaluation) {
+      return 'Sin evaluaciones proximas con fecha.';
+    }
+
+    return `${this.nextEvaluation.evaluacionCodigo} en semana ${this.nextEvaluation.semana ?? '--'} - ${this.nextEvaluationDateLabel}`;
   }
 
   get courseRiskCards(): CourseRiskCard[] {
@@ -513,6 +551,10 @@ export class DashboardPage implements OnInit {
       return '--';
     }
     return value.toFixed(2).replace(/\.00$/, '').replace(/0$/, '');
+  }
+
+  compactEvaluationName(item: MyEvaluation): string {
+    return item.evaluacionCodigo || item.tipo || 'Eval.';
   }
 
   get calendarMonthLabel(): string {

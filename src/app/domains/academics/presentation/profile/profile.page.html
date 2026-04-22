@@ -107,13 +107,19 @@
           </article>
 
           <article class="goals-strip">
-            <div class="goals-strip__copy">
-              <span class="side-card__eyebrow">Objetivos del semestre</span>
-              <h2>Metas del ciclo</h2>
-              <p>Ajusta las dos metas que se usan como referencia en el dashboard.</p>
-            </div>
-
             <form class="goals-inline" [formGroup]="goalsForm" (ngSubmit)="saveGoals()">
+              <div class="goals-strip__copy">
+                <div>
+                  <span class="side-card__eyebrow">Objetivos del semestre</span>
+                  <h2>Metas del ciclo</h2>
+                </div>
+                <button class="text-action" type="submit" [disabled]="isSavingGoals">
+                  {{ isSavingGoals ? 'Guardando...' : 'Guardar objetivos' }}
+                </button>
+              </div>
+
+              <p class="goals-strip__hint">Define tu promedio objetivo y el ritmo semanal de estudio.</p>
+
               <label class="goal-inline">
                 <span>Meta promedio</span>
                 <div class="goal-inline__value">
@@ -129,12 +135,6 @@
                   <small>h</small>
                 </div>
               </label>
-
-              <div class="goals-inline__action">
-                <button class="btn btn--primary" type="submit" [disabled]="isSavingGoals">
-                  {{ isSavingGoals ? 'Guardando...' : 'Guardar objetivos' }}
-                </button>
-              </div>
             </form>
 
             @if (goalsError) {

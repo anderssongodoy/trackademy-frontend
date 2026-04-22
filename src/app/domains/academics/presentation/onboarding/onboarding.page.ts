@@ -2,7 +2,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { firstValueFrom, forkJoin } from 'rxjs';
+import { forkJoin } from 'rxjs';
 
 import {
   CatalogUseCase,
@@ -13,7 +13,7 @@ import {
 } from '../../application/catalog-use-case';
 import { AuthUseCase } from '../../../identity/application/auth-use-case';
 import { apiErrorMessage } from '../../../identity/infrastructure/http/api-error.interceptor';
-import { OnboardingPdfPreviewResponse, OnboardingUseCase } from '../../application/onboarding-use-case';
+import { OnboardingUseCase } from '../../application/onboarding-use-case';
 
 interface CourseDetailForm {
   seccion: string;
@@ -71,28 +71,7 @@ export class OnboardingPage implements OnInit {
   isCourseLoading = false;
   courseError = '';
   showSelectedOnly = false;
-  selectedPdfName = '';
-  isUploadingPdf = false;
-  pdfError = '';
-  pdfSuccess = '';
-  pdfWarnings: string[] = [];
-  pdfDetectedCourses: Array<{
-    cursoId: number;
-    codigo: string;
-    nombre: string;
-    profesor: string | null;
-    seccion: string | null;
-    modalidad: string | null;
-    horarios: Array<{
-      diaSemana?: number | null;
-      horaInicio?: string | null;
-      horaFin?: string | null;
-      tipoSesion?: string | null;
-      ubicacion?: string | null;
-      urlVirtual?: string | null;
-    }>;
-  }> = [];
-  pdfDetectedSummary: Array<{ label: string; value: string }> = [];
+  courseCycleFilter: number | null = null;
 
   currentStep = 1;
 
@@ -126,6 +105,7 @@ export class OnboardingPage implements OnInit {
         this.periods = periods;
         this.bindCareerChanges();
         this.selectDefaultCareer();
+        this.selectCurrentPeriod();
         this.isLoading = false;
       },
       error: () => {
@@ -164,6 +144,21 @@ export class OnboardingPage implements OnInit {
     this.form.patchValue({ carreraId: defaultCareer.id });
   }
 
+  private selectCurrentPeriod(): void {
+    if (this.form.get('periodoId')?.value) {
+      return;
+    }
+
+    const today = this.formatDateOnly(new Date());
+    const currentPeriod = this.periods.find((period) =>
+      period.fechaInicio <= today && today <= period.fechaFin
+    );
+
+    if (currentPeriod) {
+      this.form.patchValue({ periodoId: currentPeriod.id });
+    }
+  }
+
   onCourseQueryChange(value: string): void {
     this.courseQuery = value;
     this.applyCourseFilter();
@@ -171,6 +166,11 @@ export class OnboardingPage implements OnInit {
 
   toggleShowSelected(value: boolean): void {
     this.showSelectedOnly = value;
+    this.applyCourseFilter();
+  }
+
+  selectCourseCycleFilter(cycle: number | null): void {
+    this.courseCycleFilter = cycle;
     this.applyCourseFilter();
   }
 
@@ -182,25 +182,14 @@ export class OnboardingPage implements OnInit {
     return this.courses.filter((course) => this.selectedCourseIds.has(course.id));
   }
 
-  get checklistItems(): Array<{ label: string; done: boolean }> {
-    return [
-      {
-        label: 'PDF revisado',
-        done: this.pdfDetectedCourses.length > 0
-      },
-      {
-        label: 'Campus listo',
-        done: !!this.form.get('campusId')?.value
-      },
-      {
-        label: 'Periodo listo',
-        done: !!this.form.get('periodoId')?.value
-      },
-      {
-        label: 'Cursos marcados',
-        done: this.selectedCourseIds.size > 0
-      }
-    ];
+  get availableCourseCycles(): number[] {
+    return Array.from(
+      new Set(
+        this.courses
+          .map((course) => course.cicloReferencial)
+          .filter((cycle): cycle is number => typeof cycle === 'number')
+      )
+    ).sort((first, second) => first - second);
   }
 
   get stepCards(): Array<{ index: number; title: string; subtitle: string; done: boolean; active: boolean }> {
@@ -218,13 +207,6 @@ export class OnboardingPage implements OnInit {
         subtitle: 'Previsualiza tu carga lectiva',
         done: this.selectedCourseIds.size > 0,
         active: this.currentStep === 2
-      },
-      {
-        index: 3,
-        title: 'Documentación',
-        subtitle: 'Verificación por PDF',
-        done: this.pdfDetectedCourses.length > 0 || this.pdfDetectedSummary.length > 0,
-        active: false
       }
     ];
   }
@@ -237,11 +219,43 @@ export class OnboardingPage implements OnInit {
     return this.currentStep === 2 ? 100 : 50;
   }
 
-  get projectedGpa(): string {
+  get targetScoreDisplay(): string {
     const target = Number(this.form.get('metaPromedioCiclo')?.value ?? 0);
-    const hours = Number(this.form.get('horasEstudioSemanaObjetivo')?.value ?? 0);
-    const projected = Math.min(20, target + Math.max(0, hours - 8) * 0.04);
-    return projected.toFixed(1);
+    return target.toFixed(1).replace('.0', '');
+  }
+
+  get scoreProgress(): number {
+    const target = Number(this.form.get('metaPromedioCiclo')?.value ?? 0);
+    return Math.max(0, Math.min(100, (target / 20) * 100));
+  }
+
+  get selectedCredits(): number {
+    return this.selectedCourses.reduce((total, course) => total + Number(course.creditos ?? 0), 0);
+  }
+
+  get selectedWeeklyHours(): number {
+    return this.selectedCourses.reduce((total, course) => total + Number(course.horasSemanales ?? 0), 0);
+  }
+
+  get selectedCampusLabel(): string {
+    const campusId = this.form.get('campusId')?.value;
+    return this.campuses.find((campus) => campus.id === campusId)?.nombre ?? 'Pendiente';
+  }
+
+  get selectedPeriodLabel(): string {
+    const periodoId = this.form.get('periodoId')?.value;
+    return this.periods.find((period) => period.id === periodoId)?.etiqueta ?? 'Pendiente';
+  }
+
+  get selectedCycleLabel(): string {
+    const ciclo = this.form.get('cicloActual')?.value;
+    return ciclo ? `Ciclo ${ciclo}` : 'Pendiente';
+  }
+
+  get onboardingTitle(): string {
+    return this.selectedPeriodLabel === 'Pendiente'
+      ? 'Bienvenido a Trackademy'
+      : `Bienvenido al periodo ${this.selectedPeriodLabel}`;
   }
 
   isStudyHourPreset(value: number): boolean {
@@ -258,6 +272,7 @@ export class OnboardingPage implements OnInit {
     const cachedCourses = this.courseCache.get(carreraId);
     if (cachedCourses) {
       this.courses = cachedCourses;
+      this.applyDefaultCourseCycle();
       this.applyCourseFilter();
       return;
     }
@@ -269,6 +284,7 @@ export class OnboardingPage implements OnInit {
       next: (courses) => {
         this.courseCache.set(carreraId, courses);
         this.courses = courses;
+        this.applyDefaultCourseCycle();
         this.applyCourseFilter();
         this.isCourseLoading = false;
       },
@@ -279,187 +295,33 @@ export class OnboardingPage implements OnInit {
     });
   }
 
-  async onPdfSelected(event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement | null;
-    const file = input?.files?.[0];
-    if (!file) {
-      return;
-    }
-
-    this.selectedPdfName = file.name;
-    this.isUploadingPdf = true;
-    this.pdfError = '';
-    this.pdfSuccess = '';
-    this.pdfWarnings = [];
-
-    this.onboardingUseCase.previewEnrollmentPdf(file).subscribe({
-      next: async (preview) => {
-        try {
-          await this.applyPdfPreview(preview);
-          this.pdfSuccess = this.buildPdfSuccessMessage(preview);
-        } catch {
-          this.pdfError = 'Leimos el PDF, pero no pudimos aplicar las sugerencias en el formulario.';
-        } finally {
-          this.isUploadingPdf = false;
-          if (input) {
-            input.value = '';
-          }
-        }
-      },
-      error: (error) => {
-        this.pdfError = apiErrorMessage(
-          error,
-          'No pudimos leer este PDF de matricula. Intenta con otro archivo o completa el onboarding manual.'
-        );
-        this.isUploadingPdf = false;
-        if (input) {
-          input.value = '';
-        }
-      }
-    });
-  }
-
-  private async applyPdfPreview(preview: OnboardingPdfPreviewResponse): Promise<void> {
-    this.pdfWarnings = preview.advertencias ?? [];
-    this.pdfDetectedCourses = preview.cursosDetectados ?? [];
-    this.pdfDetectedSummary = this.buildPdfDetectedSummary(preview);
-
-    if (preview.nombreCompleto) {
-      this.form.get('nombre')?.setValue(preview.nombreCompleto);
-      this.form.get('nombre')?.markAsDirty();
-      this.form.get('nombre')?.updateValueAndValidity();
-    }
-
-    if (preview.emailInstitucional) {
-      this.form.get('emailInstitucional')?.setValue(preview.emailInstitucional);
-      this.form.get('emailInstitucional')?.markAsDirty();
-      this.form.get('emailInstitucional')?.updateValueAndValidity();
-    }
-
-    if (preview.campusId) {
-      this.form.get('campusId')?.setValue(preview.campusId);
-    }
-
-    if (preview.periodoId) {
-      this.form.get('periodoId')?.setValue(preview.periodoId);
-    }
-
-    if (preview.cicloActual) {
-      this.form.get('cicloActual')?.setValue(preview.cicloActual);
-    }
-
-    const carreraId = this.fixedCareer?.id ?? preview.carreraId ?? this.form.get('carreraId')?.value ?? null;
-    if (!carreraId) {
-      return;
-    }
-
-    if (this.form.get('carreraId')?.value !== carreraId) {
-      this.form.patchValue({ carreraId });
-    }
-
-    await this.ensureCoursesLoaded(carreraId);
-    this.applyDetectedCourses(preview.cursosDetectados ?? []);
-  }
-
-  private async ensureCoursesLoaded(carreraId: number): Promise<void> {
-    const cachedCourses = this.courseCache.get(carreraId);
-    if (cachedCourses) {
-      this.courses = cachedCourses;
-      this.applyCourseFilter();
-      return;
-    }
-
-    this.isCourseLoading = true;
-    this.courseError = '';
-
-    try {
-      const courses = await firstValueFrom(this.catalogUseCase.getCourses(carreraId, undefined, 256, 0));
-      this.courseCache.set(carreraId, courses);
-      this.courses = courses;
-      this.applyCourseFilter();
-    } finally {
-      this.isCourseLoading = false;
-    }
-  }
-
-  private applyDetectedCourses(courses: Array<{
-    cursoId: number;
-    profesor: string | null;
-    seccion: string | null;
-    modalidad: string | null;
-    horarios: Array<{
-      diaSemana?: number | null;
-      horaInicio?: string | null;
-      horaFin?: string | null;
-      tipoSesion?: string | null;
-      ubicacion?: string | null;
-      urlVirtual?: string | null;
-    }>;
-  }>): void {
-    this.resetCourseSelection();
-    const availableCourseIds = new Set(this.courses.map((course) => course.id));
-
-    for (const detectedCourse of courses) {
-      if (!availableCourseIds.has(detectedCourse.cursoId)) {
-        continue;
-      }
-      const course = this.courses.find((item) => item.id === detectedCourse.cursoId);
-      if (course) {
-        this.toggleCourse(course, true);
-        const detailControl = this.courseDetailForm.get(`${course.id}`);
-        detailControl?.patchValue({
-          seccion: detectedCourse.seccion ?? '',
-          profesor: detectedCourse.profesor ?? '',
-          modalidad: detectedCourse.modalidad ?? course.modalidad ?? '',
-          horarios: detectedCourse.horarios ?? []
-        });
-      }
-    }
-  }
-
-  private buildPdfSuccessMessage(preview: OnboardingPdfPreviewResponse): string {
-    const detectedCourses = preview.cursosDetectados?.length ?? 0;
-    const pieces = [
-      preview.campusNombre ? `campus ${preview.campusNombre}` : null,
-      preview.periodoEtiqueta ? `periodo ${preview.periodoEtiqueta}` : null,
-      preview.cicloActual ? `ciclo ${preview.cicloActual}` : null
-    ].filter(Boolean);
-
-    const base = pieces.length > 0
-      ? `Detectamos ${pieces.join(', ')}`
-      : 'Leimos el PDF y aplicamos las sugerencias disponibles';
-
-    return detectedCourses > 0
-      ? `${base}. Tambien marcamos ${detectedCourses} cursos.`
-      : `${base}.`;
-  }
-
-  private buildPdfDetectedSummary(preview: OnboardingPdfPreviewResponse): Array<{ label: string; value: string }> {
-    return [
-      preview.nombreCompleto ? { label: 'Nombre', value: preview.nombreCompleto } : null,
-      preview.emailInstitucional ? { label: 'Correo', value: preview.emailInstitucional } : null,
-      preview.periodoEtiqueta ? { label: 'Periodo', value: preview.periodoEtiqueta } : null,
-      preview.campusTexto ? { label: 'Campus leído', value: preview.campusTexto } : null,
-      preview.codigoAlumno ? { label: 'Código alumno', value: preview.codigoAlumno } : null
-    ].filter((item): item is { label: string; value: string } => !!item);
-  }
-
   private applyCourseFilter(): void {
     const normalizedQuery = this.normalizeSearchText(this.courseQuery);
     const baseCourses = this.showSelectedOnly
       ? this.courses.filter((course) => this.selectedCourseIds.has(course.id))
       : this.courses;
 
-    if (!normalizedQuery) {
-      this.filteredCourses = baseCourses;
-      return;
-    }
-
     this.filteredCourses = baseCourses.filter((course) => {
+      if (this.courseCycleFilter && course.cicloReferencial !== this.courseCycleFilter) {
+        return false;
+      }
+      if (!normalizedQuery) {
+        return true;
+      }
       const code = this.normalizeSearchText(course.codigo);
       const name = this.normalizeSearchText(course.nombre);
       return code.includes(normalizedQuery) || name.includes(normalizedQuery);
     });
+  }
+
+  private applyDefaultCourseCycle(): void {
+    if (this.courseCycleFilter) {
+      return;
+    }
+
+    const currentCycle = Number(this.form.get('cicloActual')?.value ?? 0);
+    const availableCycles = new Set(this.courses.map((course) => course.cicloReferencial));
+    this.courseCycleFilter = availableCycles.has(currentCycle) ? currentCycle : null;
   }
 
   private normalizeSearchText(value: string | null | undefined): string {
@@ -469,6 +331,13 @@ export class OnboardingPage implements OnInit {
       .toLowerCase()
       .replace(/\s+/g, ' ')
       .trim();
+  }
+
+  private formatDateOnly(date: Date): string {
+    const year = date.getFullYear();
+    const month = `${date.getMonth() + 1}`.padStart(2, '0');
+    const day = `${date.getDate()}`.padStart(2, '0');
+    return `${year}-${month}-${day}`;
   }
 
   toggleCourse(course: CatalogCourse, enabled: boolean): void {
@@ -630,7 +499,7 @@ export class OnboardingPage implements OnInit {
   }
 
   async signOut(): Promise<void> {
-    await this.authUseCase.signOut();
-    await this.router.navigate(['/auth/sign-in']);
+    this.authUseCase.clearLocalSession();
+    await this.router.navigateByUrl('/auth/sign-in');
   }
 }
