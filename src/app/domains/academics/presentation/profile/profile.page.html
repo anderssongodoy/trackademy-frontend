@@ -49,30 +49,51 @@
 
       <section class="profile__grid">
         <div class="profile__main">
-          <article class="panel">
-            <div class="panel__header">
-              <div>
-                <h2>Informacion general</h2>
-                <p>Actualiza como te mostramos y tu identidad institucional.</p>
+          <article class="panel panel--info">
+            <form class="profile-form profile-form--compact" [formGroup]="personalForm" (ngSubmit)="savePersonal()">
+              <div class="profile-form__header">
+                <div class="profile-form__title">
+                  <span class="profile-form__icon" aria-hidden="true">i</span>
+                  <div>
+                    <h2>Informacion general</h2>
+                    <p>Actualiza como te mostramos y tu identidad institucional.</p>
+                  </div>
+                </div>
+                <button class="text-action" type="submit" [disabled]="isSavingPersonal">
+                  {{ isSavingPersonal ? 'Guardando...' : 'Guardar datos' }}
+                </button>
               </div>
-            </div>
 
-            <form class="profile-form" [formGroup]="personalForm" (ngSubmit)="savePersonal()">
-              <div class="form-grid">
-                <label class="field">
+              <div class="info-grid">
+                <label class="field field--plain">
                   <span>Nombre completo</span>
                   <input type="text" formControlName="nombre" placeholder="Tu nombre completo" />
                 </label>
 
-                <label class="field">
+                <label class="field field--plain">
                   <span>Nombre preferido</span>
                   <input type="text" formControlName="nombrePreferido" placeholder="Como prefieres que te llamemos" />
                 </label>
 
-                <label class="field">
+                <label class="field field--plain">
                   <span>Correo institucional</span>
                   <input type="email" formControlName="emailInstitucional" placeholder="u2020xxxx@utp.edu.pe" />
                 </label>
+
+                <article class="info-static">
+                  <span>Campus</span>
+                  <strong>{{ campusName }}</strong>
+                </article>
+
+                <article class="info-static">
+                  <span>Ciclo</span>
+                  <strong>{{ period.periodoEtiqueta || 'Periodo actual' }}</strong>
+                </article>
+
+                <article class="info-static">
+                  <span>Estado</span>
+                  <strong>{{ onboardingStatusLabel }}</strong>
+                </article>
               </div>
 
               @if (personalError) {
@@ -82,12 +103,6 @@
               @if (personalSuccess) {
                 <div class="state state--success">{{ personalSuccess }}</div>
               }
-
-              <div class="panel__actions">
-                <button class="btn btn--primary" type="submit" [disabled]="isSavingPersonal">
-                  {{ isSavingPersonal ? 'Guardando...' : 'Guardar datos' }}
-                </button>
-              </div>
             </form>
           </article>
 
@@ -159,7 +174,7 @@
         </div>
 
         <aside class="profile__side">
-          <article class="side-card side-card--accent" id="whatsapp-channel">
+          <article class="side-card side-card--whatsapp" id="whatsapp-channel">
             <div class="side-card__title">
               <span class="whatsapp-badge" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="none">
@@ -168,11 +183,11 @@
                 </svg>
               </span>
               <div>
-                <span class="side-card__eyebrow">Trackademy Bot</span>
-                <h2>{{ whatsappSummaryLabel }}</h2>
+                <h2>Trackademy Bot</h2>
+                <span>{{ whatsappSummaryLabel }}</span>
               </div>
             </div>
-            <p>Canal MVP para consultas rapidas y seguimiento desde WhatsApp.</p>
+            <p>Recibe alertas de tareas proximas y seguimiento academico directamente en tu celular.</p>
 
             @if (isWhatsappLoading) {
               <div class="state state--loading">Consultando estado de WhatsApp...</div>
@@ -201,7 +216,7 @@
                 }
 
                 @if (whatsappStatus?.linked) {
-                  <button class="btn btn--ghost" type="button" (click)="unlinkWhatsapp()" [disabled]="isUnlinkingWhatsapp">
+                  <button class="btn btn--primary" type="button" (click)="unlinkWhatsapp()" [disabled]="isUnlinkingWhatsapp">
                     {{ isUnlinkingWhatsapp ? 'Desvinculando...' : 'Desvincular' }}
                   </button>
                 }
