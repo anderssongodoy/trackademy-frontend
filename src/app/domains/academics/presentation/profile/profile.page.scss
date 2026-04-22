@@ -18,9 +18,7 @@
 .identity-card__meta,
 .profile__grid,
 .panel__header,
-.panel__actions,
-.reconfig-meta,
-.course-browser__header {
+.panel__actions {
   display: flex;
   gap: 16px;
 }
@@ -28,14 +26,12 @@
 .identity-card,
 .profile__grid,
 .panel__header,
-.panel__actions,
-.reconfig-meta {
+.panel__actions {
   justify-content: space-between;
 }
 
 .identity-card,
-.panel__header,
-.reconfig-meta {
+.panel__header {
   align-items: flex-start;
 }
 
@@ -112,7 +108,6 @@ h1 {
 .side-card p,
 .side-card__meta small,
 .selected-empty,
-.reconfig-meta span,
 .warning-box,
 .state {
   margin: 0;
@@ -216,43 +211,45 @@ h1 {
 }
 
 .goals-strip {
-  @include ui.layer-card(20px, 24px);
+  @include ui.layer-card(24px, 28px);
   display: grid;
-  grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
-  gap: 18px;
-  align-items: center;
-  background:
-    radial-gradient(circle at top right, rgba(83, 0, 183, 0.08), transparent 28%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 249, 252, 0.98));
+  grid-template-columns: minmax(220px, 0.8fr) minmax(0, 2.2fr);
+  gap: 20px;
+  align-items: stretch;
+  background: rgba(255, 255, 255, 0.98);
 }
 
 .goals-strip__copy {
   display: grid;
-  gap: 6px;
+  gap: 8px;
+  align-content: start;
 }
 
-.goals-strip__copy h2,
-.course-browser__header h3 {
+.goals-strip__copy h2 {
   margin: 0;
 }
 
-.goals-strip__copy p,
-.course-browser__header p {
+.goals-strip__copy p {
   margin: 0;
   color: var(--text-secondary);
 }
 
 .goals-inline {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   align-items: stretch;
 }
 
 .goal-inline {
-  @include ui.soft-panel(14px, 16px);
+  padding: 18px;
+  border-radius: 18px;
   display: grid;
-  gap: 8px;
+  gap: 12px;
+  min-height: 104px;
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  background: var(--surface-container-low);
+  box-shadow: none;
 }
 
 .goal-inline span {
@@ -267,6 +264,7 @@ h1 {
   display: flex;
   align-items: baseline;
   gap: 8px;
+  margin-top: auto;
 }
 
 .goal-inline__value input {
@@ -275,7 +273,7 @@ h1 {
   border: 0;
   background: transparent;
   box-shadow: none;
-  font: 700 1.85rem 'Space Grotesk', sans-serif;
+  font: 700 1.45rem 'Space Grotesk', sans-serif;
   color: var(--text-primary);
 }
 
@@ -291,7 +289,9 @@ h1 {
 }
 
 .goals-inline__action .btn {
-  min-width: 190px;
+  width: 100%;
+  min-width: 0;
+  border-radius: 18px;
 }
 
 .panel--wide {
@@ -333,16 +333,15 @@ h1 {
 }
 
 .progress-card {
-  background:
-    radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.14), transparent 30%),
-    linear-gradient(160deg, var(--brand-primary), var(--brand-primary-container));
-  color: #fff;
-  gap: 20px;
+  grid-template-columns: minmax(220px, 0.9fr) minmax(0, 2.1fr);
+  align-items: center;
+  background: rgba(255, 255, 255, 0.98);
+  gap: 22px;
 }
 
 .progress-card p {
   margin: 6px 0 0;
-  color: rgba(255, 255, 255, 0.78);
+  color: var(--text-secondary);
 }
 
 .progress-card__copy {
@@ -351,41 +350,52 @@ h1 {
 }
 
 .progress-card__bar {
-  height: 12px;
+  grid-column: 1 / -1;
+  height: 10px;
   border-radius: 999px;
   overflow: hidden;
-  background: rgba(255, 255, 255, 0.18);
+  background: var(--surface-container-high);
 }
 
 .progress-card__bar span {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.96), rgba(255, 255, 255, 0.64));
+  background: linear-gradient(90deg, var(--brand-primary), var(--brand-primary-container));
 }
 
 .progress-card__stats {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  gap: 12px;
 }
 
 .progress-card__stats div {
   display: grid;
   gap: 8px;
-  min-height: 120px;
-  align-content: end;
-  background: rgba(255, 255, 255, 0.12);
+  min-height: 104px;
+  align-content: center;
+  background: var(--surface-container-low);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  box-shadow: none;
+}
+
+.progress-card__stats div:first-child {
+  background: linear-gradient(160deg, var(--brand-primary), var(--brand-primary-container));
 }
 
 .progress-card__stats strong {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 2rem;
+  font: 700 2rem 'Space Grotesk', sans-serif;
+  color: var(--text-primary);
+}
+
+.progress-card__stats div:first-child strong,
+.progress-card__stats div:first-child span {
   color: #fff;
 }
 
 .progress-card__stats span {
-  color: rgba(255, 255, 255, 0.74);
+  color: var(--text-secondary);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.12em;
@@ -696,11 +706,6 @@ h1 {
   background: var(--surface-container-low);
 }
 
-.course-browser__header {
-  justify-content: space-between;
-  align-items: end;
-}
-
 .course-browser__meta {
   display: grid;
   justify-items: end;
@@ -873,7 +878,8 @@ h1 {
   .reconfig-grid,
   .progress-card__stats,
   .goals-inline,
-  .goals-strip {
+  .goals-strip,
+  .progress-card {
     grid-template-columns: 1fr;
   }
 
@@ -883,11 +889,6 @@ h1 {
 
   .selected-column {
     position: static;
-  }
-
-  .course-browser__header {
-    flex-direction: column;
-    align-items: flex-start;
   }
 
   .course-browser__meta {
@@ -913,7 +914,6 @@ h1 {
   .identity-card,
   .identity-card__meta,
   .panel__header,
-  .reconfig-meta,
   .selected-chip,
   .course-option,
   .sync-item {
