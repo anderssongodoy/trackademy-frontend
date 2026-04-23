@@ -4,6 +4,7 @@ export interface AppEnvironment {
   authSessionPath: string;
   authMicrosoftExchangePath: string;
   authGoogleExchangePath: string;
+  authGoogleOAuthUrlPath: string;
   defaultUniversityId: number;
   azureTenantId: string;
   azureFrontendClientId: string;

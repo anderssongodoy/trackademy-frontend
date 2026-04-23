@@ -10,6 +10,10 @@ export class AuthUseCase {
     return this.auth.completeMicrosoftLogin();
   }
 
+  completeGoogleOAuthRedirect(): boolean {
+    return this.auth.completeGoogleOAuthRedirect();
+  }
+
   isSignedIn(): Promise<boolean> {
     return this.auth.isSignedIn();
   }
@@ -20,6 +24,10 @@ export class AuthUseCase {
 
   beginMicrosoftLogin(redirect: string): Promise<void> {
     return this.auth.beginMicrosoftLogin(redirect);
+  }
+
+  beginGoogleOAuthLogin(redirect: string): Promise<void> {
+    return this.auth.beginGoogleOAuthLogin(redirect);
   }
 
   clearLocalSession(): void {

@@ -26,6 +26,10 @@ interface GoogleExchangeResponse {
   name: string;
 }
 
+interface GoogleOAuthUrlResponse {
+  authorizationUrl: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private static readonly APP_TOKEN_KEY = 'trackademy.appToken';
@@ -107,6 +111,30 @@ export class AuthService {
     this.storeAppToken(response.token);
   }
 
+  completeGoogleOAuthRedirect(): boolean {
+    const hash = window.location.hash?.startsWith('#') ? window.location.hash.slice(1) : '';
+    if (!hash) {
+      return false;
+    }
+
+    const params = new URLSearchParams(hash);
+    const token = params.get('token');
+    const googleError = params.get('googleError');
+
+    if (token) {
+      this.storeAppToken(token);
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+      return true;
+    }
+
+    if (googleError) {
+      window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+      throw new Error(`Google OAuth error: ${googleError}`);
+    }
+
+    return false;
+  }
+
   async completeMicrosoftLogin(): Promise<string | null> {
     await this.initialize();
     const result = await this.msal.handleRedirectPromise();
@@ -130,6 +158,18 @@ export class AuthService {
       scopes: ['openid', 'profile', 'email'],
       state: redirectPath
     });
+  }
+
+  async beginGoogleOAuthLogin(redirectPath: string): Promise<void> {
+    const response = await firstValueFrom(
+      this.http.get<GoogleOAuthUrlResponse>(`${this.env.apiBaseUrl}${this.env.authGoogleOAuthUrlPath}`, {
+        params: {
+          redirectPath
+        }
+      })
+    );
+
+    window.location.assign(response.authorizationUrl);
   }
 
   async setupGoogleSignIn(containerId: string, redirectPath: string): Promise<boolean> {

@@ -15,7 +15,7 @@ import { MeUseCase } from '../../../academics/application/me-use-case';
   styleUrl: './sign-in.page.scss'
 })
 export class SignInPage implements OnInit {
-  protected readonly googleUnavailable = signal(false);
+  protected readonly googleLoading = signal(false);
   protected readonly microsoftLoading = signal(false);
   protected readonly authError = signal<string | null>(null);
 
@@ -26,6 +26,14 @@ export class SignInPage implements OnInit {
 
   async ngOnInit(): Promise<void> {
     try {
+      const googleRedirectCompleted = this.authUseCase.completeGoogleOAuthRedirect();
+      if (googleRedirectCompleted) {
+        const redirected = await this.navigateAfterAuth();
+        if (redirected) {
+          return;
+        }
+      }
+
       const redirectState = await this.authUseCase.completeMicrosoftLogin();
 
       if (redirectState) {
@@ -42,11 +50,19 @@ export class SignInPage implements OnInit {
           return;
         }
       }
-
-      await this.setupGoogle();
     } catch {
       this.authError.set('No se pudo completar la autenticacion. Intenta de nuevo y revisa que tu cuenta este permitida.');
-      await this.setupGoogle();
+    }
+  }
+
+  async signInWithGoogle(): Promise<void> {
+    this.authError.set(null);
+    this.googleLoading.set(true);
+    try {
+      await this.authUseCase.beginGoogleOAuthLogin('/auth/sign-in');
+    } catch {
+      this.googleLoading.set(false);
+      this.authError.set('No se pudo iniciar sesion con Google. Revisa la configuracion de OAuth y vuelve a intentar.');
     }
   }
 
@@ -89,11 +105,6 @@ export class SignInPage implements OnInit {
       this.authError.set('No pudimos validar tu periodo actual. Puedes volver a entrar y crear el onboarding de este ciclo.');
       return false;
     }
-  }
-
-  private async setupGoogle(): Promise<void> {
-    const googleReady = await this.authUseCase.setupGoogleSignIn('google-signin-button', '/auth/sign-in');
-    this.googleUnavailable.set(!googleReady);
   }
 }
 
