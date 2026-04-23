@@ -11,6 +11,32 @@ export const routes: Routes = [
     loadComponent: () => import('./domains/marketing/presentation/landing/landing.page').then((m) => m.LandingPage)
   },
   {
+    path: 'privacy-policy',
+    loadComponent: () =>
+      import('./domains/marketing/presentation/privacy-policy/privacy-policy.page').then((m) => m.PrivacyPolicyPage)
+  },
+  {
+    path: 'privacy-policies',
+    redirectTo: 'privacy-policy'
+  },
+  {
+    path: 'privace-policies',
+    redirectTo: 'privacy-policy'
+  },
+  {
+    path: 'terms-of-service',
+    loadComponent: () =>
+      import('./domains/marketing/presentation/terms-of-service/terms-of-service.page').then((m) => m.TermsOfServicePage)
+  },
+  {
+    path: 'terms',
+    redirectTo: 'terms-of-service'
+  },
+  {
+    path: 'terms-and-conditions',
+    redirectTo: 'terms-of-service'
+  },
+  {
     path: 'auth/sign-in',
     loadComponent: () =>
       import('./domains/identity/presentation/sign-in/sign-in.page').then((m) => m.SignInPage)

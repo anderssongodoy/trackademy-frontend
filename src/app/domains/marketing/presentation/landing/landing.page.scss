@@ -260,7 +260,7 @@
 
 .footer__columns {
   display: grid;
-  grid-template-columns: minmax(120px, 1fr);
+  grid-template-columns: repeat(2, minmax(120px, 1fr));
   gap: 36px;
 }
 
@@ -277,10 +277,16 @@
   text-transform: uppercase;
 }
 
-.footer__columns p {
+.footer__columns p,
+.footer__columns a {
   margin: 0;
   color: #fff;
   font-weight: 800;
+  text-decoration: none;
+}
+
+.footer__columns a:hover {
+  color: #d7c4ff;
 }
 
 .primary-btn,
@@ -337,6 +343,10 @@
   .footer {
     width: calc(100% - 28px);
     padding: 32px 0;
+  }
+
+  .footer__columns {
+    grid-template-columns: 1fr;
   }
 
   .primary-btn,
