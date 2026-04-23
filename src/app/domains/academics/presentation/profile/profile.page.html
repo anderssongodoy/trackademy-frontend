@@ -263,11 +263,30 @@
                   <div class="sync-item__copy">
                     <strong>{{ syncProviderLabel(account.provider) }}</strong>
                     <p>{{ syncHint(account) }}</p>
+                    <small class="sync-item__meta">{{ syncMetaLabel(account) }}</small>
+                    <div class="sync-item__actions">
+                      <button class="btn btn--ghost" type="button" (click)="triggerCalendarSync(account)" [disabled]="(account.provider === 'google' && isSyncingGoogleCalendar) || (account.provider !== 'google')">
+                        {{ syncActionLabel(account) }}
+                      </button>
+                      @if (account.provider === 'google' && account.conectado) {
+                        <button class="btn btn--ghost btn--danger" type="button" (click)="disconnectCalendar(account)" [disabled]="isDisconnectingGoogleCalendar">
+                          {{ isDisconnectingGoogleCalendar ? 'Desconectando...' : 'Desconectar' }}
+                        </button>
+                      }
+                    </div>
                   </div>
                   <span class="sync-item__status">{{ syncStatusLabel(account) }}</span>
                 </article>
               }
             </div>
+
+            @if (calendarSyncError) {
+              <div class="state state--error">{{ calendarSyncError }}</div>
+            }
+
+            @if (calendarSyncSuccess) {
+              <div class="state state--success">{{ calendarSyncSuccess }}</div>
+            }
           </article>
 
         </aside>

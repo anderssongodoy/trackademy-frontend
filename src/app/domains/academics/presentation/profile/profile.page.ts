@@ -59,6 +59,8 @@ export class ProfilePage implements OnInit {
   isWhatsappLoading = true;
   isGeneratingWhatsappCode = false;
   isUnlinkingWhatsapp = false;
+  isSyncingGoogleCalendar = false;
+  isDisconnectingGoogleCalendar = false;
 
   loadError = '';
   personalError = '';
@@ -70,6 +72,8 @@ export class ProfilePage implements OnInit {
   configInfo = '';
   whatsappError = '';
   whatsappSuccess = '';
+  calendarSyncError = '';
+  calendarSyncSuccess = '';
 
   period: MyCurrentPeriod | null = null;
   campuses: CatalogCampus[] = [];
@@ -326,6 +330,97 @@ export class ProfilePage implements OnInit {
       return account.email || 'Cuenta vinculada';
     }
     return 'Base lista. Falta activar OAuth y el primer empuje de eventos.';
+  }
+
+  syncActionLabel(account: MyCalendarSyncAccount): string {
+    if (account.provider !== 'google') {
+      return 'Disponible luego';
+    }
+    if (!account.conectado) {
+      return 'Entrar con Google';
+    }
+    return this.isSyncingGoogleCalendar ? 'Sincronizando...' : 'Sincronizar ahora';
+  }
+
+  syncMetaLabel(account: MyCalendarSyncAccount): string {
+    if (account.lastSyncAt) {
+      return `Ultima sync: ${new Intl.DateTimeFormat('es-PE', {
+        day: '2-digit',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit'
+      }).format(new Date(account.lastSyncAt))}`;
+    }
+    if (account.conectado) {
+      return 'Aun no se hizo el primer empuje al calendario.';
+    }
+    return 'Necesitas autenticarte con Google para vincular el calendario.';
+  }
+
+  triggerCalendarSync(account: MyCalendarSyncAccount): void {
+    if (account.provider !== 'google') {
+      this.calendarSyncError = 'Outlook queda pendiente para una fase posterior. Primero cerramos Google Calendar.';
+      this.calendarSyncSuccess = '';
+      return;
+    }
+
+    if (!account.conectado) {
+      window.location.assign('/auth/sign-in');
+      return;
+    }
+
+    if (this.isSyncingGoogleCalendar) {
+      return;
+    }
+
+    this.isSyncingGoogleCalendar = true;
+    this.calendarSyncError = '';
+    this.calendarSyncSuccess = '';
+
+    this.meUseCase.syncGoogleCalendar().subscribe({
+      next: (result) => {
+        this.isSyncingGoogleCalendar = false;
+        this.calendarSyncSuccess =
+          `Google Calendar actualizado. ${result.created} creados, ${result.updated} actualizados, ${result.deleted} eliminados, ${result.unchanged} sin cambios.`;
+        this.refreshCalendarAccounts();
+      },
+      error: (error) => {
+        this.isSyncingGoogleCalendar = false;
+        this.calendarSyncError = apiErrorMessage(error, 'No se pudo sincronizar Google Calendar.');
+      }
+    });
+  }
+
+  disconnectCalendar(account: MyCalendarSyncAccount): void {
+    if (account.provider !== 'google') {
+      this.calendarSyncError = 'La desconexion de Outlook no esta habilitada en esta fase.';
+      this.calendarSyncSuccess = '';
+      return;
+    }
+
+    if (!account.conectado || this.isDisconnectingGoogleCalendar) {
+      return;
+    }
+
+    if (!window.confirm('Se desvinculara Google Calendar y se limpiara el mapping local de eventos sincronizados. Quieres continuar?')) {
+      return;
+    }
+
+    this.isDisconnectingGoogleCalendar = true;
+    this.calendarSyncError = '';
+    this.calendarSyncSuccess = '';
+
+    this.meUseCase.disconnectGoogleCalendar().subscribe({
+      next: (result) => {
+        this.isDisconnectingGoogleCalendar = false;
+        this.calendarSyncSuccess = `Google Calendar desconectado. ${result.removedMappings} mapping(s) locales eliminados.`;
+        this.refreshCalendarAccounts();
+      },
+      error: (error) => {
+        this.isDisconnectingGoogleCalendar = false;
+        this.calendarSyncError = apiErrorMessage(error, 'No se pudo desconectar Google Calendar.');
+      }
+    });
   }
 
   generateWhatsappCode(): void {
@@ -594,6 +689,17 @@ export class ProfilePage implements OnInit {
         this.loadError = 'No se pudo cargar tu perfil academico actual.';
         this.isLoading = false;
         this.isWhatsappLoading = false;
+      }
+    });
+  }
+
+  private refreshCalendarAccounts(): void {
+    this.meUseCase.getCalendarSyncAccounts().subscribe({
+      next: (accounts) => {
+        this.calendarSyncAccounts = accounts;
+      },
+      error: () => {
+        this.calendarSyncError = 'Se ejecuto la operacion, pero no se pudo recargar el estado de calendario.';
       }
     });
   }

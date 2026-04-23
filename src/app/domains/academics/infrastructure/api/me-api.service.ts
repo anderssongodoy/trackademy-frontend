@@ -34,6 +34,26 @@ export interface MyCalendarSyncAccount {
   lastSyncAt: string | null;
 }
 
+export interface CalendarSyncExecutionResponse {
+  provider: string;
+  connected: boolean;
+  accountEmail: string | null;
+  calendarId: string | null;
+  from: string;
+  to: string;
+  created: number;
+  updated: number;
+  deleted: number;
+  unchanged: number;
+  failed: number;
+}
+
+export interface CalendarDisconnectResponse {
+  provider: string;
+  disconnected: boolean;
+  removedMappings: number;
+}
+
 export interface MyCourse {
   usuarioPeriodoCursoId: number;
   cursoId: number;
@@ -211,6 +231,22 @@ export class MeApiService {
 
   getCalendarSyncAccounts(): Observable<MyCalendarSyncAccount[]> {
     return this.http.get<MyCalendarSyncAccount[]>(`${this.env.apiBaseUrl}/api/v1/me/calendar-sync-accounts`);
+  }
+
+  syncGoogleCalendar(from?: string, to?: string): Observable<CalendarSyncExecutionResponse> {
+    if (from && to) {
+      return this.http.post<CalendarSyncExecutionResponse>(
+        `${this.env.apiBaseUrl}/api/v1/me/calendar-sync/google/sync`,
+        null,
+        { params: { from, to } }
+      );
+    }
+
+    return this.http.post<CalendarSyncExecutionResponse>(`${this.env.apiBaseUrl}/api/v1/me/calendar-sync/google/sync`, null);
+  }
+
+  disconnectGoogleCalendar(): Observable<CalendarDisconnectResponse> {
+    return this.http.delete<CalendarDisconnectResponse>(`${this.env.apiBaseUrl}/api/v1/me/calendar-sync/google`);
   }
 
   updateCourseSchedule(usuarioPeriodoCursoId: number, bloques: ScheduleBlockRequest[]): Observable<ScheduleUpdateResponse> {

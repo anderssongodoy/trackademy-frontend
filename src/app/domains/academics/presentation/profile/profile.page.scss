@@ -515,6 +515,23 @@ h1 {
   text-transform: none;
 }
 
+.sync-item__meta {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.sync-item__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.btn--danger {
+  border-color: rgba(182, 62, 62, 0.22);
+  color: #b42318;
+}
+
 .sync-item__status {
   display: inline-flex;
   align-items: center;
@@ -964,6 +981,10 @@ h1 {
   .selected-chip,
   .course-option,
   .sync-item {
+    display: grid;
+  }
+
+  .sync-item__actions {
     display: grid;
   }
 

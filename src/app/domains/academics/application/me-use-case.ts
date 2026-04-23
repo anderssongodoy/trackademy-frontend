@@ -4,6 +4,8 @@ import { Observable } from 'rxjs';
 import {
   AcademicProfileUpdateRequest,
   CourseMetadataUpdateRequest,
+  CalendarDisconnectResponse,
+  CalendarSyncExecutionResponse,
   EvaluationGradeRequest,
   MeApiService,
   MyCalendarEvent,
@@ -60,6 +62,14 @@ export class MeUseCase {
     return this.api.getCalendarSyncAccounts();
   }
 
+  syncGoogleCalendar(from?: string, to?: string): Observable<CalendarSyncExecutionResponse> {
+    return this.api.syncGoogleCalendar(from, to);
+  }
+
+  disconnectGoogleCalendar(): Observable<CalendarDisconnectResponse> {
+    return this.api.disconnectGoogleCalendar();
+  }
+
   updateCourseSchedule(usuarioPeriodoCursoId: number, bloques: ScheduleBlockRequest[]): Observable<ScheduleUpdateResponse> {
     return this.api.updateCourseSchedule(usuarioPeriodoCursoId, bloques);
   }
@@ -84,6 +94,8 @@ export class MeUseCase {
 export type {
   AcademicProfileUpdateRequest,
   CourseMetadataUpdateRequest,
+  CalendarDisconnectResponse,
+  CalendarSyncExecutionResponse,
   EvaluationGradeRequest,
   MyCalendarEvent,
   MyCalendarSyncAccount,
