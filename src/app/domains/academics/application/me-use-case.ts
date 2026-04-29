@@ -15,11 +15,14 @@ import {
   MyDashboardSummary,
   MyEvaluation,
   MyEvaluationsResponse,
+  MyReminder,
   MyScheduleEntry,
+  MyTask,
   PersonalProfileUpdateRequest,
   PeriodConfigurationUpdateRequest,
   ScheduleBlockRequest,
-  ScheduleUpdateResponse
+  ScheduleUpdateResponse,
+  TaskUpsertRequest
 } from '../infrastructure/api/me-api.service';
 
 @Injectable({ providedIn: 'root' })
@@ -60,6 +63,26 @@ export class MeUseCase {
 
   getCalendarSyncAccounts(): Observable<MyCalendarSyncAccount[]> {
     return this.api.getCalendarSyncAccounts();
+  }
+
+  getMyTasks(): Observable<MyTask[]> {
+    return this.api.getMyTasks();
+  }
+
+  createTask(payload: TaskUpsertRequest): Observable<MyTask> {
+    return this.api.createTask(payload);
+  }
+
+  updateTask(taskId: number, payload: TaskUpsertRequest): Observable<MyTask> {
+    return this.api.updateTask(taskId, payload);
+  }
+
+  deleteTask(taskId: number): Observable<void> {
+    return this.api.deleteTask(taskId);
+  }
+
+  getMyReminders(from?: string, to?: string): Observable<MyReminder[]> {
+    return this.api.getMyReminders(from, to);
   }
 
   syncGoogleCalendar(from?: string, to?: string): Observable<CalendarSyncExecutionResponse> {
@@ -104,9 +127,12 @@ export type {
   MyDashboardSummary,
   MyEvaluation,
   MyEvaluationsResponse,
+  MyReminder,
   MyScheduleEntry,
+  MyTask,
   PersonalProfileUpdateRequest,
   PeriodConfigurationUpdateRequest,
   ScheduleBlockRequest,
-  ScheduleUpdateResponse
+  ScheduleUpdateResponse,
+  TaskUpsertRequest
 };

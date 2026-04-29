@@ -54,6 +54,53 @@ export interface CalendarDisconnectResponse {
   removedMappings: number;
 }
 
+export interface MyTask {
+  id: number;
+  usuarioPeriodoId: number;
+  usuarioPeriodoCursoId: number | null;
+  cursoId: number | null;
+  codigoCurso: string | null;
+  nombreCurso: string | null;
+  titulo: string;
+  descripcion: string | null;
+  tipo: string | null;
+  prioridad: string | null;
+  estado: string | null;
+  fechaVencimiento: string | null;
+  fechaRecordatorio: string | null;
+  canalRecordatorio: string | null;
+  completedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface MyReminder {
+  id: number;
+  tareaId: number | null;
+  usuarioPeriodoCursoId: number | null;
+  cursoId: number | null;
+  codigoCurso: string | null;
+  nombreCurso: string | null;
+  titulo: string;
+  descripcion: string | null;
+  fechaEnvio: string | null;
+  canal: string | null;
+  estado: string | null;
+  origen: string | null;
+}
+
+export interface TaskUpsertRequest {
+  usuarioPeriodoCursoId: number | null;
+  titulo: string;
+  descripcion: string | null;
+  tipo: string | null;
+  prioridad: string | null;
+  estado: string | null;
+  fechaVencimiento: string | null;
+  fechaRecordatorio: string | null;
+  canalRecordatorio: string | null;
+}
+
 export interface MyCourse {
   usuarioPeriodoCursoId: number;
   cursoId: number;
@@ -231,6 +278,32 @@ export class MeApiService {
 
   getCalendarSyncAccounts(): Observable<MyCalendarSyncAccount[]> {
     return this.http.get<MyCalendarSyncAccount[]>(`${this.env.apiBaseUrl}/api/v1/me/calendar-sync-accounts`);
+  }
+
+  getMyTasks(): Observable<MyTask[]> {
+    return this.http.get<MyTask[]>(`${this.env.apiBaseUrl}/api/v1/me/tareas`);
+  }
+
+  createTask(payload: TaskUpsertRequest): Observable<MyTask> {
+    return this.http.post<MyTask>(`${this.env.apiBaseUrl}/api/v1/me/tareas`, payload);
+  }
+
+  updateTask(taskId: number, payload: TaskUpsertRequest): Observable<MyTask> {
+    return this.http.put<MyTask>(`${this.env.apiBaseUrl}/api/v1/me/tareas/${taskId}`, payload);
+  }
+
+  deleteTask(taskId: number): Observable<void> {
+    return this.http.delete<void>(`${this.env.apiBaseUrl}/api/v1/me/tareas/${taskId}`);
+  }
+
+  getMyReminders(from?: string, to?: string): Observable<MyReminder[]> {
+    if (from && to) {
+      return this.http.get<MyReminder[]>(`${this.env.apiBaseUrl}/api/v1/me/recordatorios`, {
+        params: { from, to }
+      });
+    }
+
+    return this.http.get<MyReminder[]>(`${this.env.apiBaseUrl}/api/v1/me/recordatorios`);
   }
 
   syncGoogleCalendar(from?: string, to?: string): Observable<CalendarSyncExecutionResponse> {

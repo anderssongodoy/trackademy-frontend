@@ -60,12 +60,6 @@ export class AppShellComponent {
       route: '/app/tareas',
       title: 'Tareas',
       icon: 'M9 11l2 2 4-4m-7-5h8a2 2 0 0 1 2 2v12l-4-2-4 2-4-2-4 2V6a2 2 0 0 1 2-2h2'
-    },
-    {
-      label: 'Recordatorios',
-      route: '/app/recordatorios',
-      title: 'Recordatorios',
-      icon: 'M12 22a3 3 0 0 0 3-3H9a3 3 0 0 0 3 3Zm6-6V11a6 6 0 1 0-12 0v5L4 18v1h16v-1z'
     }
   ];
 

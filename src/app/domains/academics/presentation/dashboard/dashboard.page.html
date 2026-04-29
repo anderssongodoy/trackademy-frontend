@@ -192,8 +192,8 @@
                 <span class="quick-action__arrow" aria-hidden="true">›</span>
               </a>
 
-              <a class="quick-action" routerLink="/app/recordatorios">
-                <strong>Nuevo recordatorio</strong>
+              <a class="quick-action" [routerLink]="['/app/tareas']" [queryParams]="{ new: '1' }">
+                <strong>Nueva tarea</strong>
                 <span class="quick-action__arrow" aria-hidden="true">›</span>
               </a>
 

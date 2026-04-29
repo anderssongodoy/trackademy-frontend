@@ -90,7 +90,8 @@ export const routes: Routes = [
       },
       {
         path: 'recordatorios',
-        loadComponent: () => import('./domains/academics/presentation/reminders/reminders.page').then((m) => m.RemindersPage)
+        pathMatch: 'full',
+        redirectTo: 'tareas'
       },
       {
         path: 'perfil',

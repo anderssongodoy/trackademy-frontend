@@ -8,45 +8,61 @@
   @include ui.page-root(24px);
 }
 
-.tasks__frame {
+.tasks__frame,
+.tasks-main,
+.tasks-side,
+.hero__copy,
+.stats-strip,
+.filters-panel,
+.task-columns,
+.task-column,
+.task-list,
+.composer-card,
+.composer-card__form,
+.side-card,
+.reminder-list {
   display: grid;
-  gap: 22px;
+  gap: 20px;
 }
 
 .tasks__hero,
+.hero__actions,
 .filters-panel__row,
 .task-card__head,
 .task-card__actions,
-.milestones-card__header,
-.milestone-item {
+.composer-card__head,
+.composer-card__footer,
+.side-card__head,
+.reminder-item {
   display: flex;
   gap: 16px;
 }
 
 .tasks__hero,
 .filters-panel__row,
-.task-card__head,
 .task-card__actions,
-.milestones-card__header,
-.milestone-item {
+.composer-card__head,
+.composer-card__footer,
+.side-card__head,
+.reminder-item {
   justify-content: space-between;
 }
 
-.tasks__hero,
+.hero__actions,
 .filters-panel__row,
 .task-card__actions,
-.milestone-item {
+.composer-card__footer,
+.reminder-item {
   align-items: center;
 }
 
 .tasks__hero {
+  @include ui.layer-card(26px, 30px);
   flex-wrap: wrap;
 }
 
 .hero__copy {
-  @include ui.hero-copy(720px);
-  display: grid;
-  gap: 14px;
+  max-width: 760px;
 }
 
 .hero__eyebrows {
@@ -57,15 +73,22 @@
 
 .hero__eyebrows span,
 .field span,
-.task-card__course,
-.productivity-card__eyebrow {
+.stat-card span,
+.task-column__head span,
+.composer-card__head span,
+.side-card__head span {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
-.hero__eyebrows span:first-child {
+.hero__eyebrows span:first-child,
+.field span,
+.stat-card span,
+.task-column__head span,
+.composer-card__head span,
+.side-card__head span {
   color: var(--text-secondary);
 }
 
@@ -74,16 +97,19 @@
 }
 
 h1 {
-  @include ui.title-display(2.2rem, 4vw, 3.7rem, 0.98);
+  @include ui.title-display(2.35rem, 4vw, 4rem, 0.96);
+  margin: 0;
 }
 
 .hero__summary,
-.task-card__subtitle,
-.milestones-card p,
-.milestone-item p,
-.productivity-card p,
+.stat-card small,
+.task-column__head p,
+.task-card__description,
+.task-card__meta span,
+.composer-card__hint span,
 .empty-card,
-.state {
+.state,
+.reminder-item p {
   margin: 0;
   color: var(--text-secondary);
 }
@@ -104,221 +130,20 @@ h1 {
   @include ui.button-secondary();
 }
 
-.filters-panel,
-.task-card,
-.milestones-card {
-  @include ui.layer-card(22px, 28px);
-}
-
-.filters-panel {
-  display: grid;
-  gap: 14px;
-  background: rgba(247, 248, 251, 0.98);
-}
-
-.status-strip,
-.time-strip {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.filter-chip {
-  @include ui.button-base(999px);
-  min-height: 36px;
-  padding: 0 16px;
-  color: var(--text-secondary);
-  background: var(--surface-container-lowest);
-}
-
-.filter-chip--soft {
+.btn--ghost {
+  @include ui.button-base();
   background: var(--surface-container-high);
-}
-
-.filter-chip--active {
-  background: rgba(83, 0, 183, 0.12);
-  color: var(--brand-primary);
-}
-
-.field {
-  display: grid;
-  gap: 8px;
-}
-
-.field--search {
-  min-width: min(380px, 100%);
-  flex: 1 1 380px;
-}
-
-.field--select {
-  min-width: 220px;
-}
-
-.field input,
-.field select {
-  @include ui.input-field(14px 16px, 16px);
-}
-
-.field input:focus,
-.field select:focus {
-  @include ui.input-focus();
-}
-
-.tasks-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
-}
-
-.task-card {
-  display: grid;
-  gap: 16px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 249, 252, 0.98));
-}
-
-.task-card__head {
-  align-items: flex-start;
-}
-
-.task-card__course {
-  margin: 0 0 8px;
-  color: var(--text-secondary);
-}
-
-.task-card h2,
-.productivity-card h2,
-.milestones-card h2 {
-  margin: 0;
-}
-
-.task-card__meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-}
-
-.task-card__meta span,
-.task-chip {
-  @include ui.chip-base();
-}
-
-.task-card__meta span {
-  background: rgba(241, 244, 248, 0.92);
-  color: var(--text-secondary);
-}
-
-.task-chip--danger {
-  color: #b91c1c;
-  background: rgba(254, 226, 226, 0.95);
-}
-
-.task-chip--warning {
-  color: #c2410c;
-  background: rgba(255, 237, 213, 0.95);
-}
-
-.task-chip--brand {
-  color: var(--brand-primary);
-  background: rgba(83, 0, 183, 0.1);
-}
-
-.task-chip--success {
-  color: var(--state-success);
-  background: rgba(22, 101, 52, 0.1);
-}
-
-.task-chip--neutral {
-  color: var(--text-secondary);
-  background: var(--surface-container-high);
-}
-
-.inline-link {
-  color: var(--brand-primary);
-  font-weight: 700;
-  text-decoration: none;
-}
-
-.productivity-card {
-  @include ui.layer-card(26px, 28px);
-  display: grid;
-  gap: 14px;
-  background:
-    radial-gradient(circle at bottom right, rgba(255, 255, 255, 0.14), transparent 30%),
-    linear-gradient(160deg, var(--brand-primary), var(--brand-primary-container));
-  color: #fff;
-}
-
-.productivity-card__eyebrow,
-.productivity-card p {
-  color: rgba(255, 255, 255, 0.78);
-}
-
-.productivity-card h2 {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: clamp(2.6rem, 5vw, 4rem);
-  line-height: 0.92;
-}
-
-.productivity-card__bar {
-  height: 8px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.18);
-  overflow: hidden;
-}
-
-.productivity-card__bar span {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: rgba(255, 255, 255, 0.94);
-}
-
-.milestones-card {
-  display: grid;
-  gap: 16px;
-}
-
-.milestones-list {
-  display: grid;
-  gap: 12px;
-}
-
-.milestone-item,
-.empty-card--soft {
-  @include ui.soft-panel(16px, 18px);
-}
-
-.milestone-item {
-  align-items: center;
-}
-
-.milestone-item__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: #dc2626;
-  flex: 0 0 auto;
-}
-
-.milestone-item strong {
   color: var(--text-primary);
 }
 
-.milestone-item__date {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--text-secondary);
-  text-transform: uppercase;
+.btn--danger {
+  @include ui.button-base();
+  background: rgba(182, 62, 62, 0.1);
+  color: var(--state-danger);
 }
 
-.empty-card,
 .state {
   @include ui.state-card();
-}
-
-.state--loading {
-  color: var(--text-secondary);
 }
 
 .state--error {
@@ -326,8 +151,257 @@ h1 {
   background: rgba(182, 62, 62, 0.08);
 }
 
-@media (max-width: 1100px) {
-  .tasks-grid {
+.state--success {
+  color: #166534;
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.stats-strip {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.stat-card {
+  @include ui.layer-card(22px, 24px);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 247, 252, 0.96));
+}
+
+.stat-card strong {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  line-height: 0.92;
+  color: var(--text-primary);
+}
+
+.stat-card--accent {
+  background:
+    radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 35%),
+    linear-gradient(165deg, var(--brand-primary), #7525ff);
+}
+
+.stat-card--accent span,
+.stat-card--accent strong,
+.stat-card--accent small {
+  color: #fff;
+}
+
+.tasks-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.8fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.filters-panel,
+.task-column,
+.composer-card,
+.side-card {
+  @include ui.layer-card(22px, 24px);
+}
+
+.field {
+  display: grid;
+  gap: 8px;
+}
+
+.field input,
+.field select,
+.field textarea {
+  @include ui.input-field(14px 16px, 16px);
+  resize: vertical;
+}
+
+.field input:focus,
+.field select:focus,
+.field textarea:focus {
+  @include ui.input-focus();
+}
+
+.field--search {
+  width: 100%;
+}
+
+.field--select {
+  min-width: 220px;
+}
+
+.status-strip {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.filter-chip {
+  @include ui.button-base(999px);
+  min-height: 38px;
+  padding: 0 16px;
+  background: var(--surface-container-lowest);
+  color: var(--text-secondary);
+}
+
+.filter-chip--active {
+  background: rgba(83, 0, 183, 0.12);
+  color: var(--brand-primary);
+}
+
+.filter-chip--danger {
+  background: rgba(254, 226, 226, 0.6);
+}
+
+.task-columns {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.task-column__head h2,
+.composer-card__head h2,
+.side-card__head h2,
+.task-card h3 {
+  margin: 0;
+}
+
+.task-column__head p {
+  margin-top: 6px;
+}
+
+.task-column__head span {
+  @include ui.chip-base();
+  background: rgba(83, 0, 183, 0.1);
+  color: var(--brand-primary);
+}
+
+.task-card {
+  @include ui.soft-panel(18px, 18px);
+  display: grid;
+  gap: 14px;
+  border: 1px solid rgba(228, 231, 237, 0.9);
+}
+
+.task-card--done {
+  opacity: 0.82;
+}
+
+.task-card__eyebrow,
+.task-card__meta {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.task-chip {
+  @include ui.chip-base();
+}
+
+.task-chip--type {
+  background: rgba(83, 0, 183, 0.1);
+  color: var(--brand-primary);
+}
+
+.task-chip--high {
+  background: rgba(254, 226, 226, 0.95);
+  color: #b91c1c;
+}
+
+.task-chip--medium {
+  background: rgba(255, 237, 213, 0.95);
+  color: #c2410c;
+}
+
+.task-chip--low {
+  background: rgba(220, 252, 231, 0.92);
+  color: #166534;
+}
+
+.task-chip--neutral {
+  background: var(--surface-container-high);
+  color: var(--text-secondary);
+}
+
+.task-chip--danger {
+  background: rgba(254, 226, 226, 0.95);
+  color: #b91c1c;
+}
+
+.task-card__description {
+  line-height: 1.62;
+}
+
+.task-card__meta span {
+  @include ui.chip-base();
+  background: rgba(241, 244, 248, 0.92);
+}
+
+.task-card__actions {
+  flex-wrap: wrap;
+}
+
+.inline-link {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--brand-primary);
+  font: inherit;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.composer-card__hint {
+  max-width: 320px;
+}
+
+.empty-card {
+  @include ui.state-card();
+}
+
+.empty-card strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--text-primary);
+}
+
+.empty-card--soft {
+  background: rgba(247, 248, 251, 0.98);
+}
+
+.reminder-list {
+  gap: 12px;
+}
+
+.reminder-item {
+  @include ui.soft-panel(16px, 18px);
+  border: 0;
+  text-align: left;
+  background: rgba(246, 248, 252, 0.96);
+  cursor: pointer;
+}
+
+.reminder-item strong {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+}
+
+.reminder-item span {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--brand-primary);
+}
+
+@media (max-width: 1320px) {
+  .task-columns {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1180px) {
+  .stats-strip,
+  .tasks-layout,
+  .field-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -335,25 +409,27 @@ h1 {
 @media (max-width: 760px) {
   .tasks__hero,
   .filters-panel__row,
-  .task-card__head,
   .task-card__actions,
-  .milestone-item {
+  .composer-card__head,
+  .composer-card__footer,
+  .reminder-item {
     flex-direction: column;
     align-items: flex-start;
   }
 
-  .field,
-  .field--search,
-  .field--select,
-  .btn--secondary,
-  .btn--primary {
-    width: 100%;
+  .filters-panel,
+  .task-column,
+  .composer-card,
+  .side-card,
+  .stat-card {
+    padding: 20px 18px;
   }
 
-  .filters-panel,
-  .task-card,
-  .productivity-card,
-  .milestones-card {
-    padding: 20px 18px;
+  .field--select,
+  .btn,
+  .btn--danger,
+  .btn--ghost,
+  .btn--secondary {
+    width: 100%;
   }
 }
