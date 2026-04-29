@@ -1,7 +1,7 @@
 ﻿import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 
 import { AuthUseCase } from '../../application/auth-use-case';
@@ -23,6 +23,7 @@ export class SignInPage implements OnInit {
   private readonly sessionUseCase = inject(AuthSessionUseCase);
   private readonly meUseCase = inject(MeUseCase);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   async ngOnInit(): Promise<void> {
     try {
@@ -59,7 +60,7 @@ export class SignInPage implements OnInit {
     this.authError.set(null);
     this.googleLoading.set(true);
     try {
-      await this.authUseCase.beginGoogleOAuthLogin('/auth/sign-in');
+      await this.authUseCase.beginGoogleOAuthLogin(this.buildAuthReturnPath());
     } catch {
       this.googleLoading.set(false);
       this.authError.set('No se pudo iniciar sesion con Google. Revisa la configuracion de OAuth y vuelve a intentar.');
@@ -70,7 +71,7 @@ export class SignInPage implements OnInit {
     this.authError.set(null);
     this.microsoftLoading.set(true);
     try {
-      await this.authUseCase.beginMicrosoftLogin('/auth/sign-in');
+      await this.authUseCase.beginMicrosoftLogin(this.buildAuthReturnPath());
     } catch {
       this.microsoftLoading.set(false);
       this.authError.set('No se pudo iniciar sesion con Microsoft. Verifica popups/cookies y vuelve a intentar.');
@@ -88,9 +89,10 @@ export class SignInPage implements OnInit {
     try {
       const currentPeriod = await firstValueFrom(this.meUseCase.getCurrentPeriod());
       const isOnboardingComplete = currentPeriod?.onboardingEstado?.toLowerCase() === 'completado';
+      const requestedRedirect = this.route.snapshot.queryParamMap.get('redirect');
 
       if (isOnboardingComplete) {
-        await this.router.navigateByUrl('/app/dashboard');
+        await this.router.navigateByUrl(this.sanitizeRedirect(requestedRedirect));
         return true;
       }
 
@@ -105,6 +107,23 @@ export class SignInPage implements OnInit {
       this.authError.set('No pudimos validar tu periodo actual. Puedes volver a entrar y crear el onboarding de este ciclo.');
       return false;
     }
+  }
+
+  private buildAuthReturnPath(): string {
+    const requestedRedirect = this.route.snapshot.queryParamMap.get('redirect');
+    if (!requestedRedirect) {
+      return '/auth/sign-in';
+    }
+
+    return `/auth/sign-in?redirect=${encodeURIComponent(requestedRedirect)}`;
+  }
+
+  private sanitizeRedirect(redirect: string | null): string {
+    if (!redirect || !redirect.startsWith('/') || redirect.startsWith('//')) {
+      return '/app/dashboard';
+    }
+
+    return redirect;
   }
 }
 

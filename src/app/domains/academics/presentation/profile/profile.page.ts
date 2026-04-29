@@ -1,11 +1,13 @@
 import { CommonModule, DatePipe } from '@angular/common';
 import { Component, OnDestroy, OnInit, inject } from '@angular/core';
 import { ReactiveFormsModule, UntypedFormBuilder, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription, forkJoin, interval } from 'rxjs';
 
 import { CatalogCampus, CatalogCareer, CatalogCourse, CatalogUseCase } from '../../application/catalog-use-case';
 import { MeUseCase, MyCalendarSyncAccount, MyCourse, MyCurrentPeriod } from '../../application/me-use-case';
 import { WhatsappLinkCodeResponse, WhatsappLinkStatusResponse, WhatsappUseCase } from '../../application/whatsapp-use-case';
+import { AuthUseCase } from '../../../identity/application/auth-use-case';
 import { apiErrorMessage } from '../../../identity/infrastructure/http/api-error.interceptor';
 
 type CatalogCycleFilter = number | 'all';
@@ -31,8 +33,12 @@ export class ProfilePage implements OnInit {
   private readonly meUseCase = inject(MeUseCase);
   private readonly catalogUseCase = inject(CatalogUseCase);
   private readonly whatsappUseCase = inject(WhatsappUseCase);
+  private readonly authUseCase = inject(AuthUseCase);
   private readonly fb = inject(UntypedFormBuilder);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private whatsappPollingSubscription: Subscription | null = null;
+  private hasHandledCalendarOAuthReturn = false;
 
   readonly personalForm = this.fb.group({
     nombre: ['', [Validators.required, Validators.minLength(3)]],
@@ -337,7 +343,7 @@ export class ProfilePage implements OnInit {
       return 'Disponible luego';
     }
     if (!account.conectado) {
-      return 'Entrar con Google';
+      return 'Conectar con Google';
     }
     return this.isSyncingGoogleCalendar ? 'Sincronizando...' : 'Sincronizar ahora';
   }
@@ -365,7 +371,9 @@ export class ProfilePage implements OnInit {
     }
 
     if (!account.conectado) {
-      window.location.assign('/auth/sign-in');
+      this.calendarSyncError = '';
+      this.calendarSyncSuccess = '';
+      window.location.assign('/auth/sign-in?redirect=' + encodeURIComponent('/app/perfil?calendar=google-connected'));
       return;
     }
 
@@ -682,6 +690,7 @@ export class ProfilePage implements OnInit {
         this.patchConfigForm(period);
         this.rebuildSelectedCourses(courses);
         this.loadAvailableCourses();
+        this.handleCalendarOAuthReturn(syncAccounts);
         this.isLoading = false;
         this.isWhatsappLoading = false;
       },
@@ -697,11 +706,39 @@ export class ProfilePage implements OnInit {
     this.meUseCase.getCalendarSyncAccounts().subscribe({
       next: (accounts) => {
         this.calendarSyncAccounts = accounts;
+        this.handleCalendarOAuthReturn(accounts);
       },
       error: () => {
         this.calendarSyncError = 'Se ejecuto la operacion, pero no se pudo recargar el estado de calendario.';
       }
     });
+  }
+
+  private handleCalendarOAuthReturn(accounts: MyCalendarSyncAccount[]): void {
+    if (this.hasHandledCalendarOAuthReturn) {
+      return;
+    }
+
+    if (this.route.snapshot.queryParamMap.get('calendar') !== 'google-connected') {
+      return;
+    }
+
+    this.hasHandledCalendarOAuthReturn = true;
+    this.router.navigate([], {
+      queryParams: { calendar: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true
+    });
+
+    const googleAccount = accounts.find((account) => account.provider === 'google');
+    if (!googleAccount?.conectado) {
+      this.calendarSyncError = 'Se completo el login, pero Google Calendar no quedo vinculado. Revisa los permisos y vuelve a intentar.';
+      this.calendarSyncSuccess = '';
+      return;
+    }
+
+    this.calendarSyncSuccess = 'Cuenta de Google conectada. Iniciando la primera sincronizacion...';
+    this.triggerCalendarSync(googleAccount);
   }
 
   private bindCareerChanges(): void {
