@@ -396,8 +396,10 @@ export class ProfilePage implements OnInit {
     this.meUseCase.syncGoogleCalendar().subscribe({
       next: (result) => {
         this.isSyncingGoogleCalendar = false;
-        this.calendarSyncSuccess =
-          `Google Calendar actualizado. ${result.created} creados, ${result.updated} actualizados, ${result.deleted} eliminados, ${result.unchanged} sin cambios.`;
+        this.calendarSyncSuccess = this.buildCalendarSyncSummary(result);
+        this.calendarSyncError = result.failed > 0
+          ? `${result.failed} evento(s) no se pudieron sincronizar. Revisa los horarios o vuelve a intentar.`
+          : '';
         this.refreshCalendarAccounts();
       },
       error: (error) => {
@@ -659,6 +661,7 @@ export class ProfilePage implements OnInit {
             this.loadAvailableCourses();
             this.isSavingConfig = false;
             this.configSuccess = 'Configuracion del ciclo actualizada.';
+            this.syncCalendarAfterConfigurationSave();
           },
           error: () => {
             this.currentCourses = [];
@@ -720,6 +723,17 @@ export class ProfilePage implements OnInit {
         this.calendarSyncError = 'Se ejecuto la operacion, pero no se pudo recargar el estado de calendario.';
       }
     });
+  }
+
+  private syncCalendarAfterConfigurationSave(): void {
+    const googleAccount = this.calendarSyncAccounts.find((account) => account.provider === 'google' && account.conectado);
+    if (!googleAccount) {
+      return;
+    }
+
+    this.calendarSyncError = '';
+    this.calendarSyncSuccess = 'Se actualizaron tus cursos. Resincronizando Google Calendar...';
+    this.triggerCalendarSync(googleAccount);
   }
 
   private handleCalendarOAuthReturn(accounts: MyCalendarSyncAccount[]): void {
@@ -792,6 +806,21 @@ export class ProfilePage implements OnInit {
         window.setTimeout(() => this.awaitGoogleCalendarConnection(attempt + 1), 1500);
       }
     });
+  }
+
+  private buildCalendarSyncSummary(result: { created: number; updated: number; deleted: number; unchanged: number; failed: number }): string {
+    const parts = [
+      `${result.created} creados`,
+      `${result.updated} actualizados`,
+      `${result.deleted} eliminados`,
+      `${result.unchanged} sin cambios`
+    ];
+
+    if (result.failed > 0) {
+      parts.push(`${result.failed} con error`);
+    }
+
+    return `Google Calendar actualizado. ${parts.join(', ')}.`;
   }
 
   private bindCareerChanges(): void {
