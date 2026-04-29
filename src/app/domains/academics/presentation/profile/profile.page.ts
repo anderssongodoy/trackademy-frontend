@@ -376,8 +376,12 @@ export class ProfilePage implements OnInit {
 
     if (!account.conectado) {
       this.calendarSyncError = '';
-      this.calendarSyncSuccess = '';
-      window.location.assign('/auth/sign-in?redirect=' + encodeURIComponent('/app/perfil?calendar=google-connected'));
+      this.calendarSyncSuccess = 'Abriendo permisos de Google Calendar...';
+      void this.authUseCase.beginGoogleOAuthLogin('/app/perfil?calendar=google-connected')
+        .catch(() => {
+          this.calendarSyncSuccess = '';
+          this.calendarSyncError = 'No se pudo abrir la autorizacion de Google Calendar.';
+        });
       return;
     }
 
