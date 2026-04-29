@@ -30,6 +30,7 @@ interface SelectedCourseView {
   styleUrl: './profile.page.scss'
 })
 export class ProfilePage implements OnInit {
+  private static readonly AUTO_SYNC_STALE_MS = 15 * 60 * 1000;
   private readonly meUseCase = inject(MeUseCase);
   private readonly catalogUseCase = inject(CatalogUseCase);
   private readonly whatsappUseCase = inject(WhatsappUseCase);
@@ -702,6 +703,7 @@ export class ProfilePage implements OnInit {
         this.rebuildSelectedCourses(courses);
         this.loadAvailableCourses();
         this.handleCalendarOAuthReturn(syncAccounts);
+        this.autoRefreshCalendarIfStale(syncAccounts);
         this.isLoading = false;
         this.isWhatsappLoading = false;
       },
@@ -718,6 +720,7 @@ export class ProfilePage implements OnInit {
       next: (accounts) => {
         this.calendarSyncAccounts = accounts;
         this.handleCalendarOAuthReturn(accounts);
+        this.autoRefreshCalendarIfStale(accounts);
       },
       error: () => {
         this.calendarSyncError = 'Se ejecuto la operacion, pero no se pudo recargar el estado de calendario.';
@@ -765,6 +768,26 @@ export class ProfilePage implements OnInit {
     }
 
     this.calendarSyncSuccess = 'Cuenta de Google conectada. Iniciando la primera sincronizacion...';
+    this.triggerCalendarSync(googleAccount);
+  }
+
+  private autoRefreshCalendarIfStale(accounts: MyCalendarSyncAccount[]): void {
+    if (this.route.snapshot.queryParamMap.get('calendar') === 'google-connected') {
+      return;
+    }
+    if (this.isSyncingGoogleCalendar || this.isAwaitingGoogleCalendarConnection) {
+      return;
+    }
+
+    const googleAccount = accounts.find((account) => account.provider === 'google' && account.conectado);
+    if (!googleAccount || !this.shouldAutoSync(googleAccount.lastSyncAt)) {
+      return;
+    }
+
+    this.calendarSyncError = '';
+    this.calendarSyncSuccess = googleAccount.lastSyncAt
+      ? 'Detectamos cambios pendientes. Actualizando Google Calendar...'
+      : 'Google Calendar ya esta conectado. Lanzando el primer empuje automaticamente...';
     this.triggerCalendarSync(googleAccount);
   }
 
@@ -821,6 +844,15 @@ export class ProfilePage implements OnInit {
     }
 
     return `Google Calendar actualizado. ${parts.join(', ')}.`;
+  }
+
+  private shouldAutoSync(lastSyncAt: string | null): boolean {
+    if (!lastSyncAt) {
+      return true;
+    }
+
+    const diff = Date.now() - new Date(lastSyncAt).getTime();
+    return Number.isFinite(diff) && diff >= ProfilePage.AUTO_SYNC_STALE_MS;
   }
 
   private bindCareerChanges(): void {

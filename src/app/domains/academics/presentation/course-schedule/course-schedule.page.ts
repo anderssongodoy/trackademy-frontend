@@ -288,11 +288,7 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
     this.isSaving.set(true);
     this.meUseCase.updateCourseSchedule(course.usuarioPeriodoCursoId, payload).subscribe({
       next: () => {
-        this.isSaving.set(false);
-        this.saveSuccess.set('Horario guardado correctamente. Redirigiendo al horario general...');
-        setTimeout(() => {
-          void this.router.navigate(['/app/horario']);
-        }, 900);
+        this.syncCalendarAfterScheduleSave();
       },
       error: (error) => {
         this.isSaving.set(false);
@@ -346,6 +342,41 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
 
     this.currentStep.set(2);
     this.bumpRevision();
+  }
+
+  private syncCalendarAfterScheduleSave(): void {
+    this.meUseCase.getCalendarSyncAccounts().subscribe({
+      next: (accounts) => {
+        const googleAccount = accounts.find((account) => account.provider === 'google' && account.conectado);
+        if (!googleAccount) {
+          this.finishSuccessfulSave('Horario guardado correctamente. Redirigiendo al horario general...');
+          return;
+        }
+
+        this.saveSuccess.set('Horario guardado. Sincronizando Google Calendar...');
+        this.meUseCase.syncGoogleCalendar().subscribe({
+          next: () => {
+            this.finishSuccessfulSave('Horario y Google Calendar actualizados. Redirigiendo al horario general...');
+          },
+          error: (error) => {
+            this.isSaving.set(false);
+            this.saveSuccess.set('');
+            this.saveError.set(apiErrorMessage(error, 'El horario se guardo, pero Google Calendar no se pudo actualizar.'));
+          }
+        });
+      },
+      error: () => {
+        this.finishSuccessfulSave('Horario guardado correctamente. No se pudo verificar Google Calendar, pero el cambio local ya quedo listo.');
+      }
+    });
+  }
+
+  private finishSuccessfulSave(message: string): void {
+    this.isSaving.set(false);
+    this.saveSuccess.set(message);
+    setTimeout(() => {
+      void this.router.navigate(['/app/horario']);
+    }, 1200);
   }
 
   private addPlan(day: number): void {

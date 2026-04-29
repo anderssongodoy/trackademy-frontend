@@ -3,7 +3,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
-import { MeUseCase, MyCalendarEvent, MyCourse, MyDashboardSummary, MyEvaluation, MyScheduleEntry } from '../../application/me-use-case';
+import { MeUseCase, MyCalendarEvent, MyCalendarSyncAccount, MyCourse, MyDashboardSummary, MyEvaluation, MyScheduleEntry } from '../../application/me-use-case';
 
 interface SetupStep {
   key: 'schedule' | 'grades' | 'calendar-sync';
@@ -74,10 +74,12 @@ interface TimelinePoint {
   styleUrl: './dashboard.page.scss'
 })
 export class DashboardPage implements OnInit {
+  private static readonly AUTO_SYNC_STALE_MS = 15 * 60 * 1000;
   private readonly meUseCase = inject(MeUseCase);
 
   isLoading = true;
   loadError = '';
+  syncMessage = '';
   summary: MyDashboardSummary | null = null;
   courses: MyCourse[] = [];
   schedule: MyScheduleEntry[] = [];
@@ -91,20 +93,51 @@ export class DashboardPage implements OnInit {
       summary: this.meUseCase.getDashboard(),
       courses: this.meUseCase.getMyCourses(),
       schedule: this.meUseCase.getMySchedule(),
-      evaluations: this.meUseCase.getMyEvaluations()
+      evaluations: this.meUseCase.getMyEvaluations(),
+      syncAccounts: this.meUseCase.getCalendarSyncAccounts()
     }).subscribe({
-      next: ({ summary, courses, schedule, evaluations }) => {
+      next: ({ summary, courses, schedule, evaluations, syncAccounts }) => {
         this.summary = summary;
         this.courses = courses;
         this.schedule = schedule;
         this.evaluations = evaluations;
         this.isLoading = false;
+        this.autoRefreshCalendarIfStale(syncAccounts);
       },
       error: () => {
         this.loadError = 'No se pudo cargar tu dashboard. Revisa tu sesion o el backend.';
         this.isLoading = false;
       }
     });
+  }
+
+  private autoRefreshCalendarIfStale(accounts: MyCalendarSyncAccount[]): void {
+    const googleAccount = accounts.find((account) => account.provider === 'google' && account.conectado);
+    if (!googleAccount || !this.shouldAutoSync(googleAccount.lastSyncAt)) {
+      return;
+    }
+
+    this.syncMessage = googleAccount.lastSyncAt
+      ? 'Actualizando Google Calendar con cambios recientes del ciclo...'
+      : 'Ejecutando el primer empuje de Google Calendar...';
+
+    this.meUseCase.syncGoogleCalendar().subscribe({
+      next: () => {
+        this.syncMessage = 'Google Calendar sincronizado automaticamente.';
+      },
+      error: () => {
+        this.syncMessage = '';
+      }
+    });
+  }
+
+  private shouldAutoSync(lastSyncAt: string | null): boolean {
+    if (!lastSyncAt) {
+      return true;
+    }
+
+    const diff = Date.now() - new Date(lastSyncAt).getTime();
+    return Number.isFinite(diff) && diff >= DashboardPage.AUTO_SYNC_STALE_MS;
   }
 
   get currentPeriod() {
