@@ -67,6 +67,7 @@ export class ProfilePage implements OnInit {
   isUnlinkingWhatsapp = false;
   isSyncingGoogleCalendar = false;
   isDisconnectingGoogleCalendar = false;
+  isAwaitingGoogleCalendarConnection = false;
 
   loadError = '';
   personalError = '';
@@ -349,6 +350,9 @@ export class ProfilePage implements OnInit {
   }
 
   syncMetaLabel(account: MyCalendarSyncAccount): string {
+    if (account.provider === 'google' && this.isAwaitingGoogleCalendarConnection && !account.conectado) {
+      return 'Validando la conexion con Google antes del primer empuje.';
+    }
     if (account.lastSyncAt) {
       return `Ultima sync: ${new Intl.DateTimeFormat('es-PE', {
         day: '2-digit',
@@ -731,14 +735,59 @@ export class ProfilePage implements OnInit {
     });
 
     const googleAccount = accounts.find((account) => account.provider === 'google');
-    if (!googleAccount?.conectado) {
-      this.calendarSyncError = 'Se completo el login, pero Google Calendar no quedo vinculado. Revisa los permisos y vuelve a intentar.';
+    if (!googleAccount) {
+      this.calendarSyncError = 'No se pudo validar el estado de Google Calendar en este momento.';
       this.calendarSyncSuccess = '';
+      return;
+    }
+
+    if (!googleAccount.conectado) {
+      this.awaitGoogleCalendarConnection();
       return;
     }
 
     this.calendarSyncSuccess = 'Cuenta de Google conectada. Iniciando la primera sincronizacion...';
     this.triggerCalendarSync(googleAccount);
+  }
+
+  private awaitGoogleCalendarConnection(attempt = 0): void {
+    const maxAttempts = 6;
+    this.isAwaitingGoogleCalendarConnection = true;
+    this.calendarSyncError = '';
+    this.calendarSyncSuccess = 'Validando la conexion de Google Calendar...';
+
+    this.meUseCase.getCalendarSyncAccounts().subscribe({
+      next: (accounts) => {
+        this.calendarSyncAccounts = accounts;
+        const googleAccount = accounts.find((account) => account.provider === 'google');
+
+        if (googleAccount?.conectado) {
+          this.isAwaitingGoogleCalendarConnection = false;
+          this.calendarSyncSuccess = 'Cuenta de Google conectada. Iniciando la primera sincronizacion...';
+          this.triggerCalendarSync(googleAccount);
+          return;
+        }
+
+        if (attempt + 1 >= maxAttempts) {
+          this.isAwaitingGoogleCalendarConnection = false;
+          this.calendarSyncError = 'Se completo el login, pero Google Calendar no quedo vinculado. Revisa los permisos y vuelve a intentar.';
+          this.calendarSyncSuccess = '';
+          return;
+        }
+
+        window.setTimeout(() => this.awaitGoogleCalendarConnection(attempt + 1), 1500);
+      },
+      error: () => {
+        if (attempt + 1 >= maxAttempts) {
+          this.isAwaitingGoogleCalendarConnection = false;
+          this.calendarSyncError = 'Se completo el login, pero no se pudo confirmar la vinculacion de Google Calendar.';
+          this.calendarSyncSuccess = '';
+          return;
+        }
+
+        window.setTimeout(() => this.awaitGoogleCalendarConnection(attempt + 1), 1500);
+      }
+    });
   }
 
   private bindCareerChanges(): void {
