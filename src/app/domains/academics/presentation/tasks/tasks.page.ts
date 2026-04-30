@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { catchError, forkJoin, of } from 'rxjs';
 
 import {
@@ -13,11 +13,13 @@ import {
   TaskUpsertRequest
 } from '../../application/me-use-case';
 import { apiErrorMessage } from '../../../identity/infrastructure/http/api-error.interceptor';
+import { ToastService } from '../../../../shared/ui/toast/toast.service';
 
 type TaskStatusFilter = 'all' | 'pending' | 'in_progress' | 'completed' | 'overdue';
 type TaskColumnKey = 'pending' | 'in_progress' | 'completed' | 'overdue';
 type TaskPriorityTone = 'high' | 'medium' | 'low' | 'neutral';
 type TaskFormMode = 'create' | 'edit';
+type TaskUiStatus = 'pending' | 'in_progress' | 'completed';
 
 interface TaskDraft {
   usuarioPeriodoCursoId: string;
@@ -28,7 +30,6 @@ interface TaskDraft {
   estado: string;
   fechaVencimiento: string;
   fechaRecordatorio: string;
-  canalRecordatorio: string;
 }
 
 interface TaskColumn {
@@ -48,15 +49,14 @@ interface TaskColumn {
 export class TasksPage implements OnInit {
   private readonly meUseCase = inject(MeUseCase);
   private readonly route = inject(ActivatedRoute);
+  private readonly toastService = inject(ToastService);
 
   isLoading = true;
   isSaving = false;
   deletingTaskId: number | null = null;
-  isSyncingCalendar = false;
+  isComposerOpen = false;
 
   loadError = '';
-  actionError = '';
-  actionSuccess = '';
 
   tasks: MyTask[] = [];
   courses: MyCourse[] = [];
@@ -66,7 +66,6 @@ export class TasksPage implements OnInit {
   selectedCourseId = 'all';
   selectedStatus: TaskStatusFilter = 'all';
   searchQuery = '';
-  isComposerOpen = true;
   formMode: TaskFormMode = 'create';
   editingTaskId: number | null = null;
 
@@ -74,7 +73,7 @@ export class TasksPage implements OnInit {
 
   ngOnInit(): void {
     if (this.route.snapshot.queryParamMap.get('new') === '1') {
-      this.isComposerOpen = true;
+      this.openCreateComposer();
     }
 
     this.loadSnapshot();
@@ -100,11 +99,33 @@ export class TasksPage implements OnInit {
     return this.calendarSyncAccounts.find((account) => account.provider === 'google' && account.conectado) ?? null;
   }
 
+  get reminderChannelLabel(): string {
+    return this.connectedGoogleCalendar ? 'Google Calendar' : 'Calendario de Trackademy';
+  }
+
+  get composerEyebrow(): string {
+    return this.formMode === 'create' ? 'Nueva tarea' : 'Editar tarea';
+  }
+
+  get composerTitle(): string {
+    return this.formMode === 'create'
+      ? 'Bloquea tu siguiente pendiente'
+      : 'Ajusta el trabajo que ya registraste';
+  }
+
+  get submitLabel(): string {
+    if (this.isSaving) {
+      return 'Guardando...';
+    }
+
+    return this.formMode === 'create' ? 'Crear tarea' : 'Guardar cambios';
+  }
+
   get courseOptions(): Array<{ value: string; label: string }> {
     return this.courses
       .map((course) => ({
         value: `${course.usuarioPeriodoCursoId}`,
-        label: `${course.codigo} · ${course.nombre}`
+        label: `${course.codigo} - ${course.nombre}`
       }))
       .sort((left, right) => left.label.localeCompare(right.label));
   }
@@ -215,8 +236,14 @@ export class TasksPage implements OnInit {
     this.formMode = 'create';
     this.editingTaskId = null;
     this.draft = this.createEmptyDraft();
-    this.actionError = '';
-    this.actionSuccess = '';
+  }
+
+  closeComposer(): void {
+    this.isComposerOpen = false;
+    this.formMode = 'create';
+    this.editingTaskId = null;
+    this.draft = this.createEmptyDraft();
+    this.isSaving = false;
   }
 
   editTask(task: MyTask): void {
@@ -231,11 +258,8 @@ export class TasksPage implements OnInit {
       prioridad: task.prioridad ?? 'media',
       estado: this.taskStatusValue(task),
       fechaVencimiento: this.toDateTimeLocal(task.fechaVencimiento),
-      fechaRecordatorio: this.toDateTimeLocal(task.fechaRecordatorio),
-      canalRecordatorio: task.canalRecordatorio ?? 'app'
+      fechaRecordatorio: this.toDateTimeLocal(task.fechaRecordatorio)
     };
-    this.actionError = '';
-    this.actionSuccess = '';
   }
 
   focusTaskFromReminder(reminder: MyReminder): void {
@@ -262,7 +286,7 @@ export class TasksPage implements OnInit {
       estado: nextStatus,
       fechaVencimiento: task.fechaVencimiento,
       fechaRecordatorio: task.fechaRecordatorio,
-      canalRecordatorio: task.canalRecordatorio
+      canalRecordatorio: task.fechaRecordatorio ? 'app' : null
     }, completed ? 'Tarea marcada como completada.' : 'Tarea reabierta.');
   }
 
@@ -272,20 +296,18 @@ export class TasksPage implements OnInit {
     }
 
     this.deletingTaskId = task.id;
-    this.actionError = '';
-    this.actionSuccess = '';
 
     this.meUseCase.deleteTask(task.id).subscribe({
       next: () => {
         this.deletingTaskId = null;
         if (this.editingTaskId === task.id) {
-          this.openCreateComposer();
+          this.closeComposer();
         }
         this.refreshAfterMutation('Tarea eliminada.');
       },
       error: (error) => {
         this.deletingTaskId = null;
-        this.actionError = apiErrorMessage(error, 'No se pudo eliminar la tarea.');
+        this.toastService.error(apiErrorMessage(error, 'No se pudo eliminar la tarea.'));
       }
     });
   }
@@ -297,15 +319,12 @@ export class TasksPage implements OnInit {
 
     const validationError = this.validateDraft();
     if (validationError) {
-      this.actionError = validationError;
-      this.actionSuccess = '';
+      this.toastService.error(validationError);
       return;
     }
 
     const payload = this.toPayload();
     this.isSaving = true;
-    this.actionError = '';
-    this.actionSuccess = '';
 
     if (this.formMode === 'edit' && this.editingTaskId) {
       this.mutateTask(this.editingTaskId, payload, 'Tarea actualizada.');
@@ -315,18 +334,14 @@ export class TasksPage implements OnInit {
     this.meUseCase.createTask(payload).subscribe({
       next: () => {
         this.isSaving = false;
-        this.openCreateComposer();
+        this.closeComposer();
         this.refreshAfterMutation('Tarea creada.');
       },
       error: (error) => {
         this.isSaving = false;
-        this.actionError = apiErrorMessage(error, 'No se pudo crear la tarea.');
+        this.toastService.error(apiErrorMessage(error, 'No se pudo crear la tarea.'));
       }
     });
-  }
-
-  cancelEdit(): void {
-    this.openCreateComposer();
   }
 
   dueLabel(task: MyTask): string {
@@ -342,7 +357,7 @@ export class TasksPage implements OnInit {
       return 'Sin recordatorio';
     }
 
-    return this.formatDateTime(task.fechaRecordatorio);
+    return `${this.reminderChannelLabel} - ${this.formatDateTime(task.fechaRecordatorio)}`;
   }
 
   reminderDateLabel(reminder: MyReminder): string {
@@ -430,38 +445,35 @@ export class TasksPage implements OnInit {
     this.meUseCase.updateTask(taskId, payload).subscribe({
       next: () => {
         this.isSaving = false;
+        this.closeComposer();
         this.refreshAfterMutation(successMessage);
       },
       error: (error) => {
         this.isSaving = false;
-        this.actionError = apiErrorMessage(error, 'No se pudo actualizar la tarea.');
+        this.toastService.error(apiErrorMessage(error, 'No se pudo actualizar la tarea.'));
       }
     });
   }
 
   private refreshAfterMutation(successMessage: string): void {
     if (!this.connectedGoogleCalendar) {
-      this.actionSuccess = successMessage;
-      this.actionError = '';
+      this.toastService.success(successMessage);
       this.reloadData();
       return;
     }
 
-    this.isSyncingCalendar = true;
-    this.actionSuccess = `${successMessage} Actualizando Google Calendar...`;
-    this.actionError = '';
-
+    this.toastService.info(`${successMessage} Sincronizando calendario...`);
     this.meUseCase.syncGoogleCalendar().subscribe({
-      next: () => {
-        this.isSyncingCalendar = false;
-        this.actionSuccess = `${successMessage} Google Calendar quedo al dia.`;
-        this.actionError = '';
+      next: (result) => {
+        if (result.created === 0 && result.updated === 0 && result.deleted === 0) {
+          this.toastService.info('No habia cambios nuevos para Google Calendar. Las tareas completadas o sin vencimiento no crean eventos.');
+        } else {
+          this.toastService.success(`${successMessage} Google Calendar actualizado.`);
+        }
         this.reloadData();
       },
       error: (error) => {
-        this.isSyncingCalendar = false;
-        this.actionSuccess = '';
-        this.actionError = apiErrorMessage(error, `${successMessage} El cambio local quedo guardado, pero Google Calendar no se pudo actualizar.`);
+        this.toastService.error(apiErrorMessage(error, `${successMessage} El cambio local quedo guardado, pero Google Calendar no se pudo actualizar.`));
         this.reloadData();
       }
     });
@@ -479,7 +491,7 @@ export class TasksPage implements OnInit {
         this.calendarSyncAccounts = syncAccounts;
       },
       error: (error) => {
-        this.actionError = apiErrorMessage(error, 'Se guardo el cambio, pero no se pudo recargar la vista de tareas.');
+        this.toastService.error(apiErrorMessage(error, 'Se guardo el cambio, pero no se pudo recargar la vista de tareas.'));
       }
     });
   }
@@ -510,7 +522,7 @@ export class TasksPage implements OnInit {
       estado: this.cleanText(this.draft.estado),
       fechaVencimiento: this.draft.fechaVencimiento ? new Date(this.draft.fechaVencimiento).toISOString() : null,
       fechaRecordatorio: this.draft.fechaRecordatorio ? new Date(this.draft.fechaRecordatorio).toISOString() : null,
-      canalRecordatorio: this.draft.fechaRecordatorio ? (this.cleanText(this.draft.canalRecordatorio) ?? 'app') : null
+      canalRecordatorio: this.draft.fechaRecordatorio ? 'app' : null
     };
   }
 
@@ -523,12 +535,11 @@ export class TasksPage implements OnInit {
       prioridad: 'media',
       estado: 'pendiente',
       fechaVencimiento: '',
-      fechaRecordatorio: '',
-      canalRecordatorio: 'app'
+      fechaRecordatorio: ''
     };
   }
 
-  private normalizedStatus(task: MyTask): 'pending' | 'in_progress' | 'completed' {
+  private normalizedStatus(task: MyTask): TaskUiStatus {
     const raw = (task.estado ?? '').toLowerCase();
     if (raw === 'completada') {
       return 'completed';
@@ -571,6 +582,10 @@ export class TasksPage implements OnInit {
   }
 
   private taskSortValue(task: MyTask): number {
+    if (this.isOverdue(task)) {
+      return new Date(task.fechaVencimiento ?? task.updatedAt).getTime() - 1_000_000_000_000;
+    }
+
     if (this.normalizedStatus(task) === 'completed') {
       return -(new Date(task.updatedAt).getTime());
     }

@@ -186,15 +186,15 @@ h1 {
 
 .tasks-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(320px, 0.8fr);
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
   gap: 24px;
   align-items: start;
 }
 
 .filters-panel,
 .task-column,
-.composer-card,
-.side-card {
+.side-card,
+.composer-card {
   @include ui.layer-card(22px, 24px);
 }
 
@@ -214,6 +214,15 @@ h1 {
 .field select:focus,
 .field textarea:focus {
   @include ui.input-focus();
+}
+
+.field-static {
+  @include ui.input-field(14px 16px, 16px);
+  display: flex;
+  align-items: center;
+  min-height: 54px;
+  color: var(--text-primary);
+  background: rgba(246, 248, 252, 0.92);
 }
 
 .field--search {
@@ -350,10 +359,6 @@ h1 {
   gap: 14px;
 }
 
-.composer-card__hint {
-  max-width: 320px;
-}
-
 .empty-card {
   @include ui.state-card();
 }
@@ -392,6 +397,31 @@ h1 {
   color: var(--brand-primary);
 }
 
+.modal-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(15, 23, 42, 0.38);
+  backdrop-filter: blur(6px);
+}
+
+.composer-modal {
+  width: min(760px, calc(100vw - 32px));
+  max-height: calc(100vh - 40px);
+  overflow: auto;
+}
+
+.composer-card {
+  gap: 24px;
+}
+
+.composer-card__hint {
+  max-width: 340px;
+}
+
 @media (max-width: 1320px) {
   .task-columns {
     grid-template-columns: 1fr;
@@ -400,8 +430,11 @@ h1 {
 
 @media (max-width: 1180px) {
   .stats-strip,
-  .tasks-layout,
   .field-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tasks-layout {
     grid-template-columns: 1fr;
   }
 }
@@ -419,8 +452,8 @@ h1 {
 
   .filters-panel,
   .task-column,
-  .composer-card,
   .side-card,
+  .composer-card,
   .stat-card {
     padding: 20px 18px;
   }
@@ -431,5 +464,9 @@ h1 {
   .btn--ghost,
   .btn--secondary {
     width: 100%;
+  }
+
+  .modal-scrim {
+    padding: 12px;
   }
 }

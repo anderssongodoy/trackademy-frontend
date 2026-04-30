@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
 import { MeUseCase, MyCalendarEvent, MyCalendarSyncAccount, MyCourse, MyDashboardSummary, MyEvaluation, MyScheduleEntry } from '../../application/me-use-case';
+import { ToastService } from '../../../../shared/ui/toast/toast.service';
 
 interface SetupStep {
   key: 'schedule' | 'grades' | 'calendar-sync';
@@ -76,10 +77,10 @@ interface TimelinePoint {
 export class DashboardPage implements OnInit {
   private static readonly AUTO_SYNC_STALE_MS = 15 * 60 * 1000;
   private readonly meUseCase = inject(MeUseCase);
+  private readonly toastService = inject(ToastService);
 
   isLoading = true;
   loadError = '';
-  syncMessage = '';
   summary: MyDashboardSummary | null = null;
   courses: MyCourse[] = [];
   schedule: MyScheduleEntry[] = [];
@@ -117,16 +118,22 @@ export class DashboardPage implements OnInit {
       return;
     }
 
-    this.syncMessage = googleAccount.lastSyncAt
-      ? 'Actualizando Google Calendar con cambios recientes del ciclo...'
-      : 'Ejecutando el primer empuje de Google Calendar...';
+    this.toastService.info(
+      googleAccount.lastSyncAt
+        ? 'Actualizando Google Calendar con cambios recientes del ciclo...'
+        : 'Ejecutando el primer empuje de Google Calendar...'
+    );
 
     this.meUseCase.syncGoogleCalendar().subscribe({
-      next: () => {
-        this.syncMessage = 'Google Calendar sincronizado automaticamente.';
+      next: (result) => {
+        if (result.created === 0 && result.updated === 0 && result.deleted === 0) {
+          this.toastService.info('Google Calendar ya estaba al dia.');
+        } else {
+          this.toastService.success('Google Calendar sincronizado automaticamente.');
+        }
       },
       error: () => {
-        this.syncMessage = '';
+        this.toastService.error('No se pudo actualizar Google Calendar automaticamente.');
       }
     });
   }

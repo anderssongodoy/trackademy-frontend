@@ -7,6 +7,7 @@ import { Subscription, forkJoin } from 'rxjs';
 import { CatalogCourse, CatalogUseCase } from '../../application/catalog-use-case';
 import { MeUseCase, MyCourse, MyScheduleEntry, ScheduleBlockRequest } from '../../application/me-use-case';
 import { apiErrorMessage } from '../../../identity/infrastructure/http/api-error.interceptor';
+import { ToastService } from '../../../../shared/ui/toast/toast.service';
 
 interface DayOption {
   value: number;
@@ -25,6 +26,7 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
   private readonly formBuilder = inject(UntypedFormBuilder);
   private readonly meUseCase = inject(MeUseCase);
   private readonly catalogUseCase = inject(CatalogUseCase);
+  private readonly toastService = inject(ToastService);
   private readonly formRevision = signal(0);
   private readonly subscriptions = new Subscription();
 
@@ -353,7 +355,7 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
           return;
         }
 
-        this.saveSuccess.set('Horario guardado. Sincronizando Google Calendar...');
+        this.toastService.info('Horario guardado. Sincronizando Google Calendar...');
         this.meUseCase.syncGoogleCalendar().subscribe({
           next: () => {
             this.finishSuccessfulSave('Horario y Google Calendar actualizados. Redirigiendo al horario general...');
@@ -373,7 +375,7 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
 
   private finishSuccessfulSave(message: string): void {
     this.isSaving.set(false);
-    this.saveSuccess.set(message);
+    this.toastService.success(message);
     setTimeout(() => {
       void this.router.navigate(['/app/horario']);
     }, 1200);

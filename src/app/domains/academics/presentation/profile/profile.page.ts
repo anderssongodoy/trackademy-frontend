@@ -9,6 +9,7 @@ import { MeUseCase, MyCalendarSyncAccount, MyCourse, MyCurrentPeriod } from '../
 import { WhatsappLinkCodeResponse, WhatsappLinkStatusResponse, WhatsappUseCase } from '../../application/whatsapp-use-case';
 import { AuthUseCase } from '../../../identity/application/auth-use-case';
 import { apiErrorMessage } from '../../../identity/infrastructure/http/api-error.interceptor';
+import { ToastService } from '../../../../shared/ui/toast/toast.service';
 
 type CatalogCycleFilter = number | 'all';
 
@@ -35,6 +36,7 @@ export class ProfilePage implements OnInit {
   private readonly catalogUseCase = inject(CatalogUseCase);
   private readonly whatsappUseCase = inject(WhatsappUseCase);
   private readonly authUseCase = inject(AuthUseCase);
+  private readonly toastService = inject(ToastService);
   private readonly fb = inject(UntypedFormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -351,9 +353,6 @@ export class ProfilePage implements OnInit {
   }
 
   syncMetaLabel(account: MyCalendarSyncAccount): string {
-    if (account.provider === 'google' && this.isAwaitingGoogleCalendarConnection && !account.conectado) {
-      return 'Validando la conexion con Google antes del primer empuje.';
-    }
     if (account.lastSyncAt) {
       return `Ultima sync: ${new Intl.DateTimeFormat('es-PE', {
         day: '2-digit',
@@ -370,18 +369,15 @@ export class ProfilePage implements OnInit {
 
   triggerCalendarSync(account: MyCalendarSyncAccount): void {
     if (account.provider !== 'google') {
-      this.calendarSyncError = 'Outlook queda pendiente para una fase posterior. Primero cerramos Google Calendar.';
-      this.calendarSyncSuccess = '';
+      this.toastService.info('Outlook queda pendiente para una fase posterior. Primero cerramos Google Calendar.');
       return;
     }
 
     if (!account.conectado) {
-      this.calendarSyncError = '';
-      this.calendarSyncSuccess = 'Abriendo permisos de Google Calendar...';
+      this.toastService.info('Abriendo permisos de Google Calendar...');
       void this.authUseCase.beginGoogleOAuthLogin('/app/perfil?calendar=google-connected')
         .catch(() => {
-          this.calendarSyncSuccess = '';
-          this.calendarSyncError = 'No se pudo abrir la autorizacion de Google Calendar.';
+          this.toastService.error('No se pudo abrir la autorizacion de Google Calendar.');
         });
       return;
     }
@@ -391,29 +387,30 @@ export class ProfilePage implements OnInit {
     }
 
     this.isSyncingGoogleCalendar = true;
-    this.calendarSyncError = '';
-    this.calendarSyncSuccess = '';
+    this.toastService.info('Sincronizando Google Calendar...');
 
     this.meUseCase.syncGoogleCalendar().subscribe({
       next: (result) => {
         this.isSyncingGoogleCalendar = false;
-        this.calendarSyncSuccess = this.buildCalendarSyncSummary(result);
-        this.calendarSyncError = result.failed > 0
-          ? `${result.failed} evento(s) no se pudieron sincronizar. Revisa los horarios o vuelve a intentar.`
-          : '';
+        if (result.failed > 0) {
+          this.toastService.error(`${this.buildCalendarSyncSummary(result)} ${result.failed} evento(s) no se pudieron sincronizar.`);
+        } else if (result.created === 0 && result.updated === 0 && result.deleted === 0) {
+          this.toastService.info('Google Calendar ya estaba al dia. No habia cambios nuevos para empujar.');
+        } else {
+          this.toastService.success(this.buildCalendarSyncSummary(result));
+        }
         this.refreshCalendarAccounts();
       },
       error: (error) => {
         this.isSyncingGoogleCalendar = false;
-        this.calendarSyncError = apiErrorMessage(error, 'No se pudo sincronizar Google Calendar.');
+        this.toastService.error(apiErrorMessage(error, 'No se pudo sincronizar Google Calendar.'));
       }
     });
   }
 
   disconnectCalendar(account: MyCalendarSyncAccount): void {
     if (account.provider !== 'google') {
-      this.calendarSyncError = 'La desconexion de Outlook no esta habilitada en esta fase.';
-      this.calendarSyncSuccess = '';
+      this.toastService.info('La desconexion de Outlook no esta habilitada en esta fase.');
       return;
     }
 
@@ -426,18 +423,17 @@ export class ProfilePage implements OnInit {
     }
 
     this.isDisconnectingGoogleCalendar = true;
-    this.calendarSyncError = '';
-    this.calendarSyncSuccess = '';
+    this.toastService.info('Desconectando Google Calendar...');
 
     this.meUseCase.disconnectGoogleCalendar().subscribe({
       next: (result) => {
         this.isDisconnectingGoogleCalendar = false;
-        this.calendarSyncSuccess = `Google Calendar desconectado. ${result.removedMappings} mapping(s) locales eliminados.`;
+        this.toastService.success(`Google Calendar desconectado. ${result.removedMappings} mapping(s) locales eliminados.`);
         this.refreshCalendarAccounts();
       },
       error: (error) => {
         this.isDisconnectingGoogleCalendar = false;
-        this.calendarSyncError = apiErrorMessage(error, 'No se pudo desconectar Google Calendar.');
+        this.toastService.error(apiErrorMessage(error, 'No se pudo desconectar Google Calendar.'));
       }
     });
   }
@@ -723,7 +719,7 @@ export class ProfilePage implements OnInit {
         this.autoRefreshCalendarIfStale(accounts);
       },
       error: () => {
-        this.calendarSyncError = 'Se ejecuto la operacion, pero no se pudo recargar el estado de calendario.';
+        this.toastService.error('Se ejecuto la operacion, pero no se pudo recargar el estado de calendario.');
       }
     });
   }
@@ -734,8 +730,7 @@ export class ProfilePage implements OnInit {
       return;
     }
 
-    this.calendarSyncError = '';
-    this.calendarSyncSuccess = 'Se actualizaron tus cursos. Resincronizando Google Calendar...';
+    this.toastService.info('Se actualizaron tus cursos. Resincronizando Google Calendar...');
     this.triggerCalendarSync(googleAccount);
   }
 
@@ -757,8 +752,7 @@ export class ProfilePage implements OnInit {
 
     const googleAccount = accounts.find((account) => account.provider === 'google');
     if (!googleAccount) {
-      this.calendarSyncError = 'No se pudo validar el estado de Google Calendar en este momento.';
-      this.calendarSyncSuccess = '';
+      this.toastService.error('No se pudo validar el estado de Google Calendar en este momento.');
       return;
     }
 
@@ -767,7 +761,7 @@ export class ProfilePage implements OnInit {
       return;
     }
 
-    this.calendarSyncSuccess = 'Cuenta de Google conectada. Iniciando la primera sincronizacion...';
+    this.toastService.success('Cuenta de Google conectada. Iniciando la primera sincronizacion...');
     this.triggerCalendarSync(googleAccount);
   }
 
@@ -784,18 +778,21 @@ export class ProfilePage implements OnInit {
       return;
     }
 
-    this.calendarSyncError = '';
-    this.calendarSyncSuccess = googleAccount.lastSyncAt
-      ? 'Detectamos cambios pendientes. Actualizando Google Calendar...'
-      : 'Google Calendar ya esta conectado. Lanzando el primer empuje automaticamente...';
+    this.toastService.info(
+      googleAccount.lastSyncAt
+        ? 'Detectamos cambios pendientes. Actualizando Google Calendar...'
+        : 'Google Calendar ya esta conectado. Lanzando el primer empuje automaticamente...'
+    );
     this.triggerCalendarSync(googleAccount);
   }
 
   private awaitGoogleCalendarConnection(attempt = 0): void {
     const maxAttempts = 6;
     this.isAwaitingGoogleCalendarConnection = true;
-    this.calendarSyncError = '';
-    this.calendarSyncSuccess = 'Validando la conexion de Google Calendar...';
+
+    if (attempt === 0) {
+      this.toastService.info('Validando la conexion de Google Calendar...');
+    }
 
     this.meUseCase.getCalendarSyncAccounts().subscribe({
       next: (accounts) => {
@@ -804,15 +801,14 @@ export class ProfilePage implements OnInit {
 
         if (googleAccount?.conectado) {
           this.isAwaitingGoogleCalendarConnection = false;
-          this.calendarSyncSuccess = 'Cuenta de Google conectada. Iniciando la primera sincronizacion...';
+          this.toastService.success('Cuenta de Google conectada. Iniciando la primera sincronizacion...');
           this.triggerCalendarSync(googleAccount);
           return;
         }
 
         if (attempt + 1 >= maxAttempts) {
           this.isAwaitingGoogleCalendarConnection = false;
-          this.calendarSyncError = 'Se completo el login, pero Google Calendar no quedo vinculado. Revisa los permisos y vuelve a intentar.';
-          this.calendarSyncSuccess = '';
+          this.toastService.error('Se completo el login, pero Google Calendar no quedo vinculado. Revisa los permisos y vuelve a intentar.');
           return;
         }
 
@@ -821,8 +817,7 @@ export class ProfilePage implements OnInit {
       error: () => {
         if (attempt + 1 >= maxAttempts) {
           this.isAwaitingGoogleCalendarConnection = false;
-          this.calendarSyncError = 'Se completo el login, pero no se pudo confirmar la vinculacion de Google Calendar.';
-          this.calendarSyncSuccess = '';
+          this.toastService.error('Se completo el login, pero no se pudo confirmar la vinculacion de Google Calendar.');
           return;
         }
 

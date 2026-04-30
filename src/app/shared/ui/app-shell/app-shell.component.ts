@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 import { AuthUseCase } from '../../../domains/identity/application/auth-use-case';
+import { ToastOutletComponent } from '../toast/toast-outlet.component';
 
 interface ShellNavItem {
   label: string;
@@ -14,7 +15,7 @@ interface ShellNavItem {
 
 @Component({
   selector: 'app-shell',
-  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet],
+  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet, ToastOutletComponent],
   templateUrl: './app-shell.component.html',
   styleUrl: './app-shell.component.scss'
 })

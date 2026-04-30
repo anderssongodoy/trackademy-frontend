@@ -17,7 +17,8 @@
           </div>
           <h1>Tareas que si dependen de ti</h1>
           <p class="hero__summary">
-            Esta pagina ya no repite evaluaciones del silabo. Aqui organizas trabajo manual real: pendientes, entregas, estudio propio y recordatorios operativos.
+            Esta pagina ya no repite evaluaciones del silabo. Aqui organizas trabajo manual real: pendientes,
+            entregas, estudio propio y recordatorios operativos.
           </p>
         </div>
 
@@ -25,14 +26,6 @@
           <button class="btn btn--primary" type="button" (click)="openCreateComposer()">Nueva tarea</button>
         </div>
       </header>
-
-      @if (actionSuccess) {
-        <div class="state state--success">{{ actionSuccess }}</div>
-      }
-
-      @if (actionError) {
-        <div class="state state--error">{{ actionError }}</div>
-      }
 
       <section class="stats-strip">
         <article class="stat-card stat-card--accent">
@@ -48,7 +41,7 @@
         <article class="stat-card">
           <span>Con recordatorio</span>
           <strong>{{ reminderTasksCount }}</strong>
-          <small>Avisos programados desde Trackademy.</small>
+          <small>Avisos programados hacia calendario.</small>
         </article>
         <article class="stat-card">
           <span>Completadas</span>
@@ -135,7 +128,7 @@
                           <div class="task-card__meta">
                             <span>{{ dueLabel(task) }}</span>
                             @if (task.codigoCurso && task.nombreCurso) {
-                              <span>{{ task.codigoCurso }} · {{ task.nombreCurso }}</span>
+                              <span>{{ task.codigoCurso }} - {{ task.nombreCurso }}</span>
                             } @else {
                               <span>Sin curso asignado</span>
                             }
@@ -170,109 +163,6 @@
         </div>
 
         <aside class="tasks-side">
-          @if (isComposerOpen) {
-            <article class="composer-card">
-              <header class="composer-card__head">
-                <div>
-                  <span>{{ formMode === 'create' ? 'Nueva tarea' : 'Editar tarea' }}</span>
-                  <h2>{{ formMode === 'create' ? 'Bloquea tu siguiente pendiente' : 'Ajusta el trabajo que ya registraste' }}</h2>
-                </div>
-                @if (formMode === 'edit') {
-                  <button class="inline-link" type="button" (click)="cancelEdit()">Cancelar</button>
-                }
-              </header>
-
-              <div class="composer-card__form">
-                <label class="field">
-                  <span>Titulo</span>
-                  <input type="text" [(ngModel)]="draft.titulo" placeholder="Ej. Preparar demo del sprint" />
-                </label>
-
-                <label class="field">
-                  <span>Descripcion</span>
-                  <textarea [(ngModel)]="draft.descripcion" rows="4" placeholder="Que necesitas cerrar, con que contexto o entregable final."></textarea>
-                </label>
-
-                <div class="field-grid">
-                  <label class="field">
-                    <span>Curso</span>
-                    <select [(ngModel)]="draft.usuarioPeriodoCursoId">
-                      <option value="">Sin curso</option>
-                      @for (course of courseOptions; track course.value) {
-                        <option [value]="course.value">{{ course.label }}</option>
-                      }
-                    </select>
-                  </label>
-
-                  <label class="field">
-                    <span>Tipo</span>
-                    <select [(ngModel)]="draft.tipo">
-                      <option value="tarea">Tarea</option>
-                      <option value="entrega">Entrega</option>
-                      <option value="estudio">Estudio</option>
-                      <option value="otro">Otro</option>
-                    </select>
-                  </label>
-                </div>
-
-                <div class="field-grid">
-                  <label class="field">
-                    <span>Prioridad</span>
-                    <select [(ngModel)]="draft.prioridad">
-                      <option value="alta">Alta</option>
-                      <option value="media">Media</option>
-                      <option value="baja">Baja</option>
-                    </select>
-                  </label>
-
-                  <label class="field">
-                    <span>Estado</span>
-                    <select [(ngModel)]="draft.estado">
-                      <option value="pendiente">Pendiente</option>
-                      <option value="en_progreso">En progreso</option>
-                      <option value="completada">Completada</option>
-                    </select>
-                  </label>
-                </div>
-
-                <div class="field-grid">
-                  <label class="field">
-                    <span>Vencimiento</span>
-                    <input type="datetime-local" [(ngModel)]="draft.fechaVencimiento" />
-                  </label>
-
-                  <label class="field">
-                    <span>Recordatorio</span>
-                    <input type="datetime-local" [(ngModel)]="draft.fechaRecordatorio" />
-                  </label>
-                </div>
-
-                <label class="field">
-                  <span>Canal del recordatorio</span>
-                  <select [(ngModel)]="draft.canalRecordatorio">
-                    <option value="app">App</option>
-                    <option value="email">Email</option>
-                    <option value="sms">SMS</option>
-                  </select>
-                </label>
-
-                <div class="composer-card__footer">
-                  <div class="composer-card__hint">
-                    @if (connectedGoogleCalendar) {
-                      <span>Si esta tarea tiene fecha, se resincroniza sola con Google Calendar.</span>
-                    } @else {
-                      <span>Sin Google Calendar conectado, la tarea queda solo dentro de Trackademy.</span>
-                    }
-                  </div>
-
-                  <button class="btn btn--primary" type="button" [disabled]="isSaving" (click)="submitTask()">
-                    {{ isSaving ? 'Guardando...' : (formMode === 'create' ? 'Crear tarea' : 'Guardar cambios') }}
-                  </button>
-                </div>
-              </div>
-            </article>
-          }
-
           <article class="side-card">
             <header class="side-card__head">
               <div>
@@ -304,5 +194,106 @@
         </aside>
       </section>
     </section>
+  }
+
+  @if (isComposerOpen) {
+    <div class="modal-scrim" (click)="closeComposer()">
+      <section class="composer-modal" role="dialog" aria-modal="true" aria-label="Editor de tarea" (click)="$event.stopPropagation()">
+        <article class="composer-card">
+          <header class="composer-card__head">
+            <div>
+              <span>{{ composerEyebrow }}</span>
+              <h2>{{ composerTitle }}</h2>
+            </div>
+            <button class="inline-link" type="button" (click)="closeComposer()">Cancelar</button>
+          </header>
+
+          <div class="composer-card__form">
+            <label class="field">
+              <span>Titulo</span>
+              <input type="text" [(ngModel)]="draft.titulo" placeholder="Ej. Preparar demo del sprint" />
+            </label>
+
+            <label class="field">
+              <span>Descripcion</span>
+              <textarea [(ngModel)]="draft.descripcion" rows="4" placeholder="Que necesitas cerrar, con que contexto o entregable final."></textarea>
+            </label>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>Curso</span>
+                <select [(ngModel)]="draft.usuarioPeriodoCursoId">
+                  <option value="">Sin curso</option>
+                  @for (course of courseOptions; track course.value) {
+                    <option [value]="course.value">{{ course.label }}</option>
+                  }
+                </select>
+              </label>
+
+              <label class="field">
+                <span>Tipo</span>
+                <select [(ngModel)]="draft.tipo">
+                  <option value="tarea">Tarea</option>
+                  <option value="entrega">Entrega</option>
+                  <option value="estudio">Estudio</option>
+                  <option value="otro">Otro</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>Prioridad</span>
+                <select [(ngModel)]="draft.prioridad">
+                  <option value="alta">Alta</option>
+                  <option value="media">Media</option>
+                  <option value="baja">Baja</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>Estado</span>
+                <select [(ngModel)]="draft.estado">
+                  <option value="pendiente">Pendiente</option>
+                  <option value="en_progreso">En progreso</option>
+                  <option value="completada">Completada</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>Vencimiento</span>
+                <input type="datetime-local" [(ngModel)]="draft.fechaVencimiento" />
+              </label>
+
+              <label class="field">
+                <span>Recordatorio</span>
+                <input type="datetime-local" [(ngModel)]="draft.fechaRecordatorio" />
+              </label>
+            </div>
+
+            <label class="field">
+              <span>Canal del recordatorio</span>
+              <div class="field-static">{{ reminderChannelLabel }}</div>
+            </label>
+
+            <div class="composer-card__footer">
+              <div class="composer-card__hint">
+                @if (connectedGoogleCalendar) {
+                  <span>Si esta tarea tiene fecha, se resincroniza sola con Google Calendar.</span>
+                } @else {
+                  <span>Si no conectas Google Calendar, la tarea queda solo dentro de Trackademy.</span>
+                }
+              </div>
+
+              <button class="btn btn--primary" type="button" [disabled]="isSaving" (click)="submitTask()">
+                {{ submitLabel }}
+              </button>
+            </div>
+          </div>
+        </article>
+      </section>
+    </div>
   }
 </main>
