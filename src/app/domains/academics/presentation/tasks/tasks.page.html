@@ -232,10 +232,11 @@
 
               <label class="field">
                 <span>Tipo</span>
-                <select [(ngModel)]="draft.tipo">
+                <select [(ngModel)]="draft.tipo" (ngModelChange)="onDraftTypeChange()">
                   <option value="tarea">Tarea</option>
                   <option value="entrega">Entrega</option>
                   <option value="estudio">Estudio</option>
+                  <option value="recordatorio">Recordatorio</option>
                   <option value="otro">Otro</option>
                 </select>
               </label>
@@ -254,22 +255,22 @@
               <label class="field">
                 <span>Estado</span>
                 <select [(ngModel)]="draft.estado">
-                  <option value="pendiente">Pendiente</option>
-                  <option value="en_progreso">En progreso</option>
-                  <option value="completada">Completada</option>
+                  @for (option of draftStatusOptions; track option.value) {
+                    <option [value]="option.value">{{ option.label }}</option>
+                  }
                 </select>
               </label>
             </div>
 
             <div class="field-grid">
               <label class="field">
-                <span>Vencimiento</span>
-                <input type="datetime-local" [(ngModel)]="draft.fechaVencimiento" />
+                <span>{{ dueFieldLabel }}</span>
+                <input [type]="dueInputType" [(ngModel)]="draft.fechaVencimiento" />
               </label>
 
               <label class="field">
-                <span>Recordatorio</span>
-                <input type="datetime-local" [(ngModel)]="draft.fechaRecordatorio" />
+                <span>{{ reminderFieldLabel }}</span>
+                <input [type]="reminderInputType" [(ngModel)]="draft.fechaRecordatorio" />
               </label>
             </div>
 
@@ -280,11 +281,7 @@
 
             <div class="composer-card__footer">
               <div class="composer-card__hint">
-                @if (connectedGoogleCalendar) {
-                  <span>Si esta tarea tiene fecha, se resincroniza sola con Google Calendar.</span>
-                } @else {
-                  <span>Si no conectas Google Calendar, la tarea queda solo dentro de Trackademy.</span>
-                }
+                <span>{{ composerCalendarHint }}</span>
               </div>
 
               <button class="btn btn--primary" type="button" [disabled]="isSaving" (click)="submitTask()">

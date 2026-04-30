@@ -32,6 +32,11 @@ interface TaskDraft {
   fechaRecordatorio: string;
 }
 
+interface DraftStatusOption {
+  value: string;
+  label: string;
+}
+
 interface TaskColumn {
   key: TaskColumnKey;
   label: string;
@@ -101,6 +106,53 @@ export class TasksPage implements OnInit {
 
   get reminderChannelLabel(): string {
     return this.connectedGoogleCalendar ? 'Google Calendar' : 'Calendario de Trackademy';
+  }
+
+  get isReminderDraft(): boolean {
+    return this.draft.tipo === 'recordatorio';
+  }
+
+  get draftStatusOptions(): DraftStatusOption[] {
+    if (this.isReminderDraft) {
+      return [
+        { value: 'pendiente', label: 'Pendiente' },
+        { value: 'completada', label: 'Completado' }
+      ];
+    }
+
+    return [
+      { value: 'pendiente', label: 'Pendiente' },
+      { value: 'en_progreso', label: 'En progreso' },
+      { value: 'completada', label: 'Completada' }
+    ];
+  }
+
+  get dueFieldLabel(): string {
+    return this.isReminderDraft ? 'Fecha visible' : 'Vencimiento';
+  }
+
+  get reminderFieldLabel(): string {
+    return this.isReminderDraft ? 'Fecha del recordatorio' : 'Recordatorio';
+  }
+
+  get dueInputType(): string {
+    return this.isReminderDraft ? 'date' : 'datetime-local';
+  }
+
+  get reminderInputType(): string {
+    return this.isReminderDraft ? 'date' : 'datetime-local';
+  }
+
+  get composerCalendarHint(): string {
+    if (this.isReminderDraft) {
+      return this.connectedGoogleCalendar
+        ? 'Este recordatorio se sincroniza como evento de todo el dia en Google Calendar.'
+        : 'Este recordatorio queda dentro de Trackademy hasta que conectes Google Calendar.';
+    }
+
+    return this.connectedGoogleCalendar
+      ? 'Si esta tarea tiene fecha, se resincroniza sola con Google Calendar.'
+      : 'Si no conectas Google Calendar, la tarea queda solo dentro de Trackademy.';
   }
 
   get composerEyebrow(): string {
@@ -247,6 +299,7 @@ export class TasksPage implements OnInit {
   }
 
   editTask(task: MyTask): void {
+    const reminderStyle = (task.tipo ?? '').toLowerCase() === 'recordatorio';
     this.isComposerOpen = true;
     this.formMode = 'edit';
     this.editingTaskId = task.id;
@@ -257,9 +310,10 @@ export class TasksPage implements OnInit {
       tipo: task.tipo ?? 'tarea',
       prioridad: task.prioridad ?? 'media',
       estado: this.taskStatusValue(task),
-      fechaVencimiento: this.toDateTimeLocal(task.fechaVencimiento),
-      fechaRecordatorio: this.toDateTimeLocal(task.fechaRecordatorio)
+      fechaVencimiento: reminderStyle ? this.toDateOnly(task.fechaVencimiento) : this.toDateTimeLocal(task.fechaVencimiento),
+      fechaRecordatorio: reminderStyle ? this.toDateOnly(task.fechaRecordatorio) : this.toDateTimeLocal(task.fechaRecordatorio)
     };
+    this.normalizeDraftAfterTypeChange();
   }
 
   focusTaskFromReminder(reminder: MyReminder): void {
@@ -286,7 +340,7 @@ export class TasksPage implements OnInit {
       estado: nextStatus,
       fechaVencimiento: task.fechaVencimiento,
       fechaRecordatorio: task.fechaRecordatorio,
-      canalRecordatorio: task.fechaRecordatorio ? 'app' : null
+      canalRecordatorio: task.fechaRecordatorio ? 'calendar' : null
     }, completed ? 'Tarea marcada como completada.' : 'Tarea reabierta.');
   }
 
@@ -370,6 +424,8 @@ export class TasksPage implements OnInit {
 
   taskTypeLabel(task: MyTask): string {
     switch ((task.tipo ?? '').toLowerCase()) {
+      case 'recordatorio':
+        return 'Recordatorio';
       case 'entrega':
         return 'Entrega';
       case 'estudio':
@@ -501,6 +557,10 @@ export class TasksPage implements OnInit {
       return 'Ponle un titulo a la tarea antes de guardarla.';
     }
 
+    if (this.isReminderDraft && !this.draft.fechaRecordatorio && !this.draft.fechaVencimiento) {
+      return 'Un recordatorio necesita al menos una fecha visible.';
+    }
+
     if (this.draft.fechaRecordatorio && this.draft.fechaVencimiento) {
       const reminder = new Date(this.draft.fechaRecordatorio).getTime();
       const due = new Date(this.draft.fechaVencimiento).getTime();
@@ -520,9 +580,9 @@ export class TasksPage implements OnInit {
       tipo: this.cleanText(this.draft.tipo),
       prioridad: this.cleanText(this.draft.prioridad),
       estado: this.cleanText(this.draft.estado),
-      fechaVencimiento: this.draft.fechaVencimiento ? new Date(this.draft.fechaVencimiento).toISOString() : null,
-      fechaRecordatorio: this.draft.fechaRecordatorio ? new Date(this.draft.fechaRecordatorio).toISOString() : null,
-      canalRecordatorio: this.draft.fechaRecordatorio ? 'app' : null
+      fechaVencimiento: this.toIsoFromDraftValue(this.draft.fechaVencimiento),
+      fechaRecordatorio: this.toIsoFromDraftValue(this.draft.fechaRecordatorio),
+      canalRecordatorio: this.draft.fechaRecordatorio ? 'calendar' : null
     };
   }
 
@@ -537,6 +597,16 @@ export class TasksPage implements OnInit {
       fechaVencimiento: '',
       fechaRecordatorio: ''
     };
+  }
+
+  onDraftTypeChange(): void {
+    this.normalizeDraftAfterTypeChange();
+  }
+
+  private normalizeDraftAfterTypeChange(): void {
+    if (this.isReminderDraft && this.draft.estado === 'en_progreso') {
+      this.draft.estado = 'pendiente';
+    }
   }
 
   private normalizedStatus(task: MyTask): TaskUiStatus {
@@ -625,6 +695,32 @@ export class TasksPage implements OnInit {
     const hours = `${date.getHours()}`.padStart(2, '0');
     const minutes = `${date.getMinutes()}`.padStart(2, '0');
     return `${year}-${month}-${day}T${hours}:${minutes}`;
+  }
+
+  private toDateOnly(value: string | null): string {
+    if (!value) {
+      return '';
+    }
+
+    const date = new Date(value);
+    const year = date.getFullYear();
+    const month = `${date.getMonth() + 1}`.padStart(2, '0');
+    const day = `${date.getDate()}`.padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  private toIsoFromDraftValue(value: string): string | null {
+    const trimmed = value.trim();
+    if (!trimmed) {
+      return null;
+    }
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+      const [year, month, day] = trimmed.split('-').map(Number);
+      return new Date(year, month - 1, day, 12, 0, 0, 0).toISOString();
+    }
+
+    return new Date(trimmed).toISOString();
   }
 
   private cleanText(value: string): string | null {
