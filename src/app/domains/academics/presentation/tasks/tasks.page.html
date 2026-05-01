@@ -16,10 +16,6 @@
             <span>{{ connectedGoogleCalendar ? 'Con sync automatico a Google Calendar' : 'Control manual de trabajo' }}</span>
           </div>
           <h1>Tareas que si dependen de ti</h1>
-          <p class="hero__summary">
-            Esta pagina ya no repite evaluaciones del silabo. Aqui organizas trabajo manual real: pendientes,
-            entregas, estudio propio y recordatorios operativos.
-          </p>
         </div>
 
         <div class="hero__actions">
@@ -92,9 +88,9 @@
           }
 
           @if (visibleTasks.length > 0) {
-            <section class="task-columns">
+            <section class="task-sections">
               @for (column of taskColumns; track column.key) {
-                <article class="task-column">
+                <article class="task-section">
                   <header class="task-column__head">
                     <div>
                       <h2>{{ column.label }}</h2>
@@ -110,9 +106,17 @@
                   @if (column.tasks.length > 0) {
                     <div class="task-list">
                       @for (task of column.tasks; track task.id) {
-                        <article class="task-card" [class.task-card--done]="taskStatusLabel(task) === 'Completada'">
-                          <div class="task-card__head">
-                            <div>
+                        <article class="task-card" [class.task-card--done]="taskStatusLabel(task) === 'Completada'" [class.task-card--overdue]="taskStatusLabel(task) === 'Vencida'">
+                          <button
+                            class="task-check"
+                            type="button"
+                            [class.task-check--done]="taskStatusLabel(task) === 'Completada'"
+                            [attr.aria-label]="taskStatusLabel(task) === 'Completada' ? 'Reabrir tarea' : 'Completar tarea'"
+                            (click)="markCompleted(task, taskStatusLabel(task) !== 'Completada')">
+                          </button>
+
+                          <div class="task-card__body">
+                            <div class="task-card__main">
                               <div class="task-card__eyebrow">
                                 <span class="task-chip task-chip--type">{{ taskTypeLabel(task) }}</span>
                                 <span class="task-chip" [class]="'task-chip--' + taskPriorityTone(task)">{{ taskPriorityLabel(task) }}</span>
@@ -123,16 +127,16 @@
                                 <p class="task-card__description">{{ task.descripcion }}</p>
                               }
                             </div>
-                          </div>
 
-                          <div class="task-card__meta">
-                            <span>{{ dueLabel(task) }}</span>
-                            @if (task.codigoCurso && task.nombreCurso) {
-                              <span>{{ task.codigoCurso }} - {{ task.nombreCurso }}</span>
-                            } @else {
-                              <span>Sin curso asignado</span>
-                            }
-                            <span>{{ reminderLabel(task) }}</span>
+                            <div class="task-card__meta">
+                              <span>{{ dueLabel(task) }}</span>
+                              @if (task.codigoCurso && task.nombreCurso) {
+                                <span>{{ task.codigoCurso }} - {{ task.nombreCurso }}</span>
+                              } @else {
+                                <span>Sin curso asignado</span>
+                              }
+                              <span>{{ reminderLabel(task) }}</span>
+                            </div>
                           </div>
 
                           <div class="task-card__actions">
@@ -140,12 +144,6 @@
 
                             @if (task.usuarioPeriodoCursoId) {
                               <a class="inline-link" [routerLink]="['/app/cursos', task.usuarioPeriodoCursoId]">Ver curso</a>
-                            }
-
-                            @if (taskStatusLabel(task) !== 'Completada') {
-                              <button class="btn btn--secondary" type="button" (click)="markCompleted(task, true)">Completar</button>
-                            } @else {
-                              <button class="btn btn--ghost" type="button" (click)="markCompleted(task, false)">Reabrir</button>
                             }
 
                             <button class="btn btn--danger" type="button" [disabled]="deletingTaskId === task.id" (click)="deleteTask(task)">
