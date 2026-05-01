@@ -20,6 +20,8 @@ type TaskColumnKey = 'pending' | 'in_progress' | 'completed' | 'overdue';
 type TaskPriorityTone = 'high' | 'medium' | 'low' | 'neutral';
 type TaskFormMode = 'create' | 'edit';
 type TaskUiStatus = 'pending' | 'in_progress' | 'completed';
+const LIMA_TIMEZONE = 'America/Lima';
+const LIMA_OFFSET = '-05:00';
 
 interface TaskDraft {
   usuarioPeriodoCursoId: string;
@@ -403,7 +405,7 @@ export class TasksPage implements OnInit {
       return 'Sin vencimiento';
     }
 
-    return this.formatDateTime(task.fechaVencimiento);
+    return this.formatDateValue(task.fechaVencimiento, this.isAllDayReminderTask(task) && this.isNoonMarker(task.fechaVencimiento));
   }
 
   reminderLabel(task: MyTask): string {
@@ -411,7 +413,7 @@ export class TasksPage implements OnInit {
       return 'Sin recordatorio';
     }
 
-    return `${this.reminderChannelLabel} - ${this.formatDateTime(task.fechaRecordatorio)}`;
+    return `${this.reminderChannelLabel} - ${this.formatDateValue(task.fechaRecordatorio, this.isAllDayReminderTask(task) && this.isNoonMarker(task.fechaRecordatorio))}`;
   }
 
   reminderDateLabel(reminder: MyReminder): string {
@@ -419,7 +421,7 @@ export class TasksPage implements OnInit {
       return 'Sin fecha';
     }
 
-    return this.formatDateTime(reminder.fechaEnvio);
+    return this.formatDateValue(reminder.fechaEnvio, this.isNoonMarker(reminder.fechaEnvio));
   }
 
   taskTypeLabel(task: MyTask): string {
@@ -675,12 +677,23 @@ export class TasksPage implements OnInit {
   }
 
   private formatDateTime(value: string): string {
-    return new Intl.DateTimeFormat('es-PE', {
-      day: '2-digit',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit'
-    }).format(new Date(value));
+    return this.formatDateValue(value, false);
+  }
+
+  private formatDateValue(value: string, dateOnly: boolean): string {
+    return new Intl.DateTimeFormat('es-PE', dateOnly
+      ? {
+          day: '2-digit',
+          month: 'short',
+          timeZone: LIMA_TIMEZONE
+        }
+      : {
+          day: '2-digit',
+          month: 'short',
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: LIMA_TIMEZONE
+        }).format(new Date(value));
   }
 
   private toDateTimeLocal(value: string | null): string {
@@ -716,11 +729,27 @@ export class TasksPage implements OnInit {
     }
 
     if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
-      const [year, month, day] = trimmed.split('-').map(Number);
-      return new Date(year, month - 1, day, 12, 0, 0, 0).toISOString();
+      return `${trimmed}T12:00:00${LIMA_OFFSET}`;
     }
 
-    return new Date(trimmed).toISOString();
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(trimmed)) {
+      return `${trimmed}:00${LIMA_OFFSET}`;
+    }
+
+    return trimmed;
+  }
+
+  private isAllDayReminderTask(task: MyTask): boolean {
+    return (task.tipo ?? '').toLowerCase() === 'recordatorio';
+  }
+
+  private isNoonMarker(value: string | null): boolean {
+    if (!value) {
+      return false;
+    }
+
+    const date = new Date(value);
+    return date.getHours() === 12 && date.getMinutes() === 0;
   }
 
   private cleanText(value: string): string | null {
