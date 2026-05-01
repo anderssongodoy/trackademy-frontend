@@ -24,8 +24,8 @@
         <div class="hero__focus">
           <div class="hero-schedule__head">
             <div>
-              <span>Horario del dia</span>
-              <strong>{{ classesTodayCount > 0 ? classesTodayCount + ' bloque' + (classesTodayCount === 1 ? '' : 's') + ' hoy' : 'Sin bloques hoy' }}</strong>
+              <span>{{ scheduleHeading }}</span>
+              <strong>{{ schedulePrimaryLabel }}</strong>
             </div>
             <a routerLink="/app/horario">Ver semana</a>
           </div>

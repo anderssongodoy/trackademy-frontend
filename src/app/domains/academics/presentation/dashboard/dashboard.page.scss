@@ -34,6 +34,7 @@
 
 .dashboard__hero {
   align-items: stretch;
+  min-width: 0;
 }
 
 .hero__copy,
@@ -50,6 +51,7 @@
   flex: 1 1 58%;
   display: grid;
   gap: 12px;
+  align-content: start;
   min-width: 0;
 }
 
@@ -68,12 +70,16 @@
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  align-items: center;
 }
 
 .hero-pill {
   @include ui.chip-base();
+  flex: 0 0 auto;
+  max-width: 100%;
   background: var(--surface-container-high);
   color: var(--text-secondary);
+  white-space: nowrap;
 }
 
 .hero-pill--accent {
@@ -82,8 +88,9 @@
 }
 
 h1 {
-  @include ui.title-display(2.2rem, 4.2vw, 3.7rem, 0.94);
-  max-width: 13ch;
+  @include ui.title-display(2.1rem, 3.2vw, 3.15rem, 0.98);
+  max-width: 14ch;
+  letter-spacing: 0;
 }
 
 .hero__summary,
@@ -231,11 +238,14 @@ h1 {
 .dashboard__charts {
   display: grid;
   grid-template-columns: minmax(360px, 0.78fr) minmax(0, 1.22fr);
+  min-width: 0;
 }
 
 .chart-card {
   display: grid;
   gap: 20px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .section-heading {
@@ -317,6 +327,7 @@ h1 {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
+  min-width: 0;
 }
 
 .week-focus {
@@ -324,6 +335,7 @@ h1 {
   display: grid;
   gap: 10px;
   align-content: start;
+  min-width: 0;
   padding: 16px;
   border-radius: 20px;
   background: rgba(247, 248, 251, 0.96);
@@ -350,12 +362,14 @@ h1 {
   margin-top: 5px;
   font-size: 1.05rem;
   line-height: 1.2;
+  overflow-wrap: anywhere;
 }
 
 .week-focus__items {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+  min-width: 0;
 }
 
 .week-focus__items em {
@@ -395,6 +409,8 @@ h1 {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 10px;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .timeline-week {
@@ -402,6 +418,7 @@ h1 {
   display: grid;
   gap: 8px;
   align-content: center;
+  min-width: 0;
   padding: 14px;
   border-radius: 18px;
   background: rgba(241, 244, 248, 0.9);
@@ -421,6 +438,7 @@ h1 {
 .timeline-week span {
   font-weight: 800;
   color: inherit;
+  overflow-wrap: anywhere;
 }
 
 .timeline-week strong {
@@ -646,11 +664,18 @@ h1 {
 
 .quick-action strong {
   flex: 1 1 auto;
+  min-width: 0;
 }
 
 .quick-action__arrow {
+  flex: 0 0 24px;
+  display: inline-grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
   color: var(--brand-primary);
   font-size: 1.2rem;
+  line-height: 1;
   font-weight: 800;
 }
 
@@ -678,6 +703,7 @@ h1 {
 
 .pulse-item strong {
   display: block;
+  overflow-wrap: anywhere;
 }
 
 .empty-card,
@@ -719,10 +745,19 @@ h1 {
     grid-template-columns: 1fr;
   }
 
-  .timeline-weeks,
-  .week-bars {
+  .timeline-weeks {
+    display: flex;
     overflow-x: auto;
-    grid-template-columns: repeat(18, minmax(38px, 1fr));
+    max-width: 100%;
+    padding-bottom: 4px;
+    scroll-snap-type: x proximity;
+  }
+
+  .timeline-week {
+    flex: 0 0 76px;
+    min-height: 108px;
+    padding: 12px;
+    scroll-snap-align: start;
   }
 
   .risk-row,
@@ -731,9 +766,62 @@ h1 {
   }
 
   .section-heading,
-  .quick-action,
   .pulse-item {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .quick-action {
+    flex-direction: row;
+    align-items: center;
+  }
+}
+
+@media (max-width: 560px) {
+  .dashboard {
+    @include ui.page-root(18px);
+  }
+
+  .hero__copy,
+  .hero__focus,
+  .chart-card,
+  .risk-card,
+  .rail-card {
+    padding: 24px;
+    border-radius: 24px;
+  }
+
+  .hero__pills {
+    gap: 8px;
+  }
+
+  .hero-pill {
+    min-height: 28px;
+    padding: 0 10px;
+    font-size: 10px;
+  }
+
+  h1 {
+    font-size: clamp(2rem, 10vw, 2.7rem);
+    max-width: 12ch;
+  }
+
+  .week-focus-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .week-focus {
+    min-height: 124px;
+    padding: 14px;
+  }
+
+  .week-focus strong {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .week-focus-list {
+    grid-template-columns: 1fr;
   }
 }

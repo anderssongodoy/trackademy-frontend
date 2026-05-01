@@ -483,10 +483,7 @@ export class DashboardPage implements OnInit {
 
   get todaySessions(): MyCalendarEvent[] {
     const todayItems = this.upcomingSessions.filter((item) => this.isSameDay(item.inicio, new Date()));
-    if (todayItems.length > 0) {
-      return this.uniqueSessionsByCourse(todayItems).slice(0, 4);
-    }
-    return this.uniqueSessionsByCourse(this.upcomingSessions).slice(0, 4);
+    return this.uniqueSessionsByCourse(todayItems).slice(0, 4);
   }
 
   get classesTodayCount(): number {
@@ -494,13 +491,21 @@ export class DashboardPage implements OnInit {
   }
 
   get scheduleHeading(): string {
-    return this.classesTodayCount > 0 ? 'Horario del dia' : 'Proximas sesiones';
+    return 'Horario del dia';
+  }
+
+  get schedulePrimaryLabel(): string {
+    if (this.classesTodayCount > 0) {
+      return `${this.classesTodayCount} bloque${this.classesTodayCount === 1 ? '' : 's'} hoy`;
+    }
+
+    return 'Sin bloques hoy';
   }
 
   get scheduleSummary(): string {
     return this.classesTodayCount > 0
       ? 'Tus bloques mas cercanos de hoy.'
-      : 'Mostrando las siguientes sesiones detectadas en tu agenda.';
+      : 'Sin bloques registrados para hoy.';
   }
 
   get nextEvaluationCountdownDays(): string {
