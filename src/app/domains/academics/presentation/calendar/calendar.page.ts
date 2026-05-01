@@ -38,6 +38,7 @@ export class CalendarPage implements OnInit {
   selectedDateIso = this.toIsoDate(new Date());
   calendarCells: CalendarCell[] = [];
   selectedFilter: CalendarFilter = 'all';
+  isDayDetailOpen = false;
 
   ngOnInit(): void {
     this.loadCalendar();
@@ -53,6 +54,13 @@ export class CalendarPage implements OnInit {
       day: 'numeric',
       month: 'long'
     }).format(new Date(`${this.selectedDateIso}T00:00:00`)));
+  }
+
+  get selectedDateBadgeLabel(): string {
+    return new Intl.DateTimeFormat('es-PE', {
+      day: '2-digit',
+      month: 'short'
+    }).format(new Date(`${this.selectedDateIso}T00:00:00`)).toUpperCase();
   }
 
   get todayDateLabel(): string {
@@ -142,12 +150,18 @@ export class CalendarPage implements OnInit {
     const today = new Date();
     this.currentMonth = this.startOfMonth(today);
     this.selectedDateIso = this.toIsoDate(today);
+    this.isDayDetailOpen = true;
     this.loadCalendar();
   }
 
   selectDate(isoDate: string): void {
     this.selectedDateIso = isoDate;
+    this.isDayDetailOpen = true;
     this.rebuildCalendar();
+  }
+
+  closeDayDetail(): void {
+    this.isDayDetailOpen = false;
   }
 
   setFilter(filter: CalendarFilter): void {

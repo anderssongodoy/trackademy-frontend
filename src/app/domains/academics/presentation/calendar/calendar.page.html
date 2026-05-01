@@ -83,7 +83,41 @@
         </section>
 
         <aside class="calendar-sidebar">
-          <article class="sidebar-card">
+          @if (isDayDetailOpen) {
+            <button class="day-detail-backdrop" type="button" aria-label="Cerrar detalle del dia" (click)="closeDayDetail()"></button>
+          }
+
+          <article class="sidebar-card day-detail" [class.day-detail--open]="isDayDetailOpen">
+            <div class="sidebar-card__header">
+              <div>
+                <h2>Dia seleccionado</h2>
+                <p>{{ selectedDateLabel }}</p>
+              </div>
+              <span class="sidebar-card__badge">{{ selectedDateBadgeLabel }}</span>
+              <button class="day-detail__close" type="button" aria-label="Cerrar detalle del dia" (click)="closeDayDetail()">&times;</button>
+            </div>
+
+            @if (selectedDayEvents.length === 0) {
+              <div class="empty-card">No hay eventos para este dia con el filtro actual.</div>
+            }
+
+            @if (selectedDayEvents.length > 0) {
+              <div class="sidebar-list">
+                @for (item of selectedDayEvents; track trackEvent($index, item)) {
+                  <article class="sidebar-event">
+                    <span class="sidebar-event__mark" [class]="eventTone(item)"></span>
+                    <div>
+                      <strong>{{ dayPillLabel(item) }}</strong>
+                      <h3>{{ item.titulo }}</h3>
+                      <p>{{ item.subtitulo || item.nombreCurso || 'Sin detalle adicional' }}</p>
+                    </div>
+                  </article>
+                }
+              </div>
+            }
+          </article>
+
+          <article class="sidebar-card today-card">
             <div class="sidebar-card__header">
               <div>
                 <h2>Hoy</h2>
