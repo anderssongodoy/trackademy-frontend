@@ -45,7 +45,7 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
   readonly selectedDays = signal<number[]>([]);
 
   readonly form = this.formBuilder.group({
-    planes: this.formBuilder.array([])
+    sessions: this.formBuilder.array([])
   });
 
   readonly isLoading = signal(true);
@@ -72,7 +72,7 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
   });
 
   get planControls(): UntypedFormArray {
-    return this.form.get('planes') as UntypedFormArray;
+    return this.form.get('sessions') as UntypedFormArray;
   }
 
   ngOnInit(): void {
@@ -187,14 +187,13 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
   }
 
   endTimeFor(day: number): string {
-    const plan = this.getPlan(day);
-    if (!plan) {
+    const sessions = this.planControls.controls.filter((c) => Number(c.get('diaSemana')?.value) === day) as UntypedFormGroup[];
+    if (!sessions || sessions.length === 0) {
       return '--:--';
     }
 
-    const startValue = this.normalizeTime(plan.get('horaInicio')?.value as string);
-    const blocks = Number(plan.get('bloques')?.value ?? 1);
-    return this.calculateEndTime(startValue, blocks);
+    const ends = sessions.map((s) => this.calculateEndTime(this.normalizeTime(s.get('horaInicio')?.value as string), Number(s.get('bloques')?.value ?? 1)));
+    return ends.sort().slice(-1)[0];
   }
 
   dayLabel(day: number): string {
@@ -202,18 +201,17 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
   }
 
   distributionLabel(day: number): string {
-    const plan = this.getPlan(day);
-    const blocks = Number(plan?.get('bloques')?.value ?? 0);
+    const sessions = this.planControls.controls.filter((c) => Number(c.get('diaSemana')?.value) === day) as UntypedFormGroup[];
+    const blocks = sessions.reduce((sum, s) => sum + Number(s.get('bloques')?.value ?? 0), 0);
     if (blocks === 0) {
       return 'Sin sesiones';
     }
-
     return `${blocks} sesion${blocks === 1 ? '' : 'es'} de 45 min`;
   }
 
   durationLabel(day: number): string {
-    const plan = this.getPlan(day);
-    const blocks = Number(plan?.get('bloques')?.value ?? 0);
+    const sessions = this.planControls.controls.filter((c) => Number(c.get('diaSemana')?.value) === day) as UntypedFormGroup[];
+    const blocks = sessions.reduce((sum, s) => sum + Number(s.get('bloques')?.value ?? 0), 0);
     const minutes = blocks * 45;
     if (!minutes) {
       return 'Sin duracion definida';
@@ -222,14 +220,15 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
   }
 
   existingDetailsLabel(day: number): string {
-    const plan = this.getPlan(day);
-    if (!plan) {
+    const sessions = this.planControls.controls.filter((c) => Number(c.get('diaSemana')?.value) === day) as UntypedFormGroup[];
+    if (!sessions || sessions.length === 0) {
       return 'Sin detalles extra guardados';
     }
 
-    const type = this.cleanText(plan.get('tipoSesion')?.value as string);
-    const location = this.cleanText(plan.get('ubicacion')?.value as string);
-    const url = this.cleanText(plan.get('urlVirtual')?.value as string);
+    const first = sessions[0];
+    const type = this.cleanText(first.get('tipoSesion')?.value as string);
+    const location = this.cleanText(first.get('ubicacion')?.value as string);
+    const url = this.cleanText(first.get('urlVirtual')?.value as string);
     const parts = [type, location, url ? 'URL guardada' : null].filter(Boolean);
     return parts.length > 0 ? parts.join(' - ') : 'Sin detalles extra guardados';
   }
@@ -268,22 +267,22 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
 
     if (this.form.invalid) {
       this.planControls.markAllAsTouched();
-      this.saveError.set('Completa la hora de inicio en todos los dias seleccionados antes de guardar.');
+      this.saveError.set('Completa la hora de inicio en todas las sesiones antes de guardar.');
       return;
     }
 
-    const payload: ScheduleBlockRequest[] = this.selectedDays().map((day) => {
-      const plan = this.planForDay(day);
-      const startTime = this.normalizeTime(plan.get('horaInicio')?.value as string);
-
+    const payload: ScheduleBlockRequest[] = this.planControls.controls.map((control) => {
+      const day = Number(control.get('diaSemana')?.value);
+      const startTime = this.normalizeTime(control.get('horaInicio')?.value as string);
+      const blocks = Number(control.get('bloques')?.value ?? 1);
       return {
         diaSemana: day,
         horaInicio: startTime,
-        horaFin: this.calculateEndTime(startTime, Number(plan.get('bloques')?.value ?? 1)),
+        horaFin: this.calculateEndTime(startTime, blocks),
         duracionMin: 45,
-        tipoSesion: this.cleanText(plan.get('tipoSesion')?.value as string),
-        ubicacion: this.cleanText(plan.get('ubicacion')?.value as string),
-        urlVirtual: this.cleanText(plan.get('urlVirtual')?.value as string)
+        tipoSesion: this.cleanText(control.get('tipoSesion')?.value as string),
+        ubicacion: this.cleanText(control.get('ubicacion')?.value as string),
+        urlVirtual: this.cleanText(control.get('urlVirtual')?.value as string)
       };
     });
 
@@ -313,35 +312,21 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
       return;
     }
 
-    const grouped = new Map<number, MyScheduleEntry[]>();
+    // Each schedule entry corresponds to an individual session
     selected.forEach((entry) => {
-      const day = entry.diaSemana ?? 1;
-      const existing = grouped.get(day) ?? [];
-      existing.push(entry);
-      grouped.set(day, existing);
-    });
-
-    const days = [...grouped.keys()].sort((a, b) => a - b);
-    this.selectedDays.set(days);
-
-    days.forEach((day) => {
-      const entries = grouped.get(day) ?? [];
-      const first = entries[0];
-      const totalBlocks = entries.reduce(
-        (sum, entry) => sum + this.blocksBetween(entry.horaInicio, entry.horaFin, entry.duracionMin ?? 45),
-        0
-      );
-
+      const blocks = this.blocksBetween(entry.horaInicio, entry.horaFin, entry.duracionMin ?? 45);
       this.planControls.push(this.createPlanGroup({
-        diaSemana: day,
-        bloques: Math.max(totalBlocks, 1),
-        horaInicio: this.normalizeTime(first?.horaInicio ?? '07:00'),
-        tipoSesion: first?.tipoSesion ?? '',
-        ubicacion: first?.ubicacion ?? '',
-        urlVirtual: first?.urlVirtual ?? ''
+        diaSemana: entry.diaSemana ?? 1,
+        bloques: Math.max(blocks, 1),
+        horaInicio: this.normalizeTime(entry.horaInicio ?? '07:00'),
+        tipoSesion: entry.tipoSesion ?? '',
+        ubicacion: entry.ubicacion ?? '',
+        urlVirtual: entry.urlVirtual ?? ''
       }));
     });
 
+    const days = Array.from(new Set(this.planControls.controls.map((c) => Number(c.get('diaSemana')?.value)))).sort((a, b) => a - b);
+    this.selectedDays.set(days);
     this.currentStep.set(2);
     this.bumpRevision();
   }
@@ -387,9 +372,12 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
   }
 
   private removePlan(day: number): void {
-    const index = this.planControls.controls.findIndex((control) => Number(control.get('diaSemana')?.value) === day);
-    if (index >= 0) {
-      this.planControls.removeAt(index);
+    // remove all sessions for the given day
+    for (let i = this.planControls.controls.length - 1; i >= 0; i--) {
+      const control = this.planControls.controls[i];
+      if (Number(control.get('diaSemana')?.value) === day) {
+        this.planControls.removeAt(i);
+      }
     }
   }
 
@@ -400,6 +388,36 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
 
     this.planControls.clear();
     sorted.forEach((value) => this.planControls.push(this.createPlanGroup(value)));
+    this.bumpRevision();
+  }
+
+  getSessionIndicesForDay(day: number): number[] {
+    return this.planControls.controls
+      .map((c, i) => ({ c, i }))
+      .filter((x) => Number(x.c.get('diaSemana')?.value) === day)
+      .map((x) => x.i);
+  }
+
+  increaseBlocksForIndex(index: number): void {
+    const control = this.planControls.at(index) as UntypedFormGroup;
+    control.get('bloques')?.setValue(Number(control.get('bloques')?.value ?? 0) + 1);
+    this.bumpRevision();
+  }
+
+  decreaseBlocksForIndex(index: number): void {
+    const control = this.planControls.at(index) as UntypedFormGroup;
+    const current = Number(control.get('bloques')?.value ?? 1);
+    control.get('bloques')?.setValue(Math.max(current - 1, 1));
+    this.bumpRevision();
+  }
+
+  removeSession(index: number): void {
+    const day = Number(this.planControls.at(index).get('diaSemana')?.value);
+    this.planControls.removeAt(index);
+    const remaining = this.planControls.controls.some((c) => Number(c.get('diaSemana')?.value) === day);
+    if (!remaining) {
+      this.selectedDays.set(this.selectedDays().filter((d) => d !== day));
+    }
     this.bumpRevision();
   }
 

@@ -121,6 +121,18 @@
               <span class="rail-card__alert">!</span>
             </div>
 
+            <div class="jump-to-course">
+              <label class="jump-to-course__label">Ir a la configuración de un curso</label>
+              <div class="jump-to-course__controls">
+                <select #courseSelect class="jump-to-course__select">
+                  @for (course of courses; track course.usuarioPeriodoCursoId) {
+                    <option [value]="course.usuarioPeriodoCursoId">{{ course.nombre }} — {{ course.codigo }}</option>
+                  }
+                </select>
+                <a class="btn btn--primary jump-to-course__btn" [routerLink]="['/app/cursos', courseSelect.value, 'horario']">Reconfigurar horario</a>
+              </div>
+            </div>
+
             @if (pendingCoursesCount === 0) {
               <div class="empty-card">Todos tus cursos ya tienen horario registrado.</div>
             }

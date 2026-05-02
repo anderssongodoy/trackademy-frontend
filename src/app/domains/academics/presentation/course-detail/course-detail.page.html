@@ -103,6 +103,10 @@
         <article class="panel schedule-panel">
           <h2>Horario del Curso</h2>
 
+          <div class="schedule-actions">
+            <a class="btn btn--ghost" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Reconfigurar horario</a>
+          </div>
+
           @if (groupedSchedule.length === 0) {
             <div class="empty-row">
               <p>Este curso aun no tiene horario configurado.</p>

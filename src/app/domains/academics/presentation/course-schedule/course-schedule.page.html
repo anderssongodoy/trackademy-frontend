@@ -107,51 +107,55 @@
             </div>
 
             <div class="time-grid" [formGroup]="form">
-              @for (day of selectedDays(); track day) {
-                <article class="time-card" [formGroup]="planForDay(day)">
-                  <div class="time-card__header">
-                    <div>
-                      <strong>{{ dayLabel(day) }}</strong>
-                      <span>{{ durationLabel(day) }}</span>
+              <div formArrayName="sessions">
+                @for (day of selectedDays(); track day) {
+                  <article class="time-card">
+                    <div class="time-card__header">
+                      <div>
+                        <strong>{{ dayLabel(day) }}</strong>
+                        <span>{{ durationLabel(day) }}</span>
+                      </div>
+                      <div class="time-card__end">
+                        <small>Termina</small>
+                        <strong>{{ endTimeFor(day) }}</strong>
+                      </div>
                     </div>
-                    <div class="time-card__end">
-                      <small>Termina</small>
-                      <strong>{{ endTimeFor(day) }}</strong>
-                    </div>
-                  </div>
 
-                  <div class="block-adjuster">
-                    <div>
-                      <span class="label-inline">Sesiones de este dia</span>
-                      <p>{{ distributionLabel(day) }}</p>
-                    </div>
-                    <div class="counter">
-                      <button type="button" (click)="decreaseBlocks(day)">-</button>
-                      <strong>{{ getPlan(day)?.get('bloques')?.value || 0 }}</strong>
-                      <button type="button" (click)="increaseBlocks(day)">+</button>
-                    </div>
-                  </div>
+                    @for (idx of getSessionIndicesForDay(day); track idx) {
+                      <div class="session-row" [formGroupName]="idx">
+                        <div class="session-row__left">
+                          <label>
+                            <span>Hora de inicio</span>
+                            <select formControlName="horaInicio">
+                              @for (time of timeOptions; track time) {
+                                <option [value]="time">{{ time }}</option>
+                              }
+                            </select>
+                          </label>
+                        </div>
 
-                  <div class="time-card__body">
-                    <label>
-                      <span>Hora de inicio</span>
-                      <select formControlName="horaInicio">
-                        @for (time of timeOptions; track time) {
-                          <option [value]="time">{{ time }}</option>
-                        }
-                      </select>
-                    </label>
+                        <div class="session-row__middle">
+                          <div class="counter">
+                            <button type="button" (click)="decreaseBlocksForIndex(idx)">-</button>
+                            <strong>{{ planControls.controls[idx]?.get('bloques')?.value || 0 }}</strong>
+                            <button type="button" (click)="increaseBlocksForIndex(idx)">+</button>
+                          </div>
+                        </div>
 
-                    <div class="time-card__explanation">
-                      <span>Resultado</span>
-                      <strong>{{ getPlan(day)?.get('horaInicio')?.value || '--:--' }} a {{ endTimeFor(day) }}</strong>
-                      <small>{{ distributionLabel(day) }}</small>
+                        <div class="session-row__actions">
+                          <button class="btn btn--link" type="button" (click)="removeSession(idx)">Eliminar sesión</button>
+                        </div>
+                      </div>
+                    }
+
+                    <div class="time-card__body--actions">
+                      <button class="btn btn--ghost" type="button" (click)="addPlan(day)">+ Añadir sesión</button>
                     </div>
-                  </div>
 
-                  <p class="time-card__saved-info">{{ existingDetailsLabel(day) }}</p>
-                </article>
-              }
+                    <p class="time-card__saved-info">{{ existingDetailsLabel(day) }}</p>
+                  </article>
+                }
+              </div>
             </div>
 
             <div class="step-actions">
