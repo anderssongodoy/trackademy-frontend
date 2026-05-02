@@ -516,10 +516,9 @@ h1 {
 }
 
 /* Ocultar las stat-cards en pantallas grandes según solicitud del diseño */
-@media (min-width: 1181px) {
-  .stats-strip {
-    display: none;
-  }
+/* Ocultar las stat-cards en todas las pantallas según preferencia */
+.stats-strip {
+  display: none !important;
 }
 
 @media (max-width: 760px) {
@@ -559,8 +558,9 @@ h1 {
 
   .status-strip {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
     width: 100%;
+    gap: 10px;
   }
 
   .filter-chip {
