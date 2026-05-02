@@ -366,7 +366,7 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
     }, 1200);
   }
 
-  private addPlan(day: number): void {
+  public addPlan(day: number): void {
     this.planControls.push(this.createPlanGroup({ diaSemana: day }));
     this.sortPlans();
   }
