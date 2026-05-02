@@ -16,12 +16,7 @@
           <p class="hero-banner__callout">Proxima clase: {{ nextClassMessage }}</p>
         </article>
 
-        <article class="hero-meter">
-          <span class="hero-meter__eyebrow">{{ heroMeterEyebrow }}</span>
-          <strong>{{ todaySchedule?.entries?.length || 0 }}</strong>
-          <p>sesiones de hoy</p>
-          <small>{{ todayPendingCutoffLabel }}</small>
-        </article>
+        <!-- hero-meter removed so header banner spans full width -->
       </header>
 
       @if (needsInitialSetup) {
@@ -122,14 +117,17 @@
             </div>
 
             <div class="jump-to-course">
-              <label class="jump-to-course__label">Ir a la configuración de un curso</label>
-              <div class="jump-to-course__controls">
-                <select #courseSelect class="jump-to-course__select">
-                  @for (course of courses; track course.usuarioPeriodoCursoId) {
-                    <option [value]="course.usuarioPeriodoCursoId">{{ course.nombre }} — {{ course.codigo }}</option>
-                  }
-                </select>
-                <a class="btn btn--primary jump-to-course__btn" [routerLink]="['/app/cursos', courseSelect.value, 'horario']">Reconfigurar horario</a>
+              <h3>Reconfigurar horario</h3>
+              <div class="course-list">
+                @for (course of courses; track course.usuarioPeriodoCursoId) {
+                  <div class="course-list__item">
+                    <div class="course-list__meta">
+                      <strong>{{ course.nombre }}</strong>
+                      <small>{{ course.codigo }}</small>
+                    </div>
+                    <a class="btn btn--ghost" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']" aria-label="Reconfigurar horario">→</a>
+                  </div>
+                }
               </div>
             </div>
 

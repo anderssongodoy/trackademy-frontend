@@ -89,9 +89,7 @@
             <div class="step-panel__header">
               <div>
                 <h3>Ahora acomoda cada dia</h3>
-                <p>Ya dejamos un reparto automatico. Si un dia necesita mas sesiones que otro, ajustalo aqui mismo sin pasos extra.</p>
               </div>
-              <button class="btn btn--ghost" type="button" (click)="resetSuggestedBlocks()">Repartir de nuevo</button>
             </div>
 
             <div class="schedule-status" [class.is-valid]="missingBlocks() === 0 && extraBlocks() === 0" [class.is-error]="missingBlocks() > 0 || extraBlocks() > 0">
@@ -113,7 +111,7 @@
                     <div class="time-card__header">
                       <div>
                         <strong>{{ dayLabel(day) }}</strong>
-                        <span>{{ durationLabel(day) }}</span>
+                        <small class="time-card__duration">Duración total: {{ durationMinutes(day) }} min</small>
                       </div>
                       <div class="time-card__end">
                         <small>Termina</small>
@@ -136,9 +134,12 @@
 
                         <div class="session-row__middle">
                           <div class="counter">
-                            <button type="button" (click)="decreaseBlocksForIndex(idx)">-</button>
-                            <strong>{{ planControls.controls[idx]?.get('bloques')?.value || 0 }}</strong>
-                            <button type="button" (click)="increaseBlocksForIndex(idx)">+</button>
+                            <button class="counter__btn" type="button" (click)="decreaseBlocksForIndex(idx)">−</button>
+                            <div class="counter__value">
+                              <strong>{{ planControls.controls[idx]?.get('bloques')?.value || 0 }}</strong>
+                              <small>sesiones</small>
+                            </div>
+                            <button class="counter__btn" type="button" (click)="increaseBlocksForIndex(idx)">+</button>
                           </div>
                         </div>
 

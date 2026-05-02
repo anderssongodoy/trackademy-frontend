@@ -345,6 +345,27 @@ h1 {
   gap: 16px;
 }
 
+.jump-to-course {
+  display: block;
+}
+.course-list {
+  display: grid;
+  gap: 8px;
+  max-height: 320px;
+  overflow: auto;
+}
+.course-list__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--surface-container-lowest);
+}
+.course-list__meta small { display: block; color: var(--text-secondary); font-size: 12px; }
+.jump-to-course h3 { margin: 0 0 6px 0; }
+
 .rail-card__icon,
 .rail-card__alert {
   display: grid;

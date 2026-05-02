@@ -219,6 +219,13 @@ export class CourseSchedulePage implements OnInit, OnDestroy {
     return `${minutes} min en total`;
   }
 
+  // returns numeric minutes for template display
+  durationMinutes(day: number): number {
+    const sessions = this.planControls.controls.filter((c) => Number(c.get('diaSemana')?.value) === day) as UntypedFormGroup[];
+    const blocks = sessions.reduce((sum, s) => sum + Number(s.get('bloques')?.value ?? 0), 0);
+    return blocks * 45;
+  }
+
   existingDetailsLabel(day: number): string {
     const sessions = this.planControls.controls.filter((c) => Number(c.get('diaSemana')?.value) === day) as UntypedFormGroup[];
     if (!sessions || sessions.length === 0) {
