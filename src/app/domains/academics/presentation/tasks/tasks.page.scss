@@ -515,6 +515,13 @@ h1 {
   }
 }
 
+/* Ocultar las stat-cards en pantallas grandes según solicitud del diseño */
+@media (min-width: 1181px) {
+  .stats-strip {
+    display: none;
+  }
+}
+
 @media (max-width: 760px) {
   .tasks__hero,
   .filters-panel__row,
@@ -558,7 +565,9 @@ h1 {
 
   .filter-chip {
     width: 100%;
-    padding: 0 12px;
+    padding: 10px 14px;
+    min-height: 44px;
+    border-radius: 12px;
   }
 
   .task-card {
@@ -579,5 +588,27 @@ h1 {
 
   .status-strip {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Drag & drop visuals */
+.task-section.drag-over {
+  outline: 2px dashed rgba(83, 0, 183, 0.25);
+  background: rgba(249, 246, 255, 0.4);
+}
+
+.task-card[draggable="true"] {
+  cursor: grab;
+}
+
+/* Mobile quick-move buttons are hidden on desktop and shown on small screens */
+.mobile-move {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .mobile-move {
+    display: inline-block;
+    margin-left: 8px;
   }
 }

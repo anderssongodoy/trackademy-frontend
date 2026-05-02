@@ -90,7 +90,10 @@
           @if (visibleTasks.length > 0) {
             <section class="task-sections">
               @for (column of taskColumns; track column.key) {
-                <article class="task-section">
+                <article class="task-section" 
+                         (dragover)="onDragOver($event, column.key)" 
+                         (drop)="onDropColumn(column.key, $event)" 
+                         [class.drag-over]="dragOverColumn === column.key">
                   <header class="task-column__head">
                     <div>
                       <h2>{{ column.label }}</h2>
@@ -103,10 +106,10 @@
                     <div class="empty-card empty-card--soft">{{ column.empty }}</div>
                   }
 
-                  @if (column.tasks.length > 0) {
+                    @if (column.tasks.length > 0) {
                     <div class="task-list">
                       @for (task of column.tasks; track task.id) {
-                        <article class="task-card" [class.task-card--done]="taskStatusLabel(task) === 'Completada'" [class.task-card--overdue]="taskStatusLabel(task) === 'Vencida'">
+                        <article class="task-card" draggable="true" (dragstart)="onDragStart(task, $event)" (dragend)="onDragEnd($event)" [class.task-card--done]="taskStatusLabel(task) === 'Completada'" [class.task-card--overdue]="taskStatusLabel(task) === 'Vencida'">
                           <button
                             class="task-check"
                             type="button"
@@ -140,7 +143,15 @@
                           </div>
 
                           <div class="task-card__actions">
+                            @if (taskStatusLabel(task) === 'Pendiente') {
+                              <button class="btn btn--ghost" type="button" (click)="startTask(task)">Iniciar</button>
+                            }
                             <button class="inline-link" type="button" (click)="editTask(task)">Editar</button>
+
+                            <!-- Mobile-friendly quick moves: visible only on small screens via CSS -->
+                            <button class="btn btn--ghost mobile-move" type="button" (click)="moveTaskTo(task, 'en_progreso')">Mover a En progreso</button>
+                            <button class="btn btn--ghost mobile-move" type="button" (click)="moveTaskTo(task, 'completada')">Mover a Completada</button>
+                            <button class="btn btn--ghost mobile-move" type="button" (click)="moveTaskTo(task, 'pendiente')">Volver a Pendiente</button>
 
                             @if (task.usuarioPeriodoCursoId) {
                               <a class="inline-link" [routerLink]="['/app/cursos', task.usuarioPeriodoCursoId]">Ver curso</a>
@@ -250,14 +261,7 @@
                 </select>
               </label>
 
-              <label class="field">
-                <span>Estado</span>
-                <select [(ngModel)]="draft.estado">
-                  @for (option of draftStatusOptions; track option.value) {
-                    <option [value]="option.value">{{ option.label }}</option>
-                  }
-                </select>
-              </label>
+              <!-- Estado ahora se controla moviendo la tarjeta entre columnas o con acciones, no desde el composer -->
             </div>
 
             <div class="field-grid">

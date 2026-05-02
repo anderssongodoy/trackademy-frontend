@@ -368,6 +368,24 @@ export class TasksPage implements OnInit {
     });
   }
 
+  startTask(task: MyTask): void {
+    if (this.normalizedStatus(task) !== 'pending') {
+      return;
+    }
+
+    this.mutateTask(task.id, {
+      usuarioPeriodoCursoId: task.usuarioPeriodoCursoId,
+      titulo: task.titulo,
+      descripcion: task.descripcion,
+      tipo: task.tipo,
+      prioridad: task.prioridad,
+      estado: 'en_progreso',
+      fechaVencimiento: task.fechaVencimiento,
+      fechaRecordatorio: task.fechaRecordatorio,
+      canalRecordatorio: task.fechaRecordatorio ? 'calendar' : null
+    }, 'Tarea iniciada.');
+  }
+
   submitTask(): void {
     if (this.isSaving) {
       return;
@@ -755,5 +773,92 @@ export class TasksPage implements OnInit {
   private cleanText(value: string): string | null {
     const trimmed = value.trim();
     return trimmed ? trimmed : null;
+  }
+
+  // Drag & drop helpers
+  draggedTaskId: number | null = null;
+  dragOverColumn: TaskColumnKey | null = null;
+
+  onDragStart(task: MyTask, event: DragEvent): void {
+    this.draggedTaskId = task.id;
+    try {
+      event.dataTransfer?.setData('text/plain', `${task.id}`);
+      if (event.dataTransfer) {
+        event.dataTransfer.effectAllowed = 'move';
+      }
+    } catch (e) {
+      // ignore
+    }
+  }
+
+  onDragEnd(_event: DragEvent): void {
+    this.draggedTaskId = null;
+    this.dragOverColumn = null;
+  }
+
+  onDragOver(event: DragEvent, columnKey: TaskColumnKey): void {
+    event.preventDefault();
+    this.dragOverColumn = columnKey;
+    if (event.dataTransfer) {
+      event.dataTransfer.dropEffect = 'move';
+    }
+  }
+
+  onDropColumn(columnKey: TaskColumnKey, event: DragEvent): void {
+    event.preventDefault();
+    const idStr = (event.dataTransfer && event.dataTransfer.getData('text/plain')) ?? `${this.draggedTaskId ?? ''}`;
+    const id = Number(idStr);
+    this.draggedTaskId = null;
+    this.dragOverColumn = null;
+    if (!id || isNaN(id)) {
+      return;
+    }
+
+    const task = this.tasks.find((t) => t.id === id);
+    if (!task) {
+      return;
+    }
+
+    const targetEstado = this.mapColumnToEstado(columnKey);
+    if (!targetEstado) {
+      return;
+    }
+
+    const current = this.normalizedStatus(task);
+    const targetUi = targetEstado === 'completada' ? 'completed' : (targetEstado === 'en_progreso' ? 'in_progress' : 'pending');
+    if (current === targetUi) {
+      return;
+    }
+
+    this.moveTaskTo(task, targetEstado);
+  }
+
+  private mapColumnToEstado(columnKey: TaskColumnKey): string | null {
+    switch (columnKey) {
+      case 'pending':
+        return 'pendiente';
+      case 'in_progress':
+        return 'en_progreso';
+      case 'completed':
+        return 'completada';
+      case 'overdue':
+        return 'pendiente';
+      default:
+        return null;
+    }
+  }
+
+  moveTaskTo(task: MyTask, estado: string): void {
+    this.mutateTask(task.id, {
+      usuarioPeriodoCursoId: task.usuarioPeriodoCursoId,
+      titulo: task.titulo,
+      descripcion: task.descripcion,
+      tipo: task.tipo,
+      prioridad: task.prioridad,
+      estado: estado,
+      fechaVencimiento: task.fechaVencimiento,
+      fechaRecordatorio: task.fechaRecordatorio,
+      canalRecordatorio: task.fechaRecordatorio ? 'calendar' : null
+    }, `Tarea actualizada a ${estado}.`);
   }
 }
