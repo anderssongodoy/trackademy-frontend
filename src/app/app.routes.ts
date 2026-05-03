@@ -98,6 +98,10 @@ export const routes: Routes = [
         loadComponent: () => import('./domains/academics/presentation/profile/profile.page').then((m) => m.ProfilePage)
       },
       {
+        path: 'feedback/reportes',
+        loadComponent: () => import('./domains/feedback/presentation/feedback-report.page').then((m) => m.FeedbackReportPageComponent)
+      },
+      {
         path: '',
         pathMatch: 'full',
         redirectTo: 'dashboard'

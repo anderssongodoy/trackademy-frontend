@@ -1,0 +1,237 @@
+<main class="feedback-container">
+  <!-- Hero Section -->
+  <header class="feedback-hero">
+    <div class="hero-content">
+      <a class="back-link" routerLink="/app/dashboard">← Volver</a>
+      <h1>Envía tu Feedback</h1>
+      <p class="subtitle">
+        Ayúdanos a mejorar. Tu opinión es importante para nosotros.
+      </p>
+    </div>
+    <div class="hero-icons">
+      <div class="icon-group">
+        <div class="icon suggestion">💡</div>
+        <span>Sugerencias</span>
+      </div>
+      <div class="icon-group">
+        <div class="icon error">🐛</div>
+        <span>Errores</span>
+      </div>
+      <div class="icon-group">
+        <div class="icon report">📋</div>
+        <span>Reportes</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Success Message -->
+  @if (submitSuccess()) {
+    <div class="alert alert-success">
+      <div class="alert-icon">✓</div>
+      <div class="alert-content">
+        <p class="alert-title">¡Reporte enviado exitosamente!</p>
+        <p class="alert-message">Gracias por tu aporte. Te redirigiremos en breve...</p>
+      </div>
+    </div>
+  }
+
+  <!-- Error Message -->
+  @if (submitError()) {
+    <div class="alert alert-error">
+      <div class="alert-icon">⚠</div>
+      <div class="alert-content">
+        <p class="alert-title">Error al enviar</p>
+        <p class="alert-message">{{ submitError() }}</p>
+      </div>
+    </div>
+  }
+
+  <!-- Form Section -->
+  @if (!submitSuccess()) {
+    <section class="form-section">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="feedback-form">
+        
+        <!-- Tipo de Reporte -->
+        <div class="form-group">
+          <label for="tipo" class="label">Tipo de Reporte *</label>
+          <div class="type-selector">
+            @for (type of feedbackTypes; track type.value) {
+              <label class="type-option">
+                <input 
+                  type="radio" 
+                  name="tipo" 
+                  [value]="type.value"
+                  formControlName="tipo"
+                  class="radio-input"
+                >
+                <span class="radio-label">{{ type.label }}</span>
+              </label>
+            }
+          </div>
+          @if (tipo?.invalid && tipo?.touched) {
+            <p class="error-message">Selecciona un tipo</p>
+          }
+        </div>
+
+        <!-- Motivo (resumen) -->
+        <div class="form-group">
+          <label for="motivo" class="label">Resumen / Título *</label>
+          <input 
+            id="motivo"
+            type="text"
+            formControlName="motivo"
+            placeholder="Ej: Curso faltante en el plan académico"
+            class="input"
+            [class.input--error]="motivo?.invalid && motivo?.touched"
+          >
+          @if (motivo?.invalid && motivo?.touched) {
+            <p class="error-message">
+              @if (motivo?.errors?.['required']) {
+                El resumen es requerido
+              } @else if (motivo?.errors?.['minlength']) {
+                Mínimo 5 caracteres
+              }
+            </p>
+          }
+        </div>
+
+        <!-- Descripción -->
+        <div class="form-group">
+          <label for="descripcion" class="label">Descripción Detallada *</label>
+          <textarea 
+            id="descripcion"
+            formControlName="descripcion"
+            placeholder="Proporciona detalles específicos sobre tu reporte. Sé lo más descriptivo posible."
+            class="textarea"
+            rows="6"
+            [class.input--error]="descripcion?.invalid && descripcion?.touched"
+          ></textarea>
+          @if (descripcion?.invalid && descripcion?.touched) {
+            <p class="error-message">
+              @if (descripcion?.errors?.['required']) {
+                La descripción es requerida
+              } @else if (descripcion?.errors?.['minlength']) {
+                Mínimo 20 caracteres
+              }
+            </p>
+          }
+          <span class="char-count">{{ (descripcion?.value?.length || 0) }}/1000</span>
+        </div>
+
+        <!-- Upload de Imagen -->
+        <div class="form-group">
+          <label for="imagen" class="label">Evidencia (Imagen - opcional)</label>
+          <div class="file-upload">
+            <input 
+              id="imagen"
+              type="file" 
+              accept="image/*"
+              (change)="onFileSelected($event)"
+              class="file-input"
+            >
+            <div class="file-upload-area">
+              <div class="upload-icon">📸</div>
+              <p class="upload-text">
+                @if (imagePreview()) {
+                  <span class="success">✓ Imagen cargada</span>
+                } @else {
+                  <span>Haz clic o arrastra una imagen aquí</span>
+                }
+              </p>
+              @if (imagePreview()) {
+                <img 
+                  [src]="imagePreview()" 
+                  style="max-width: 250px; max-height: 250px; margin-top: 1rem; border-radius: 0.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"
+                  alt="Preview"
+                />
+              }
+              <p class="upload-hint">PNG, JPG (máx. 5MB)</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Datos de Contacto -->
+        <div class="section-divider">
+          <span>Información de Contacto</span>
+        </div>
+
+        <div class="form-group">
+          <label for="nombre" class="label">Nombre Completo *</label>
+          <input 
+            id="nombre"
+            type="text"
+            formControlName="nombreReportante"
+            placeholder="Tu nombre completo"
+            class="input"
+            [class.input--error]="nombreReportante?.invalid && nombreReportante?.touched"
+          >
+          @if (nombreReportante?.invalid && nombreReportante?.touched) {
+            <p class="error-message">
+              @if (nombreReportante?.errors?.['required']) {
+                El nombre es requerido
+              } @else if (nombreReportante?.errors?.['minlength']) {
+                Mínimo 3 caracteres
+              }
+            </p>
+          }
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="email" class="label">Email *</label>
+            <input 
+              id="email"
+              type="email"
+              formControlName="emailReportante"
+              placeholder="tu.email@utp.edu.pe"
+              class="input"
+              [class.input--error]="emailReportante?.invalid && emailReportante?.touched"
+            >
+            @if (emailReportante?.invalid && emailReportante?.touched) {
+              <p class="error-message">Email válido requerido</p>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="whatsapp" class="label">WhatsApp (opcional)</label>
+            <input 
+              id="whatsapp"
+              type="tel"
+              formControlName="whatsappReportante"
+              placeholder="+51 900 123 456"
+              class="input"
+              [class.input--error]="whatsappReportante?.invalid && whatsappReportante?.touched"
+            >
+            @if (whatsappReportante?.invalid && whatsappReportante?.touched) {
+              <p class="error-message">Formato de teléfono inválido</p>
+            }
+          </div>
+        </div>
+
+        <!-- Submit -->
+        <div class="form-actions">
+          <button 
+            type="submit"
+            [disabled]="form.invalid || isSubmitting()"
+            class="btn btn-primary"
+          >
+            @if (isSubmitting()) {
+              <span class="spinner">⏳</span>
+              Enviando...
+            } @else {
+              Enviar Reporte
+            }
+          </button>
+          <button 
+            type="button"
+            routerLink="/app/dashboard"
+            class="btn btn-secondary"
+            [disabled]="isSubmitting()"
+          >
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+</main>

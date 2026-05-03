@@ -14,6 +14,7 @@ import {
 import { AuthUseCase } from '../../../identity/application/auth-use-case';
 import { apiErrorMessage } from '../../../identity/infrastructure/http/api-error.interceptor';
 import { OnboardingUseCase } from '../../application/onboarding-use-case';
+import { FeedbackQuickButtonComponent } from '../../../feedback/presentation/feedback-quick-button.component';
 
 interface CourseDetailForm {
   seccion: string;
@@ -31,7 +32,7 @@ interface CourseDetailForm {
 
 @Component({
   selector: 'app-onboarding-page',
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, FeedbackQuickButtonComponent],
   templateUrl: './onboarding.page.html',
   styleUrl: './onboarding.page.scss'
 })
