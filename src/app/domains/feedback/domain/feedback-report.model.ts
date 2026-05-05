@@ -26,7 +26,7 @@ export interface CreateFeedbackReportRequest {
   nombreReportante: string;
   emailReportante: string;
   whatsappReportante?: string;
-  imagenUrl?: string;
+  imagenBase64?: string;
   cursoId?: number;
   carreraId?: number;
   ciclo?: number;

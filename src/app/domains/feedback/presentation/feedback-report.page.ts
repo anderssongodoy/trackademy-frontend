@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -12,7 +12,7 @@ import { ImageCompressionService } from '../infrastructure/services/image-compre
 @Component({
   selector: 'app-feedback-report-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './feedback-report.page.html',
   styleUrls: ['./feedback-report.page.scss']
 })
@@ -117,7 +117,7 @@ export class FeedbackReportPageComponent implements OnInit, OnDestroy {
 
       const request: CreateFeedbackReportRequest = {
         ...this.form.getRawValue(),
-        imagenUrl: imagenBase64
+        imagenBase64
       };
 
       this.feedbackUseCase.crearReporte(request)
