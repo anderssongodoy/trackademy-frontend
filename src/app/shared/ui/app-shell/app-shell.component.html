@@ -46,6 +46,16 @@
         </span>
         <span>Perfil</span>
       </a>
+        <a class="nav-link nav-link--utility" routerLink="/app/feedback/reportes" routerLinkActive="is-active" title="Enviar feedback" (click)="closeMobile()">
+          <span class="nav-link__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 5h16v10H8l-4 4V5Z"></path>
+              <path d="M8 9h8"></path>
+              <path d="M8 12h5"></path>
+            </svg>
+          </span>
+          <span>Feedback</span>
+        </a>
       <button class="sidebar__signout" type="button" (click)="signOut()" aria-label="Cerrar sesion" title="Cerrar sesion">
         <span class="sidebar__signout-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24">

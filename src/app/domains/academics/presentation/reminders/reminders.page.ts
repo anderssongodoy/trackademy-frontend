@@ -84,6 +84,7 @@ export class RemindersPage implements OnInit {
     return [
       { label: 'Guia de Tramites', link: '/app/perfil' },
       { label: 'Cronograma de Pagos', link: '/app/calendario' }
+      { label: 'Enviar feedback', link: '/app/feedback/reportes' }
     ];
   }
 
