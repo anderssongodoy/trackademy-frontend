@@ -157,64 +157,6 @@
           </div>
         </div>
 
-        <!-- Datos de Contacto -->
-        <div class="section-divider">
-          <span>Información de Contacto</span>
-        </div>
-
-        <div class="form-group">
-          <label for="nombre" class="label">Nombre Completo *</label>
-          <input 
-            id="nombre"
-            type="text"
-            formControlName="nombreReportante"
-            placeholder="Tu nombre completo"
-            class="input"
-            [class.input--error]="nombreReportante?.invalid && nombreReportante?.touched"
-          >
-          @if (nombreReportante?.invalid && nombreReportante?.touched) {
-            <p class="error-message">
-              @if (nombreReportante?.errors?.['required']) {
-                El nombre es requerido
-              } @else if (nombreReportante?.errors?.['minlength']) {
-                Mínimo 3 caracteres
-              }
-            </p>
-          }
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="email" class="label">Email *</label>
-            <input 
-              id="email"
-              type="email"
-              formControlName="emailReportante"
-              placeholder="tu.email@utp.edu.pe"
-              class="input"
-              [class.input--error]="emailReportante?.invalid && emailReportante?.touched"
-            >
-            @if (emailReportante?.invalid && emailReportante?.touched) {
-              <p class="error-message">Email válido requerido</p>
-            }
-          </div>
-
-          <div class="form-group">
-            <label for="whatsapp" class="label">WhatsApp (opcional)</label>
-            <input 
-              id="whatsapp"
-              type="tel"
-              formControlName="whatsappReportante"
-              placeholder="+51 900 123 456"
-              class="input"
-              [class.input--error]="whatsappReportante?.invalid && whatsappReportante?.touched"
-            >
-            @if (whatsappReportante?.invalid && whatsappReportante?.touched) {
-              <p class="error-message">Formato de teléfono inválido</p>
-            }
-          </div>
-        </div>
-
         <!-- Submit -->
         <div class="form-actions">
           <button 

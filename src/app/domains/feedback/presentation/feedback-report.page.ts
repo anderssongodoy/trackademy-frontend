@@ -52,13 +52,7 @@ export class FeedbackReportPageComponent implements OnInit, OnDestroy {
       tipo: ['sugerencia', Validators.required],
       motivo: ['', [Validators.required, Validators.minLength(5)]],
       descripcion: ['', [Validators.required, Validators.minLength(20)]],
-      nombreReportante: ['', [Validators.required, Validators.minLength(3)]],
-      emailReportante: ['', [Validators.required, Validators.email]],
-      whatsappReportante: ['', Validators.pattern(/^[+0-9\s\-()]*$/)],
-      paginaActual: [this.getCurrentPageName(), Validators.required],
-      cursoId: [null],
-      carreraId: [null],
-      ciclo: [null]
+      paginaActual: [this.getCurrentPageName(), Validators.required]
     });
   }
 
@@ -202,15 +196,4 @@ export class FeedbackReportPageComponent implements OnInit, OnDestroy {
     return this.form.get('descripcion');
   }
 
-  get nombreReportante() {
-    return this.form.get('nombreReportante');
-  }
-
-  get emailReportante() {
-    return this.form.get('emailReportante');
-  }
-
-  get whatsappReportante() {
-    return this.form.get('whatsappReportante');
-  }
 }

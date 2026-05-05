@@ -23,8 +23,8 @@ export interface CreateFeedbackReportRequest {
   tipo: 'sugerencia' | 'error' | 'silabo_desactualizado' | 'curso_faltante' | 'otro';
   motivo: string;
   descripcion: string;
-  nombreReportante: string;
-  emailReportante: string;
+  nombreReportante?: string;
+  emailReportante?: string;
   whatsappReportante?: string;
   imagenBase64?: string;
   cursoId?: number;
