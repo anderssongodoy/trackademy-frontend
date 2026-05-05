@@ -122,13 +122,21 @@
           <label for="imagen" class="label">Evidencia (Imagen - opcional)</label>
           <div class="file-upload">
             <input 
+              #fileInput
               id="imagen"
               type="file" 
               accept="image/*"
               (change)="onFileSelected($event)"
               class="file-input"
             >
-            <div class="file-upload-area">
+            <div
+              class="file-upload-area"
+              role="button"
+              tabindex="0"
+              (click)="onFilePickerClick(fileInput)"
+              (dragover)="onFileDragOver($event)"
+              (drop)="onFileDrop($event)"
+            >
               <div class="upload-icon">📸</div>
               <p class="upload-text">
                 @if (imagePreview()) {

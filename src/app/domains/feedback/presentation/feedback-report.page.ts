@@ -66,31 +66,52 @@ export class FeedbackReportPageComponent implements OnInit, OnDestroy {
     const target = event.target as HTMLInputElement;
     const files = target.files;
     if (files && files.length > 0) {
-      const file = files[0];
-      
-      // Validar tipo de archivo
-      if (!file.type.startsWith('image/')) {
-        this.submitError.set('Por favor selecciona una imagen válida');
-        return;
-      }
-      
-      // Validar tamaño (máximo 5MB antes de comprimir)
-      if (file.size > 5 * 1024 * 1024) {
-        this.submitError.set('La imagen no debe superar 5 MB');
-        return;
-      }
-      
-      this.selectedFiles = [file];
-      
-      // Mostrar preview
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        this.imagePreview.set(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
-      
-      this.submitError.set('');
+      this.processImageFile(files[0]);
     }
+  }
+
+  onFilePickerClick(input: HTMLInputElement): void {
+    input.click();
+  }
+
+  onFileDragOver(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+  }
+
+  onFileDrop(event: DragEvent): void {
+    event.preventDefault();
+    event.stopPropagation();
+
+    const file = event.dataTransfer?.files?.[0];
+    if (file) {
+      this.processImageFile(file);
+    }
+  }
+
+  private processImageFile(file: File): void {
+    // Validar tipo de archivo
+    if (!file.type.startsWith('image/')) {
+      this.submitError.set('Por favor selecciona una imagen válida');
+      return;
+    }
+
+    // Validar tamaño (máximo 5MB antes de comprimir)
+    if (file.size > 5 * 1024 * 1024) {
+      this.submitError.set('La imagen no debe superar 5 MB');
+      return;
+    }
+
+    this.selectedFiles = [file];
+
+    // Mostrar preview
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      this.imagePreview.set(e.target?.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    this.submitError.set('');
   }
 
   async onSubmit() {
