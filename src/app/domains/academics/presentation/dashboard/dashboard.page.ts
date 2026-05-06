@@ -3,7 +3,7 @@ import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 
-import { MeUseCase, MyCalendarEvent, MyCalendarSyncAccount, MyCourse, MyDashboardSummary, MyEvaluation, MyScheduleEntry } from '../../application/me-use-case';
+import { AcademicRadar, MeUseCase, MyCalendarEvent, MyCalendarSyncAccount, MyCourse, MyDashboardSummary, MyEvaluation, MyScheduleEntry } from '../../application/me-use-case';
 import { ToastService } from '../../../../shared/ui/toast/toast.service';
 
 interface SetupStep {
@@ -82,6 +82,7 @@ export class DashboardPage implements OnInit {
   isLoading = true;
   loadError = '';
   summary: MyDashboardSummary | null = null;
+  radar: AcademicRadar | null = null;
   courses: MyCourse[] = [];
   schedule: MyScheduleEntry[] = [];
   evaluations: MyEvaluation[] = [];
@@ -92,13 +93,15 @@ export class DashboardPage implements OnInit {
 
     forkJoin({
       summary: this.meUseCase.getDashboard(),
+      radar: this.meUseCase.getAcademicRadar(),
       courses: this.meUseCase.getMyCourses(),
       schedule: this.meUseCase.getMySchedule(),
       evaluations: this.meUseCase.getMyEvaluations(),
       syncAccounts: this.meUseCase.getCalendarSyncAccounts()
     }).subscribe({
-      next: ({ summary, courses, schedule, evaluations, syncAccounts }) => {
+      next: ({ summary, radar, courses, schedule, evaluations, syncAccounts }) => {
         this.summary = summary;
+        this.radar = radar;
         this.courses = courses;
         this.schedule = schedule;
         this.evaluations = evaluations;
@@ -366,6 +369,25 @@ export class DashboardPage implements OnInit {
 
   get heroSummary(): string {
     return `${this.cycleProgressLabel}. ${this.pendingGradesCount} evaluaciones pendientes y ${this.registeredWeightPercent}% del peso ya registrado.`;
+  }
+
+  get radarUpdatedLabel(): string {
+    if (!this.radar?.generatedAt) {
+      return 'Sin generar';
+    }
+    return this.formatDate(this.radar.generatedAt, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+  }
+
+  get radarEngineLabel(): string {
+    if (!this.radar) {
+      return 'Asistente';
+    }
+    return this.radar.aiGenerated ? `IA ${this.radar.model ?? ''}`.trim() : 'Analisis local';
+  }
+
+  get radarLoadLabel(): string {
+    const level = this.radar?.weeklyLoad.level?.toLowerCase() ?? 'sin datos';
+    return level.charAt(0).toUpperCase() + level.slice(1);
   }
 
   get dashboardHeadline(): string {

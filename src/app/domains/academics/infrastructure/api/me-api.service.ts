@@ -187,6 +187,69 @@ export interface MyDashboardSummary {
   proximosEventosPeriodo: MyCalendarEvent[];
 }
 
+export interface AcademicRadarInsight {
+  headline: string;
+  summary: string;
+  todayAction: string;
+  weeklyPlan: string[];
+  warnings: string[];
+  confidence: string;
+  source: string;
+}
+
+export interface AcademicRadarAction {
+  usuarioPeriodoCursoId: number;
+  cursoId: number;
+  codigoCurso: string;
+  nombreCurso: string;
+  evaluacionCodigo: string;
+  tipo: string | null;
+  fechaEstimada: string | null;
+  porcentaje: number | null;
+  suggestedMinutes: number;
+  score: number;
+  priority: string;
+  reasons: string[];
+}
+
+export interface AcademicRadarWeeklyLoad {
+  from: string;
+  to: string;
+  level: string;
+  pendingEvaluations: number;
+  pendingWeight: number;
+  suggestedStudyMinutes: number;
+  summary: string;
+}
+
+export interface AcademicRadarCourseRisk {
+  usuarioPeriodoCursoId: number;
+  cursoId: number;
+  codigoCurso: string;
+  nombreCurso: string;
+  accumulatedScore: number;
+  registeredWeight: number;
+  pendingWeight: number;
+  neededAverage: number | null;
+  risk: string;
+  score: number;
+  reasons: string[];
+}
+
+export interface AcademicRadar {
+  version: string;
+  generatedAt: string;
+  validUntil: string;
+  inputHash: string;
+  aiGenerated: boolean;
+  model: string | null;
+  insight: AcademicRadarInsight;
+  todayPriority: AcademicRadarAction | null;
+  topActions: AcademicRadarAction[];
+  weeklyLoad: AcademicRadarWeeklyLoad;
+  courseRisks: AcademicRadarCourseRisk[];
+}
+
 export interface ScheduleBlockRequest {
   diaSemana: number;
   horaInicio: string;
@@ -256,6 +319,10 @@ export class MeApiService {
 
   getDashboard(): Observable<MyDashboardSummary> {
     return this.http.get<MyDashboardSummary>(`${this.env.apiBaseUrl}/api/v1/me/dashboard`);
+  }
+
+  getAcademicRadar(): Observable<AcademicRadar> {
+    return this.http.get<AcademicRadar>(`${this.env.apiBaseUrl}/api/v1/me/academic-radar`);
   }
 
   getMyCourses(): Observable<MyCourse[]> {

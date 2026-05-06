@@ -2,6 +2,7 @@
 import { Observable } from 'rxjs';
 
 import {
+  AcademicRadar,
   AcademicProfileUpdateRequest,
   CourseMetadataUpdateRequest,
   CalendarDisconnectResponse,
@@ -47,6 +48,10 @@ export class MeUseCase {
 
   getDashboard(): Observable<MyDashboardSummary> {
     return this.api.getDashboard();
+  }
+
+  getAcademicRadar(): Observable<AcademicRadar> {
+    return this.api.getAcademicRadar();
   }
 
   getMyCourses(): Observable<MyCourse[]> {
@@ -115,6 +120,7 @@ export class MeUseCase {
 }
 
 export type {
+  AcademicRadar,
   AcademicProfileUpdateRequest,
   CourseMetadataUpdateRequest,
   CalendarDisconnectResponse,

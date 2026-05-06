@@ -50,6 +50,67 @@
         </div>
       </header>
 
+      @if (radar) {
+        <section class="ai-radar" aria-label="Asistente Academico IA">
+          <div class="ai-radar__main">
+            <div class="section-heading">
+              <div>
+                <span class="eyebrow">Asistente Academico IA</span>
+                <h2>{{ radar.insight.headline }}</h2>
+                <p>{{ radar.insight.summary }}</p>
+              </div>
+              <span class="ai-radar__engine">{{ radarEngineLabel }}</span>
+            </div>
+
+            <article class="ai-priority">
+              <span>Prioridad de hoy</span>
+              <strong>{{ radar.insight.todayAction }}</strong>
+              @if (radar.todayPriority) {
+                <div class="ai-priority__meta">
+                  <em>{{ radar.todayPriority.codigoCurso }}</em>
+                  <em>{{ radar.todayPriority.evaluacionCodigo }}</em>
+                  <em>{{ radar.todayPriority.suggestedMinutes }} min</em>
+                  <em>{{ radar.todayPriority.score }}/100</em>
+                </div>
+              }
+            </article>
+
+            @if (radar.todayPriority?.reasons?.length) {
+              <div class="ai-reasons">
+                @for (reason of radar.todayPriority?.reasons; track reason) {
+                  <span>{{ reason }}</span>
+                }
+              </div>
+            }
+          </div>
+
+          <aside class="ai-radar__side">
+            <div class="ai-side-stat">
+              <span>Carga semanal</span>
+              <strong>{{ radarLoadLabel }}</strong>
+              <small>{{ radar.weeklyLoad.pendingEvaluations }} evaluaciones - {{ radar.weeklyLoad.suggestedStudyMinutes }} min sugeridos</small>
+            </div>
+
+            <div class="ai-plan">
+              <span>Plan sugerido</span>
+              @for (item of radar.insight.weeklyPlan.slice(0, 3); track item) {
+                <p>{{ item }}</p>
+              }
+            </div>
+
+            @if (radar.insight.warnings.length > 0) {
+              <div class="ai-warnings">
+                @for (warning of radar.insight.warnings.slice(0, 2); track warning) {
+                  <p>{{ warning }}</p>
+                }
+              </div>
+            }
+
+            <small class="ai-radar__updated">Actualizado {{ radarUpdatedLabel }}</small>
+          </aside>
+        </section>
+      }
+
       <section class="dashboard__charts">
         <article class="chart-card chart-card--coverage">
           <div class="section-heading">
