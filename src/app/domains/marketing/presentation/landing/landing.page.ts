@@ -29,51 +29,52 @@ export class LandingPage implements OnInit {
 
   readonly features: LandingFeature[] = [
     {
-      eyebrow: 'Plan',
-      title: 'Periodo y carga en orden',
-      description: 'Campus, ciclo, cursos, creditos y modalidad quedan en una vista consistente para no reconstruir contexto cada semana.'
-    },
-    {
-      eyebrow: 'Agenda',
-      title: 'Clases y tareas visibles',
-      description: 'Horario, calendario y tareas conviven para mostrar que toca hoy, que vence pronto y donde falta configurar datos.'
-    },
-    {
-      eyebrow: 'Notas',
-      title: 'Avance academico medible',
-      description: 'Registra notas por evaluacion, ve cuanto peso ya tiene nota real y detecta cursos que necesitan atencion.'
+      eyebrow: 'Operacion',
+      title: 'Dashboard que empieza por lo urgente',
+      description: 'Primero ves clases de hoy, evaluaciones cercanas, tareas abiertas y cursos con riesgo. Lo decorativo queda fuera.'
     },
     {
       eyebrow: 'Cursos',
-      title: 'Silabos sin inventar datos',
-      description: 'El detalle del curso muestra sumilla, unidades, evaluaciones y PDF solo cuando existe informacion real.'
+      title: 'Cada curso conserva su contexto',
+      description: 'Horario, silabo, evaluaciones, notas y PDF viven juntos para no saltar entre capturas, hojas y chats.'
+    },
+    {
+      eyebrow: 'Seguimiento',
+      title: 'Notas con peso real',
+      description: 'El avance se calcula con evaluaciones registradas y peso acumulado, no con promedios inventados.'
+    },
+    {
+      eyebrow: 'Rutina',
+      title: 'Tareas y calendario en una misma agenda',
+      description: 'Las tareas manuales, recordatorios y bloques de clase se ordenan alrededor de lo que toca resolver.'
     }
   ];
 
   readonly workflow: WorkflowStep[] = [
     {
       index: '01',
-      title: 'Configura tu periodo',
-      description: 'Trackademy calcula el periodo actual por fechas y registra tu campus, carrera, ciclo y meta.'
+      title: 'Define el periodo',
+      description: 'Seleccionas campus, carrera, ciclo, meta y cursos para que el sistema entienda tu contexto academico.'
     },
     {
       index: '02',
-      title: 'Marca tus cursos',
-      description: 'Filtra por ciclo, busca cursos y arma la carga con la que vas a trabajar durante el semestre.'
+      title: 'Organiza la carga',
+      description: 'Ajustas horarios, revisas silabos y dejas cada curso listo para operar durante la semana.'
     },
     {
       index: '03',
-      title: 'Haz seguimiento',
-      description: 'Usa dashboard, notas, horario y detalle de curso para saber que viene y que falta registrar.'
+      title: 'Trabaja con prioridad',
+      description: 'El dashboard, las tareas y las notas te dicen donde actuar antes de que el ciclo se desordene.'
     }
   ];
 
   readonly proofPoints = [
-    'Cursos desde catalogo',
-    'Horario por periodo',
-    'Evaluaciones desde silabo',
-    'Notas con peso real',
-    'Recordatorios conectados'
+    'Cursos',
+    'Horario',
+    'Silabos',
+    'Notas',
+    'Tareas',
+    'Calendario'
   ];
 
   ngOnInit(): void {

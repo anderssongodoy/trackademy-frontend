@@ -5,19 +5,23 @@
       <span class="brand__text">trackademy</span>
     </a>
 
-    @if (!signedIn()) {
-      <a class="ghost-btn" routerLink="/auth/sign-in">Iniciar sesion</a>
-    } @else {
-      <a class="ghost-btn" routerLink="/app/dashboard">Ir al dashboard</a>
-    }
+    <div class="topbar__links">
+      <a href="#producto">Producto</a>
+      <a href="#flujo">Flujo</a>
+      @if (!signedIn()) {
+        <a class="nav-cta" routerLink="/auth/sign-in">Iniciar sesion</a>
+      } @else {
+        <a class="nav-cta" routerLink="/app/dashboard">Ir al dashboard</a>
+      }
+    </div>
   </nav>
 
-  <section class="hero">
+  <section class="hero" id="producto">
     <div class="hero__copy">
-      <span class="hero__eyebrow">Organizacion academica diaria</span>
-      <h1>Tu ciclo completo, listo para tomar decisiones.</h1>
+      <span class="eyebrow">Sistema academico personal</span>
+      <h1>Ordena tu ciclo antes de que te alcance.</h1>
       <p>
-        Trackademy convierte cursos, horario, silabos, notas y tareas en un tablero de trabajo para estudiantes que necesitan saber que hacer hoy y que esta en riesgo.
+        Trackademy junta cursos, horario, silabos, notas y tareas en una mesa de trabajo clara para estudiantes que necesitan decidir que hacer hoy.
       </p>
 
       <div class="hero__actions">
@@ -26,43 +30,51 @@
         } @else {
           <a class="primary-btn" routerLink="/app/dashboard">Abrir dashboard</a>
         }
-        <a class="text-link" routerLink="/privacy-policy">Privacidad</a>
+        <a class="secondary-link" href="#flujo">Ver como funciona</a>
       </div>
     </div>
 
-    <aside class="product-board" aria-label="Vista resumida de Trackademy">
-      <header>
-        <span>Hoy</span>
-        <strong>Semana 08</strong>
-      </header>
-      <div class="board-grid">
-        <article class="board-card board-card--wide">
-          <span>Prioridad</span>
-          <strong>Preparar evaluacion de Analisis</strong>
-          <small>45 min sugeridos</small>
-        </article>
-        <article class="board-card">
+    <aside class="workspace-preview" aria-label="Vista previa del dashboard">
+      <div class="preview-toolbar">
+        <span>Semana 08</span>
+        <strong>Prioridad del dia</strong>
+      </div>
+
+      <article class="focus-task">
+        <span>Evaluacion cercana</span>
+        <strong>Analisis matematico</strong>
+        <p>Repasar unidades 3 y 4 antes del viernes.</p>
+      </article>
+
+      <div class="preview-grid">
+        <article>
           <span>Notas</span>
           <strong>62%</strong>
           <small>peso registrado</small>
         </article>
-        <article class="board-card">
+        <article>
           <span>Horario</span>
           <strong>3</strong>
-          <small>bloques de clase</small>
+          <small>bloques hoy</small>
         </article>
-        <article class="board-card board-card--accent">
-          <span>Riesgo</span>
-          <strong>2 cursos</strong>
-          <small>requieren atencion</small>
+        <article class="preview-grid__wide">
+          <span>Curso en riesgo</span>
+          <strong>Fisica aplicada</strong>
+          <small>necesita una nota alta en la siguiente practica</small>
         </article>
       </div>
     </aside>
   </section>
 
-  <section class="features" aria-label="Modulos principales">
+  <section class="module-strip" aria-label="Modulos de Trackademy">
+    @for (item of proofPoints; track item) {
+      <span>{{ item }}</span>
+    }
+  </section>
+
+  <section class="feature-stack">
     @for (feature of features; track feature.title) {
-      <article class="feature-card">
+      <article class="feature-row">
         <span>{{ feature.eyebrow }}</span>
         <h2>{{ feature.title }}</h2>
         <p>{{ feature.description }}</p>
@@ -70,13 +82,13 @@
     }
   </section>
 
-  <section class="workflow">
-    <div class="section-heading">
-      <span>Flujo de uso</span>
-      <h2>Configuras el contexto una vez. Luego operas el ciclo.</h2>
+  <section class="workflow" id="flujo">
+    <div class="workflow__intro">
+      <span class="eyebrow">Flujo real</span>
+      <h2>De configuracion a rutina diaria.</h2>
     </div>
 
-    <div class="workflow__list">
+    <div class="workflow__steps">
       @for (step of workflow; track step.title) {
         <article class="workflow-step">
           <span>{{ step.index }}</span>
@@ -89,27 +101,14 @@
     </div>
   </section>
 
-  <section class="proof">
-    <div>
-      <span class="proof__eyebrow">Datos verificables</span>
-      <h2>Trackademy trabaja con informacion real de tu periodo.</h2>
-    </div>
-
-    <div class="proof__list">
-      @for (item of proofPoints; track item) {
-        <span>{{ item }}</span>
-      }
-    </div>
-  </section>
-
   <footer class="footer">
     <a class="brand brand--footer" routerLink="/">
       <span class="brand__mark">T</span>
       <span class="brand__text">trackademy</span>
     </a>
     <nav aria-label="Legal">
-      <a routerLink="/privacy-policy">Politica de privacidad</a>
-      <a routerLink="/terms-of-service">Condiciones del servicio</a>
+      <a routerLink="/privacy-policy">Privacidad</a>
+      <a routerLink="/terms-of-service">Terminos</a>
     </nav>
   </footer>
 </main>
