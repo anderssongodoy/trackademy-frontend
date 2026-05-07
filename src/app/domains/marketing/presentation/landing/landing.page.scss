@@ -113,7 +113,7 @@
 }
 
 .eyebrow,
-.workspace-preview span,
+.landing-panel span,
 .feature-row span {
   color: var(--landing-accent-strong);
   font-size: 0.72rem;
@@ -159,74 +159,46 @@
   align-items: center;
 }
 
-.workspace-preview {
+.landing-panel {
   display: grid;
-  gap: 14px;
-  padding: 16px;
+  gap: 18px;
+  align-content: start;
+  padding: clamp(24px, 4vw, 36px);
   border: 1px solid var(--landing-line);
   border-radius: 24px;
-  background: #2a2c2f;
-  color: #fffefa;
+  background: var(--landing-paper);
 }
 
-.preview-toolbar {
-  display: flex;
-  justify-content: space-between;
-  gap: 12px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid rgba(255, 254, 250, 0.12);
+.panel-kicker {
+  display: block;
 }
 
-.workspace-preview span {
-  color: #d8a06f;
-}
-
-.focus-task,
-.preview-grid article {
+.panel-list {
   display: grid;
-  gap: 8px;
-  border-radius: 18px;
-  background: rgba(255, 254, 250, 0.08);
+  gap: 0;
+  border-top: 1px solid var(--landing-line);
 }
 
-.focus-task {
-  min-height: 210px;
-  align-content: end;
-  padding: 24px;
-}
-
-.focus-task strong {
-  max-width: 12ch;
-  font-size: clamp(2rem, 6vw, 3.3rem);
-  letter-spacing: -0.05em;
-  line-height: 0.95;
-}
-
-.focus-task p,
-.preview-grid small {
-  color: rgba(255, 254, 250, 0.68);
-}
-
-.preview-grid {
+.panel-list article {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 16px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--landing-line);
 }
 
-.preview-grid article {
-  min-height: 132px;
-  align-content: end;
-  padding: 16px;
+.panel-list strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: clamp(1.2rem, 2.5vw, 1.55rem);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
 }
 
-.preview-grid__wide {
-  grid-column: 1 / -1;
-  background: rgba(173, 105, 63, 0.22) !important;
-}
-
-.preview-grid strong {
-  font-size: clamp(1.35rem, 4vw, 2rem);
-  line-height: 1;
+.panel-list p {
+  margin: 0;
+  color: var(--landing-muted);
+  line-height: 1.55;
 }
 
 .module-strip {
@@ -342,7 +314,7 @@
     align-items: stretch;
   }
 
-  .workspace-preview {
+  .landing-panel {
     transform: translateY(44px);
   }
 
@@ -388,11 +360,7 @@
     min-height: auto;
   }
 
-  .preview-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .preview-grid__wide {
-    grid-column: auto;
+  .landing-panel {
+    transform: none;
   }
 }
