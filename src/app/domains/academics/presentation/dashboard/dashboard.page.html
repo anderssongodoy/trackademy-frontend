@@ -95,14 +95,13 @@
         </header>
 
         <div class="bar-chart" aria-label="Distribucion de evaluaciones por semana">
-          @for (bar of weekLoad; track bar.week) {
-            <div class="bar-col" [class.bar-col--current]="bar.isCurrent" [title]="bar.label + ': ' + bar.count + (bar.count === 1 ? ' evaluacion' : ' evaluaciones')">
-              <div class="bar-wrap">
-                <span class="bar" [style.height.%]="bar.height"></span>
-              </div>
-              @if (bar.isCurrent || bar.week % 3 === 0) {
-                <span class="bar-tick">{{ bar.label }}</span>
-              }
+          @for (bar of visibleWeekLoad; track bar.week) {
+            <div class="bar-col"
+              [class.bar-col--current]="bar.isCurrent"
+              [class.bar-col--past]="!bar.isCurrent && bar.week < (summary?.semanaActual ?? 0)"
+              [title]="'Semana ' + bar.week + ': ' + bar.count + (bar.count === 1 ? ' evaluacion' : ' evaluaciones') + (bar.weight > 0 ? ' · ' + bar.weight + '%' : '')">
+              <span class="bar" [style.height.px]="barHeightPx(bar.height)"></span>
+              <span class="bar-tick">S{{ bar.week }}</span>
             </div>
           }
         </div>

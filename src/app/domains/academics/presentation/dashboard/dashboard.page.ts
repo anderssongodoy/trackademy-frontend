@@ -602,6 +602,16 @@ export class DashboardPage implements OnInit {
     return items.slice(0, 3);
   }
 
+  barHeightPx(value: number): number {
+    return value === 0 ? 2 : Math.max(5, Math.round(value * 0.7));
+  }
+
+  get visibleWeekLoad() {
+    const current = Math.max(this.summary?.semanaActual ?? 1, 1);
+    const start = Math.max(0, current - 2);
+    return this.weekLoad.slice(start, start + 10);
+  }
+
   riskLabel(value: CourseRiskCard['risk']): string {
     switch (value) {
       case 'critico':
