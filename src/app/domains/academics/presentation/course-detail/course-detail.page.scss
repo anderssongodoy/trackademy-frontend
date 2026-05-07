@@ -131,16 +131,18 @@ h1 {
 
 .card__head {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: flex-start;
-  gap: 12px;
+  gap: 10px 12px;
 }
+.card__head > div { min-width: 0; }
 .card__head h2 {
   margin: 4px 0 0;
   font-size: clamp(1.1rem, 2vw, 1.4rem);
   line-height: 1.15;
 }
-.card__head-actions { display: flex; gap: 8px; flex-shrink: 0; }
+.card__head-actions { display: flex; gap: 8px; }
 
 /* ── EVAL PROGRESS ───────────────────────────────────── */
 

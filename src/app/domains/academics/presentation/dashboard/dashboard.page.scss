@@ -259,6 +259,7 @@ h1 {
 .bar-col {
   flex: 1 1 0;
   min-width: 0;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -270,6 +271,7 @@ h1 {
   display: block;
   width: 100%;
   min-height: 2px;
+  max-height: calc(100% - 24px);
   border-radius: 4px 4px 0 0;
   background: var(--surface-container-highest);
   transition: height 0.35s ease;
