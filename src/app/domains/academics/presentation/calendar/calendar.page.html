@@ -1,4 +1,5 @@
 <main class="calendar">
+
   @if (isLoading) {
     <div class="state state--loading">Cargando calendario...</div>
   }
@@ -8,180 +9,129 @@
   }
 
   @if (!isLoading && !loadError) {
-    <section class="calendar__frame">
-      <header class="calendar__hero">
-        <div class="calendar__hero-main">
-          <div class="calendar__heading">
-            <h1>{{ currentMonthLabel }}</h1>
-            <div class="calendar__month-actions">
-              <button class="icon-btn" type="button" (click)="previousMonth()" aria-label="Mes anterior">&#8249;</button>
-              <button class="icon-btn" type="button" (click)="nextMonth()" aria-label="Mes siguiente">&#8250;</button>
+
+    <header class="cal-header">
+      <div class="cal-header__left">
+        <div class="month-nav">
+          <button class="nav-btn" type="button" (click)="previousMonth()" aria-label="Mes anterior">‹</button>
+          <h1>{{ currentMonthLabel }}</h1>
+          <button class="nav-btn" type="button" (click)="nextMonth()" aria-label="Mes siguiente">›</button>
+        </div>
+        <div class="filter-chips" role="tablist" aria-label="Filtrar eventos">
+          @for (filter of filterOptions; track filter.key) {
+            <button
+              class="filter-chip"
+              type="button"
+              role="tab"
+              [class.filter-chip--active]="selectedFilter === filter.key"
+              (click)="setFilter(filter.key)">
+              {{ filter.label }}
+            </button>
+          }
+        </div>
+      </div>
+      <div class="cal-header__right">
+        <span class="period-pill">{{ currentPeriod?.periodoEtiqueta || 'Periodo actual' }}</span>
+        <button class="today-btn" type="button" (click)="goToToday()">Hoy</button>
+      </div>
+    </header>
+
+    @if (!hasScheduledClasses) {
+      <div class="setup-note">
+        <strong>Registra tus clases</strong> para que el calendario muestre toda tu semana, no solo evaluaciones.
+        <a routerLink="/app/horario">Ir a horario →</a>
+      </div>
+    }
+
+    <div class="cal-layout">
+
+      <div class="cal-main">
+        <div class="cal-weekdays">
+          @for (day of weekDays; track day) {
+            <div class="weekday">{{ day }}</div>
+          }
+        </div>
+        <div class="cal-grid">
+          @for (cell of calendarCells; track trackCell($index, cell)) {
+            <button
+              class="cal-cell"
+              type="button"
+              [class.cal-cell--outside]="!cell.inCurrentMonth"
+              [class.cal-cell--today]="cell.isToday"
+              [class.cal-cell--selected]="cell.isSelected"
+              (click)="selectDate(cell.isoDate)">
+              <span class="cal-cell__num">{{ cell.dayNumber }}</span>
+              <div class="cal-cell__dots">
+                @for (item of cell.visibleEvents; track trackEvent($index, item)) {
+                  <span class="event-dot" [class]="eventTone(item)"></span>
+                }
+                @if (cell.hiddenCount > 0) {
+                  <span class="cal-cell__more">+{{ cell.hiddenCount }}</span>
+                }
+              </div>
+            </button>
+          }
+        </div>
+      </div>
+
+      <aside class="cal-sidebar" [class.cal-sidebar--open]="isDayDetailOpen">
+
+        @if (isDayDetailOpen) {
+          <button class="sidebar-backdrop" type="button" aria-label="Cerrar" (click)="closeDayDetail()"></button>
+        }
+
+        <article class="sidebar-card" [class.sidebar-card--detail]="isDayDetailOpen">
+          <header class="sidebar-card__head">
+            <div>
+              <h2>{{ isDayDetailOpen ? 'Dia seleccionado' : 'Hoy' }}</h2>
+              <p>{{ isDayDetailOpen ? selectedDateLabel : todayDateLabel }}</p>
             </div>
-          </div>
-
-          <div class="filter-strip" role="tablist" aria-label="Filtros del calendario">
-            @for (filter of filterOptions; track filter.key) {
-              <button
-                class="filter-chip"
-                type="button"
-                [class.filter-chip--active]="selectedFilter === filter.key"
-                (click)="setFilter(filter.key)">
-                {{ filter.label }}
-              </button>
+            <span class="event-count-badge">{{ isDayDetailOpen ? selectedDateBadgeLabel : todayBadgeLabel }}</span>
+            @if (isDayDetailOpen) {
+              <button class="close-btn" type="button" aria-label="Cerrar" (click)="closeDayDetail()">&times;</button>
             }
-          </div>
-        </div>
+          </header>
 
-        <div class="calendar__hero-side">
-          <span class="hero-pill hero-pill--accent">{{ currentPeriod?.periodoEtiqueta || 'Periodo actual' }}</span>
-          <button class="btn btn--ghost" type="button" (click)="goToToday()">Hoy</button>
-        </div>
-      </header>
-
-      @if (!hasScheduledClasses) {
-        <section class="setup-callout">
-          <div>
-            <p class="setup-callout__eyebrow">Calendario incompleto</p>
-            <h2>Esta vista gana mucho valor cuando registras tus clases.</h2>
-            <p>Por ahora ves eventos del periodo y evaluaciones. En cuanto armes tu horario, el mes se vuelve mucho mas util.</p>
-          </div>
-          <a class="btn btn--primary" routerLink="/app/horario">Ir a horario</a>
-        </section>
-      }
-
-      <section class="calendar__layout">
-        <section class="calendar-board">
-          <div class="calendar-grid calendar-grid--head">
-            @for (day of weekDays; track day) {
-              <div class="weekday">{{ day }}</div>
-            }
-          </div>
-
-          <div class="calendar-grid">
-            @for (cell of calendarCells; track trackCell($index, cell)) {
-              <button
-                class="calendar-cell"
-                type="button"
-                [class.calendar-cell--outside]="!cell.inCurrentMonth"
-                [class.calendar-cell--today]="cell.isToday"
-                [class.calendar-cell--selected]="cell.isSelected"
-                (click)="selectDate(cell.isoDate)">
-                <span class="calendar-cell__day">{{ cell.dayNumber }}</span>
-
-                <div class="calendar-cell__events">
-                  @for (item of cell.visibleEvents; track trackEvent($index, item)) {
-                    <span class="event-chip" [class]="eventTone(item)">{{ item.titulo }}</span>
-                  }
-
-                  @if (cell.hiddenCount > 0) {
-                    <span class="calendar-cell__more">+{{ cell.hiddenCount }} mas</span>
-                  }
-                </div>
-              </button>
-            }
-          </div>
-        </section>
-
-        <aside class="calendar-sidebar">
-          @if (isDayDetailOpen) {
-            <button class="day-detail-backdrop" type="button" aria-label="Cerrar detalle del dia" (click)="closeDayDetail()"></button>
+          @if ((isDayDetailOpen ? selectedDayEvents : todayEvents).length === 0) {
+            <p class="empty-hint">Sin eventos con el filtro actual.</p>
           }
 
-          <article class="sidebar-card day-detail" [class.day-detail--open]="isDayDetailOpen">
-            <div class="sidebar-card__header">
-              <div>
-                <h2>Dia seleccionado</h2>
-                <p>{{ selectedDateLabel }}</p>
-              </div>
-              <span class="sidebar-card__badge">{{ selectedDateBadgeLabel }}</span>
-              <button class="day-detail__close" type="button" aria-label="Cerrar detalle del dia" (click)="closeDayDetail()">&times;</button>
-            </div>
-
-            @if (selectedDayEvents.length === 0) {
-              <div class="empty-card">No hay eventos para este dia con el filtro actual.</div>
+          <div class="sidebar-events">
+            @for (item of (isDayDetailOpen ? selectedDayEvents : todayEvents); track trackEvent($index, item)) {
+              <article class="sidebar-event">
+                <span class="sidebar-event__mark" [class]="eventTone(item)"></span>
+                <div>
+                  <strong>{{ dayPillLabel(item) }}</strong>
+                  <h3>{{ item.titulo }}</h3>
+                  <p>{{ item.subtitulo || item.nombreCurso || 'Sin detalle' }}</p>
+                </div>
+              </article>
             }
+          </div>
+        </article>
 
-            @if (selectedDayEvents.length > 0) {
-              <div class="sidebar-list">
-                @for (item of selectedDayEvents; track trackEvent($index, item)) {
-                  <article class="sidebar-event">
-                    <span class="sidebar-event__mark" [class]="eventTone(item)"></span>
-                    <div>
-                      <strong>{{ dayPillLabel(item) }}</strong>
-                      <h3>{{ item.titulo }}</h3>
-                      <p>{{ item.subtitulo || item.nombreCurso || 'Sin detalle adicional' }}</p>
-                    </div>
-                  </article>
-                }
-              </div>
+        <article class="sidebar-card">
+          <header class="sidebar-card__head">
+            <h2>Proximos</h2>
+          </header>
+          @if (upcomingEvents.length === 0) {
+            <p class="empty-hint">Sin eventos proximos.</p>
+          }
+          <div class="upcoming-list">
+            @for (item of upcomingEvents; track trackEvent($index, item)) {
+              <article class="upcoming-item">
+                <span class="upcoming-item__date">{{ upcomingDateLabel(item) }}</span>
+                <div>
+                  <h3>{{ item.titulo }}</h3>
+                  <p>{{ item.subtitulo || item.nombreCurso || eventTypeLabel(item) }}</p>
+                </div>
+              </article>
             }
-          </article>
+          </div>
+        </article>
 
-          <article class="sidebar-card today-card">
-            <div class="sidebar-card__header">
-              <div>
-                <h2>Hoy</h2>
-                <p>{{ todayDateLabel }}</p>
-              </div>
-              <span class="sidebar-card__badge">{{ todayBadgeLabel }}</span>
-            </div>
+      </aside>
+    </div>
 
-            @if (todayEvents.length === 0) {
-              <div class="empty-card">No hay eventos para hoy con el filtro actual.</div>
-            }
-
-            @if (todayEvents.length > 0) {
-              <div class="sidebar-list">
-                @for (item of todayEvents; track trackEvent($index, item)) {
-                  <article class="sidebar-event">
-                    <span class="sidebar-event__mark" [class]="eventTone(item)"></span>
-                    <div>
-                      <strong>{{ dayPillLabel(item) }}</strong>
-                      <h3>{{ item.titulo }}</h3>
-                      <p>{{ item.subtitulo || item.nombreCurso || 'Sin detalle adicional' }}</p>
-                    </div>
-                  </article>
-                }
-              </div>
-            }
-          </article>
-
-          <article class="sidebar-card">
-            <div class="sidebar-card__header">
-              <div>
-                <h2>Proximos eventos</h2>
-                <p>Lo siguiente que ya entra en radar.</p>
-              </div>
-            </div>
-
-            @if (upcomingEvents.length === 0) {
-              <div class="empty-card">No hay eventos proximos en este rango.</div>
-            }
-
-            @if (upcomingEvents.length > 0) {
-              <div class="upcoming-list">
-                @for (item of upcomingEvents; track trackEvent($index, item)) {
-                  <article class="upcoming-item">
-                    <div class="upcoming-item__date">
-                      <strong>{{ upcomingDateLabel(item) }}</strong>
-                    </div>
-                    <div class="upcoming-item__copy">
-                      <h3>{{ item.titulo }}</h3>
-                      <p>{{ item.subtitulo || item.nombreCurso || eventTypeLabel(item) }}</p>
-                    </div>
-                  </article>
-                }
-              </div>
-            }
-          </article>
-
-          <article class="month-card">
-            <span class="month-card__eyebrow">Ritmo del mes</span>
-            <strong>{{ monthStats.total }} eventos</strong>
-            <p>{{ monthDensityLabel }} con {{ monthStats.evaluations }} evaluacion{{ monthStats.evaluations === 1 ? '' : 'es' }} y {{ monthStats.classes }} clase{{ monthStats.classes === 1 ? '' : 's' }} visibles.</p>
-          </article>
-        </aside>
-      </section>
-    </section>
   }
 </main>

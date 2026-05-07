@@ -1,6 +1,7 @@
 <main class="tasks">
+
   @if (isLoading) {
-    <div class="state state--loading">Cargando tus tareas manuales...</div>
+    <div class="state state--loading">Cargando tareas...</div>
   }
 
   @if (loadError) {
@@ -8,291 +9,223 @@
   }
 
   @if (!isLoading && !loadError) {
-    <section class="tasks__frame">
-      <header class="tasks__hero">
-        <div class="hero__copy">
-          <div class="hero__eyebrows">
-            <span>Operacion personal</span>
-            <span>{{ connectedGoogleCalendar ? 'Con sync automatico a Google Calendar' : 'Control manual de trabajo' }}</span>
-          </div>
-          <h1>Tareas que si dependen de ti</h1>
-        </div>
 
-        <div class="hero__actions">
-          <button class="btn btn--primary" type="button" (click)="openCreateComposer()">Nueva tarea</button>
-        </div>
-      </header>
+    <header class="tasks-header">
+      <div>
+        <span class="eyebrow">Operacion personal</span>
+        <h1>Tareas</h1>
+      </div>
+      <button class="btn btn--primary" type="button" (click)="openCreateComposer()">+ Nueva tarea</button>
+    </header>
 
-      <section class="stats-strip">
-        <article class="stat-card stat-card--accent">
-          <span>Activas</span>
-          <strong>{{ activeTasks.length }}</strong>
-          <small>Tareas abiertas en tu operacion actual.</small>
-        </article>
-        <article class="stat-card">
-          <span>Vencidas</span>
-          <strong>{{ overdueTasksCount }}</strong>
-          <small>Lo que ya necesita reaccion inmediata.</small>
-        </article>
-        <article class="stat-card">
-          <span>Con recordatorio</span>
-          <strong>{{ reminderTasksCount }}</strong>
-          <small>Avisos programados hacia calendario.</small>
-        </article>
-        <article class="stat-card">
-          <span>Completadas</span>
-          <strong>{{ completedTasks.length }}</strong>
-          <small>Cierres listos para no perder contexto.</small>
-        </article>
-      </section>
+    <div class="tasks-controls">
+      <label class="search-field">
+        <input
+          type="text"
+          [value]="searchQuery"
+          (input)="searchQuery = $any($event.target).value"
+          placeholder="Buscar tarea..." />
+      </label>
 
-      <section class="tasks-layout">
-        <div class="tasks-main">
-          <section class="filters-panel">
-            <label class="field field--search">
-              <span>Buscar</span>
-              <input
-                type="text"
-                [value]="searchQuery"
-                (input)="searchQuery = $any($event.target).value"
-                placeholder="Titulo, curso, descripcion o prioridad"
-              />
-            </label>
+      <div class="status-chips" role="tablist">
+        <button class="status-chip" type="button" [class.status-chip--active]="selectedStatus === 'all'" (click)="setStatus('all')">
+          Todo <span>{{ tasks.length }}</span>
+        </button>
+        <button class="status-chip" type="button" [class.status-chip--active]="selectedStatus === 'pending'" (click)="setStatus('pending')">Pendientes</button>
+        <button class="status-chip" type="button" [class.status-chip--active]="selectedStatus === 'in_progress'" (click)="setStatus('in_progress')">En progreso</button>
+        <button class="status-chip" type="button" [class.status-chip--active]="selectedStatus === 'completed'" (click)="setStatus('completed')">Completadas</button>
+        @if (overdueTasksCount > 0) {
+          <button class="status-chip status-chip--danger" type="button" [class.status-chip--active]="selectedStatus === 'overdue'" (click)="setStatus('overdue')">
+            Vencidas <span>{{ overdueTasksCount }}</span>
+          </button>
+        }
+      </div>
 
-            <div class="filters-panel__row">
-              <div class="status-strip" role="tablist" aria-label="Filtro por estado">
-                <button class="filter-chip" type="button" [class.filter-chip--active]="selectedStatus === 'all'" (click)="setStatus('all')">Todo</button>
-                <button class="filter-chip" type="button" [class.filter-chip--active]="selectedStatus === 'pending'" (click)="setStatus('pending')">Pendientes</button>
-                <button class="filter-chip" type="button" [class.filter-chip--active]="selectedStatus === 'in_progress'" (click)="setStatus('in_progress')">En progreso</button>
-                <button class="filter-chip" type="button" [class.filter-chip--active]="selectedStatus === 'completed'" (click)="setStatus('completed')">Completadas</button>
-                <button class="filter-chip filter-chip--danger" type="button" [class.filter-chip--active]="selectedStatus === 'overdue'" (click)="setStatus('overdue')">Vencidas</button>
-              </div>
-
-              <label class="field field--select">
-                <span>Curso</span>
-                <select [(ngModel)]="selectedCourseId">
-                  <option value="all">Todos</option>
-                  @for (course of courseOptions; track course.value) {
-                    <option [value]="course.value">{{ course.label }}</option>
-                  }
-                </select>
-              </label>
-            </div>
-          </section>
-
-          @if (visibleTasks.length === 0) {
-            <div class="empty-card">
-              <strong>No hay tareas manuales con esos filtros.</strong>
-              <p>Prueba limpiando la busqueda o crea una tarea nueva para que esta pagina empiece a servirte de verdad.</p>
-            </div>
+      <label class="course-select">
+        <select [(ngModel)]="selectedCourseId">
+          <option value="all">Todos los cursos</option>
+          @for (course of courseOptions; track course.value) {
+            <option [value]="course.value">{{ course.label }}</option>
           }
+        </select>
+      </label>
+    </div>
 
-          @if (visibleTasks.length > 0) {
-            <section class="task-sections">
-              @for (column of taskColumns; track column.key) {
-                <article class="task-section" 
-                         (dragover)="onDragOver($event, column.key)" 
-                         (drop)="onDropColumn(column.key, $event)" 
-                         [class.drag-over]="dragOverColumn === column.key">
-                  <header class="task-column__head">
-                    <div>
-                      <h2>{{ column.label }}</h2>
-                      <p>{{ column.helper }}</p>
-                    </div>
-                    <span>{{ column.tasks.length }}</span>
-                  </header>
+    @if (visibleTasks.length === 0) {
+      <div class="state state--empty">
+        <strong>Sin tareas con esos filtros.</strong>
+        <span>Crea una tarea nueva para empezar a operar desde aqui.</span>
+      </div>
+    }
 
-                  @if (column.tasks.length === 0) {
-                    <div class="empty-card empty-card--soft">{{ column.empty }}</div>
-                  }
+    @if (visibleTasks.length > 0) {
+      <div class="kanban">
+        @for (column of taskColumns; track column.key) {
+          <section class="kanban-col"
+            (dragover)="onDragOver($event, column.key)"
+            (drop)="onDropColumn(column.key, $event)"
+            [class.kanban-col--drag-over]="dragOverColumn === column.key">
 
-                    @if (column.tasks.length > 0) {
-                    <div class="task-list">
-                      @for (task of column.tasks; track task.id) {
-                        <article class="task-card" draggable="true" (dragstart)="onDragStart(task, $event)" (dragend)="onDragEnd($event)" [class.task-card--done]="taskStatusLabel(task) === 'Completada'" [class.task-card--overdue]="taskStatusLabel(task) === 'Vencida'">
-                          <button
-                            class="task-check"
-                            type="button"
-                            [class.task-check--done]="taskStatusLabel(task) === 'Completada'"
-                            [attr.aria-label]="taskStatusLabel(task) === 'Completada' ? 'Reabrir tarea' : 'Completar tarea'"
-                            (click)="markCompleted(task, taskStatusLabel(task) !== 'Completada')">
-                          </button>
-
-                          <div class="task-card__body">
-                            <div class="task-card__main">
-                              <div class="task-card__eyebrow">
-                                <span class="task-chip task-chip--type">{{ taskTypeLabel(task) }}</span>
-                                <span class="task-chip" [class]="'task-chip--' + taskPriorityTone(task)">{{ taskPriorityLabel(task) }}</span>
-                                <span class="task-chip" [class.task-chip--danger]="taskStatusLabel(task) === 'Vencida'">{{ taskStatusLabel(task) }}</span>
-                              </div>
-                              <h3>{{ task.titulo }}</h3>
-                              @if (task.descripcion) {
-                                <p class="task-card__description">{{ task.descripcion }}</p>
-                              }
-                            </div>
-
-                            <div class="task-card__meta">
-                              <span>{{ dueLabel(task) }}</span>
-                              @if (task.codigoCurso && task.nombreCurso) {
-                                <span>{{ task.codigoCurso }} - {{ task.nombreCurso }}</span>
-                              } @else {
-                                <span>Sin curso asignado</span>
-                              }
-                              <span>{{ reminderLabel(task) }}</span>
-                            </div>
-                          </div>
-
-                          <div class="task-card__actions">
-                            @if (taskStatusLabel(task) === 'Pendiente') {
-                              <button class="btn btn--ghost" type="button" (click)="startTask(task)">Iniciar</button>
-                            }
-                            <button class="inline-link" type="button" (click)="editTask(task)">Editar</button>
-
-                            <!-- Mobile-friendly quick moves: visible only on small screens via CSS -->
-                            <button class="btn btn--ghost mobile-move" type="button" (click)="moveTaskTo(task, 'en_progreso')">Mover a En progreso</button>
-                            <button class="btn btn--ghost mobile-move" type="button" (click)="moveTaskTo(task, 'completada')">Mover a Completada</button>
-                            <button class="btn btn--ghost mobile-move" type="button" (click)="moveTaskTo(task, 'pendiente')">Volver a Pendiente</button>
-
-                            @if (task.usuarioPeriodoCursoId) {
-                              <a class="inline-link" [routerLink]="['/app/cursos', task.usuarioPeriodoCursoId]">Ver curso</a>
-                            }
-
-                            <button class="btn btn--danger" type="button" [disabled]="deletingTaskId === task.id" (click)="deleteTask(task)">
-                              {{ deletingTaskId === task.id ? 'Eliminando...' : 'Eliminar' }}
-                            </button>
-                          </div>
-                        </article>
-                      }
-                    </div>
-                  }
-                </article>
-              }
-            </section>
-          }
-        </div>
-
-        <aside class="tasks-side">
-          <article class="side-card">
-            <header class="side-card__head">
-              <div>
-                <span>Recordatorios operativos</span>
-                <h2>Lo proximo que salta</h2>
-              </div>
+            <header class="kanban-col__head">
+              <h2>{{ column.label }}</h2>
+              <span class="col-count">{{ column.tasks.length }}</span>
             </header>
 
-            @if (upcomingReminders.length === 0) {
-              <div class="empty-card empty-card--soft">
-                No hay recordatorios activos. Programa uno desde una tarea para no depender de memoria.
-              </div>
+            @if (column.tasks.length === 0) {
+              <p class="col-empty">{{ column.empty }}</p>
             }
 
-            @if (upcomingReminders.length > 0) {
-              <div class="reminder-list">
-                @for (reminder of upcomingReminders; track reminder.id) {
-                  <button class="reminder-item" type="button" (click)="focusTaskFromReminder(reminder)">
-                    <div>
-                      <strong>{{ reminder.titulo }}</strong>
-                      <p>{{ reminder.descripcion || reminder.nombreCurso || 'Recordatorio manual' }}</p>
-                    </div>
-                    <span>{{ reminderDateLabel(reminder) }}</span>
-                  </button>
-                }
-              </div>
-            }
-          </article>
-        </aside>
-      </section>
-    </section>
+            <div class="task-list">
+              @for (task of column.tasks; track task.id) {
+                <article class="task-card"
+                  draggable="true"
+                  (dragstart)="onDragStart(task, $event)"
+                  (dragend)="onDragEnd($event)"
+                  [class.task-card--done]="taskStatusLabel(task) === 'Completada'"
+                  [class.task-card--overdue]="taskStatusLabel(task) === 'Vencida'">
+
+                  <div class="task-card__row1">
+                    <button
+                      class="check-btn"
+                      type="button"
+                      [class.check-btn--done]="taskStatusLabel(task) === 'Completada'"
+                      [attr.aria-label]="taskStatusLabel(task) === 'Completada' ? 'Reabrir' : 'Completar'"
+                      (click)="markCompleted(task, taskStatusLabel(task) !== 'Completada')">
+                    </button>
+                    <h3>{{ task.titulo }}</h3>
+                  </div>
+
+                  <div class="task-card__chips">
+                    <span class="task-chip task-chip--type">{{ taskTypeLabel(task) }}</span>
+                    <span class="task-chip" [class]="'task-chip--' + taskPriorityTone(task)">{{ taskPriorityLabel(task) }}</span>
+                    @if (taskStatusLabel(task) === 'Vencida') {
+                      <span class="task-chip task-chip--danger">Vencida</span>
+                    }
+                  </div>
+
+                  <div class="task-card__meta">
+                    <span>{{ dueLabel(task) }}</span>
+                    @if (task.codigoCurso) {
+                      <span>{{ task.codigoCurso }}</span>
+                    }
+                  </div>
+
+                  <div class="task-card__actions">
+                    <button class="action-link" type="button" (click)="editTask(task)">Editar</button>
+                    @if (taskStatusLabel(task) === 'Pendiente') {
+                      <button class="action-link" type="button" (click)="startTask(task)">Iniciar</button>
+                    }
+                    @if (task.usuarioPeriodoCursoId) {
+                      <a class="action-link" [routerLink]="['/app/cursos', task.usuarioPeriodoCursoId]">Ir al curso</a>
+                    }
+                    <button class="action-link action-link--danger" type="button" [disabled]="deletingTaskId === task.id" (click)="deleteTask(task)">
+                      {{ deletingTaskId === task.id ? '...' : 'Eliminar' }}
+                    </button>
+                  </div>
+
+                  <!-- Mobile move buttons -->
+                  <div class="mobile-moves">
+                    @if (column.key !== 'pending') {
+                      <button class="mobile-move-btn" type="button" (click)="moveTaskTo(task, 'pendiente')">Pendiente</button>
+                    }
+                    @if (column.key !== 'in_progress') {
+                      <button class="mobile-move-btn" type="button" (click)="moveTaskTo(task, 'en_progreso')">En progreso</button>
+                    }
+                    @if (column.key !== 'completed') {
+                      <button class="mobile-move-btn" type="button" (click)="moveTaskTo(task, 'completada')">Completada</button>
+                    }
+                  </div>
+
+                </article>
+              }
+            </div>
+
+          </section>
+        }
+      </div>
+    }
+
   }
 
+  <!-- COMPOSER MODAL -->
   @if (isComposerOpen) {
     <div class="modal-scrim" (click)="closeComposer()">
-      <section class="composer-modal" role="dialog" aria-modal="true" aria-label="Editor de tarea" (click)="$event.stopPropagation()">
-        <article class="composer-card">
-          <header class="composer-card__head">
-            <div>
-              <span>{{ composerEyebrow }}</span>
-              <h2>{{ composerTitle }}</h2>
-            </div>
-            <button class="inline-link" type="button" (click)="closeComposer()">Cancelar</button>
-          </header>
+      <div class="modal" role="dialog" aria-modal="true" aria-label="Nueva tarea" (click)="$event.stopPropagation()">
 
-          <div class="composer-card__form">
-            <label class="field">
-              <span>Titulo</span>
-              <input type="text" [(ngModel)]="draft.titulo" placeholder="Ej. Preparar demo del sprint" />
-            </label>
-
-            <label class="field">
-              <span>Descripcion</span>
-              <textarea [(ngModel)]="draft.descripcion" rows="4" placeholder="Que necesitas cerrar, con que contexto o entregable final."></textarea>
-            </label>
-
-            <div class="field-grid">
-              <label class="field">
-                <span>Curso</span>
-                <select [(ngModel)]="draft.usuarioPeriodoCursoId">
-                  <option value="">Sin curso</option>
-                  @for (course of courseOptions; track course.value) {
-                    <option [value]="course.value">{{ course.label }}</option>
-                  }
-                </select>
-              </label>
-
-              <label class="field">
-                <span>Tipo</span>
-                <select [(ngModel)]="draft.tipo" (ngModelChange)="onDraftTypeChange()">
-                  <option value="tarea">Tarea</option>
-                  <option value="entrega">Entrega</option>
-                  <option value="estudio">Estudio</option>
-                  <option value="recordatorio">Recordatorio</option>
-                  <option value="otro">Otro</option>
-                </select>
-              </label>
-            </div>
-
-            <div class="field-grid">
-              <label class="field">
-                <span>Prioridad</span>
-                <select [(ngModel)]="draft.prioridad">
-                  <option value="alta">Alta</option>
-                  <option value="media">Media</option>
-                  <option value="baja">Baja</option>
-                </select>
-              </label>
-
-              <!-- Estado ahora se controla moviendo la tarjeta entre columnas o con acciones, no desde el composer -->
-            </div>
-
-            <div class="field-grid">
-              <label class="field">
-                <span>{{ dueFieldLabel }}</span>
-                <input [type]="dueInputType" [(ngModel)]="draft.fechaVencimiento" />
-              </label>
-
-              <label class="field">
-                <span>{{ reminderFieldLabel }}</span>
-                <input [type]="reminderInputType" [(ngModel)]="draft.fechaRecordatorio" />
-              </label>
-            </div>
-
-            <label class="field">
-              <span>Canal del recordatorio</span>
-              <div class="field-static">{{ reminderChannelLabel }}</div>
-            </label>
-
-            <div class="composer-card__footer">
-              <div class="composer-card__hint">
-                <span>{{ composerCalendarHint }}</span>
-              </div>
-
-              <button class="btn btn--primary" type="button" [disabled]="isSaving" (click)="submitTask()">
-                {{ submitLabel }}
-              </button>
-            </div>
+        <header class="modal__head">
+          <div>
+            <span class="eyebrow">{{ composerEyebrow }}</span>
+            <h2>{{ composerTitle }}</h2>
           </div>
-        </article>
-      </section>
+          <button class="close-btn" type="button" (click)="closeComposer()">&times;</button>
+        </header>
+
+        <div class="modal__body">
+          <label class="field">
+            <span>Titulo</span>
+            <input type="text" [(ngModel)]="draft.titulo" placeholder="Ej: Estudiar para parcial de calculo" />
+          </label>
+
+          <label class="field">
+            <span>Descripcion</span>
+            <textarea [(ngModel)]="draft.descripcion" rows="3" placeholder="Que necesitas cerrar..."></textarea>
+          </label>
+
+          <div class="field-row">
+            <label class="field">
+              <span>Curso</span>
+              <select [(ngModel)]="draft.usuarioPeriodoCursoId">
+                <option value="">Sin curso</option>
+                @for (course of courseOptions; track course.value) {
+                  <option [value]="course.value">{{ course.label }}</option>
+                }
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Tipo</span>
+              <select [(ngModel)]="draft.tipo" (ngModelChange)="onDraftTypeChange()">
+                <option value="tarea">Tarea</option>
+                <option value="entrega">Entrega</option>
+                <option value="estudio">Estudio</option>
+                <option value="recordatorio">Recordatorio</option>
+                <option value="otro">Otro</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Prioridad</span>
+              <select [(ngModel)]="draft.prioridad">
+                <option value="alta">Alta</option>
+                <option value="media">Media</option>
+                <option value="baja">Baja</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="field-row">
+            <label class="field">
+              <span>{{ dueFieldLabel }}</span>
+              <input [type]="dueInputType" [(ngModel)]="draft.fechaVencimiento" />
+            </label>
+            <label class="field">
+              <span>{{ reminderFieldLabel }}</span>
+              <input [type]="reminderInputType" [(ngModel)]="draft.fechaRecordatorio" />
+            </label>
+          </div>
+
+          <div class="modal__hint">{{ composerCalendarHint }}</div>
+        </div>
+
+        <footer class="modal__foot">
+          <button class="btn btn--ghost" type="button" (click)="closeComposer()">Cancelar</button>
+          <button class="btn btn--primary" type="button" [disabled]="isSaving" (click)="submitTask()">
+            {{ isSaving ? 'Guardando...' : submitLabel }}
+          </button>
+        </footer>
+
+      </div>
     </div>
   }
+
 </main>

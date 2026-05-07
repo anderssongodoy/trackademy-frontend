@@ -1,4 +1,5 @@
 <main class="notes">
+
   @if (isLoading) {
     <div class="state state--loading">Cargando evaluaciones...</div>
   }
@@ -8,181 +9,145 @@
   }
 
   @if (!isLoading && !loadError) {
-    <section class="notes__frame">
-      <header class="notes__hero">
-        <div class="hero__copy">
-          <span>Centro de notas</span>
-          <h1>Registro y seguimiento academico</h1>
-          <p>Gestiona notas reales por evaluacion. Los acumulados usan el peso del silabo, no promedios simples.</p>
-        </div>
 
-        <section class="notes__overview">
-          <article class="hero-metric">
-            <span class="hero-metric__eyebrow">{{ primaryMetricLabel }}</span>
-            <strong>{{ stats.accumulated }}</strong>
-            <small>{{ pendingDueCount > 0 ? pendingDueCount + ' evaluacion(es) vencidas sin nota' : 'Sin vencidas visibles' }}</small>
-          </article>
-
-          <article class="metric-card metric-card--soft">
-            <span>Peso registrado</span>
-            <strong>{{ stats.registeredWeight }}</strong>
-            <small>{{ stats.graded }} de {{ stats.total }} evaluaciones con nota</small>
-          </article>
-
-          <article class="metric-card metric-card--soft">
-            <span>Cursos con alerta</span>
-            <strong>{{ stats.riskCourses }}</strong>
-            <small>sobre {{ groupedEvaluations.length }} cursos visibles</small>
-          </article>
-        </section>
-      </header>
-
-      <section class="notes__insights">
-        <article class="progress-card">
-          <div class="progress-card__header">
-            <div>
-              <h2>Avance por curso</h2>
-              <p>Peso ya calificado y acumulado ponderado sobre 20.</p>
-            </div>
-          </div>
-
-          <div class="course-progress-list">
-            @for (group of groupedEvaluations; track group.usuarioPeriodoCursoId) {
-              <article class="course-progress">
-                <div class="course-progress__copy">
-                  <strong>{{ group.nombreCurso }}</strong>
-                  <span>{{ group.codigoCurso }} - {{ group.registradas }}/{{ group.items.length }} notas</span>
-                </div>
-                <div class="course-progress__meta">
-                  <strong>{{ group.acumulado }}</strong>
-                  <span>{{ group.progresoPeso }}%</span>
-                </div>
-                <div class="course-progress__bar">
-                  <span [style.width.%]="group.progresoPeso"></span>
-                </div>
-              </article>
-            }
-          </div>
-        </article>
-
-        <article class="alerts-card">
-          <div class="alerts-card__header">
-            <h2>Alertas criticas</h2>
-            <p>Riesgo calculado con fechas vencidas, peso pendiente y nota necesaria para llegar a 13.</p>
-          </div>
-
-          @if (alerts.length === 0) {
-            <div class="empty-card empty-card--soft">No hay cursos con alerta critica visible.</div>
-          }
-
-          @if (alerts.length > 0) {
-            <div class="alerts-list">
-              @for (alert of alerts; track alert.code) {
-                <article class="alert-item" [class.alert-item--critical]="alert.severity === 'critico'">
-                  <strong>{{ alert.course }}</strong>
-                  <p>Acumulado: {{ alert.accumulated }}</p>
-                  <span>{{ alert.detail }}</span>
-                </article>
-              }
-            </div>
-          }
-        </article>
-      </section>
-
-      <section class="filters">
-        <label class="field field--compact">
+    <header class="notes-header">
+      <div>
+        <span class="eyebrow">Registro academico</span>
+        <h1>Notas del ciclo</h1>
+      </div>
+      <div class="notes-filters">
+        <label class="filter-select">
           <span>Curso</span>
           <select [(ngModel)]="selectedCourseId">
-            <option value="all">Todos los cursos</option>
+            <option value="all">Todos</option>
             @for (course of courseOptions; track course.value) {
               <option [value]="course.value">{{ course.label }}</option>
             }
           </select>
         </label>
+        <div class="status-chips" role="tablist">
+          <button type="button" class="status-chip" [class.status-chip--active]="selectedStatus === 'all'" (click)="selectedStatus = 'all'">Todo</button>
+          <button type="button" class="status-chip" [class.status-chip--active]="selectedStatus === 'pending'" (click)="selectedStatus = 'pending'">Pendientes</button>
+          <button type="button" class="status-chip" [class.status-chip--active]="selectedStatus === 'graded'" (click)="selectedStatus = 'graded'">Registradas</button>
+          <button type="button" class="status-chip status-chip--danger" [class.status-chip--active]="selectedStatus === 'due'" (click)="selectedStatus = 'due'">Vencidas</button>
+        </div>
+      </div>
+    </header>
 
-        <label class="field field--compact">
-          <span>Estado</span>
-          <select [(ngModel)]="selectedStatus">
-            <option value="all">Todas</option>
-            <option value="pending">Pendientes</option>
-            <option value="graded">Registradas</option>
-            <option value="due">Vencidas</option>
-          </select>
-        </label>
-      </section>
-
-      @if (groupedEvaluations.length === 0) {
-        <div class="empty-card">No encontramos evaluaciones con los filtros actuales.</div>
+    <!-- KPI row -->
+    <div class="notes-kpi">
+      <article class="kpi-tile">
+        <span>Acumulado global</span>
+        <strong>{{ stats.accumulated }}</strong>
+        <small>promedio ponderado</small>
+      </article>
+      <article class="kpi-tile">
+        <span>Peso registrado</span>
+        <strong>{{ stats.registeredWeight }}</strong>
+        <small>{{ stats.graded }} de {{ stats.total }} evaluaciones</small>
+      </article>
+      <article class="kpi-tile" [class.kpi-tile--warn]="stats.riskCourses > 0">
+        <span>En riesgo</span>
+        <strong>{{ stats.riskCourses }}</strong>
+        <small>{{ stats.riskCourses === 1 ? 'curso con alerta' : 'cursos con alerta' }}</small>
+      </article>
+      @if (pendingDueCount > 0) {
+        <article class="kpi-tile kpi-tile--danger">
+          <span>Vencidas sin nota</span>
+          <strong>{{ pendingDueCount }}</strong>
+          <small>requieren accion ya</small>
+        </article>
       }
+    </div>
 
-      @if (groupedEvaluations.length > 0) {
-        <section class="operations-panel">
-          <div class="operations-panel__header">
-            <div>
-              <h2>Registro por curso</h2>
-              <p>Se muestra la siguiente evaluacion accionable de cada curso.</p>
+    @if (groupedEvaluations.length === 0) {
+      <div class="state state--empty">No hay evaluaciones con esos filtros.</div>
+    }
+
+    <!-- Courses list -->
+    <div class="course-blocks">
+      @for (group of groupedEvaluations; track group.usuarioPeriodoCursoId) {
+        <article class="course-block" [class.course-block--risk]="group.riesgo !== 'estable'">
+
+          <header class="course-block__head">
+            <div class="course-block__info">
+              <div class="course-block__top">
+                <span class="course-code">{{ group.codigoCurso }}</span>
+                <span class="risk-badge" [class.risk-badge--warn]="group.riesgo === 'atencion'" [class.risk-badge--danger]="group.riesgo === 'critico'">
+                  {{ group.riesgo === 'estable' ? 'Estable' : group.riesgo === 'atencion' ? 'Atencion' : 'Critico' }}
+                </span>
+              </div>
+              <strong class="course-name">{{ group.nombreCurso }}</strong>
+              <p class="risk-detail">{{ group.riesgoDetalle }}</p>
             </div>
+            <div class="course-block__score">
+              <strong>{{ group.acumulado }}</strong>
+              <span>acum.</span>
+            </div>
+          </header>
+
+          <div class="course-block__bar-wrap">
+            <div class="progress-bar">
+              <span [style.width.%]="group.progresoPeso" [class.progress-bar__fill--warn]="group.riesgo === 'atencion'" [class.progress-bar__fill--danger]="group.riesgo === 'critico'"></span>
+            </div>
+            <span class="progress-label">{{ group.progresoPeso }}% del peso registrado</span>
           </div>
 
-          <div class="operations-table">
-            <div class="operations-table__head">
-              <span>Curso</span>
-              <span>Acumulado</span>
-              <span>Siguiente evaluacion</span>
-              <span>Nota</span>
-              <span>Accion</span>
-            </div>
+          <div class="eval-list">
+            @for (item of group.items; track item.evaluacionCodigo + item.usuarioPeriodoCursoId) {
+              <article class="eval-row"
+                [class.eval-row--graded]="item.nota != null"
+                [class.eval-row--due]="item.nota == null && !item.exonerado && !!item.fechaEstimada && canEditEvaluation(item)"
+                [class.eval-row--exonerated]="item.exonerado">
 
-            @for (group of groupedEvaluations; track group.usuarioPeriodoCursoId) {
-              @if (currentEvaluation(group); as currentItem) {
-                <article class="operation-row">
-                  <div class="operation-row__course">
-                    <strong>{{ group.nombreCurso }}</strong>
-                    <span>Codigo: {{ group.codigoCurso }}</span>
+                <div class="eval-row__info">
+                  <strong>{{ item.evaluacionCodigo }}</strong>
+                  <span>{{ weightLabel(item) }} · {{ evaluationDateLabel(item) }}</span>
+                </div>
+
+                @if (item.exonerado) {
+                  <span class="eval-tag eval-tag--exempt">Exonerado</span>
+                } @else if (item.nota != null) {
+                  <div class="eval-grade">
+                    <span class="grade-value" [class.grade-value--low]="item.nota != null && item.nota < 11">{{ item.nota }}</span>
+                    <span class="grade-cap">/ 20</span>
                   </div>
-
-                  <div class="operation-row__average">
-                    <strong>{{ group.acumulado }}</strong>
-                    <span>{{ group.pesoRegistrado }}% registrado</span>
-                  </div>
-
-                  <div class="operation-row__next">
-                    <strong>{{ currentItem.evaluacionCodigo }}</strong>
-                    <span>{{ weightLabel(currentItem) }} - {{ evaluationDateLabel(currentItem) }}</span>
-                  </div>
-
-                  <div class="operation-row__input">
+                } @else {
+                  <div class="eval-input-group">
                     <input
                       type="number"
+                      class="grade-input"
                       min="0"
                       max="20"
-                      step="0.1"
-                      [value]="draftValue(currentItem)"
-                      [disabled]="!canEditEvaluation(currentItem)"
-                      (input)="updateDraft(currentItem, $any($event.target).value)" />
-                  </div>
-
-                  <div class="operation-row__action">
-                    <button class="btn btn--primary" type="button" [disabled]="isSaving(currentItem) || !canEditEvaluation(currentItem)" (click)="saveGrade(currentItem)">
-                      {{ isSaving(currentItem) ? 'Guardando...' : 'Guardar' }}
+                      step="0.5"
+                      placeholder="--"
+                      [value]="draftValue(item)"
+                      [disabled]="!canEditEvaluation(item)"
+                      (input)="updateDraft(item, $any($event.target).value)" />
+                    <button
+                      type="button"
+                      class="save-btn"
+                      [disabled]="isSaving(item) || !canEditEvaluation(item)"
+                      (click)="saveGrade(item)">
+                      {{ isSaving(item) ? '...' : 'Guardar' }}
                     </button>
                   </div>
+                }
 
-                  @if (!canEditEvaluation(currentItem) && currentItem.nota == null) {
-                    <div class="operation-row__feedback">{{ editBlockReason(currentItem) }}</div>
-                  }
+                @if (feedback(item); as fb) {
+                  <div class="eval-feedback" [class.eval-feedback--error]="fb.type === 'error'">{{ fb.message }}</div>
+                }
+                @if (!canEditEvaluation(item) && item.nota == null && !item.exonerado) {
+                  <div class="eval-feedback">{{ editBlockReason(item) }}</div>
+                }
 
-                  @if (feedback(currentItem); as feedbackItem) {
-                    <div class="operation-row__feedback" [class.operation-row__feedback--error]="feedbackItem.type === 'error'">
-                      {{ feedbackItem.message }}
-                    </div>
-                  }
-                </article>
-              }
+              </article>
             }
           </div>
-        </section>
+
+        </article>
       }
-    </section>
+    </div>
+
   }
 </main>

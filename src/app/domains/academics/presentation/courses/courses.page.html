@@ -1,6 +1,7 @@
-<main class="courses-page">
+<main class="courses">
+
   @if (isLoading) {
-    <div class="state">Cargando cursos...</div>
+    <div class="state state--loading">Cargando cursos...</div>
   }
 
   @if (loadError) {
@@ -8,101 +9,66 @@
   }
 
   @if (!isLoading && !loadError) {
-    <section class="courses-head">
+
+    <header class="courses-header">
       <div>
-        <h1>Mis Cursos</h1>
-        <p>Gestiona tu carga academica para el periodo actual</p>
+        <span class="eyebrow">{{ currentPeriod?.periodoEtiqueta || 'Periodo actual' }} · Ciclo {{ currentPeriod?.cicloActual || '--' }}</span>
+        <h1>Mis cursos</h1>
       </div>
-
-      <div class="summary-cards" aria-label="Resumen de cursos">
-        <article class="summary-card summary-card--green">
-          <span aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M20 6 9 17l-5-5"></path>
-            </svg>
-          </span>
-          <strong>{{ activeCoursesCount }}</strong>
-          <small>Activos</small>
-        </article>
-
-        <article class="summary-card summary-card--accent">
-          <span aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M7 3v4M17 3v4M4 9h16M6 5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"></path>
-            </svg>
-          </span>
-          <strong>{{ configuredCoursesCount }}</strong>
-          <small>Con horario</small>
-        </article>
-
-        <article class="summary-card summary-card--orange">
-          <span aria-hidden="true">
-            <svg viewBox="0 0 24 24">
-              <path d="M12 7v6l4 2"></path>
-              <path d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
-            </svg>
-          </span>
-          <strong>{{ pendingEvaluationsCount }}</strong>
-          <small>Eval. pendientes</small>
-        </article>
+      <div class="filter-chips" role="tablist" aria-label="Filtrar cursos">
+        @for (filter of filterOptions; track filter.key) {
+          <button
+            type="button"
+            class="filter-chip"
+            role="tab"
+            [class.filter-chip--active]="selectedFilter === filter.key"
+            (click)="selectFilter(filter.key)">
+            {{ filter.label }}
+            @if (filter.key !== 'all') {
+              <span class="filter-chip__count">{{ filter.count }}</span>
+            }
+          </button>
+        }
       </div>
-    </section>
+    </header>
 
-    <section class="courses-toolbar">
-      <div class="cycle-tabs" aria-label="Filtro de ciclo">
-        <button class="is-active" type="button">Ciclo {{ currentPeriod?.cicloActual || 'VI' }}</button>
-      </div>
+    @if (filteredCourses.length === 0) {
+      <div class="state state--empty">No hay cursos con ese filtro.</div>
+    }
 
-      <div class="toolbar-filter">
-        <span>Filtrar por:</span>
-        <select [value]="selectedFilter" (change)="selectFilter($any($event.target).value)">
-          @for (filter of filterOptions; track filter.key) {
-            <option [value]="filter.key">{{ filter.label }}</option>
-          }
-        </select>
-      </div>
-    </section>
-
-    <section class="courses-grid">
-      @if (filteredCourses.length === 0) {
-        <div class="state">No encontramos cursos con ese filtro.</div>
-      }
-
+    <div class="courses-grid">
       @for (course of filteredCourses; track trackCourse($index, course)) {
-        <article class="course-card">
-          <div class="course-card__badges">
-            <span class="badge badge--mode">{{ course.modalityTag }}</span>
-            <span class="badge badge--code">{{ course.codigo }}</span>
+        <article class="course-card" [class.course-card--no-schedule]="!course.hasSchedule">
+
+          <div class="course-card__top">
+            <span class="course-code">{{ course.codigo }}</span>
+            <span class="modality-tag">{{ course.modalityTag }}</span>
           </div>
 
           <h2>{{ course.nombre }}</h2>
-          <p class="professor">{{ course.compactProfessor }}</p>
+          <p class="course-professor">{{ course.compactProfessor }}</p>
 
-          <div class="course-meta">
+          <dl class="course-facts">
             <div>
-              <span>Horario</span>
-              <strong>{{ course.primaryScheduleLabel }}</strong>
+              <dt>Horario</dt>
+              <dd>{{ course.primaryScheduleLabel }}</dd>
             </div>
             <div>
-              <span>Hora</span>
-              <strong>{{ course.secondaryScheduleLabel }}</strong>
+              <dt>Prox. eval.</dt>
+              <dd [title]="course.nextEvaluationWeightLabel">{{ course.nextEvaluationLabel }}</dd>
             </div>
-          </div>
+          </dl>
 
-          <div class="course-next">
-            <span>Proxima evaluacion</span>
-            <strong>{{ course.nextEvaluationLabel }}</strong>
-            <small>{{ course.nextEvaluationWeightLabel }}</small>
-          </div>
-
-          <footer>
-            <span class="pending" [class.pending--empty]="course.pendingEvaluations === 0">
-              {{ course.pendingEvaluations === 0 ? 'Sin evaluaciones' : course.pendingEvaluations + ' eval. pendiente' + (course.pendingEvaluations === 1 ? '' : 's') }}
+          <footer class="course-card__footer">
+            <span class="pending-badge" [class.pending-badge--ok]="course.pendingEvaluations === 0" [class.pending-badge--warn]="course.pendingEvaluations > 0">
+              {{ course.pendingEvaluations === 0 ? 'Al dia' : course.pendingEvaluations + ' eval. pendiente' + (course.pendingEvaluations === 1 ? '' : 's') }}
             </span>
-            <a [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId]">Ir al curso</a>
+            <a class="course-link" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId]">Ver curso →</a>
           </footer>
+
         </article>
       }
-    </section>
+    </div>
+
   }
 </main>

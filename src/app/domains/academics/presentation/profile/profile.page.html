@@ -1,4 +1,5 @@
 <main class="profile">
+
   @if (isLoading) {
     <div class="state state--loading">Cargando perfil...</div>
   }
@@ -8,447 +9,363 @@
   }
 
   @if (!isLoading && !loadError && period) {
-    <section class="profile__frame">
-      <header class="identity-card">
-        <div class="identity-card__avatar">
-          <span class="identity-card__avatar-badge">{{ profileInitials }}</span>
+
+    <!-- Identity header -->
+    <header class="identity-header">
+      <div class="identity-header__avatar">{{ profileInitials }}</div>
+      <div class="identity-header__copy">
+        <div class="identity-header__pills">
+          <span class="pill pill--brand">{{ period.periodoEtiqueta || 'Periodo actual' }}</span>
+          <span class="pill">Ciclo {{ period.cicloActual || '--' }}</span>
+          <span class="pill"
+            [class.pill--ok]="academicStatusTone === 'ready'"
+            [class.pill--pending]="academicStatusTone === 'pending'">
+            {{ onboardingStatusLabel }}
+          </span>
         </div>
+        <h1>{{ fullDisplayName }}</h1>
+        <p>{{ careerName }} · {{ campusName }}</p>
+      </div>
+    </header>
 
-        <div class="identity-card__copy">
-          <div class="identity-card__chips">
-            <span class="profile-chip profile-chip--accent">{{ period.periodoEtiqueta || 'Periodo actual' }}</span>
-            <span class="profile-chip">Ciclo {{ period.cicloActual || '--' }}</span>
-          </div>
+    <!-- Main grid -->
+    <div class="profile-grid">
 
-          <h1>{{ fullDisplayName }}</h1>
-          <p class="identity-card__career">{{ careerName }}</p>
+      <div class="profile-main">
 
-          <div class="identity-card__meta">
-            <article>
-              <span>Correo institucional</span>
-              <strong>{{ period.emailInstitucional || 'Pendiente' }}</strong>
-            </article>
-            <article>
-              <span>Campus</span>
-              <strong>{{ campusName }}</strong>
-            </article>
-            <article
-              class="identity-card__status"
-              [class.identity-card__status--ready]="academicStatusTone === 'ready'"
-              [class.identity-card__status--progress]="academicStatusTone === 'progress'"
-              [class.identity-card__status--pending]="academicStatusTone === 'pending'">
-              <span>Estado</span>
-              <strong>
-                <i></i>
-                {{ onboardingStatusLabel }}
-              </strong>
-            </article>
-          </div>
-        </div>
-      </header>
-
-      <section class="profile__grid">
-        <div class="profile__main">
-          <article class="panel panel--info">
-            <form class="profile-form profile-form--compact" [formGroup]="personalForm" (ngSubmit)="savePersonal()">
-              <div class="profile-form__header">
-                <div class="profile-form__title">
-                  <span class="profile-form__icon" aria-hidden="true">i</span>
-                  <div>
-                    <h2>Informacion general</h2>
-                    <p>Actualiza como te mostramos y tu identidad institucional.</p>
-                  </div>
-                </div>
-                <button class="text-action" type="submit" [disabled]="isSavingPersonal">
-                  {{ isSavingPersonal ? 'Guardando...' : 'Guardar datos' }}
-                </button>
+        <!-- Personal info -->
+        <article class="card">
+          <form [formGroup]="personalForm" (ngSubmit)="savePersonal()">
+            <div class="card__head">
+              <div>
+                <span class="eyebrow">Informacion personal</span>
+                <h2>Datos de perfil</h2>
               </div>
+              <button class="save-btn" type="submit" [disabled]="isSavingPersonal">
+                {{ isSavingPersonal ? 'Guardando...' : 'Guardar' }}
+              </button>
+            </div>
 
-              <div class="info-grid">
-                <label class="field field--plain">
-                  <span>Nombre completo</span>
-                  <input type="text" formControlName="nombre" placeholder="Tu nombre completo" />
-                </label>
-
-                <label class="field field--plain">
-                  <span>Nombre preferido</span>
-                  <input type="text" formControlName="nombrePreferido" placeholder="Como prefieres que te llamemos" />
-                </label>
-
-                <label class="field field--plain">
-                  <span>Correo institucional</span>
-                  <input type="email" formControlName="emailInstitucional" placeholder="u2020xxxx@utp.edu.pe" />
-                </label>
-
-                <article class="info-static">
-                  <span>Campus</span>
-                  <strong>{{ campusName }}</strong>
-                </article>
-
-                <article class="info-static">
-                  <span>Ciclo</span>
-                  <strong>{{ period.periodoEtiqueta || 'Periodo actual' }}</strong>
-                </article>
-
-                <article class="info-static">
-                  <span>Estado</span>
-                  <strong>{{ onboardingStatusLabel }}</strong>
-                </article>
+            <div class="form-grid">
+              <label class="field">
+                <span>Nombre completo</span>
+                <input type="text" formControlName="nombre" placeholder="Tu nombre" />
+              </label>
+              <label class="field">
+                <span>Nombre preferido</span>
+                <input type="text" formControlName="nombrePreferido" placeholder="Como te llaman" />
+              </label>
+              <label class="field field--full">
+                <span>Correo institucional</span>
+                <input type="email" formControlName="emailInstitucional" placeholder="u2020xxxx@utp.edu.pe" />
+              </label>
+              <div class="static-field">
+                <span>Campus</span>
+                <strong>{{ campusName }}</strong>
               </div>
-
-              @if (personalError) {
-                <div class="state state--error">{{ personalError }}</div>
-              }
-
-              @if (personalSuccess) {
-                <div class="state state--success">{{ personalSuccess }}</div>
-              }
-            </form>
-          </article>
-
-          <article class="goals-strip">
-            <form class="goals-inline" [formGroup]="goalsForm" (ngSubmit)="saveGoals()">
-              <div class="goals-strip__copy">
-                <div>
-                  <span class="side-card__eyebrow">Objetivos del semestre</span>
-                  <h2>Metas del ciclo</h2>
-                </div>
-                <button class="text-action" type="submit" [disabled]="isSavingGoals">
-                  {{ isSavingGoals ? 'Guardando...' : 'Guardar objetivos' }}
-                </button>
+              <div class="static-field">
+                <span>Estado</span>
+                <strong>{{ onboardingStatusLabel }}</strong>
               </div>
+            </div>
 
-              <p class="goals-strip__hint">Define tu promedio objetivo y el ritmo semanal de estudio.</p>
+            @if (personalError) {
+              <div class="form-feedback form-feedback--error">{{ personalError }}</div>
+            }
+            @if (personalSuccess) {
+              <div class="form-feedback form-feedback--ok">{{ personalSuccess }}</div>
+            }
+          </form>
+        </article>
 
-              <label class="goal-inline">
+        <!-- Goals -->
+        <article class="card">
+          <form [formGroup]="goalsForm" (ngSubmit)="saveGoals()">
+            <div class="card__head">
+              <div>
+                <span class="eyebrow">Objetivos del ciclo</span>
+                <h2>Metas academicas</h2>
+              </div>
+              <button class="save-btn" type="submit" [disabled]="isSavingGoals">
+                {{ isSavingGoals ? 'Guardando...' : 'Guardar' }}
+              </button>
+            </div>
+
+            <div class="goals-row">
+              <label class="goal-field">
                 <span>Meta promedio</span>
-                <div class="goal-inline__value">
+                <div class="goal-field__input">
                   <input type="number" formControlName="metaPromedioCiclo" min="0" max="20" step="0.1" />
                   <small>/ 20</small>
                 </div>
               </label>
-
-              <label class="goal-inline">
-                <span>Horas por semana</span>
-                <div class="goal-inline__value">
+              <label class="goal-field">
+                <span>Horas de estudio / semana</span>
+                <div class="goal-field__input">
                   <input type="number" formControlName="horasEstudioSemanaObjetivo" min="1" max="80" step="1" />
                   <small>h</small>
                 </div>
               </label>
-            </form>
+            </div>
 
             @if (goalsError) {
-              <div class="state state--error">{{ goalsError }}</div>
+              <div class="form-feedback form-feedback--error">{{ goalsError }}</div>
             }
-
             @if (goalsSuccess) {
-              <div class="state state--success">{{ goalsSuccess }}</div>
+              <div class="form-feedback form-feedback--ok">{{ goalsSuccess }}</div>
             }
-          </article>
+          </form>
+        </article>
 
-          <article class="progress-card">
-            <div class="progress-card__copy">
-              <h2>Progreso del ciclo</h2>
-              <p>Resumen operativo de tu periodo actual.</p>
+        <!-- Cycle progress bar -->
+        <article class="card cycle-card">
+          <span class="eyebrow">Avance del ciclo</span>
+          <div class="progress-bar">
+            <span [style.width.%]="progressPercent"></span>
+          </div>
+          <div class="cycle-stats">
+            <div><strong>{{ currentCoursesCount }}</strong><span>cursos activos</span></div>
+            <div><strong>{{ period.metaPromedioCiclo || '--' }}</strong><span>meta promedio</span></div>
+            <div><strong>{{ period.horasEstudioSemanaObjetivo || '--' }}</strong><span>h objetivo / sem</span></div>
+          </div>
+        </article>
+
+      </div>
+
+      <!-- Side: integrations -->
+      <aside class="profile-side">
+
+        <!-- WhatsApp -->
+        <article class="card" id="whatsapp-channel">
+          <div class="card__head">
+            <div>
+              <span class="eyebrow">Notificaciones</span>
+              <h2>WhatsApp Bot</h2>
             </div>
+            <span class="whatsapp-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" width="28" height="28">
+                <path fill="#25D366" d="M12 2.1c-5.47 0-9.9 4.36-9.9 9.74 0 1.72.46 3.41 1.34 4.9L2 21.9l5.3-1.38a10.1 10.1 0 0 0 4.7 1.15c5.46 0 9.9-4.36 9.9-9.73 0-5.38-4.44-9.84-9.9-9.84Z"/>
+                <path fill="#fff" d="M16.9 14.44c-.27-.14-1.6-.78-1.85-.86-.25-.08-.43-.12-.61.14-.18.26-.7.86-.86 1.03-.16.18-.31.2-.58.07-.27-.14-1.13-.41-2.15-1.31a8.07 8.07 0 0 1-1.49-1.81c-.16-.27-.02-.41.12-.55.12-.12.27-.31.4-.46.14-.16.18-.27.27-.46.09-.18.05-.35-.02-.49-.07-.14-.61-1.46-.84-2-.21-.5-.43-.43-.61-.44h-.52c-.18 0-.47.07-.72.34-.25.27-.95.93-.95 2.27s.98 2.63 1.11 2.81c.14.18 1.91 2.9 4.62 4.06.64.28 1.15.44 1.55.57.65.2 1.24.17 1.7.11.52-.08 1.6-.66 1.82-1.3.23-.64.23-1.18.16-1.3-.07-.1-.25-.17-.52-.31Z"/>
+              </svg>
+            </span>
+          </div>
 
-            <div class="progress-card__bar">
-              <span [style.width.%]="progressPercent"></span>
-            </div>
+          <p class="card__desc">Recibe alertas de evaluaciones proximas y vencidas directamente en tu celular.</p>
 
-            <div class="progress-card__stats">
-              <div>
-                <strong>{{ currentCoursesCount }}</strong>
-                <span>cursos activos</span>
+          @if (isWhatsappLoading) {
+            <div class="state state--loading">Consultando...</div>
+          } @else {
+            @if (whatsappStatus?.linked) {
+              <div class="integration-status integration-status--ok">
+                <strong>{{ whatsappStatus?.phoneNumberMasked || 'Numero vinculado' }}</strong>
+                <small>Vinculado el {{ whatsappStatus?.linkedAt ? (whatsappStatus?.linkedAt | date:'dd/MM/yy') : '--' }}</small>
               </div>
-              <div>
-                <strong>{{ period.metaPromedioCiclo }}</strong>
-                <span>meta promedio</span>
-              </div>
-              <div>
-                <strong>{{ period.horasEstudioSemanaObjetivo }}</strong>
-                <span>horas objetivo</span>
-              </div>
-            </div>
-          </article>
-        </div>
-
-        <aside class="profile__side">
-          <article class="side-card side-card--whatsapp" id="whatsapp-channel">
-            <div class="side-card__title">
-              <span class="whatsapp-badge" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="none">
-                  <path fill="currentColor" d="M12 2.1c-5.47 0-9.9 4.36-9.9 9.74 0 1.72.46 3.41 1.34 4.9L2 21.9l5.3-1.38a10.1 10.1 0 0 0 4.7 1.15c5.46 0 9.9-4.36 9.9-9.73 0-5.38-4.44-9.84-9.9-9.84Zm0 17.83a8.38 8.38 0 0 1-4.29-1.18l-.31-.18-3.15.82.84-3.03-.2-.31a8.05 8.05 0 0 1-1.28-4.31c0-4.47 3.7-8.11 8.27-8.11 4.56 0 8.28 3.72 8.28 8.3 0 4.46-3.72 8-8.16 8Z"/>
-                  <path fill="#fff" d="M16.9 14.44c-.27-.14-1.6-.78-1.85-.86-.25-.08-.43-.12-.61.14-.18.26-.7.86-.86 1.03-.16.18-.31.2-.58.07-.27-.14-1.13-.41-2.15-1.31a8.07 8.07 0 0 1-1.49-1.81c-.16-.27-.02-.41.12-.55.12-.12.27-.31.4-.46.14-.16.18-.27.27-.46.09-.18.05-.35-.02-.49-.07-.14-.61-1.46-.84-2-.21-.5-.43-.43-.61-.44h-.52c-.18 0-.47.07-.72.34-.25.27-.95.93-.95 2.27s.98 2.63 1.11 2.81c.14.18 1.91 2.9 4.62 4.06.64.28 1.15.44 1.55.57.65.2 1.24.17 1.7.11.52-.08 1.6-.66 1.82-1.3.23-.64.23-1.18.16-1.3-.07-.1-.25-.17-.52-.31Z"/>
-                </svg>
-              </span>
-              <div>
-                <h2>Trackademy Bot</h2>
-                <span>{{ whatsappSummaryLabel }}</span>
-              </div>
-            </div>
-            <p>Recibe alertas de tareas proximas y seguimiento academico directamente en tu celular.</p>
-
-            @if (isWhatsappLoading) {
-              <div class="state state--loading">Consultando estado de WhatsApp...</div>
+              <button class="btn btn--ghost btn--sm" type="button" (click)="unlinkWhatsapp()" [disabled]="isUnlinkingWhatsapp">
+                {{ isUnlinkingWhatsapp ? 'Desvinculando...' : 'Desvincular' }}
+              </button>
             } @else {
-              @if (whatsappStatus?.linked) {
-                <div class="side-card__meta">
-                  <strong>{{ whatsappStatus?.phoneNumberMasked || 'Numero vinculado' }}</strong>
-                  <small>Vinculado: {{ whatsappStatus?.linkedAt ? (whatsappStatus?.linkedAt | date:'dd/MM/yyyy HH:mm') : 'sin fecha' }}</small>
-                </div>
-              } @else {
-                <div class="side-card__meta">
-                  <strong>{{ whatsappLinkCode?.code || 'Sin codigo activo' }}</strong>
+              @if (whatsappHasActiveCode) {
+                <div class="integration-status">
+                  <strong class="link-code">{{ whatsappLinkCode?.code }}</strong>
                   <small>{{ whatsappExpiryLabel }}</small>
                 </div>
               }
-
-              <div class="side-card__actions">
-                @if (!whatsappStatus?.linked) {
-                  <button class="btn btn--primary" type="button" (click)="generateWhatsappCode()" [disabled]="isGeneratingWhatsappCode">
-                    {{ isGeneratingWhatsappCode ? 'Generando...' : (whatsappHasActiveCode ? 'Generar nuevo codigo' : 'Vincular con WhatsApp') }}
-                  </button>
-                }
-
-                @if (whatsappHasActiveCode && !whatsappStatus?.linked) {
-                  <button class="btn btn--ghost" type="button" (click)="openWhatsappDeepLink()">Abrir WhatsApp</button>
-                }
-
-                @if (whatsappStatus?.linked) {
-                  <button class="btn btn--primary" type="button" (click)="unlinkWhatsapp()" [disabled]="isUnlinkingWhatsapp">
-                    {{ isUnlinkingWhatsapp ? 'Desvinculando...' : 'Desvincular' }}
-                  </button>
+              <div class="btn-row">
+                <button class="btn btn--primary btn--sm" type="button" (click)="generateWhatsappCode()" [disabled]="isGeneratingWhatsappCode">
+                  {{ isGeneratingWhatsappCode ? 'Generando...' : (whatsappHasActiveCode ? 'Nuevo codigo' : 'Vincular') }}
+                </button>
+                @if (whatsappHasActiveCode) {
+                  <button class="btn btn--ghost btn--sm" type="button" (click)="openWhatsappDeepLink()">Abrir WhatsApp</button>
                 }
               </div>
             }
 
             @if (whatsappError) {
-              <div class="state state--error">{{ whatsappError }}</div>
+              <div class="form-feedback form-feedback--error">{{ whatsappError }}</div>
             }
-
             @if (whatsappSuccess) {
-              <div class="state state--success">{{ whatsappSuccess }}</div>
+              <div class="form-feedback form-feedback--ok">{{ whatsappSuccess }}</div>
             }
-          </article>
-
-          <article class="side-card side-card--calendar">
-            <span class="side-card__eyebrow">Integracion de calendario</span>
-            <div class="sync-grid">
-              @for (account of calendarSyncAccounts; track account.provider) {
-                <article
-                  class="sync-item"
-                  [class.sync-item--connected]="account.conectado"
-                  [class.sync-item--google]="account.provider === 'google'"
-                  [class.sync-item--outlook]="account.provider !== 'google'">
-                  <span class="sync-item__icon" aria-hidden="true">
-                    @if (account.provider === 'google') {
-                      <svg viewBox="0 0 24 24" fill="none">
-                        <rect x="4" y="5" width="16" height="15" rx="3" fill="#fff"/>
-                        <path d="M8 3.5v3M16 3.5v3" stroke="#4285F4" stroke-width="1.8" stroke-linecap="round"/>
-                        <path d="M4 9h16" stroke="#34A853" stroke-width="1.6"/>
-                        <rect x="7" y="11.2" width="4.2" height="3.4" rx="1" fill="#FBBC05"/>
-                        <rect x="12.6" y="11.2" width="4.2" height="3.4" rx="1" fill="#EA4335"/>
-                        <rect x="7" y="15.5" width="4.2" height="3.4" rx="1" fill="#34A853"/>
-                        <rect x="12.6" y="15.5" width="4.2" height="3.4" rx="1" fill="#4285F4"/>
-                      </svg>
-                    } @else {
-                      <svg viewBox="0 0 24 24" fill="none">
-                        <path d="M3.5 6.5 10 4v16l-6.5-2.5v-11Z" fill="#0A5FB4"/>
-                        <path d="M10 6h10.5v12H10V6Z" fill="#1973D2"/>
-                        <path d="M12.5 9.3h5.5v1.8h-5.5zM12.5 12.1h5.5v1.8h-5.5zM12.5 14.9h4.2v1.8h-4.2z" fill="#fff"/>
-                      </svg>
-                    }
-                  </span>
-                  <div class="sync-item__copy">
-                    <strong>{{ syncProviderLabel(account.provider) }}</strong>
-                    <p>{{ syncHint(account) }}</p>
-                    <small class="sync-item__meta">{{ syncMetaLabel(account) }}</small>
-                    <div class="sync-item__actions">
-                      <button class="btn btn--ghost" type="button" (click)="triggerCalendarSync(account)" [disabled]="(account.provider === 'google' && isSyncingGoogleCalendar) || (account.provider !== 'google')">
-                        {{ syncActionLabel(account) }}
-                      </button>
-                      @if (account.provider === 'google' && account.conectado) {
-                        <button class="btn btn--ghost btn--danger" type="button" (click)="disconnectCalendar(account)" [disabled]="isDisconnectingGoogleCalendar">
-                          {{ isDisconnectingGoogleCalendar ? 'Desconectando...' : 'Desconectar' }}
-                        </button>
-                      }
-                    </div>
-                  </div>
-                  <span class="sync-item__status">{{ syncStatusLabel(account) }}</span>
-                </article>
-              }
-            </div>
-
-          </article>
-
-        </aside>
-      </section>
-
-      <section class="panel panel--wide" id="reconfig-panel">
-        <div class="panel__header">
-          <div>
-            <h2>Configuracion academica</h2>
-            <p>Curalo como un contexto de trabajo: selecciona solo lo que realmente debe operar en este ciclo.</p>
-          </div>
-        </div>
-
-        <div class="warning-box">
-          Si quitas un curso, tambien se borraran su horario configurado y sus notas registradas en este periodo.
-        </div>
-
-        <form class="reconfig-form" [formGroup]="configForm" (ngSubmit)="saveConfiguration()">
-          <div class="reconfig-grid">
-            <label class="field">
-              <span>Campus</span>
-              <select formControlName="campusId">
-                @for (campus of campuses; track campus.id) {
-                  <option [ngValue]="campus.id">{{ campus.nombre }}</option>
-                }
-              </select>
-            </label>
-
-            <label class="field">
-              <span>Carrera</span>
-              <select formControlName="carreraId">
-                @for (career of careers; track career.id) {
-                  <option [ngValue]="career.id">{{ career.nombre }}</option>
-                }
-              </select>
-            </label>
-
-            <label class="field">
-              <span>Ciclo actual</span>
-              <input type="number" formControlName="cicloActual" min="1" max="12" step="1" />
-            </label>
-          </div>
-
-          @if (configInfo) {
-            <div class="state state--loading">{{ configInfo }}</div>
           }
+        </article>
 
-          <section class="academic-builder">
-            <div class="catalog-panel">
-              <div class="catalog-panel__intro">
-                <div>
-                  <span class="side-card__eyebrow">Catalogo disponible</span>
-                  <h3>Seleccion de cursos</h3>
-                  <p>Filtra por ciclo o busca por codigo/nombre. Cada tarjeta usa solo metadata real del catalogo.</p>
+        <!-- Calendar integrations -->
+        <article class="card">
+          <div class="card__head">
+            <div>
+              <span class="eyebrow">Calendarios externos</span>
+              <h2>Sincronizacion</h2>
+            </div>
+          </div>
+
+          <div class="sync-list">
+            @for (account of calendarSyncAccounts; track account.provider) {
+              <article class="sync-item" [class.sync-item--connected]="account.conectado">
+                <span class="sync-item__icon" aria-hidden="true">
+                  @if (account.provider === 'google') {
+                    <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+                      <rect x="4" y="5" width="16" height="15" rx="3" fill="#fff" stroke="#e0e0e0"/>
+                      <path d="M8 3.5v3M16 3.5v3" stroke="#4285F4" stroke-width="1.8" stroke-linecap="round"/>
+                      <path d="M4 9h16" stroke="#34A853" stroke-width="1.6"/>
+                      <rect x="7" y="11.2" width="4.2" height="3.4" rx="1" fill="#FBBC05"/>
+                      <rect x="12.6" y="11.2" width="4.2" height="3.4" rx="1" fill="#EA4335"/>
+                      <rect x="7" y="15.5" width="4.2" height="3.4" rx="1" fill="#34A853"/>
+                      <rect x="12.6" y="15.5" width="4.2" height="3.4" rx="1" fill="#4285F4"/>
+                    </svg>
+                  } @else {
+                    <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
+                      <path d="M3.5 6.5 10 4v16l-6.5-2.5v-11Z" fill="#0A5FB4"/>
+                      <path d="M10 6h10.5v12H10V6Z" fill="#1973D2"/>
+                      <path d="M12.5 9.3h5.5v1.8h-5.5zM12.5 12.1h5.5v1.8h-5.5zM12.5 14.9h4.2v1.8h-4.2z" fill="#fff"/>
+                    </svg>
+                  }
+                </span>
+                <div class="sync-item__info">
+                  <strong>{{ syncProviderLabel(account.provider) }}</strong>
+                  <small>{{ syncMetaLabel(account) }}</small>
                 </div>
-                <div class="course-browser__meta">
-                  <strong>{{ filteredAvailableCourses.length }}</strong>
-                  <span>visibles</span>
-                </div>
-              </div>
-
-              <div class="catalog-toolbar">
-                <label class="catalog-search">
-                  <input type="text" [value]="courseQuery" (input)="onCourseQueryChange($any($event.target).value)" placeholder="Buscar por nombre o codigo" aria-label="Buscar cursos" />
-                </label>
-
-                <div class="cycle-filter" aria-label="Filtrar por ciclo referencial">
-                  <button type="button" [class.is-active]="selectedCatalogCycle === 'all'" (click)="selectCatalogCycle('all')">Todos</button>
-                  @for (cycle of availableCycles; track cycle) {
-                    <button type="button" [class.is-active]="selectedCatalogCycle === cycle" (click)="selectCatalogCycle(cycle)">
-                      Ciclo {{ cycle }}
+                <span class="sync-status" [class.sync-status--ok]="account.conectado">{{ syncStatusLabel(account) }}</span>
+                <div class="sync-actions">
+                  <button class="btn btn--ghost btn--sm" type="button" (click)="triggerCalendarSync(account)" [disabled]="(account.provider === 'google' && isSyncingGoogleCalendar) || (account.provider !== 'google')">
+                    {{ syncActionLabel(account) }}
+                  </button>
+                  @if (account.provider === 'google' && account.conectado) {
+                    <button class="btn btn--ghost btn--sm btn--danger-ghost" type="button" (click)="disconnectCalendar(account)" [disabled]="isDisconnectingGoogleCalendar">
+                      {{ isDisconnectingGoogleCalendar ? '...' : 'Desconectar' }}
                     </button>
                   }
                 </div>
-              </div>
+              </article>
+            }
+          </div>
+        </article>
 
-              <div class="course-picker">
-                @if (isCoursesLoading) {
-                  <div class="state state--loading">Cargando cursos para esta carrera...</div>
-                }
+      </aside>
+    </div>
 
-                @if (!isCoursesLoading && filteredAvailableCourses.length === 0) {
-                  <div class="state state--loading">No hay cursos visibles con estos filtros.</div>
-                }
+    <!-- Course configuration (full width) -->
+    <section class="reconfig-section" id="reconfig-panel">
+      <div class="reconfig-header">
+        <div>
+          <span class="eyebrow">Configuracion academica</span>
+          <h2>Cursos del ciclo</h2>
+          <p>Selecciona los cursos que cursan este periodo. Si quitas uno, se borran su horario y notas del ciclo actual.</p>
+        </div>
+      </div>
 
-                @if (!isCoursesLoading) {
-                  @for (course of filteredAvailableCourses; track course.id) {
-                    <button class="course-option" type="button" [class.course-option--selected]="isSelected(course.id)" (click)="toggleCourse(course)">
-                      <div class="course-option__head">
-                        <span class="course-option__code">{{ course.codigo }}</span>
-                        <span class="course-option__action">{{ isSelected(course.id) ? 'Seleccionado' : 'Agregar' }}</span>
-                      </div>
-                      <div class="course-option__copy">
-                        <strong>{{ course.nombre }}</strong>
-                        <small>{{ course.modalidad || 'Modalidad no registrada' }}</small>
-                      </div>
-                      <div class="course-option__facts">
-                        <span>{{ course.creditos }} credito{{ course.creditos === 1 ? '' : 's' }}</span>
-                        <span>{{ course.horasSemanales }} h/sem</span>
-                        <span>Ciclo {{ course.cicloReferencial || '--' }}</span>
-                      </div>
-                    </button>
-                  }
+      <div class="warning-note">
+        Quitar un curso elimina su horario configurado y sus notas de este periodo.
+      </div>
+
+      <form [formGroup]="configForm" (ngSubmit)="saveConfiguration()">
+        <div class="reconfig-basics">
+          <label class="field">
+            <span>Campus</span>
+            <select formControlName="campusId">
+              @for (campus of campuses; track campus.id) {
+                <option [ngValue]="campus.id">{{ campus.nombre }}</option>
+              }
+            </select>
+          </label>
+          <label class="field">
+            <span>Carrera</span>
+            <select formControlName="carreraId">
+              @for (career of careers; track career.id) {
+                <option [ngValue]="career.id">{{ career.nombre }}</option>
+              }
+            </select>
+          </label>
+          <label class="field">
+            <span>Ciclo actual</span>
+            <input type="number" formControlName="cicloActual" min="1" max="12" step="1" />
+          </label>
+        </div>
+
+        @if (configInfo) {
+          <div class="form-feedback">{{ configInfo }}</div>
+        }
+
+        <div class="course-builder">
+          <div class="catalog-panel">
+            <div class="catalog-panel__head">
+              <h3>Catalogo disponible</h3>
+              <span class="catalog-count">{{ filteredAvailableCourses.length }} visibles</span>
+            </div>
+
+            <div class="catalog-toolbar">
+              <input type="text" class="catalog-search" [value]="courseQuery" (input)="onCourseQueryChange($any($event.target).value)" placeholder="Buscar por nombre o codigo" />
+              <div class="cycle-filter" aria-label="Filtrar por ciclo">
+                <button type="button" [class.is-active]="selectedCatalogCycle === 'all'" (click)="selectCatalogCycle('all')">Todos</button>
+                @for (cycle of availableCycles; track cycle) {
+                  <button type="button" [class.is-active]="selectedCatalogCycle === cycle" (click)="selectCatalogCycle(cycle)">C{{ cycle }}</button>
                 }
               </div>
             </div>
 
-            <aside class="selected-column">
-              <div class="selected-column__header">
-                <span class="side-card__eyebrow">Cursos seleccionados</span>
-                <h3>{{ selectedCourseIds.size }} curso{{ selectedCourseIds.size === 1 ? '' : 's' }}</h3>
-                <p>Esta sera la base operativa del periodo para horario, calendario y notas.</p>
-              </div>
-
-              <div class="selected-column__metrics">
-                <article>
-                  <strong>{{ selectedTotalCredits }}</strong>
-                  <span>creditos</span>
-                </article>
-                <article>
-                  <strong>{{ selectedTotalHours }}</strong>
-                  <span>h/sem</span>
-                </article>
-              </div>
-
-              <div class="selected-delta">
-                <span>{{ addedCourseCount }} agregado{{ addedCourseCount === 1 ? '' : 's' }}</span>
-                <span>{{ removedCourseCount }} eliminado{{ removedCourseCount === 1 ? '' : 's' }}</span>
-              </div>
-
-              <div class="selected-courses">
-                @if (selectedCoursesList.length === 0) {
-                  <p class="selected-empty">Todavia no hay cursos seleccionados.</p>
-                }
-
-                @for (course of selectedCoursesList; track course.id) {
-                  <button class="selected-chip" type="button" (click)="removeSelectedCourse(course.id)">
-                    <div class="selected-chip__head">
-                      <small>{{ course.code }}</small>
-                      <strong>Quitar</strong>
+            <div class="course-picker">
+              @if (isCoursesLoading) {
+                <div class="state state--loading">Cargando cursos...</div>
+              }
+              @if (!isCoursesLoading && filteredAvailableCourses.length === 0) {
+                <div class="state">Sin cursos visibles.</div>
+              }
+              @if (!isCoursesLoading) {
+                @for (course of filteredAvailableCourses; track course.id) {
+                  <button class="course-option" type="button" [class.course-option--selected]="isSelected(course.id)" (click)="toggleCourse(course)">
+                    <div class="course-option__head">
+                      <span>{{ course.codigo }}</span>
+                      <span class="course-option__tag">{{ isSelected(course.id) ? 'Seleccionado' : 'Agregar' }}</span>
                     </div>
-                    <div class="selected-chip__copy">
-                      <span>{{ course.name }}</span>
-                      <p>
-                        @if (course.cycle) {
-                          Ciclo {{ course.cycle }} ·
-                        }
-                        {{ course.modality || 'Modalidad no registrada' }}
-                      </p>
-                    </div>
+                    <strong>{{ course.nombre }}</strong>
+                    <small>{{ course.creditos }} cr · {{ course.horasSemanales }} h/sem · Ciclo {{ course.cicloReferencial || '--' }}</small>
                   </button>
                 }
+              }
+            </div>
+          </div>
+
+          <aside class="selected-panel">
+            <div class="selected-panel__head">
+              <h3>Seleccionados</h3>
+              <span class="catalog-count">{{ selectedCourseIds.size }}</span>
+            </div>
+            <div class="selected-metrics">
+              <div><strong>{{ selectedTotalCredits }}</strong><span>creditos</span></div>
+              <div><strong>{{ selectedTotalHours }}</strong><span>h/sem</span></div>
+            </div>
+            @if (addedCourseCount > 0 || removedCourseCount > 0) {
+              <div class="delta-row">
+                @if (addedCourseCount > 0) { <span class="delta delta--add">+{{ addedCourseCount }}</span> }
+                @if (removedCourseCount > 0) { <span class="delta delta--remove">-{{ removedCourseCount }}</span> }
               </div>
-
-              @if (configError) {
-                <div class="state state--error">{{ configError }}</div>
+            }
+            <div class="selected-list">
+              @if (selectedCoursesList.length === 0) {
+                <p class="empty-hint">Nada seleccionado.</p>
               }
-
-              @if (configSuccess) {
-                <div class="state state--success">{{ configSuccess }}</div>
+              @for (course of selectedCoursesList; track course.id) {
+                <button class="selected-chip" type="button" (click)="removeSelectedCourse(course.id)">
+                  <small>{{ course.code }}</small>
+                  <span>{{ course.name }}</span>
+                  <strong>Quitar</strong>
+                </button>
               }
+            </div>
 
-              <button class="btn btn--primary" type="submit" [disabled]="isSavingConfig">
-                {{ isSavingConfig ? 'Guardando...' : 'Guardar configuracion' }}
-              </button>
-            </aside>
-          </section>
-        </form>
-      </section>
+            @if (configError) {
+              <div class="form-feedback form-feedback--error">{{ configError }}</div>
+            }
+            @if (configSuccess) {
+              <div class="form-feedback form-feedback--ok">{{ configSuccess }}</div>
+            }
+
+            <button class="btn btn--primary" type="submit" [disabled]="isSavingConfig">
+              {{ isSavingConfig ? 'Guardando...' : 'Guardar configuracion' }}
+            </button>
+          </aside>
+        </div>
+      </form>
     </section>
+
   }
 </main>
