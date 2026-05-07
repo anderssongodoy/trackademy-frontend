@@ -38,7 +38,7 @@
 .identity-card {
   @include ui.layer-card(28px, 32px);
   background:
-    radial-gradient(circle at top right, rgba(83, 0, 183, 0.1), transparent 28%),
+    radial-gradient(circle at top right, rgba(49, 88, 70, 0.1), transparent 28%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 248, 251, 0.98));
 }
 
@@ -59,12 +59,12 @@
   display: grid;
   place-items: center;
   border-radius: 999px;
-  background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-container));
+  background: var(--brand-primary);
   color: #fff;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Newsreader', Georgia, serif;
   font-size: 1.9rem;
   font-weight: 700;
-  box-shadow: 0 18px 32px rgba(83, 0, 183, 0.18);
+  box-shadow: 0 18px 32px rgba(49, 88, 70, 0.18);
 }
 
 .identity-card__copy {
@@ -95,7 +95,7 @@
 }
 
 .profile-chip--accent {
-  background: rgba(83, 0, 183, 0.1);
+  background: rgba(49, 88, 70, 0.1);
   color: var(--brand-primary);
 }
 
@@ -238,7 +238,7 @@ h1 {
   display: grid;
   place-items: center;
   border-radius: 999px;
-  background: rgba(83, 0, 183, 0.1);
+  background: rgba(49, 88, 70, 0.1);
   color: var(--brand-primary);
   font-weight: 800;
 }
@@ -290,7 +290,7 @@ h1 {
   gap: 0;
   min-height: 0;
   background:
-    radial-gradient(circle at top right, rgba(83, 0, 183, 0.08), transparent 30%),
+    radial-gradient(circle at top right, rgba(49, 88, 70, 0.08), transparent 30%),
     rgba(255, 255, 255, 0.98);
 }
 
@@ -383,7 +383,7 @@ h1 {
   border: 0;
   background: transparent;
   box-shadow: none;
-  font: 700 1.9rem 'Space Grotesk', sans-serif;
+  font: 700 1.9rem 'Newsreader', Georgia, serif;
   color: var(--text-primary);
 }
 
@@ -413,7 +413,7 @@ h1 {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--brand-primary), var(--brand-primary-container));
+  background: var(--brand-primary);
 }
 
 .progress-card__stats {
@@ -423,7 +423,7 @@ h1 {
 }
 
 .progress-card__stats strong {
-  font: 700 2rem 'Space Grotesk', sans-serif;
+  font: 700 2rem 'Newsreader', Georgia, serif;
 }
 
 .progress-card__stats span {
@@ -566,7 +566,7 @@ h1 {
   text-align: left;
   border-radius: 24px;
   background: linear-gradient(180deg, rgba(248, 244, 255, 0.98), rgba(243, 238, 255, 0.98));
-  box-shadow: 0 16px 28px rgba(83, 0, 183, 0.08);
+  box-shadow: 0 16px 28px rgba(49, 88, 70, 0.08);
 }
 
 .selected-chip__head {
@@ -594,7 +594,7 @@ h1 {
   justify-content: center;
   padding: 0.44rem 0.78rem;
   border-radius: 999px;
-  background: rgba(83, 0, 183, 0.1);
+  background: rgba(49, 88, 70, 0.1);
   color: var(--brand-primary);
 }
 
@@ -685,7 +685,7 @@ h1 {
 .cycle-filter button.is-active {
   background: var(--brand-primary);
   color: #fff;
-  box-shadow: 0 12px 24px rgba(83, 0, 183, 0.16);
+  box-shadow: 0 12px 24px rgba(49, 88, 70, 0.16);
 }
 
 .selected-column {
@@ -724,7 +724,7 @@ h1 {
 }
 
 .selected-column__metrics strong {
-  font: 700 2rem 'Space Grotesk', sans-serif;
+  font: 700 2rem 'Newsreader', Georgia, serif;
   line-height: 1;
   color: var(--text-primary);
 }
@@ -750,7 +750,7 @@ h1 {
   min-height: 28px;
   padding: 0.38rem 0.74rem;
   border-radius: 999px;
-  background: rgba(83, 0, 183, 0.08);
+  background: rgba(49, 88, 70, 0.08);
   color: var(--brand-primary);
 }
 
@@ -769,7 +769,7 @@ h1 {
 }
 
 .course-browser__meta strong {
-  font: 700 2.4rem 'Space Grotesk', sans-serif;
+  font: 700 2.4rem 'Newsreader', Georgia, serif;
   line-height: 1;
   color: var(--text-primary);
 }
@@ -807,12 +807,12 @@ h1 {
   inset: 16px auto 16px 0;
   width: 4px;
   border-radius: 999px;
-  background: rgba(83, 0, 183, 0.35);
+  background: rgba(49, 88, 70, 0.35);
 }
 
 .course-option--selected {
   border-color: var(--brand-primary);
-  box-shadow: 0 14px 28px rgba(83, 0, 183, 0.1);
+  box-shadow: 0 14px 28px rgba(49, 88, 70, 0.1);
 }
 
 .course-option--selected::before {
@@ -855,7 +855,7 @@ h1 {
   align-items: center;
   padding: 0.42rem 0.72rem;
   border-radius: 999px;
-  background: rgba(83, 0, 183, 0.08);
+  background: rgba(49, 88, 70, 0.08);
 }
 
 .course-option span {

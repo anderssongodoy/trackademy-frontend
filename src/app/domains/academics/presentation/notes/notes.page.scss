@@ -39,7 +39,7 @@
 
 .hero__copy h1 {
   margin: 8px 0 8px;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Newsreader', Georgia, serif;
   font-size: clamp(2.2rem, 5vw, 4rem);
   line-height: 0.95;
   color: var(--text-primary);
@@ -86,7 +86,7 @@
 .metric-card strong,
 .operation-row__average strong,
 .course-progress__meta strong {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Newsreader', Georgia, serif;
 }
 
 .hero-metric strong {
@@ -196,7 +196,7 @@
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--brand-primary), var(--brand-primary-container));
+  background: var(--brand-primary);
 }
 
 .alerts-list {
@@ -303,7 +303,7 @@
   min-width: 54px;
   padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(83, 0, 183, 0.1);
+  background: rgba(49, 88, 70, 0.1);
   color: var(--brand-primary);
   text-align: center;
 }

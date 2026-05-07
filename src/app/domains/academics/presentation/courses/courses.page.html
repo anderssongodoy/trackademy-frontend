@@ -25,7 +25,7 @@
           <small>Activos</small>
         </article>
 
-        <article class="summary-card summary-card--purple">
+        <article class="summary-card summary-card--accent">
           <span aria-hidden="true">
             <svg viewBox="0 0 24 24">
               <path d="M7 3v4M17 3v4M4 9h16M6 5h12a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"></path>
@@ -99,7 +99,7 @@
             <span class="pending" [class.pending--empty]="course.pendingEvaluations === 0">
               {{ course.pendingEvaluations === 0 ? 'Sin evaluaciones' : course.pendingEvaluations + ' eval. pendiente' + (course.pendingEvaluations === 1 ? '' : 's') }}
             </span>
-            <a [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId]">Ir al curso -></a>
+            <a [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId]">Ir al curso</a>
           </footer>
         </article>
       }

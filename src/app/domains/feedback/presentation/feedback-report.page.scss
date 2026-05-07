@@ -13,7 +13,7 @@ $text-gray: #6B7280;
 @mixin input-focus {
   border-color: $primary;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(91, 33, 182, 0.1);
+  box-shadow: 0 0 0 3px rgba(49, 88, 70, 0.1);
 }
 
 @mixin btn-base {
@@ -33,7 +33,7 @@ $text-gray: #6B7280;
 
 .feedback-container {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f3ff 0%, #f9fafb 100%);
+  background: linear-gradient(135deg, #f7f6f2 0%, #f9fafb 100%);
   padding: 2rem 1rem;
 }
 
@@ -282,7 +282,7 @@ $text-gray: #6B7280;
 
       &:hover {
         border-color: $primary-light;
-        background-color: rgba(91, 33, 182, 0.05);
+        background-color: rgba(49, 88, 70, 0.06);
       }
     }
   }
@@ -351,7 +351,7 @@ $text-gray: #6B7280;
 
     &:hover {
       border-color: $primary;
-      background-color: rgba(91, 33, 182, 0.05);
+      background-color: rgba(49, 88, 70, 0.06);
     }
 
     .upload-icon {
@@ -427,7 +427,7 @@ $text-gray: #6B7280;
     &:hover:not(:disabled) {
       background-color: $primary-light;
       transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(91, 33, 182, 0.3);
+      box-shadow: 0 4px 12px rgba(49, 88, 70, 0.18);
     }
 
     .spinner {

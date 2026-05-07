@@ -1,25 +1,27 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,600;6..72,700&display=swap');
 
 :root {
-	--brand-primary: #5300b7;
-	--brand-primary-container: #6d28d9;
-	--brand-accent: #6d28d9;
-	--brand-cyan: #8ddcff;
-	--accent-strong: #6d28d9;
-	--surface-background: #f8f9fa;
-	--surface: #f8f9fa;
-	--surface-container-low: rgba(240, 242, 246, 0.92);
+	--brand-primary: #315846;
+	--brand-primary-container: #244638;
+	--brand-accent: #8b6f47;
+	--brand-cyan: #d9e8ef;
+	--accent-strong: #315846;
+	--surface-background: #f7f6f2;
+	--surface: #f7f6f2;
+	--surface-container-low: #f0eee8;
 	--surface-container-lowest: #ffffff;
-	--surface-container-high: rgba(232, 236, 242, 0.94);
-	--surface-container-highest: rgba(223, 229, 237, 0.98);
-	--surface-panel: rgba(255, 255, 255, 0.72);
-	--surface-panel-soft: rgba(240, 242, 246, 0.86);
-	--text-primary: #191c1d;
-	--text-secondary: #56606b;
-	--line-soft: rgba(86, 96, 107, 0.15);
-	--line-strong: rgba(86, 96, 107, 0.3);
+	--surface-container-high: #e9e6dc;
+	--surface-container-highest: #dedacf;
+	--surface-panel: rgba(255, 255, 255, 0.86);
+	--surface-panel-soft: rgba(240, 238, 232, 0.9);
+	--text-primary: #20231f;
+	--text-secondary: #65675f;
+	--text-tertiary: #8d8c84;
+	--line-soft: rgba(32, 35, 31, 0.1);
+	--line-strong: rgba(32, 35, 31, 0.22);
 	--state-danger: #b63e3e;
 	--state-success: #166534;
+	--state-warning: #9a5f14;
 }
 
 * {
@@ -33,13 +35,11 @@ body {
 }
 
 body {
-	font-family: 'Inter', 'Segoe UI', sans-serif;
+	font-family: 'Geist', 'Segoe UI', sans-serif;
 	color: var(--text-primary);
-	background:
-		radial-gradient(circle at 16% 8%, rgba(83, 0, 183, 0.08), transparent 30%),
-		radial-gradient(circle at 86% 0%, rgba(109, 40, 217, 0.07), transparent 32%),
-		var(--surface-background);
+	background: var(--surface-background);
 	line-height: 1.5;
+	text-rendering: optimizeLegibility;
 }
 
 h1,
@@ -48,8 +48,9 @@ h3,
 h4,
 h5,
 h6 {
-	font-family: 'Space Grotesk', 'Segoe UI', sans-serif;
+	font-family: 'Newsreader', Georgia, serif;
 	font-weight: 700;
+	text-wrap: balance;
 }
 
 a,
@@ -61,5 +62,14 @@ textarea {
 }
 
 ::selection {
-	background: rgba(83, 0, 183, 0.14);
+	background: rgba(49, 88, 70, 0.16);
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+:focus-visible {
+	outline: 3px solid rgba(49, 88, 70, 0.28);
+	outline-offset: 3px;
 }

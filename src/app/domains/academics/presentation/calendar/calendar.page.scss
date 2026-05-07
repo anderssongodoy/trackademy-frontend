@@ -76,7 +76,7 @@ h1 {
 
 .filter-chip--active {
   color: var(--brand-primary);
-  background: rgba(83, 0, 183, 0.12);
+  background: rgba(49, 88, 70, 0.12);
 }
 
 .hero-pill,
@@ -98,7 +98,7 @@ h1 {
 }
 
 .hero-pill--accent {
-  background: rgba(83, 0, 183, 0.12);
+  background: rgba(49, 88, 70, 0.12);
   color: var(--brand-primary);
 }
 
@@ -199,7 +199,7 @@ h1 {
 
 .calendar-cell:hover {
   background: rgba(247, 242, 255, 0.72);
-  box-shadow: inset 0 0 0 1px rgba(83, 0, 183, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(49, 88, 70, 0.12);
 }
 
 .calendar-cell--outside {
@@ -213,7 +213,7 @@ h1 {
 .calendar-cell--selected {
   background:
     linear-gradient(180deg, rgba(247, 242, 255, 0.72), rgba(255, 255, 255, 0.86));
-  box-shadow: inset 0 0 0 2px rgba(83, 0, 183, 0.16);
+  box-shadow: inset 0 0 0 2px rgba(49, 88, 70, 0.16);
 }
 
 .calendar-cell__day {
@@ -279,7 +279,7 @@ h1 {
 .sidebar-card__badge {
   @include ui.chip-base();
   flex: 0 0 auto;
-  background: rgba(83, 0, 183, 0.1);
+  background: rgba(49, 88, 70, 0.1);
   color: var(--brand-primary);
 }
 
@@ -320,7 +320,7 @@ h1 {
   min-height: 56px;
   border-radius: 999px;
   flex: 0 0 auto;
-  background: rgba(83, 0, 183, 0.4);
+  background: rgba(49, 88, 70, 0.4);
 }
 
 .sidebar-event__mark.event-chip--brand {
@@ -390,7 +390,7 @@ h1 {
 }
 
 .month-card strong {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Newsreader', Georgia, serif;
   font-size: clamp(2rem, 4vw, 2.8rem);
   line-height: 0.92;
 }

@@ -9,7 +9,7 @@
   min-height: 100svh;
   overflow: hidden;
   background:
-    linear-gradient(90deg, #f7f6fb 0%, #f7f6fb 50%, #0f172c 50%, #17142f 100%);
+    linear-gradient(90deg, #f7f6f2 0%, #f7f6f2 50%, #20231f 50%, #20231f 100%);
 }
 
 .signin__shell {
@@ -29,9 +29,9 @@
 
 .signin__card {
   background:
-    radial-gradient(circle at 15% 15%, rgba(83, 0, 183, 0.08), transparent 30%),
+    radial-gradient(circle at 15% 15%, rgba(49, 88, 70, 0.08), transparent 30%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.96)),
-    #f7f6fb;
+    #f7f6f2;
   display: grid;
   align-content: center;
   gap: 24px;
@@ -40,9 +40,9 @@
 .signin__intro {
   overflow: hidden;
   background:
-    radial-gradient(circle at 18% 14%, rgba(122, 72, 255, 0.24), transparent 24%),
-    radial-gradient(circle at 90% 8%, rgba(119, 78, 255, 0.18), transparent 22%),
-    linear-gradient(180deg, #131b32 0%, #17142f 100%);
+    radial-gradient(circle at 18% 14%, rgba(49, 88, 70, 0.12), transparent 24%),
+    radial-gradient(circle at 90% 8%, rgba(49, 88, 70, 0.12), transparent 22%),
+    linear-gradient(180deg, #20231f 0%, #20231f 100%);
   color: rgba(244, 246, 255, 0.94);
   display: grid;
   align-content: center;
@@ -75,8 +75,8 @@
   border-radius: 14px;
   display: grid;
   place-items: center;
-  background: linear-gradient(135deg, #5400c2 0%, #7431ff 100%);
-  box-shadow: 0 20px 40px rgba(84, 0, 194, 0.24);
+  background: var(--brand-primary);
+  box-shadow: 0 20px 40px rgba(49, 88, 70, 0.18);
 }
 
 .brand__mark svg {
@@ -86,7 +86,7 @@
 }
 
 .brand__text {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Newsreader', Georgia, serif;
   font-size: 1.95rem;
   line-height: 1;
   letter-spacing: -0.04em;
@@ -95,14 +95,14 @@
 .signin__eyebrow {
   @include ui.chip-base();
   width: fit-content;
-  background: rgba(84, 0, 194, 0.1);
+  background: rgba(49, 88, 70, 0.1);
   color: var(--brand-primary);
 }
 
 .header h1,
 .signin__story h2 {
   margin: 0;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Newsreader', Georgia, serif;
   letter-spacing: -0.06em;
 }
 
@@ -287,7 +287,7 @@
 
 .note--accent {
   background:
-    radial-gradient(circle at top right, rgba(84, 0, 194, 0.12), transparent 34%),
+    radial-gradient(circle at top right, rgba(49, 88, 70, 0.12), transparent 34%),
     rgba(246, 242, 255, 0.92);
 }
 
@@ -304,7 +304,7 @@
 }
 
 .signin__story-kicker {
-  color: rgba(201, 189, 255, 0.72);
+  color: rgba(214, 189, 133, 0.72);
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.18em;
@@ -319,7 +319,7 @@
 
 .signin__story em {
   font-style: normal;
-  color: #a678ff;
+  color: #d6bd85;
 }
 
 .signin__subtitle {
@@ -385,8 +385,8 @@
 @media (max-width: 980px) {
   .signin {
     background:
-      radial-gradient(circle at 15% 10%, rgba(84, 0, 194, 0.1), transparent 28%),
-      linear-gradient(180deg, #f7f6fb 0%, #f7f6fb 52%, #15162c 52%, #17142f 100%);
+      radial-gradient(circle at 15% 10%, rgba(49, 88, 70, 0.1), transparent 28%),
+      linear-gradient(180deg, #f7f6f2 0%, #f7f6f2 52%, #20231f 52%, #20231f 100%);
     overflow: auto;
   }
 

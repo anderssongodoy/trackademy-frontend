@@ -11,8 +11,8 @@
 @mixin eyebrow($margin-bottom: 12px) {
   margin: 0 0 $margin-bottom;
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.16em;
+  font-weight: 800;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--accent-strong);
 }
@@ -21,8 +21,9 @@
   margin: 0;
   font-size: clamp($min, $preferred, $max);
   line-height: $line-height;
-  letter-spacing: -0.05em;
+  letter-spacing: 0;
   color: var(--text-primary);
+  text-wrap: balance;
 }
 
 @mixin subtitle($margin-top: 16px, $line-height: 1.7) {
@@ -37,8 +38,8 @@
   justify-content: center;
   min-height: 46px;
   padding: 0 18px;
-  border-radius: $radius;
-  border: none;
+  border-radius: min($radius, 10px);
+  border: 1px solid transparent;
   text-decoration: none;
   font-size: 14px;
   font-weight: 700;
@@ -52,13 +53,14 @@
 
 @mixin button-primary {
   color: #fff;
-  background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-container));
-  box-shadow: 0 14px 34px rgba(83, 0, 183, 0.22);
+  background: var(--brand-primary);
+  box-shadow: none;
 }
 
 @mixin button-secondary {
   color: var(--brand-primary);
   background: var(--surface-container-high);
+  border-color: var(--line-soft);
 }
 
 @mixin button-ghost {
@@ -77,7 +79,7 @@
   width: fit-content;
   min-height: 30px;
   padding: 0 12px;
-  border-radius: $radius;
+  border-radius: min($radius, 10px);
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -85,61 +87,61 @@
 
 @mixin layer-section($padding: 24px, $radius: 28px) {
   padding: $padding;
-  border-radius: $radius;
+  border-radius: min($radius, 14px);
+  border: 1px solid var(--line-soft);
   background: var(--surface-container-low);
 }
 
 @mixin layer-card($padding: 22px, $radius: 24px) {
   padding: $padding;
-  border-radius: $radius;
+  border-radius: min($radius, 14px);
+  border: 1px solid var(--line-soft);
   background: var(--surface-container-lowest);
 }
 
 @mixin soft-panel($padding: 18px, $radius: 18px) {
   padding: $padding;
-  border-radius: $radius;
+  border-radius: min($radius, 12px);
+  border: 1px solid var(--line-soft);
   background: var(--surface-container-high);
 }
 
 @mixin layer-floating($padding: 22px, $radius: 24px) {
   padding: $padding;
-  border-radius: $radius;
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(16px);
-  box-shadow: 0 10px 40px rgba(17, 24, 39, 0.05);
+  border-radius: min($radius, 14px);
+  border: 1px solid var(--line-soft);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(10px);
+  box-shadow: none;
 }
 
 @mixin state-card($padding: 16px 18px, $radius: 20px) {
   padding: $padding;
-  border-radius: $radius;
+  border-radius: min($radius, 12px);
+  border: 1px solid var(--line-soft);
   background: var(--surface-container-high);
 }
 
 @mixin stat-card($padding: 22px 24px, $radius: 24px) {
   padding: $padding;
-  border-radius: $radius;
-  background:
-    radial-gradient(circle at top right, rgba(83, 0, 183, 0.1), transparent 34%),
-    var(--surface-container-lowest);
+  border-radius: min($radius, 14px);
+  border: 1px solid var(--line-soft);
+  background: var(--surface-container-lowest);
 }
 
 @mixin stat-card-tone($tone) {
   @if $tone == soft {
-    background:
-      radial-gradient(circle at top right, rgba(109, 40, 217, 0.1), transparent 34%),
-      rgba(245, 242, 255, 0.98);
+    background: #eef3ec;
   } @else if $tone == mint {
     background:
-      radial-gradient(circle at top right, rgba(22, 163, 74, 0.1), transparent 34%),
-      rgba(239, 250, 244, 0.98);
+      #edf3ec;
   } @else if $tone == warm {
     background:
-      radial-gradient(circle at top right, rgba(217, 119, 6, 0.1), transparent 34%),
-      rgba(255, 248, 234, 0.98);
+      #fbf3db;
   } @else if $tone == slate {
     background: rgba(244, 246, 248, 0.98);
   } @else if $tone == lilac {
-    background: rgba(247, 242, 255, 0.98);
+    background: #eef3ec;
   } @else if $tone == amber {
     background: rgba(255, 247, 230, 0.98);
   }
@@ -148,8 +150,8 @@
 @mixin input-field($padding: 14px 16px, $radius: 14px) {
   width: 100%;
   min-width: 0;
-  border: none;
-  border-radius: $radius;
+  border: 1px solid var(--line-soft);
+  border-radius: min($radius, 10px);
   padding: $padding;
   font: inherit;
   color: var(--text-primary);
@@ -160,7 +162,7 @@
 @mixin input-focus {
   outline: none;
   background: var(--surface-container-lowest);
-  box-shadow: 0 0 0 2px rgba(83, 0, 183, 0.2);
+  box-shadow: 0 0 0 3px rgba(49, 88, 70, 0.16);
 }
 
 @mixin panel-header {

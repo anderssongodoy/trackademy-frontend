@@ -41,13 +41,13 @@
   border-radius: 10px;
   display: grid;
   place-items: center;
-  background: #5d00dd;
+  background: var(--brand-primary);
   color: #fff;
   font-weight: 900;
 }
 
 .brand__text {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Newsreader', Georgia, serif;
   font-size: 1.2rem;
   letter-spacing: -0.04em;
 }
@@ -72,7 +72,7 @@
 .privacy__hero span,
 .privacy__content h2,
 .privacy__summary h2 {
-  color: #5d00dd;
+  color: var(--brand-primary);
   font-size: 0.72rem;
   font-weight: 900;
   letter-spacing: 0.16em;
@@ -82,7 +82,7 @@
 .privacy__hero h1 {
   margin: 12px 0 16px;
   max-width: 800px;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Newsreader', Georgia, serif;
   font-size: clamp(2.8rem, 6vw, 5.8rem);
   line-height: 0.9;
   letter-spacing: -0.065em;
@@ -151,7 +151,7 @@
 }
 
 .privacy__content a {
-  color: #5d00dd;
+  color: var(--brand-primary);
   font-weight: 800;
 }
 

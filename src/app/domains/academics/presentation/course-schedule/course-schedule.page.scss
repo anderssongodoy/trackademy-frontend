@@ -101,7 +101,7 @@ h1 {
 
 .summary-grid strong,
 .progress-card strong {
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'Newsreader', Georgia, serif;
   font-size: 28px;
   color: var(--text-primary);
 }
@@ -130,7 +130,7 @@ h1 {
 
 .step.is-active { background: rgba(247, 242, 255, 0.98); }
 .step.is-active span {
-  background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-container));
+  background: var(--brand-primary);
   color: #fff;
 }
 
@@ -248,7 +248,7 @@ select { @include ui.input-field(12px 14px, 14px); background: var(--surface-con
 }
 .progress-bar__fill {
   height: 100%;
-  background: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-container));
+  background: var(--brand-primary);
 }
 
 .state { @include ui.state-card(14px 16px, 16px); }

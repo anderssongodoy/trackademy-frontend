@@ -3,11 +3,11 @@
 }
 
 .courses-page {
-  --accent: #5d00c8;
-  --accent-dark: #4c00ac;
-  --text: #202124;
-  --muted: #6f7280;
-  --line: #ececf0;
+  --accent: var(--brand-primary);
+  --accent-dark: var(--brand-primary-container);
+  --text: var(--text-primary);
+  --muted: var(--text-secondary);
+  --line: var(--line-soft);
   display: grid;
   gap: 34px;
 }
@@ -38,7 +38,7 @@ h1 {
   color: var(--text);
   font-size: clamp(2.1rem, 4vw, 3rem);
   line-height: 1;
-  letter-spacing: -0.055em;
+  letter-spacing: 0;
 }
 
 .courses-head p {
@@ -64,7 +64,8 @@ h1 {
   padding: 20px 24px;
   border-radius: 12px;
   background: #fff;
-  box-shadow: 0 12px 24px rgba(16, 24, 40, 0.04);
+  border: 1px solid var(--line);
+  box-shadow: none;
 }
 
 .summary-card span {
@@ -107,22 +108,19 @@ h1 {
   color: #14924b;
 }
 
-.summary-card--purple {
-  box-shadow:
-    inset 4px 0 0 var(--accent),
-    0 12px 24px rgba(16, 24, 40, 0.04);
+.summary-card--accent {
+  border-left: 4px solid var(--accent);
 }
 
-.summary-card--purple span {
-  background: #f0e8ff;
-  box-shadow: inset 0 0 0 2px var(--accent);
+.summary-card--accent span {
+  background: #edf3ec;
+  box-shadow: inset 0 0 0 2px rgba(49, 88, 70, 0.22);
   color: var(--accent);
 }
 
 .summary-card--orange {
-  box-shadow:
-    inset 4px 0 0 #a75a00,
-    0 12px 24px rgba(16, 24, 40, 0.04);
+  border-left: 4px solid #a75a00;
+  box-shadow: none;
 }
 
 .summary-card--orange span {
@@ -158,7 +156,7 @@ h1 {
 .cycle-tabs .is-active {
   background: #fff;
   color: var(--accent);
-  box-shadow: 0 2px 8px rgba(16, 24, 40, 0.06);
+  box-shadow: none;
 }
 
 .toolbar-filter {
@@ -196,7 +194,8 @@ h1 {
   padding: 26px;
   border-radius: 20px;
   background: #fff;
-  box-shadow: 0 18px 30px rgba(16, 24, 40, 0.035);
+  border: 1px solid var(--line);
+  box-shadow: none;
 }
 
 .course-card__badges {
@@ -217,13 +216,13 @@ h1 {
 }
 
 .badge--mode {
-  color: #4a238d;
-  background: #eee5ff;
+  color: #315846;
+  background: #edf3ec;
 }
 
 .badge--code {
   color: var(--accent-dark);
-  background: #f2eaff;
+  background: #f0eee8;
 }
 
 .course-card h2 {
@@ -309,7 +308,7 @@ h1 {
   padding: 0 13px;
   border-radius: 999px;
   color: var(--accent-dark);
-  background: #f2eaff;
+  background: #edf3ec;
   font-size: 0.82rem;
   font-weight: 800;
 }
@@ -330,7 +329,7 @@ h1 {
   color: #fff;
   font-weight: 900;
   text-decoration: none;
-  box-shadow: 0 14px 24px rgba(93, 0, 200, 0.24);
+  box-shadow: none;
 }
 
 .state {

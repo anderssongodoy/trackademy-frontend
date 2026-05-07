@@ -72,7 +72,7 @@ import { ToastService } from './toast.service';
     }
 
     .toast--info {
-      border-color: rgba(93, 0, 200, 0.18);
+      border-color: rgba(49, 88, 70, 0.12);
       background: rgba(247, 244, 255, 0.99);
     }
 

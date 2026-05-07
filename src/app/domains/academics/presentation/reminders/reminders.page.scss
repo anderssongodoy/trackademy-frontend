@@ -73,7 +73,7 @@
 }
 
 .radar-card__header span {
-  background: rgba(83, 0, 183, 0.1);
+  background: rgba(49, 88, 70, 0.1);
   color: var(--brand-primary);
 }
 
@@ -107,7 +107,7 @@
   width: 12px;
   height: 12px;
   border-radius: 999px;
-  background: rgba(83, 0, 183, 0.2);
+  background: rgba(49, 88, 70, 0.2);
   position: relative;
   z-index: 1;
 }
@@ -174,12 +174,12 @@
   width: 44px;
   height: 44px;
   border-radius: 16px;
-  background: rgba(83, 0, 183, 0.08);
+  background: rgba(49, 88, 70, 0.08);
   flex: 0 0 auto;
 }
 
 .reminder-kind--grade { background: rgba(220, 38, 38, 0.1); }
-.reminder-kind--class { background: rgba(83, 0, 183, 0.1); }
+.reminder-kind--class { background: rgba(49, 88, 70, 0.1); }
 .reminder-kind--period { background: rgba(217, 119, 6, 0.1); }
 
 .reminder-card__copy {
@@ -219,7 +219,7 @@
 
 .reminder-chip--danger { background: rgba(254, 226, 226, 0.95); color: #b91c1c; }
 .reminder-chip--warning { background: rgba(254, 243, 199, 0.95); color: #b45309; }
-.reminder-chip--brand { background: rgba(83, 0, 183, 0.1); color: var(--brand-primary); }
+.reminder-chip--brand { background: rgba(49, 88, 70, 0.1); color: var(--brand-primary); }
 .reminder-chip--neutral { background: var(--surface-container-high); color: var(--text-secondary); }
 
 .suggestions-card {

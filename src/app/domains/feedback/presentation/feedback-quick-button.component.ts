@@ -51,13 +51,13 @@ import { RouterModule } from '@angular/router';
         font-weight: 600;
         font-size: 0.95rem;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 12px rgba(91, 33, 182, 0.3);
+        box-shadow: 0 4px 12px rgba(49, 88, 70, 0.18);
         cursor: pointer;
 
         &:hover {
           background-color: #8B5CF6;
           transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(91, 33, 182, 0.4);
+          box-shadow: 0 6px 20px rgba(49, 88, 70, 0.22);
         }
 
         &:active {
@@ -78,7 +78,7 @@ import { RouterModule } from '@angular/router';
         box-shadow: none;
 
         &:hover {
-          background-color: rgba(91, 33, 182, 0.1);
+          background-color: rgba(49, 88, 70, 0.1);
           box-shadow: none;
         }
       }

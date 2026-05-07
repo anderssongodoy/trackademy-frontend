@@ -3,17 +3,17 @@
 }
 
 .app-shell {
-  --accent: #5d00c8;
-  --accent-2: #7a2cff;
-  --sidebar: #111827;
-  --sidebar-muted: #9aa3b2;
-  --surface: #f6f6f7;
-  --line: #e7e7eb;
+  --accent: var(--brand-primary);
+  --accent-2: var(--brand-accent);
+  --sidebar: #20231f;
+  --sidebar-muted: #b9b8ad;
+  --surface: var(--surface-background);
+  --line: var(--line-soft);
   display: grid;
   grid-template-columns: 280px minmax(0, 1fr);
   min-height: 100dvh;
   background: var(--surface);
-  color: #202124;
+  color: var(--text-primary);
   transition: grid-template-columns 0.18s ease;
 }
 
@@ -37,13 +37,13 @@
   z-index: 4;
   width: 34px;
   height: 68px;
-  border: 1px solid rgba(226, 232, 240, 0.72);
-  border-radius: 999px;
+  border: 1px solid var(--line-soft);
+  border-radius: 12px;
   display: grid;
   place-items: center;
   background: #fff;
   color: var(--accent);
-  box-shadow: 0 16px 32px rgba(17, 24, 39, 0.14);
+  box-shadow: 0 10px 22px rgba(32, 35, 31, 0.08);
   cursor: pointer;
   transform: translateY(-50%);
 }
@@ -112,9 +112,9 @@
 
 .nav-link:hover,
 .nav-link.is-active {
-  color: #d9d0ff;
-  background: #2b2258;
-  border-right-color: #8a5cff;
+  color: #fff;
+  background: #315846;
+  border-right-color: #d6bd85;
 }
 
 .nav-link__icon {
@@ -157,7 +157,7 @@
 
 .sidebar__signout:hover {
   color: #fff;
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .sidebar__signout-icon {
@@ -278,13 +278,13 @@
     display: grid;
     gap: 4px;
     place-content: center;
-    background: #f0f0f1;
+  background: #f0f0f1;
   }
 
   .icon-button span {
     width: 18px;
     height: 2px;
-    border-radius: 999px;
+    border-radius: 2px;
     background: #202124;
   }
 
