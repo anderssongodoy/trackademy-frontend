@@ -29,34 +29,24 @@ export class LandingPage implements OnInit {
 
   readonly features: LandingFeature[] = [
     {
-      eyebrow: 'Cursos',
-      title: 'Tu carga academica clara',
-      description: 'Selecciona los cursos del periodo y revisa creditos, horas, modalidad y ciclo referencial sin mezclar todo.'
+      eyebrow: 'Plan',
+      title: 'Periodo y carga en orden',
+      description: 'Campus, ciclo, cursos, creditos y modalidad quedan en una vista consistente para no reconstruir contexto cada semana.'
     },
     {
-      eyebrow: 'Horario',
-      title: 'Bloques visibles por dia',
-      description: 'Consulta tus clases por dia y detecta que cursos aun necesitan horario configurado.'
-    },
-    {
-      eyebrow: 'Silabos',
-      title: 'Detalle real del curso',
-      description: 'Accede a sumilla, unidades, evaluaciones y descarga del PDF del silabo cuando el backend lo tenga disponible.'
+      eyebrow: 'Agenda',
+      title: 'Clases y tareas visibles',
+      description: 'Horario, calendario y tareas conviven para mostrar que toca hoy, que vence pronto y donde falta configurar datos.'
     },
     {
       eyebrow: 'Notas',
-      title: 'Registro sin hojas sueltas',
-      description: 'Guarda notas por evaluacion y ve el acumulado segun el peso registrado, sin confundir una nota con promedio final.'
+      title: 'Avance academico medible',
+      description: 'Registra notas por evaluacion, ve cuanto peso ya tiene nota real y detecta cursos que necesitan atencion.'
     },
     {
-      eyebrow: 'Dashboard',
-      title: 'Resumen accionable',
-      description: 'Ve proximas evaluaciones, horario del dia, avance del ciclo y cursos que requieren atencion.'
-    },
-    {
-      eyebrow: 'Perfil',
-      title: 'Contexto personal del periodo',
-      description: 'Mantiene campus, periodo actual, meta de promedio y objetivos basicos para que las pantallas tengan contexto.'
+      eyebrow: 'Cursos',
+      title: 'Silabos sin inventar datos',
+      description: 'El detalle del curso muestra sumilla, unidades, evaluaciones y PDF solo cuando existe informacion real.'
     }
   ];
 
@@ -80,10 +70,10 @@ export class LandingPage implements OnInit {
 
   readonly proofPoints = [
     'Cursos desde catalogo',
-    'Horario desde tu periodo',
-    'Evaluaciones desde silabo y notas',
-    'PDF de silabo solo si existe',
-    'Periodo actual segun fechas'
+    'Horario por periodo',
+    'Evaluaciones desde silabo',
+    'Notas con peso real',
+    'Recordatorios conectados'
   ];
 
   ngOnInit(): void {

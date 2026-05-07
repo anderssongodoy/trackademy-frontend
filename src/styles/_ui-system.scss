@@ -2,6 +2,8 @@
   display: grid;
   gap: $gap;
   color: var(--text-primary);
+  width: min(100%, 1320px);
+  margin-inline: auto;
 }
 
 @mixin hero-copy($max-width: 760px) {
@@ -20,7 +22,7 @@
 @mixin title-display($min: 2.2rem, $preferred: 3.8vw, $max: 3.6rem, $line-height: 0.98) {
   margin: 0;
   font-size: clamp($min, $preferred, $max);
-  line-height: $line-height;
+  line-height: max($line-height, 1);
   letter-spacing: 0;
   color: var(--text-primary);
   text-wrap: balance;
@@ -51,16 +53,28 @@
     color 0.18s ease;
 }
 
+@mixin interactive-lift {
+  &:hover {
+    transform: translateY(-1px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
 @mixin button-primary {
   color: #fff;
   background: var(--brand-primary);
   box-shadow: none;
+  @include interactive-lift;
 }
 
 @mixin button-secondary {
   color: var(--brand-primary);
   background: var(--surface-container-high);
   border-color: var(--line-soft);
+  @include interactive-lift;
 }
 
 @mixin button-ghost {
@@ -96,7 +110,8 @@
   padding: $padding;
   border-radius: min($radius, 14px);
   border: 1px solid var(--line-soft);
-  background: var(--surface-container-lowest);
+  background: var(--surface-raised, var(--surface-container-lowest));
+  box-shadow: var(--shadow-subtle);
 }
 
 @mixin soft-panel($padding: 18px, $radius: 18px) {
@@ -174,7 +189,8 @@
 
 @mixin empty-card($padding: 18px) {
   padding: $padding;
-  border-radius: 18px;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--line-strong);
   background: var(--surface-container-high);
   color: var(--text-secondary);
 }

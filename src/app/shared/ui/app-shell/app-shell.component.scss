@@ -10,7 +10,7 @@
   --surface: var(--surface-background);
   --line: var(--line-soft);
   display: grid;
-  grid-template-columns: 280px minmax(0, 1fr);
+  grid-template-columns: 264px minmax(0, 1fr);
   min-height: 100dvh;
   background: var(--surface);
   color: var(--text-primary);
@@ -22,9 +22,9 @@
   top: 0;
   display: flex;
   flex-direction: column;
-  gap: 34px;
+  gap: 26px;
   height: 100dvh;
-  padding: 32px 24px;
+  padding: 24px 18px;
   background: var(--sidebar);
   color: #fff;
   overflow: visible;
@@ -67,6 +67,9 @@
 
 .sidebar__brand {
   gap: 14px;
+  min-height: 58px;
+  padding: 0 8px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .brand__mark {
@@ -93,28 +96,36 @@
   line-height: 1;
 }
 
+.brand__text span {
+  display: block;
+  margin-top: 4px;
+  color: var(--sidebar-muted);
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
 .sidebar__nav {
   display: grid;
-  gap: 10px;
+  gap: 6px;
 }
 
 .nav-link {
-  min-height: 48px;
+  min-height: 44px;
   gap: 13px;
   padding: 0 16px;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   color: var(--sidebar-muted);
   text-decoration: none;
   font-weight: 700;
   letter-spacing: -0.01em;
-  border-right: 4px solid transparent;
+  border: 1px solid transparent;
 }
 
 .nav-link:hover,
 .nav-link.is-active {
   color: #fff;
-  background: #315846;
-  border-right-color: #d6bd85;
+  background: rgba(47, 93, 80, 0.42);
+  border-color: rgba(214, 189, 133, 0.26);
 }
 
 .nav-link__icon {
@@ -193,7 +204,7 @@
 
 .app-shell__content {
   min-width: 0;
-  padding: 38px 42px 52px;
+  padding: 28px 32px 44px;
 }
 
 .app-shell--collapsed {
@@ -267,7 +278,18 @@
   .topbar {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     padding: 0 18px;
+    border-bottom: 1px solid var(--line-soft);
+    background: var(--surface-background);
+  }
+
+  .topbar__brand {
+    color: var(--text-primary);
+    font-family: 'Newsreader', Georgia, serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+    text-decoration: none;
   }
 
   .icon-button {
@@ -278,18 +300,18 @@
     display: grid;
     gap: 4px;
     place-content: center;
-  background: #f0f0f1;
+    background: var(--surface-container-high);
   }
 
   .icon-button span {
     width: 18px;
     height: 2px;
     border-radius: 2px;
-    background: #202124;
+    background: var(--text-primary);
   }
 
   .app-shell__content {
-    padding: 24px 18px 40px;
+    padding: 18px 14px 34px;
   }
 }
 

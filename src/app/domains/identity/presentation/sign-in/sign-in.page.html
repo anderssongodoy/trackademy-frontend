@@ -1,87 +1,79 @@
-<section class="signin">
-  <div class="signin__shell">
-    <section class="signin__card">
-      <div class="header">
-        <a class="brand" routerLink="/">
-          <span class="brand__mark">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M4 6.2L12 2l8 4.2v11.6L12 22l-8-4.2V6.2zm8-2.17L6 7.1v9.8l6 3.07 6-3.07V7.1l-6-3.07zm-4.6 4.3h9.2v1.6H7.4v-1.6zm0 3.1h9.2v1.6H7.4v-1.6zm0 3.1h6v1.6h-6v-1.6z"></path>
-            </svg>
-          </span>
-          <span class="brand__text">
-            <strong>Trackademy</strong>
-          </span>
-        </a>
+<main class="signin">
+  <section class="signin__panel">
+    <a class="brand" routerLink="/">
+      <span class="brand__mark" aria-hidden="true">T</span>
+      <span class="brand__text">trackademy</span>
+    </a>
 
-        <span class="signin__eyebrow">Acceso institucional</span>
-        <h1>Bienvenido de nuevo.</h1>
-        <p class="muted">
-          Inicia con tu cuenta autorizada y entra directo a tu espacio academico. No usamos correo ni contrasena propios.
+    <div class="signin__layout">
+      <section class="signin__copy">
+        <span class="signin__eyebrow">Acceso seguro</span>
+        <h1>Entra a tu espacio academico.</h1>
+        <p>
+          Usa tu cuenta institucional o personal autorizada. Trackademy valida tu sesion y te lleva al periodo que corresponde.
         </p>
-      </div>
+      </section>
 
-      <div class="providers">
-        <button class="provider microsoft" type="button" (click)="signInWithMicrosoft()" [disabled]="microsoftLoading()">
-          <span class="provider__icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <rect x="2" y="2" width="9" height="9" fill="#f25022"></rect>
-              <rect x="13" y="2" width="9" height="9" fill="#7fba00"></rect>
-              <rect x="2" y="13" width="9" height="9" fill="#00a4ef"></rect>
-              <rect x="13" y="13" width="9" height="9" fill="#ffb900"></rect>
-            </svg>
-          </span>
-          <span>@if (!microsoftLoading()) { Continuar con Microsoft } @else { Conectando con Microsoft... }</span>
-        </button>
+      <section class="signin__form" aria-label="Opciones de inicio de sesion">
+        <div class="providers">
+          <button class="provider microsoft" type="button" (click)="signInWithMicrosoft()" [disabled]="microsoftLoading()">
+            <span class="provider__icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <rect x="2" y="2" width="9" height="9" fill="#f25022"></rect>
+                <rect x="13" y="2" width="9" height="9" fill="#7fba00"></rect>
+                <rect x="2" y="13" width="9" height="9" fill="#00a4ef"></rect>
+                <rect x="13" y="13" width="9" height="9" fill="#ffb900"></rect>
+              </svg>
+            </span>
+            <span>@if (!microsoftLoading()) { Continuar con Microsoft } @else { Conectando con Microsoft... }</span>
+          </button>
 
-        <div class="divider"><span>o continua con</span></div>
+          <button class="provider google" type="button" (click)="signInWithGoogle()" [disabled]="googleLoading()">
+            <span class="provider__icon">
+              <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path fill="#4285F4" d="M21.6 12.23c0-.75-.07-1.47-.19-2.16H12v4.08h5.38a4.6 4.6 0 0 1-1.99 3.02v2.51h3.22c1.89-1.74 2.99-4.3 2.99-7.45Z"></path>
+                <path fill="#34A853" d="M12 22c2.7 0 4.96-.89 6.61-2.42l-3.22-2.51c-.89.6-2.03.95-3.39.95-2.6 0-4.8-1.76-5.59-4.12H3.08v2.59A9.99 9.99 0 0 0 12 22Z"></path>
+                <path fill="#FBBC05" d="M6.41 13.9A6.01 6.01 0 0 1 6.1 12c0-.66.11-1.3.31-1.9V7.51H3.08A9.99 9.99 0 0 0 2 12c0 1.61.39 3.13 1.08 4.49l3.33-2.59Z"></path>
+                <path fill="#EA4335" d="M12 5.98c1.47 0 2.79.51 3.83 1.5l2.86-2.86C16.96 3.01 14.7 2 12 2a9.99 9.99 0 0 0-8.92 5.51l3.33 2.59C7.2 7.74 9.4 5.98 12 5.98Z"></path>
+              </svg>
+            </span>
+            <span>@if (!googleLoading()) { Continuar con Google } @else { Conectando con Google... }</span>
+          </button>
 
-        <button class="provider google" type="button" (click)="signInWithGoogle()" [disabled]="googleLoading()">
-          <span class="provider__icon">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path fill="#4285F4" d="M21.6 12.23c0-.75-.07-1.47-.19-2.16H12v4.08h5.38a4.6 4.6 0 0 1-1.99 3.02v2.51h3.22c1.89-1.74 2.99-4.3 2.99-7.45Z"></path>
-              <path fill="#34A853" d="M12 22c2.7 0 4.96-.89 6.61-2.42l-3.22-2.51c-.89.6-2.03.95-3.39.95-2.6 0-4.8-1.76-5.59-4.12H3.08v2.59A9.99 9.99 0 0 0 12 22Z"></path>
-              <path fill="#FBBC05" d="M6.41 13.9A6.01 6.01 0 0 1 6.1 12c0-.66.11-1.3.31-1.9V7.51H3.08A9.99 9.99 0 0 0 2 12c0 1.61.39 3.13 1.08 4.49l3.33-2.59Z"></path>
-              <path fill="#EA4335" d="M12 5.98c1.47 0 2.79.51 3.83 1.5l2.86-2.86C16.96 3.01 14.7 2 12 2a9.99 9.99 0 0 0-8.92 5.51l3.33 2.59C7.2 7.74 9.4 5.98 12 5.98Z"></path>
-            </svg>
-          </span>
-          <span>@if (!googleLoading()) { Continuar con Google } @else { Conectando con Google... }</span>
-        </button>
+          @if (authError()) {
+            <p class="error">{{ authError() }}</p>
+          }
+        </div>
 
-        @if (authError()) {
-          <p class="error">{{ authError() }}</p>
-        }
-      </div>
+        <div class="signin__assurance">
+          <article>
+            <strong>Sin contrasenas propias</strong>
+            <span>El acceso ocurre con OAuth.</span>
+          </article>
+          <article>
+            <strong>Periodo validado</strong>
+            <span>Al entrar se revisa tu configuracion academica.</span>
+          </article>
+        </div>
+      </section>
+    </div>
 
-      <div class="signin__notes">
-        <article class="note note--accent">
-          <strong>No almacenamos tu contrasena</strong>
-        </article>
-        <article class="note">
-          <strong>Validamos tu periodo al entrar</strong>
-        </article>
-      </div>
-    </section>
-
-    <section class="signin__intro">
-      <div class="signin__story">
-        <span class="signin__story-kicker">Academic Command Center</span>
-        <h2>Tu operacion academica comienza con una buena <em>organizacion</em>.</h2>
-        <p class="signin__subtitle">
-          Todo bajo control, desde cursos y horarios hasta notas, tareas y recordatorios del ciclo.
-        </p>
-      </div>
-
-      <div class="signin__summary">
-        <span>OAuth real con Google y Microsoft</span>
-        <span>Onboarding por periodo</span>
-        <span>Dashboard con contexto real</span>
-      </div>
-
-      <div class="signin__compass" aria-hidden="true">
-        <span class="signin__compass-ring"></span>
-        <span class="signin__compass-leg signin__compass-leg--left"></span>
-        <span class="signin__compass-leg signin__compass-leg--right"></span>
-      </div>
-    </section>
-  </div>
-</section>
+    <aside class="signin__product" aria-label="Resumen del producto">
+      <article>
+        <span>Despues de entrar</span>
+        <strong>Dashboard</strong>
+        <p>Prioridades, horario de hoy, carga semanal y riesgo academico.</p>
+      </article>
+      <article>
+        <span>Seguimiento</span>
+        <strong>Cursos y notas</strong>
+        <p>Evaluaciones, pesos, acumulado y silabo cuando existe.</p>
+      </article>
+      <article>
+        <span>Operacion diaria</span>
+        <strong>Tareas y calendario</strong>
+        <p>Trabajo pendiente, recordatorios e integracion con calendario.</p>
+      </article>
+    </aside>
+  </section>
+</main>
