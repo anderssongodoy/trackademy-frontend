@@ -105,9 +105,9 @@
 .hero {
   max-width: 1200px;
   margin-inline: auto;
-  padding: 80px 20px 72px;
+  padding: 44px 20px 48px;
   display: grid;
-  gap: 40px;
+  gap: 32px;
 }
 
 .hero__head { display: grid; gap: 22px; }
@@ -170,9 +170,9 @@
 .features {
   max-width: 1200px;
   margin-inline: auto;
-  padding: 72px 20px;
+  padding: 52px 20px;
   display: grid;
-  gap: 44px;
+  gap: 36px;
   border-top: 1px solid var(--line);
 }
 
@@ -233,9 +233,9 @@
 .workflow {
   max-width: 1200px;
   margin-inline: auto;
-  padding: 72px 20px;
+  padding: 52px 20px;
   display: grid;
-  gap: 44px;
+  gap: 36px;
   border-top: 1px solid var(--line);
 }
 
@@ -292,7 +292,7 @@
 .cta-band__inner {
   max-width: 1200px;
   margin-inline: auto;
-  padding: 80px 20px;
+  padding: 60px 20px;
   display: grid;
   gap: 20px;
 }
@@ -327,9 +327,9 @@
 .footer__inner {
   max-width: 1200px;
   margin-inline: auto;
-  padding: 52px 20px 40px;
+  padding: 40px 20px 28px;
   display: grid;
-  gap: 36px;
+  gap: 28px;
 }
 
 .footer__brand { display: grid; gap: 14px; }
@@ -384,6 +384,13 @@
 }
 
 /* ── RESPONSIVE ──────────────────────────────────────── */
+
+@media (max-width: 480px) {
+  .hero__actions { flex-direction: column; }
+  .hero__actions .btn { width: 100%; justify-content: center; }
+  .brand-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .step { grid-template-columns: 44px minmax(0, 1fr); }
+}
 
 @media (min-width: 600px) {
   .nav { padding: 0 32px; }
