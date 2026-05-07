@@ -85,7 +85,7 @@
 }
 
 .hero-pill--accent {
-  background: #edf3ec;
+  background: #f5e9e3;
   color: var(--brand-primary);
 }
 
@@ -120,7 +120,7 @@ h1 {
   min-width: 0;
   padding: 28px;
   border-radius: 24px;
-  background: #eef3ec;
+  background: #f0ebe5;
   box-shadow: none;
   order: 2;
 }
@@ -145,8 +145,8 @@ h1 {
   flex: 0 0 auto;
   padding: 8px 12px;
   border-radius: 10px;
-  background: rgba(14, 116, 144, 0.12);
-  color: #0e7490;
+  background: rgba(196, 87, 42, 0.10);
+  color: var(--brand-primary);
   font-size: 0.78rem;
   font-weight: 900;
   white-space: nowrap;
@@ -164,7 +164,7 @@ h1 {
 .ai-priority > span,
 .ai-side-stat span,
 .ai-plan > span {
-  color: #0e7490;
+  color: var(--brand-primary);
   font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.12em;
@@ -187,8 +187,8 @@ h1 {
 .ai-reasons span {
   padding: 7px 10px;
   border-radius: 999px;
-  background: rgba(14, 116, 144, 0.1);
-  color: #0e7490;
+  background: rgba(196, 87, 42, 0.10);
+  color: var(--brand-primary);
   font-size: 0.82rem;
   font-style: normal;
   font-weight: 800;
@@ -212,7 +212,7 @@ h1 {
 .ai-side-stat strong {
   font-family: 'Newsreader', Georgia, serif;
   font-size: 1.55rem;
-  color: #0e7490;
+  color: var(--brand-primary);
 }
 
 .ai-side-stat small,
@@ -693,7 +693,7 @@ h1 {
 }
 
 .evaluation-glance--accent {
-  background: #edf3ec;
+  background: #f5e9e3;
 }
 
 .evaluation-glance strong {

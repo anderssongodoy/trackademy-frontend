@@ -1,97 +1,81 @@
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Newsreader:opsz,wght@6..72,600;6..72,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800;900&family=Newsreader:opsz,wght@6..72,400;6..72,600;6..72,700;6..72,800&display=swap');
 
 :root {
-	--brand-primary: #2f5d50;
-	--brand-primary-container: #1f453b;
-	--brand-secondary: #a67744;
-	--brand-accent: #a67744;
-	--brand-ink: #20231f;
-	--brand-cyan: #d7e7e6;
-	--accent-strong: #315846;
-	--surface-background: #f6f4ef;
-	--surface: #f6f4ef;
-	--surface-raised: #fbfaf7;
-	--surface-container-low: #efede6;
-	--surface-container-lowest: #ffffff;
-	--surface-container-high: #e5e1d6;
-	--surface-container-highest: #d8d2c4;
-	--surface-panel: rgba(255, 255, 255, 0.86);
-	--surface-panel-soft: rgba(240, 238, 232, 0.9);
-	--text-primary: #20231f;
-	--text-secondary: #65675f;
-	--text-tertiary: #8d8c84;
-	--line-soft: rgba(32, 35, 31, 0.1);
-	--line-strong: rgba(32, 35, 31, 0.22);
-	--state-danger: #b63e3e;
-	--state-success: #166534;
-	--state-warning: #9a5f14;
-	--state-info: #236276;
-	--radius-xs: 6px;
-	--radius-sm: 8px;
-	--radius-md: 12px;
-	--radius-lg: 16px;
-	--space-1: 4px;
-	--space-2: 8px;
-	--space-3: 12px;
-	--space-4: 16px;
-	--space-5: 20px;
-	--space-6: 24px;
-	--space-8: 32px;
-	--space-10: 40px;
-	--shadow-subtle: 0 1px 2px rgba(32, 35, 31, 0.04);
+  --brand-primary:            #c4572a;
+  --brand-primary-container:  #a33f18;
+  --brand-secondary:          #c4572a;
+  --brand-accent:             #c4572a;
+  --brand-ink:                #1b1b18;
+  --brand-cyan:               #f5e9e3;
+  --accent-strong:            #a33f18;
+
+  --surface-background:       #f5f3ef;
+  --surface:                  #f5f3ef;
+  --surface-raised:           #fdfcf9;
+  --surface-container-low:    #ece9e2;
+  --surface-container-lowest: #ffffff;
+  --surface-container-high:   #e4e1d9;
+  --surface-container-highest:#d9d5cb;
+  --surface-panel:            rgba(253, 252, 249, 0.90);
+  --surface-panel-soft:       rgba(236, 233, 226, 0.90);
+
+  --text-primary:   #1b1b18;
+  --text-secondary: #67655d;
+  --text-tertiary:  #9b998f;
+
+  --line-soft:   rgba(27, 27, 24, 0.10);
+  --line-strong: rgba(27, 27, 24, 0.20);
+
+  --state-danger:  #991b1b;
+  --state-success: #166534;
+  --state-warning: #92400e;
+  --state-info:    #1e4d6b;
+
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+
+  --shadow-subtle: 0 1px 3px rgba(27, 27, 24, 0.07);
 }
 
-* {
-	box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-html,
+html, body { margin: 0; min-height: 100%; }
+
 body {
-	margin: 0;
-	min-height: 100%;
+  font-family: 'Geist', 'Segoe UI', sans-serif;
+  color: var(--text-primary);
+  background: var(--surface-background);
+  line-height: 1.5;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
 }
 
-body {
-	font-family: 'Geist', 'Segoe UI', sans-serif;
-	color: var(--text-primary);
-	background: var(--surface-background);
-	line-height: 1.5;
-	text-rendering: optimizeLegibility;
+button, a { -webkit-tap-highlight-color: transparent; }
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Newsreader', Georgia, serif;
+  font-weight: 700;
+  text-wrap: balance;
 }
 
-button,
-a {
-	-webkit-tap-highlight-color: transparent;
-}
+a, button, input, select, textarea { font-family: inherit; }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-	font-family: 'Newsreader', Georgia, serif;
-	font-weight: 700;
-	text-wrap: balance;
-}
+::selection { background: rgba(196, 87, 42, 0.15); }
 
-a,
-button,
-input,
-select,
-textarea {
-	font-family: inherit;
-}
-
-::selection {
-	background: rgba(49, 88, 70, 0.16);
-}
-
-html {
-	scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 :focus-visible {
-	outline: 3px solid rgba(49, 88, 70, 0.28);
-	outline-offset: 3px;
+  outline: 3px solid rgba(196, 87, 42, 0.30);
+  outline-offset: 3px;
 }

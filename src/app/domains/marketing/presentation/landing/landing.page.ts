@@ -1,4 +1,3 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
@@ -18,7 +17,7 @@ interface WorkflowStep {
 
 @Component({
   selector: 'app-landing-page',
-  imports: [CommonModule, RouterLink],
+  imports: [RouterLink],
   templateUrl: './landing.page.html',
   styleUrl: './landing.page.scss'
 })
@@ -26,6 +25,7 @@ export class LandingPage implements OnInit {
   private readonly session = inject(SessionService);
 
   readonly signedIn = signal(false);
+  readonly currentYear = new Date().getFullYear();
 
   readonly features: LandingFeature[] = [
     {
@@ -74,7 +74,8 @@ export class LandingPage implements OnInit {
     'Silabos',
     'Notas',
     'Tareas',
-    'Calendario'
+    'Calendario',
+    'Recordatorios'
   ];
 
   ngOnInit(): void {

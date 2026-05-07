@@ -177,7 +177,7 @@
 @mixin input-focus {
   outline: none;
   background: var(--surface-container-lowest);
-  box-shadow: 0 0 0 3px rgba(49, 88, 70, 0.16);
+  box-shadow: 0 0 0 3px rgba(196, 87, 42, 0.16);
 }
 
 @mixin panel-header {

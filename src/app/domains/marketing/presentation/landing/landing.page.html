@@ -1,104 +1,112 @@
 <main class="landing">
-  <nav class="topbar" aria-label="Navegacion principal">
-    <a class="brand" routerLink="/">
-      <span class="brand__mark">T</span>
-      <span class="brand__text">trackademy</span>
-    </a>
 
-    <div class="topbar__links">
-      <a href="#producto">Producto</a>
-      <a href="#flujo">Flujo</a>
+  <nav class="nav" aria-label="Navegacion principal">
+    <a class="nav__brand" routerLink="/">
+      <span class="brand-mark" aria-hidden="true">T</span>
+      <span class="brand-name">trackademy</span>
+    </a>
+    <div class="nav__links">
+      <a href="#funciones">Funciones</a>
+      <a href="#flujo">Como funciona</a>
+    </div>
+    <div class="nav__actions">
       @if (!signedIn()) {
-        <a class="nav-cta" routerLink="/auth/sign-in">Iniciar sesion</a>
+        <a class="btn btn--nav" routerLink="/auth/sign-in">Entrar</a>
       } @else {
-        <a class="nav-cta" routerLink="/app/dashboard">Ir al dashboard</a>
+        <a class="btn btn--nav" routerLink="/app/dashboard">Ir al panel</a>
       }
     </div>
   </nav>
 
-  <section class="hero" id="producto">
-    <div class="hero__copy">
-      <span class="eyebrow">Sistema academico personal</span>
-      <h1>Ordena tu ciclo antes de que te alcance.</h1>
-      <p>
-        Trackademy junta cursos, horario, silabos, notas y tareas en una mesa de trabajo clara para estudiantes que necesitan decidir que hacer hoy.
+  <section class="hero">
+    <div class="hero__head">
+      <span class="overline">Sistema academico personal</span>
+      <h1>Ordena tu ciclo<br>antes de que<br>te alcance.</h1>
+    </div>
+    <div class="hero__body">
+      <p class="hero__desc">
+        Trackademy concentra cursos, horario, silabos, notas y tareas en una sola vista. Sabras exactamente que resolver hoy sin revisar cinco lugares distintos.
       </p>
-
       <div class="hero__actions">
         @if (!signedIn()) {
-          <a class="primary-btn" routerLink="/auth/sign-in">Entrar a Trackademy</a>
+          <a class="btn btn--primary" routerLink="/auth/sign-in">Empezar ahora</a>
         } @else {
-          <a class="primary-btn" routerLink="/app/dashboard">Abrir dashboard</a>
+          <a class="btn btn--primary" routerLink="/app/dashboard">Abrir dashboard</a>
         }
-        <a class="secondary-link" href="#flujo">Ver como funciona</a>
+        <a class="btn btn--ghost" href="#funciones">Ver funciones</a>
+      </div>
+      <div class="hero__tags" aria-hidden="true">
+        @for (item of proofPoints; track item) {
+          <span>{{ item }}</span>
+        }
       </div>
     </div>
-
-    <aside class="landing-panel" aria-label="Modulos principales de Trackademy">
-      <span class="panel-kicker">Lo que ordena</span>
-      <div class="panel-list">
-        <article>
-          <span>01</span>
-          <strong>Cursos y silabos</strong>
-          <p>Contexto completo por curso sin mezclar archivos, capturas y notas sueltas.</p>
-        </article>
-        <article>
-          <span>02</span>
-          <strong>Horario y calendario</strong>
-          <p>Bloques de clase, tareas y recordatorios en una agenda de trabajo.</p>
-        </article>
-        <article>
-          <span>03</span>
-          <strong>Notas y riesgo</strong>
-          <p>Avance real por peso registrado para saber donde necesitas actuar.</p>
-        </article>
-      </div>
-    </aside>
   </section>
 
-  <section class="module-strip" aria-label="Modulos de Trackademy">
-    @for (item of proofPoints; track item) {
-      <span>{{ item }}</span>
-    }
+  <section class="features" id="funciones" aria-label="Funciones de Trackademy">
+    <header class="section-head">
+      <span class="overline">Lo que organiza</span>
+      <h2>Un sistema para todo el ciclo.</h2>
+    </header>
+    <div class="features__grid">
+      @for (feature of features; track feature.title) {
+        <article class="feature-card">
+          <span class="feature-card__label">{{ feature.eyebrow }}</span>
+          <h3>{{ feature.title }}</h3>
+          <p>{{ feature.description }}</p>
+        </article>
+      }
+    </div>
   </section>
 
-  <section class="feature-stack">
-    @for (feature of features; track feature.title) {
-      <article class="feature-row">
-        <span>{{ feature.eyebrow }}</span>
-        <h2>{{ feature.title }}</h2>
-        <p>{{ feature.description }}</p>
-      </article>
-    }
-  </section>
-
-  <section class="workflow" id="flujo">
-    <div class="workflow__intro">
-      <span class="eyebrow">Flujo real</span>
+  <section class="workflow" id="flujo" aria-label="Como funciona Trackademy">
+    <header class="section-head">
+      <span class="overline">Flujo real</span>
       <h2>De configuracion a rutina diaria.</h2>
-    </div>
-
-    <div class="workflow__steps">
+    </header>
+    <ol class="workflow__steps">
       @for (step of workflow; track step.title) {
-        <article class="workflow-step">
-          <span>{{ step.index }}</span>
-          <div>
+        <li class="step">
+          <span class="step__num">{{ step.index }}</span>
+          <div class="step__body">
             <h3>{{ step.title }}</h3>
             <p>{{ step.description }}</p>
           </div>
-        </article>
+        </li>
+      }
+    </ol>
+  </section>
+
+  <section class="cta-band">
+    <div class="cta-band__inner">
+      <h2>Empieza el ciclo con orden.</h2>
+      <p>Sin papeles sueltos, sin capturas, sin hojas de calculo.</p>
+      @if (!signedIn()) {
+        <a class="btn btn--primary" routerLink="/auth/sign-in">Entrar a Trackademy</a>
+      } @else {
+        <a class="btn btn--primary" routerLink="/app/dashboard">Abrir dashboard</a>
       }
     </div>
   </section>
 
   <footer class="footer">
-    <a class="brand brand--footer" routerLink="/">
-      <span class="brand__mark">T</span>
-      <span class="brand__text">trackademy</span>
-    </a>
-    <nav aria-label="Legal">
-      <a routerLink="/privacy-policy">Privacidad</a>
-      <a routerLink="/terms-of-service">Terminos</a>
-    </nav>
+    <div class="footer__inner">
+      <div class="footer__brand">
+        <a class="footer__logo" routerLink="/">
+          <span class="brand-mark" aria-hidden="true">T</span>
+          <span class="brand-name">trackademy</span>
+        </a>
+        <p>Sistema academico personal para estudiantes universitarios.</p>
+      </div>
+      <nav class="footer__nav" aria-label="Legal">
+        <strong>Legal</strong>
+        <a routerLink="/privacy-policy">Privacidad</a>
+        <a routerLink="/terms-of-service">Terminos</a>
+      </nav>
+    </div>
+    <div class="footer__bottom">
+      <span>&copy; {{ currentYear }} Trackademy</span>
+    </div>
   </footer>
+
 </main>
