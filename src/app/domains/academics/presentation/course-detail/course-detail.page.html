@@ -1,130 +1,217 @@
 <main class="course-detail">
+
   @if (isLoading) {
-    <div class="state">Cargando curso...</div>
+    <div class="state state--loading">Cargando curso...</div>
   }
 
   @if (loadError) {
     <div class="state state--error">{{ loadError }}</div>
   }
 
-  @if (!isLoading && !loadError && course && courseDetail) {
-    <section class="hero-panel">
-      <div class="hero-panel__top">
-        <div class="hero-main">
-          <div class="hero-panel__badges">
-            <span>{{ course.codigo }}</span>
-            <span>{{ course.activo ? 'Activo' : 'Inactivo' }}</span>
-          </div>
+  @if (!isLoading && !loadError && course) {
 
-          <h1>{{ course.nombre }}</h1>
-
-          <div class="hero-meta">
-            <span>{{ courseDetail.curso.creditos }} Creditos</span>
-            <span>{{ courseDetail.curso.horasSemanales }} Horas Semanales</span>
-            <span>{{ modalityLabel }}</span>
-            <span>{{ cycleLabel }}</span>
-          </div>
-        </div>
-
-        <aside class="hero-side">
-          <button class="syllabus-button" type="button" (click)="downloadCurrentSyllabus()" [disabled]="!hasDownloadableSyllabus || isDownloadingCurrentSyllabus">
-            {{ isDownloadingCurrentSyllabus ? 'Descargando...' : 'Ver Silabo (PDF)' }}
-          </button>
-
-          <div class="professor-card">
-            <span>Profesor titular</span>
-            <strong>{{ professorLabel }}</strong>
-            <small>{{ sectionLabel }}</small>
-          </div>
-        </aside>
+    <!-- Header -->
+    <header class="detail-header">
+      <a class="back-link" [routerLink]="['/app/cursos']">← Cursos</a>
+      <div class="detail-header__chips">
+        <span class="chip chip--brand">{{ course.codigo }}</span>
+        <span class="chip">{{ modalityLabel }}</span>
+        <span class="chip">{{ cycleLabel }}</span>
+        @if (course.activo) {
+          <span class="chip chip--ok">Activo</span>
+        }
       </div>
-
-      <div class="hero-divider"></div>
-
-      <div class="hero-bottom">
-        <div class="hero-summary">
-          <span>Sumilla del curso</span>
-          <p>{{ heroSummary }}</p>
-        </div>
-      </div>
-
-      @if (downloadError) {
-        <p class="download-error">{{ downloadError }}</p>
+      <h1>{{ course.nombre }}</h1>
+      @if (courseDetail) {
+        <p class="detail-header__sumilla">{{ heroSummary }}</p>
       }
-    </section>
+    </header>
 
-    <section class="detail-layout">
-      <div class="left-column">
-        <article class="panel evaluations-panel">
-          <header>
+    <!-- KPI strip -->
+    @if (courseDetail) {
+      <div class="kpi-strip">
+        <article class="kpi">
+          <span>Creditos</span>
+          <strong>{{ courseDetail.curso.creditos }}</strong>
+        </article>
+        <article class="kpi">
+          <span>Horas / semana</span>
+          <strong>{{ courseDetail.curso.horasSemanales }}</strong>
+        </article>
+        <article class="kpi" [class.kpi--ok]="gradedEvaluationsCount > 0">
+          <span>Acumulado</span>
+          <strong>{{ averageGradeLabel }}</strong>
+          <small>{{ gradedEvaluationsCount }} nota{{ gradedEvaluationsCount === 1 ? '' : 's' }} registrada{{ gradedEvaluationsCount === 1 ? '' : 's' }}</small>
+        </article>
+        <article class="kpi" [class.kpi--warn]="pendingEvaluationsCount > 0">
+          <span>Pendientes</span>
+          <strong>{{ pendingEvaluationsCount }}</strong>
+          <small>evaluacion{{ pendingEvaluationsCount === 1 ? '' : 'es' }} sin nota</small>
+        </article>
+      </div>
+    }
+
+    <!-- Two-column layout -->
+    <div class="detail-layout">
+
+      <!-- Main column -->
+      <div class="detail-main">
+
+        <!-- Evaluations -->
+        <article class="card">
+          <div class="card__head">
             <div>
-              <h2>Evaluaciones del curso</h2>
-              <p>Resumen sincronizado del silabo y tus notas registradas</p>
+              <span class="eyebrow">Seguimiento academico</span>
+              <h2>Evaluaciones</h2>
             </div>
-            <div class="evaluation-actions">
-              <div class="average-box">
-                <span>Acumulado actual</span>
-                <strong>{{ averageGradeLabel }}</strong>
-              </div>
-              <a routerLink="/app/notas">Registrar notas</a>
+            <div class="card__head-actions">
+              @if (hasDownloadableSyllabus) {
+                <button class="btn btn--ghost btn--sm" type="button" (click)="downloadCurrentSyllabus()" [disabled]="isDownloadingCurrentSyllabus">
+                  {{ isDownloadingCurrentSyllabus ? '...' : 'PDF Silabo' }}
+                </button>
+              }
+              <a class="btn btn--primary btn--sm" routerLink="/app/notas">Registrar notas</a>
             </div>
-          </header>
+          </div>
 
-          @if (evaluations.length === 0) {
-            <div class="empty-row">No hay evaluaciones sincronizadas todavia.</div>
+          @if (downloadError) {
+            <div class="form-feedback form-feedback--error">{{ downloadError }}</div>
           }
 
-          <div class="evaluation-list">
+          <div class="eval-progress">
+            <div class="progress-bar">
+              <span [style.width.%]="progressPercent"></span>
+            </div>
+            <span class="progress-label">{{ gradedEvaluationsCount }} / {{ evaluations.length }} evaluaciones completadas</span>
+          </div>
+
+          @if (evaluations.length === 0) {
+            <div class="empty-state">Sin evaluaciones sincronizadas todavia.</div>
+          }
+
+          <div class="eval-list">
             @for (item of evaluations; track trackEvaluation($index, item)) {
-              <article class="evaluation-row">
-                <div class="evaluation-code">{{ item.evaluacionCodigo }}</div>
-                <div class="evaluation-copy">
+              <article class="eval-row"
+                [class.eval-row--done]="item.nota != null"
+                [class.eval-row--exempt]="item.exonerado">
+                <div class="eval-row__code">{{ item.evaluacionCodigo }}</div>
+                <div class="eval-row__copy">
                   <strong>{{ item.descripcion || item.tipo || item.evaluacionCodigo }}</strong>
                   <span>{{ evaluationSubtitle(item) }}</span>
                   @if (item.observacion) {
                     <small>{{ item.observacion }}</small>
                   }
                 </div>
-                <div class="evaluation-weight">
-                  <span>Peso</span>
+                <div class="eval-row__weight">
                   <strong>{{ item.porcentaje ?? 0 }}%</strong>
+                  <span>peso</span>
                 </div>
-                <div class="evaluation-grade" [class.evaluation-grade--empty]="item.nota == null">
-                  {{ item.nota != null ? (item.nota | number:'1.0-1') : '--' }}
+                <div class="eval-row__grade" [class.eval-row__grade--low]="item.nota != null && item.nota < 11">
+                  @if (item.exonerado) { Exon. }
+                  @else { {{ item.nota != null ? (item.nota | number:'1.0-1') : '--' }} }
                 </div>
               </article>
             }
           </div>
         </article>
 
+        <!-- Syllabus context -->
+        @if (courseDetail && (courseDetail.logroGeneral || courseDetail.fundamentacion || courseDetail.metodologia)) {
+          <article class="card">
+            <div class="card__head">
+              <div>
+                <span class="eyebrow">Del silabo</span>
+                <h2>Contexto academico</h2>
+              </div>
+            </div>
+            <div class="syllabus-body">
+              @if (courseDetail.logroGeneral) {
+                <section class="syllabus-section">
+                  <span class="section-label">Logro general</span>
+                  <p>{{ courseDetail.logroGeneral }}</p>
+                </section>
+              }
+              @if (courseDetail.fundamentacion) {
+                <section class="syllabus-section">
+                  <span class="section-label">Fundamentacion</span>
+                  <p>{{ courseDetail.fundamentacion }}</p>
+                </section>
+              }
+              @if (courseDetail.metodologia) {
+                <section class="syllabus-section">
+                  <span class="section-label">Metodologia</span>
+                  <p>{{ courseDetail.metodologia }}</p>
+                </section>
+              }
+            </div>
+          </article>
+        }
+
+        <!-- Units -->
+        @if (courseDetail && courseDetail.unidades.length > 0) {
+          <article class="card">
+            <div class="card__head">
+              <div>
+                <span class="eyebrow">Programa del curso</span>
+                <h2>Unidades</h2>
+              </div>
+            </div>
+            <div class="units-list">
+              @for (unit of courseDetail.unidades; track trackUnit($index, unit)) {
+                <article class="unit-card">
+                  <div class="unit-card__head">
+                    <span class="unit-num">{{ unit.nro | number:'2.0-0' }}</span>
+                    <div>
+                      <strong>{{ unit.titulo }}</strong>
+                      <small>Semana {{ unit.semanaInicio ?? '--' }} – {{ unit.semanaFin ?? '--' }}</small>
+                    </div>
+                  </div>
+                  @if (unit.logroEspecifico) {
+                    <p class="unit-logro">{{ unit.logroEspecifico }}</p>
+                  }
+                  @if (topicsFor(unit).length > 0) {
+                    <ul class="unit-topics">
+                      @for (topic of topicsFor(unit); track topic) {
+                        <li>{{ topic }}</li>
+                      }
+                    </ul>
+                  }
+                </article>
+              }
+            </div>
+          </article>
+        }
+
       </div>
 
-      <div class="right-column">
-        <article class="panel schedule-panel">
-          <h2>Horario del Curso</h2>
+      <!-- Side column -->
+      <aside class="detail-side">
 
-          <div class="schedule-actions">
-            <a class="btn btn--ghost" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Reconfigurar horario</a>
+        <!-- Schedule -->
+        <article class="card">
+          <div class="card__head">
+            <div>
+              <span class="eyebrow">Bloques semanales</span>
+              <h2>Horario</h2>
+            </div>
+            <a class="btn btn--ghost btn--sm" [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">
+              {{ groupedSchedule.length === 0 ? 'Configurar' : 'Editar' }}
+            </a>
           </div>
 
           @if (groupedSchedule.length === 0) {
-            <div class="empty-row">
-              <p>Este curso aun no tiene horario configurado.</p>
-              <a [routerLink]="['/app/cursos', course.usuarioPeriodoCursoId, 'horario']">Crear horario</a>
-            </div>
+            <div class="empty-state">Sin bloques configurados todavia.</div>
           }
 
           <div class="schedule-list">
             @for (group of groupedSchedule; track group.key) {
               @for (entry of group.items; track entry.bloqueNro) {
                 <article class="schedule-row">
-                  <div>
-                    <span>{{ group.label }}</span>
-                    <strong>{{ scheduleTypeLabel(entry) }}</strong>
-                  </div>
-                  <div>
+                  <div class="schedule-row__day">{{ group.label }}</div>
+                  <div class="schedule-row__info">
                     <strong>{{ formatScheduleEntry(entry) }}</strong>
-                    <span>{{ scheduleLocationLabel(entry) }}</span>
+                    <span>{{ scheduleTypeLabel(entry) }}</span>
+                    <small>{{ scheduleLocationLabel(entry) }}</small>
                   </div>
                 </article>
               }
@@ -132,108 +219,51 @@
           </div>
         </article>
 
-        <article class="panel section-panel">
-          <header>
-            <div>
-              <h2>Datos editables del curso</h2>
-              <p>Seccion y profesor son datos personales de tu periodo.</p>
+        <!-- Edit section / professor -->
+        <article class="card">
+          <form [formGroup]="metadataForm" (ngSubmit)="saveMetadata()">
+            <div class="card__head">
+              <div>
+                <span class="eyebrow">Datos del ciclo</span>
+                <h2>Tu seccion</h2>
+              </div>
+              <button class="save-btn" type="submit" [disabled]="isSavingMetadata">
+                {{ isSavingMetadata ? 'Guardando...' : 'Guardar' }}
+              </button>
             </div>
-            <button type="button" (click)="saveMetadata()" [disabled]="isSavingMetadata">
-              {{ isSavingMetadata ? 'Guardando...' : 'Guardar cambios' }}
-            </button>
-          </header>
 
-          <form class="section-form" [formGroup]="metadataForm">
-            <label>
-              <span>Seccion</span>
-              <input type="text" formControlName="seccion" placeholder="No registrada" />
-            </label>
-            <label>
-              <span>Profesor</span>
-              <input type="text" formControlName="profesor" placeholder="No registrado" />
-            </label>
-            <label>
-              <span>Modalidad</span>
-              <strong>{{ modalityLabel }}</strong>
-            </label>
-          </form>
-
-          @if (metadataError) {
-            <p class="inline-state inline-state--error">{{ metadataError }}</p>
-          }
-
-          @if (metadataSuccess) {
-            <p class="inline-state">{{ metadataSuccess }}</p>
-          }
-        </article>
-      </div>
-    </section>
-
-    <section class="full-width-stack">
-        <article class="panel syllabus-context-panel">
-          <h2>Contexto del silabo</h2>
-
-          <div class="syllabus-context-list">
-            @if (courseDetail.logroGeneral) {
-              <section>
-                <span>Logro general</span>
-                <p>{{ courseDetail.logroGeneral }}</p>
-              </section>
-            }
-
-            @if (courseDetail.fundamentacion) {
-              <section>
-                <span>Fundamentacion</span>
-                <p>{{ courseDetail.fundamentacion }}</p>
-              </section>
-            }
-
-            @if (courseDetail.metodologia) {
-              <section>
-                <span>Metodologia</span>
-                <p>{{ courseDetail.metodologia }}</p>
-              </section>
-            }
-
-            @if (!courseDetail.logroGeneral && !courseDetail.fundamentacion && !courseDetail.metodologia) {
-              <div class="empty-row">El silabo no tiene contexto academico registrado.</div>
-            }
-          </div>
-        </article>
-
-        <article class="panel program-panel">
-          <h2>Unidades del curso</h2>
-
-          @if (courseDetail.unidades.length === 0) {
-            <div class="empty-row">El silabo no tiene unidades registradas.</div>
-          }
-
-          <div class="program-list">
-            @for (unit of courseDetail.unidades; track trackUnit($index, unit)) {
-              <article class="program-item">
-                <div class="program-item__head">
-                  <span>{{ unit.nro | number:'2.0-0' }}</span>
-                  <div>
-                    <strong>{{ unit.titulo }}</strong>
-                    <small>Semana {{ unit.semanaInicio ?? '--' }} a {{ unit.semanaFin ?? '--' }}</small>
-                  </div>
+            <div class="meta-form">
+              <label class="field">
+                <span>Seccion</span>
+                <input type="text" formControlName="seccion" placeholder="Ej: A, B, 201" />
+              </label>
+              <label class="field">
+                <span>Profesor</span>
+                <input type="text" formControlName="profesor" placeholder="Nombre del profesor" />
+              </label>
+              <div class="static-field">
+                <span>Modalidad</span>
+                <strong>{{ modalityLabel }}</strong>
+              </div>
+              @if (courseDetail) {
+                <div class="static-field">
+                  <span>Silabo</span>
+                  <strong>{{ syllabusVersionLabel }}</strong>
                 </div>
+              }
+            </div>
 
-                @if (unit.logroEspecifico) {
-                  <p>{{ unit.logroEspecifico }}</p>
-                }
-
-                @if (topicsFor(unit).length > 0) {
-                  <ul>
-                    @for (topic of topicsFor(unit); track topic) {
-                      <li>{{ topic }}</li>
-                    }
-                  </ul>
-                }
-              </article>
+            @if (metadataError) {
+              <div class="form-feedback form-feedback--error">{{ metadataError }}</div>
             }
-          </div>
+            @if (metadataSuccess) {
+              <div class="form-feedback form-feedback--ok">{{ metadataSuccess }}</div>
+            }
+          </form>
         </article>
-    </section>
+
+      </aside>
+    </div>
+
   }
 </main>

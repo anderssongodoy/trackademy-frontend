@@ -200,9 +200,9 @@
 
           <div class="sync-list">
             @for (account of calendarSyncAccounts; track account.provider) {
-              <article class="sync-item" [class.sync-item--connected]="account.conectado">
-                <span class="sync-item__icon" aria-hidden="true">
-                  @if (account.provider === 'google') {
+              @if (account.provider === 'google') {
+                <article class="sync-item" [class.sync-item--connected]="account.conectado">
+                  <span class="sync-item__icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
                       <rect x="4" y="5" width="16" height="15" rx="3" fill="#fff" stroke="#e0e0e0"/>
                       <path d="M8 3.5v3M16 3.5v3" stroke="#4285F4" stroke-width="1.8" stroke-linecap="round"/>
@@ -212,30 +212,19 @@
                       <rect x="7" y="15.5" width="4.2" height="3.4" rx="1" fill="#34A853"/>
                       <rect x="12.6" y="15.5" width="4.2" height="3.4" rx="1" fill="#4285F4"/>
                     </svg>
-                  } @else {
-                    <svg viewBox="0 0 24 24" fill="none" width="22" height="22">
-                      <path d="M3.5 6.5 10 4v16l-6.5-2.5v-11Z" fill="#0A5FB4"/>
-                      <path d="M10 6h10.5v12H10V6Z" fill="#1973D2"/>
-                      <path d="M12.5 9.3h5.5v1.8h-5.5zM12.5 12.1h5.5v1.8h-5.5zM12.5 14.9h4.2v1.8h-4.2z" fill="#fff"/>
-                    </svg>
-                  }
-                </span>
-                <div class="sync-item__info">
-                  <strong>{{ syncProviderLabel(account.provider) }}</strong>
-                  <small>{{ syncMetaLabel(account) }}</small>
-                </div>
-                <span class="sync-status" [class.sync-status--ok]="account.conectado">{{ syncStatusLabel(account) }}</span>
-                <div class="sync-actions">
-                  <button class="btn btn--ghost btn--sm" type="button" (click)="triggerCalendarSync(account)" [disabled]="(account.provider === 'google' && isSyncingGoogleCalendar) || (account.provider !== 'google')">
-                    {{ syncActionLabel(account) }}
-                  </button>
-                  @if (account.provider === 'google' && account.conectado) {
-                    <button class="btn btn--ghost btn--sm btn--danger-ghost" type="button" (click)="disconnectCalendar(account)" [disabled]="isDisconnectingGoogleCalendar">
-                      {{ isDisconnectingGoogleCalendar ? '...' : 'Desconectar' }}
+                  </span>
+                  <div class="sync-item__info">
+                    <strong>{{ syncProviderLabel(account.provider) }}</strong>
+                    <small>{{ syncMetaLabel(account) }}</small>
+                  </div>
+                  <span class="sync-status" [class.sync-status--ok]="account.conectado">{{ syncStatusLabel(account) }}</span>
+                  <div class="sync-actions">
+                    <button class="btn btn--ghost btn--sm" type="button" (click)="triggerCalendarSync(account)" [disabled]="isSyncingGoogleCalendar">
+                      {{ syncActionLabel(account) }}
                     </button>
-                  }
-                </div>
-              </article>
+                  </div>
+                </article>
+              }
             }
           </div>
         </article>

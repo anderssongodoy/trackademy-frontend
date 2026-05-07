@@ -245,7 +245,7 @@ h1 {
   display: flex;
   align-items: flex-end;
   gap: 6px;
-  height: 80px;
+  height: clamp(80px, 14vw, 160px);
 }
 
 .bar-legend {

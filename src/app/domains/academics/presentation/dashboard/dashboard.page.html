@@ -100,7 +100,7 @@
               [class.bar-col--current]="bar.isCurrent"
               [class.bar-col--past]="!bar.isCurrent && bar.week < (summary?.semanaActual ?? 0)"
               [title]="'Semana ' + bar.week + ': ' + bar.count + (bar.count === 1 ? ' evaluacion' : ' evaluaciones') + (bar.weight > 0 ? ' · ' + bar.weight + '%' : '')">
-              <span class="bar" [style.height.px]="barHeightPx(bar.height)"></span>
+              <span class="bar" [style.height.%]="bar.height"></span>
               <span class="bar-tick">S{{ bar.week }}</span>
             </div>
           }
