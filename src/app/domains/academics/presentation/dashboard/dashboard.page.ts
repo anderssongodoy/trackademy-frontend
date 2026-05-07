@@ -738,7 +738,7 @@ export class DashboardPage implements OnInit {
   }
 
   private isSameDay(value: string, baseDate: Date): boolean {
-    const date = new Date(value);
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(value + 'T00:00:00') : new Date(value);
     return date.getFullYear() === baseDate.getFullYear()
       && date.getMonth() === baseDate.getMonth()
       && date.getDate() === baseDate.getDate();
