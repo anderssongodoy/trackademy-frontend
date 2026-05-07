@@ -208,16 +208,15 @@
       </article>
     </section>
 
-    <!-- AI Radar condensado + Acciones rapidas -->
+    <!-- Radar + Acciones rapidas -->
     <section class="dash-rail">
       @if (radar) {
         <article class="rail-card radar-card">
           <header class="card-header">
             <div>
-              <span class="eyebrow">Asistente IA</span>
+              <span class="eyebrow">Foco de la semana</span>
               <h3>{{ radar.insight.headline }}</h3>
             </div>
-            <span class="radar-badge">{{ radarEngineLabel }}</span>
           </header>
           <p class="radar-action">{{ radar.insight.todayAction }}</p>
           @if (radar.insight.warnings.length > 0) {

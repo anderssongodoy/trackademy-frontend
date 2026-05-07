@@ -378,13 +378,6 @@ export class DashboardPage implements OnInit {
     return this.formatDate(this.radar.generatedAt, { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
   }
 
-  get radarEngineLabel(): string {
-    if (!this.radar) {
-      return 'Asistente';
-    }
-    return this.radar.aiGenerated ? `IA ${this.radar.model ?? ''}`.trim() : 'Analisis local';
-  }
-
   get radarLoadLabel(): string {
     const level = this.radar?.weeklyLoad.level?.toLowerCase() ?? 'sin datos';
     return level.charAt(0).toUpperCase() + level.slice(1);
