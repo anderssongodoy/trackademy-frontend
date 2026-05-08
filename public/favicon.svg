@@ -1,0 +1,15 @@
+<svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+  <!-- White background -->
+  <rect width="48" height="48" rx="11" fill="#ffffff"/>
+
+  <!--
+    logo.svg is 1024x1024. The mark (cap + progress bar) occupies
+    roughly y=55-560 (505px tall), centered horizontally around x=515.
+    Scale to fill ~44px vertically: 44/505 = 0.0871
+    Scaled image = 89x89px
+    x offset: center mark (515*0.0871=44.8) at x=24 → x = 24-44.8 = -20.8
+    y offset: mark top (55*0.0871=4.8) lands at y=2 → y = 2-4.8 = -2.8
+    TRACKADEMY text starts at ~y=600*0.0871=52.3 → outside viewport, clipped ✓
+  -->
+  <image href="logo.svg" x="-21" y="-3" width="89" height="89"/>
+</svg>
