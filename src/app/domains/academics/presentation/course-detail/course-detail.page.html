@@ -164,7 +164,7 @@
             <div class="card__head">
               <div>
                 <span class="eyebrow">Análisis con IA</span>
-                <h2>Recursos y temas clave</h2>
+                <h2>Tu guía del curso</h2>
               </div>
             </div>
 
@@ -173,9 +173,21 @@
             @if (silaboAnalysis.temas.length > 0) {
               <section class="ai-analysis__section">
                 <span class="section-label">Temas clave</span>
-                <ul class="ai-temas">
+                <ol class="ai-temas">
                   @for (tema of silaboAnalysis.temas; track $index) {
                     <li>{{ tema }}</li>
+                  }
+                </ol>
+              </section>
+            }
+
+            @if (silaboAnalysis.paraIrMasAlla && silaboAnalysis.paraIrMasAlla.length > 0) {
+              <section class="ai-analysis__section">
+                <span class="section-label">Para ir más allá</span>
+                <p class="ai-masalla__intro">Lo que el sílabo no cubre pero el mercado sí valora:</p>
+                <ul class="ai-masalla">
+                  @for (sugerencia of silaboAnalysis.paraIrMasAlla; track $index) {
+                    <li>{{ sugerencia }}</li>
                   }
                 </ul>
               </section>
@@ -188,7 +200,7 @@
                   @for (recurso of silaboAnalysis.recursos; track recurso.url) {
                     <a class="ai-recurso" [href]="recurso.url" target="_blank" rel="noopener noreferrer">
                       <div class="ai-recurso__head">
-                        <span class="ai-recurso__type">{{ resourceTypeLabel(recurso.tipo) }}</span>
+                        <span class="ai-recurso__type ai-recurso__type--{{ recurso.tipo }}">{{ resourceTypeLabel(recurso.tipo) }}</span>
                         <strong>{{ recurso.titulo }}</strong>
                       </div>
                       <p>{{ recurso.descripcion }}</p>

@@ -199,6 +199,7 @@ export interface SilaboAnalysis {
   resumen: string;
   temas: string[];
   recursos: SilaboAnalysisRecurso[];
+  paraIrMasAlla: string[];
   generatedAt: string;
 }
 
