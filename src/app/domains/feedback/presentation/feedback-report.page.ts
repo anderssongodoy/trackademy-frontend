@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { Subject } from 'rxjs';
@@ -21,6 +21,7 @@ export class FeedbackReportPageComponent implements OnInit, OnDestroy {
   private readonly feedbackUseCase = inject(FeedbackUseCase);
   private readonly imageCompressionService = inject(ImageCompressionService);
   private readonly router = inject(Router);
+  private readonly location = inject(Location);
   private readonly destroy$ = new Subject<void>();
 
   form!: FormGroup;
@@ -45,6 +46,10 @@ export class FeedbackReportPageComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+  }
+
+  goBack(): void {
+    this.location.back();
   }
 
   private initForm() {

@@ -8,9 +8,9 @@
   min-height: 100vh;
   padding: 28px 24px 48px;
   background:
-    radial-gradient(circle at 5% 92%, rgba(49, 88, 70, 0.12), transparent 20%),
-    radial-gradient(circle at 90% 0%, rgba(49, 88, 70, 0.12), transparent 18%),
-    linear-gradient(180deg, #f7f6f2 0%, #faf9fd 100%);
+    radial-gradient(circle at 5% 92%, rgba(196, 87, 42, 0.06), transparent 22%),
+    radial-gradient(circle at 90% 0%, rgba(196, 87, 42, 0.05), transparent 20%),
+    #f5f3ef;
   color: var(--text-primary);
 }
 
@@ -66,7 +66,7 @@
   height: 18px;
   border-radius: 6px;
   background: var(--brand-primary);
-  box-shadow: 0 10px 20px rgba(90, 0, 214, 0.28);
+  box-shadow: 0 10px 20px rgba(196, 87, 42, 0.30);
 }
 
 .onboarding__progress {
@@ -84,7 +84,7 @@
   width: 116px;
   height: 4px;
   border-radius: 999px;
-  background: rgba(118, 124, 147, 0.18);
+  background: rgba(155, 153, 143, 0.2);
   overflow: hidden;
 }
 
@@ -112,11 +112,11 @@
 .rail-card,
 .support-card,
 .setup-card {
-  background: rgba(255, 255, 255, 0.82);
+  background: #fdfcf9;
   border-radius: 24px;
   box-shadow:
-    0 24px 60px rgba(15, 23, 42, 0.06),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+    0 24px 60px rgba(27, 27, 24, 0.05),
+    inset 0 0 0 1px rgba(196, 87, 42, 0.06);
 }
 
 .rail-card,
@@ -179,7 +179,7 @@
   border-radius: 50%;
   display: grid;
   place-items: center;
-  background: rgba(120, 128, 145, 0.12);
+  background: rgba(155, 153, 143, 0.14);
   color: inherit;
   font-size: 0.78rem;
   font-weight: 700;
@@ -188,7 +188,7 @@
 
 .step-rail__item--active .step-rail__dot,
 .step-rail__item--done .step-rail__dot {
-  background: rgba(49, 88, 70, 0.14);
+  background: rgba(196, 87, 42, 0.1);
   color: var(--brand-primary);
 }
 
@@ -239,7 +239,7 @@
 
 .course-meta {
   @include ui.chip-base();
-  background: rgba(49, 88, 70, 0.1);
+  background: rgba(196, 87, 42, 0.08);
   color: var(--brand-primary);
 }
 
@@ -282,21 +282,21 @@ input[type='range']::-webkit-slider-thumb {
   height: 22px;
   border-radius: 50%;
   background: var(--brand-primary);
-  border: 4px solid #fff;
-  box-shadow: 0 8px 20px rgba(49, 88, 70, 0.18);
+  border: 4px solid #fdfcf9;
+  box-shadow: 0 8px 20px rgba(196, 87, 42, 0.22);
 }
 
 input[type='range']::-moz-range-thumb {
   width: 22px;
   height: 22px;
-  border: 4px solid #fff;
+  border: 4px solid #fdfcf9;
   border-radius: 50%;
   background: var(--brand-primary);
-  box-shadow: 0 8px 20px rgba(49, 88, 70, 0.18);
+  box-shadow: 0 8px 20px rgba(196, 87, 42, 0.22);
 }
 
 input[readonly] {
-  background: rgba(237, 238, 244, 0.92);
+  background: rgba(245, 243, 239, 0.92);
   color: var(--text-secondary);
 }
 
@@ -322,8 +322,8 @@ input[readonly] {
   padding: 18px;
   border-radius: 20px;
   background:
-    radial-gradient(circle at top right, rgba(49, 88, 70, 0.08), transparent 34%),
-    rgba(246, 247, 251, 0.92);
+    radial-gradient(circle at top right, rgba(196, 87, 42, 0.07), transparent 34%),
+    rgba(253, 252, 249, 0.96);
 }
 
 .score-target__head {
@@ -356,7 +356,7 @@ input[readonly] {
   border: none;
   border-radius: 14px;
   padding: 0 16px;
-  background: rgba(235, 236, 241, 0.82);
+  background: rgba(241, 239, 235, 0.88);
   color: var(--text-secondary);
   font-weight: 700;
   cursor: pointer;
@@ -368,9 +368,9 @@ input[readonly] {
 }
 
 .study-chip--active {
-  background: rgba(49, 88, 70, 0.12);
+  background: rgba(196, 87, 42, 0.09);
   color: var(--brand-primary);
-  box-shadow: inset 0 0 0 1px rgba(49, 88, 70, 0.16);
+  box-shadow: inset 0 0 0 1px rgba(196, 87, 42, 0.18);
 }
 
 .course-tools {
@@ -405,7 +405,7 @@ input[readonly] {
   border: 0;
   border-radius: 999px;
   padding: 0 18px;
-  background: rgba(239, 240, 245, 0.92);
+  background: rgba(244, 242, 238, 0.92);
   color: var(--text-secondary);
   font-weight: 800;
   white-space: nowrap;
@@ -420,7 +420,7 @@ input[readonly] {
 .cycle-filter__item--active {
   background: var(--brand-primary);
   color: #fff;
-  box-shadow: 0 14px 28px rgba(49, 88, 70, 0.16);
+  box-shadow: 0 14px 28px rgba(196, 87, 42, 0.2);
 }
 
 .course-list-wrapper {
@@ -441,7 +441,7 @@ input[readonly] {
 .detected-list__item,
 .state {
   border-radius: 18px;
-  background: rgba(246, 247, 251, 0.92);
+  background: rgba(245, 243, 239, 0.8);
 }
 
 .course-item {
@@ -456,9 +456,9 @@ input[readonly] {
 
 .course-item--selected {
   background:
-    radial-gradient(circle at top right, rgba(49, 88, 70, 0.12), transparent 36%),
-    rgba(246, 242, 255, 0.96);
-  box-shadow: inset 0 0 0 2px rgba(49, 88, 70, 0.28);
+    radial-gradient(circle at top right, rgba(196, 87, 42, 0.1), transparent 36%),
+    rgba(245, 233, 227, 0.65);
+  box-shadow: inset 0 0 0 2px rgba(196, 87, 42, 0.24);
 }
 
 .course-item input {
@@ -496,7 +496,7 @@ input[readonly] {
 .course-item__selected {
   padding: 5px 8px;
   border-radius: 999px;
-  background: rgba(49, 88, 70, 0.1);
+  background: rgba(196, 87, 42, 0.08);
   font-size: 0.62rem;
   letter-spacing: 0.08em;
 }
@@ -558,7 +558,7 @@ input[readonly] {
 .support-empty {
   padding: 16px;
   border-radius: 18px;
-  background: rgba(246, 247, 251, 0.92);
+  background: rgba(245, 243, 239, 0.8);
 }
 
 .detected-list__item,
@@ -579,7 +579,7 @@ input[readonly] {
 .rail-card--selected,
 .support-card--selected {
   background:
-    radial-gradient(circle at 86% 8%, rgba(49, 88, 70, 0.14), transparent 32%),
+    radial-gradient(circle at 86% 8%, rgba(196, 87, 42, 0.09), transparent 32%),
     rgba(255, 255, 255, 0.86);
 }
 
@@ -620,7 +620,7 @@ input[readonly] {
 .selected-stats span {
   padding: 7px 10px;
   border-radius: 999px;
-  background: rgba(49, 88, 70, 0.08);
+  background: rgba(196, 87, 42, 0.07);
   color: var(--brand-primary);
 }
 
@@ -645,7 +645,7 @@ input[readonly] {
   gap: 5px;
   padding: 12px;
   border-radius: 16px;
-  background: rgba(246, 247, 251, 0.9);
+  background: rgba(245, 243, 239, 0.9);
 }
 
 .selected-rail-item strong {

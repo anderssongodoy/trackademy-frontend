@@ -24,6 +24,12 @@
     <div class="state state--error">{{ loadingError }}</div>
   }
 
+  <app-feedback-quick-button
+    [routePath]="'/feedback'"
+    [position]="'floating'"
+    [label]="'Reportar problema'">
+  </app-feedback-quick-button>
+
   @if (!isLoading && !loadingError) {
     <section class="onboarding__shell">
       <aside class="onboarding__rail">
@@ -358,12 +364,5 @@
       </aside>
     </section>
 
-    <!-- Feedback Quick Button -->
-    <app-feedback-quick-button 
-      [position]="'floating'" 
-      [variant]="'primary'"
-      [label]="'¿Te falta algo?'"
-      [tooltip]="'¿Falta un curso? ¿Hay errores? Cuéntanos'">
-    </app-feedback-quick-button>
   }
 </main>

@@ -52,6 +52,11 @@ export const routes: Routes = [
     loadComponent: () => import('./domains/academics/presentation/onboarding/onboarding.page').then((m) => m.OnboardingPage)
   },
   {
+    path: 'feedback',
+    canActivate: [authGuard],
+    loadComponent: () => import('./domains/feedback/presentation/feedback-report.page').then((m) => m.FeedbackReportPageComponent)
+  },
+  {
     path: 'app',
     canActivate: [authGuard, periodAccessGuard],
     component: AppShellComponent,
