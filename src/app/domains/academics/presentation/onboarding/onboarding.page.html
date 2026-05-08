@@ -1,181 +1,157 @@
-<main class="onboarding">
-  <header class="onboarding__topbar">
-    <a class="onboarding__brand" href="/">
-      <span class="onboarding__brand-mark"></span>
-      <span class="onboarding__brand-text">Trackademy</span>
+<main class="ob-page">
+  <header class="ob-topbar">
+    <a class="ob-brand" href="/">
+      <span class="ob-brand__mark"></span>
+      <span class="ob-brand__text">Trackademy</span>
     </a>
 
-    <div class="onboarding__actions">
-      <button type="button" class="onboarding__signout" (click)="signOut()">Cerrar sesion</button>
-      <div class="onboarding__progress">
-        <span>{{ currentStepLabel }}</span>
-        <div class="onboarding__progress-bar">
-          <span [style.width.%]="progressPercent"></span>
+    <nav class="ob-stepper" aria-label="Pasos de configuración">
+      @for (step of stepCards; track step.index) {
+        @if (step.index > 1) {
+          <span class="ob-step-line"></span>
+        }
+        <div
+          class="ob-step"
+          [class.ob-step--active]="step.active"
+          [class.ob-step--done]="step.done && !step.active"
+        >
+          <div class="ob-step__dot">
+            @if (step.done && !step.active) {
+              <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
+                <path d="M2.5 6l2.5 2.5L9.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            } @else {
+              {{ step.index }}
+            }
+          </div>
+          <span class="ob-step__label">{{ step.title }}</span>
         </div>
-      </div>
+      }
+    </nav>
+
+    <div class="ob-topbar__trail">
+      <app-feedback-quick-button
+        [routePath]="'/feedback'"
+        [position]="'inline'"
+        [label]="'Reportar'">
+      </app-feedback-quick-button>
+      <button type="button" class="ob-signout" (click)="signOut()">Cerrar sesión</button>
     </div>
   </header>
 
   @if (isLoading) {
-    <div class="state state--loading">Cargando catalogos...</div>
+    <div class="ob-state ob-state--loading">Cargando catalogos...</div>
   }
 
   @if (loadingError) {
-    <div class="state state--error">{{ loadingError }}</div>
+    <div class="ob-state ob-state--error">{{ loadingError }}</div>
   }
 
-  <app-feedback-quick-button
-    [routePath]="'/feedback'"
-    [position]="'floating'"
-    [label]="'Reportar problema'">
-  </app-feedback-quick-button>
-
   @if (!isLoading && !loadingError) {
-    <section class="onboarding__shell">
-      <aside class="onboarding__rail">
-        <div class="rail-card rail-card--steps">
-          <p class="rail-card__label">Tu progreso</p>
-          <div class="step-rail">
-            @for (step of stepCards; track step.index) {
-              <article class="step-rail__item" [class.step-rail__item--active]="step.active" [class.step-rail__item--done]="step.done">
-                <span class="step-rail__dot">{{ step.index }}</span>
-                <div>
-                  <strong>{{ step.title }}</strong>
-                  <p>{{ step.subtitle }}</p>
-                </div>
-              </article>
-            }
-          </div>
+    <div class="ob-body" [class.ob-body--wide]="currentStep === 2">
+
+      @if (currentStep === 1) {
+        <div class="ob-hero">
+          <p class="ob-hero__eyebrow">{{ currentStepLabel }}</p>
+          <h1 class="ob-hero__title">{{ onboardingTitle }}</h1>
+          <p class="ob-hero__sub">Configura tu perfil académico para empezar a trackear tu semestre con contexto real.</p>
         </div>
+      }
 
-        @if (currentStep === 2) {
-          <div class="rail-card rail-card--selected">
-            <p class="rail-card__label">Carga elegida</p>
-            <div class="selected-total selected-total--compact">
-              <strong>{{ selectedCourseIds.size }}</strong>
-              <span>cursos</span>
-            </div>
-            <div class="selected-stats selected-stats--compact">
-              <span>{{ selectedCredits }} creditos</span>
-              <span>{{ selectedWeeklyHours }} h/sem</span>
-            </div>
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
 
-            @if (selectedCourses.length > 0) {
-              <div class="selected-rail-list">
-                @for (course of selectedCourses.slice(0, 7); track course.id) {
-                  <article class="selected-rail-item">
-                    <strong>{{ course.codigo }}</strong>
-                    <span>{{ course.nombre }}</span>
-                  </article>
-                }
-              </div>
-              @if (selectedCourses.length > 7) {
-                <p class="support-note support-note--compact">+{{ selectedCourses.length - 7 }} cursos mas seleccionados.</p>
-              }
-            } @else {
-              <p class="support-empty support-empty--compact">Aun no marcaste cursos.</p>
-            }
-          </div>
-        }
-      </aside>
+        @if (currentStep === 1) {
 
-      <section class="onboarding__center">
-        <div class="hero">
-          <div>
-            <h1>{{ onboardingTitle }}</h1>
-            <p>Configura tu perfil academico para empezar a trackear tu semestre con contexto real.</p>
-          </div>
-        </div>
-
-        <form class="setup-card" [formGroup]="form" (ngSubmit)="submit()" novalidate>
-          @if (currentStep === 1) {
-            <div class="setup-card__header">
-              <div>
-                <p class="section-kicker">Datos base</p>
-                <h2>Informacion inicial del ciclo</h2>
-              </div>
-            </div>
-
-            <div class="grid">
-              <label>
-                <span class="label-text">Nombre completo</span>
+          <div class="ob-card">
+            <p class="ob-card__label">Tu nombre</p>
+            <div class="ob-fields">
+              <label class="ob-field">
+                <span>Nombre completo</span>
                 <input
                   type="text"
                   formControlName="nombre"
-                  placeholder="Nombre completo"
-                  [class.field-invalid]="getControlError('nombre')"
+                  placeholder="Tu nombre completo"
+                  [class.ob-field__input--error]="getControlError('nombre')"
                 />
                 @if (getControlError('nombre')) {
-                  <span class="field-error">{{ getControlError('nombre') }}</span>
+                  <span class="ob-error">{{ getControlError('nombre') }}</span>
                 }
               </label>
-
-              <label>
-                <span class="label-text">Nombre preferido</span>
+              <label class="ob-field">
+                <span>Nombre preferido</span>
                 <input type="text" formControlName="nombrePreferido" placeholder="Como te llamamos" />
               </label>
+            </div>
+          </div>
 
-              <label>
-                <span class="label-text">Campus</span>
-                <select formControlName="campusId" [class.field-invalid]="getControlError('campusId')">
+          <div class="ob-card">
+            <p class="ob-card__label">Tu universidad</p>
+            <div class="ob-fields">
+              <label class="ob-field">
+                <span>Campus</span>
+                <select formControlName="campusId" [class.ob-field__input--error]="getControlError('campusId')">
                   <option [ngValue]="null">Selecciona campus</option>
                   @for (campus of campuses; track campus.id) {
                     <option [ngValue]="campus.id">{{ campus.nombre }}</option>
                   }
                 </select>
                 @if (getControlError('campusId')) {
-                  <span class="field-error">{{ getControlError('campusId') }}</span>
+                  <span class="ob-error">{{ getControlError('campusId') }}</span>
                 }
               </label>
 
-              <label>
-                <span class="label-text">Carrera</span>
+              <label class="ob-field">
+                <span>Carrera</span>
                 @if (fixedCareer) {
                   <input type="text" [value]="fixedCareer.nombre" readonly />
+                  <span class="ob-note">Carrera fija para esta configuración.</span>
                 } @else {
-                  <select formControlName="carreraId" [class.field-invalid]="getControlError('carreraId')">
+                  <select formControlName="carreraId" [class.ob-field__input--error]="getControlError('carreraId')">
                     <option [ngValue]="null">Selecciona carrera</option>
                     @for (career of careers; track career.id) {
                       <option [ngValue]="career.id">{{ career.nombre }}</option>
                     }
                   </select>
-                }
-                @if (getControlError('carreraId')) {
-                  <span class="field-error">{{ getControlError('carreraId') }}</span>
-                } @else if (fixedCareer) {
-                  <span class="field-note">Carrera fija para esta configuracion inicial.</span>
+                  @if (getControlError('carreraId')) {
+                    <span class="ob-error">{{ getControlError('carreraId') }}</span>
+                  }
                 }
               </label>
 
-              <label>
-                <span class="label-text">Periodo actual</span>
+              <label class="ob-field">
+                <span>Periodo actual</span>
                 <input type="text" [value]="selectedPeriodLabel" readonly />
-                @if (getControlError('periodoId')) {
-                  <span class="field-error">{{ getControlError('periodoId') }}</span>
-                } @else {
-                  <span class="field-note">Calculado automaticamente por fecha de inicio y fin.</span>
-                }
+                <span class="ob-note">Calculado automáticamente por fecha.</span>
               </label>
 
-              <label>
-                <span class="label-text">Ciclo academico</span>
+              <label class="ob-field">
+                <span>Ciclo académico</span>
                 <input
                   type="number"
                   formControlName="cicloActual"
                   min="1"
                   max="12"
-                  [class.field-invalid]="getControlError('cicloActual')"
+                  [class.ob-field__input--error]="getControlError('cicloActual')"
                 />
                 @if (getControlError('cicloActual')) {
-                  <span class="field-error">{{ getControlError('cicloActual') }}</span>
+                  <span class="ob-error">{{ getControlError('cicloActual') }}</span>
                 }
               </label>
+            </div>
+          </div>
 
-              <label class="grid__full score-target">
-                <span class="score-target__head">
-                  <span class="label-text">Meta de promedio ponderado</span>
-                  <strong>{{ targetScoreDisplay }} / 20</strong>
-                </span>
+          <div class="ob-card ob-card--goal">
+            <p class="ob-card__label">Tu meta académica</p>
+
+            <div class="ob-goal">
+              <div class="ob-goal__display">
+                <strong class="ob-goal__score">{{ targetScoreDisplay }}</strong>
+                <div class="ob-goal__meta">
+                  <span class="ob-goal__scale">/ 20</span>
+                  <span class="ob-goal__hint">promedio objetivo</span>
+                </div>
+              </div>
+              <div class="ob-goal__slider-wrap">
                 <input
                   type="range"
                   formControlName="metaPromedioCiclo"
@@ -184,185 +160,190 @@
                   step="0.1"
                   [style.--score-progress]="scoreProgress"
                 />
-                @if (getControlError('metaPromedioCiclo')) {
-                  <span class="field-error">{{ getControlError('metaPromedioCiclo') }}</span>
-                }
-              </label>
+                <div class="ob-goal__ticks">
+                  <span>0</span><span>10</span><span>20</span>
+                </div>
+              </div>
+            </div>
 
-              <div class="grid__full study-target">
-                <div class="study-target__head">
-                  <span class="label-text">Horas de estudio estimadas (semanales)</span>
-                  <input
-                    type="number"
-                    formControlName="horasEstudioSemanaObjetivo"
-                    min="1"
-                    max="80"
-                    [class.field-invalid]="getControlError('horasEstudioSemanaObjetivo')"
-                  />
-                </div>
-                <div class="study-target__chips">
-                  @for (preset of studyHourPresets; track preset) {
-                    <button
-                      type="button"
-                      class="study-chip"
-                      [class.study-chip--active]="isStudyHourPreset(preset)"
-                      (click)="selectStudyHourPreset(preset)"
-                    >
-                      @if (preset === 10) { 10-15h } @else if (preset === 20) { 15-25h } @else { 25h+ }
-                    </button>
-                  }
-                </div>
-                @if (getControlError('horasEstudioSemanaObjetivo')) {
-                  <span class="field-error">{{ getControlError('horasEstudioSemanaObjetivo') }}</span>
+            <div class="ob-hours">
+              <div class="ob-hours__head">
+                <span>Horas de estudio semanales</span>
+                <input
+                  class="ob-hours__num"
+                  type="number"
+                  formControlName="horasEstudioSemanaObjetivo"
+                  min="1"
+                  max="80"
+                  [class.ob-field__input--error]="getControlError('horasEstudioSemanaObjetivo')"
+                />
+              </div>
+              <div class="ob-chips">
+                @for (preset of studyHourPresets; track preset) {
+                  <button
+                    type="button"
+                    class="ob-chip"
+                    [class.ob-chip--active]="isStudyHourPreset(preset)"
+                    (click)="selectStudyHourPreset(preset)"
+                  >
+                    @if (preset === 10) { 10–15h } @else if (preset === 20) { 15–25h } @else { 25h+ }
+                  </button>
                 }
               </div>
+              @if (getControlError('horasEstudioSemanaObjetivo')) {
+                <span class="ob-error">{{ getControlError('horasEstudioSemanaObjetivo') }}</span>
+              }
+            </div>
+          </div>
+
+          @if (submitError) {
+            <div class="ob-state ob-state--error">{{ submitError }}</div>
+          }
+
+          <div class="ob-step1-action">
+            <button type="button" class="ob-btn ob-btn--next" (click)="nextStep()">
+              Siguiente paso
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+                <path d="M3.5 8h9M9 4.5l3.5 3.5L9 11.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </button>
+          </div>
+
+        }
+
+        @if (currentStep === 2) {
+
+          <div class="ob-courses-head">
+            <div class="ob-courses-head__left">
+              <p class="ob-hero__eyebrow">{{ currentStepLabel }}</p>
+              <h2 class="ob-courses-head__title">Selecciona tus cursos del periodo</h2>
+            </div>
+            <div class="ob-tally">
+              <div class="ob-tally__count">
+                <strong>{{ selectedCourseIds.size }}</strong>
+                <span>cursos</span>
+              </div>
+              <div class="ob-tally__chips">
+                <span>{{ selectedCredits }} créditos</span>
+                <span>{{ selectedWeeklyHours }} h/sem</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="ob-toolbar">
+            <label class="ob-search">
+              <svg class="ob-search__icon" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <circle cx="6" cy="6" r="4" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M10 10l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              <input
+                type="text"
+                class="ob-search__input"
+                [value]="courseQuery"
+                (input)="onCourseQueryChange($any($event.target).value)"
+                placeholder="Buscar por código o nombre..."
+              />
+            </label>
+            <label class="ob-toggle">
+              <input type="checkbox" [checked]="showSelectedOnly" (change)="toggleShowSelected($any($event.target).checked)" />
+              <span>Solo seleccionados</span>
+            </label>
+          </div>
+
+          @if (availableCourseCycles.length > 0) {
+            <div class="ob-cycles" aria-label="Filtrar por ciclo">
+              @for (cycle of availableCourseCycles; track cycle) {
+                <button
+                  type="button"
+                  class="ob-cycle"
+                  [class.ob-cycle--active]="courseCycleFilter === cycle"
+                  (click)="selectCourseCycleFilter(cycle)"
+                >
+                  Ciclo {{ cycle }}
+                </button>
+              }
+              <button
+                type="button"
+                class="ob-cycle"
+                [class.ob-cycle--active]="courseCycleFilter === null"
+                (click)="selectCourseCycleFilter(null)"
+              >
+                Todos
+              </button>
             </div>
           }
 
-          @if (currentStep === 2) {
-            <div class="setup-card__header">
-              <div>
-                <p class="section-kicker">Carga academica</p>
-                <h2>Cursos seleccionados para este periodo</h2>
-              </div>
-              <div class="course-meta">{{ filteredCourses.length }} visibles</div>
-            </div>
+          @if (!form.get('carreraId')?.value) {
+            <div class="ob-empty">Selecciona una carrera para ver los cursos.</div>
+          }
 
-            <div class="course-tools">
-              <label class="search">
-                <span class="label-text">Buscar curso</span>
-                <input
-                  type="text"
-                  [value]="courseQuery"
-                  (input)="onCourseQueryChange($any($event.target).value)"
-                  placeholder="Codigo o nombre"
-                />
-              </label>
+          @if (courseError) {
+            <div class="ob-state ob-state--error">{{ courseError }}</div>
+          }
 
-              <label class="toggle">
-                <input
-                  type="checkbox"
-                  [checked]="showSelectedOnly"
-                  (change)="toggleShowSelected($any($event.target).checked)"
-                />
-                <span>Solo seleccionados</span>
-              </label>
-            </div>
+          @if (form.get('carreraId')?.value && !courseError && filteredCourses.length === 0) {
+            <div class="ob-empty">No se encontraron cursos con ese filtro.</div>
+          }
 
-            @if (availableCourseCycles.length > 0) {
-              <div class="cycle-filter" aria-label="Filtrar cursos por ciclo">
-                @for (cycle of availableCourseCycles; track cycle) {
-                  <button
-                    type="button"
-                    class="cycle-filter__item"
-                    [class.cycle-filter__item--active]="courseCycleFilter === cycle"
-                    (click)="selectCourseCycleFilter(cycle)"
-                  >
-                    Ciclo {{ cycle }}
-                  </button>
-                }
-                <button
-                  type="button"
-                  class="cycle-filter__item"
-                  [class.cycle-filter__item--active]="courseCycleFilter === null"
-                  (click)="selectCourseCycleFilter(null)"
-                >
-                  Todos
-                </button>
-              </div>
-            }
-
-            @if (!form.get('carreraId')?.value) {
-              <div class="empty">Selecciona una carrera para ver los cursos.</div>
-            }
-
-            @if (courseError) {
-              <div class="state state--error state--inline">{{ courseError }}</div>
-            }
-
-            @if (form.get('carreraId')?.value && !courseError && filteredCourses.length === 0) {
-              <div class="empty">No se encontraron cursos con ese filtro.</div>
-            }
-
-            @if (form.get('carreraId')?.value && !courseError && filteredCourses.length > 0) {
-              <div class="course-list-wrapper">
-                <div class="course-list">
-                  @for (course of visibleCourses; track course.id) {
-                    <label class="course-item" [class.course-item--selected]="selectedCourseIds.has(course.id)">
-                      <input
-                        type="checkbox"
-                        [checked]="selectedCourseIds.has(course.id)"
-                        (change)="toggleCourse(course, $any($event.target).checked)"
-                      />
-                      <div class="course-item__info">
-                        <div class="course-item__topline">
-                          <span class="course-item__code">{{ course.codigo }}</span>
-                          @if (selectedCourseIds.has(course.id)) {
-                            <span class="course-item__selected">Seleccionado</span>
-                          }
-                        </div>
-                        <span class="course-item__name">{{ course.nombre }}</span>
-                        <span class="course-item__meta">{{ course.creditos }} creditos academicos</span>
-                        <span class="course-item__detail">
-                          {{ course.modalidad }} - {{ course.horasSemanales }} h/sem - Ciclo {{ course.cicloReferencial ?? '-' }}
-                        </span>
-                      </div>
-                    </label>
-                  }
-                </div>
-              </div>
-
-              @if (isCourseLoading) {
-                <div class="course-loading">Cargando cursos...</div>
+          @if (form.get('carreraId')?.value && !courseError && filteredCourses.length > 0) {
+            <div class="ob-course-grid">
+              @for (course of visibleCourses; track course.id) {
+                <label class="ob-course" [class.ob-course--selected]="selectedCourseIds.has(course.id)">
+                  <input
+                    type="checkbox"
+                    [checked]="selectedCourseIds.has(course.id)"
+                    (change)="toggleCourse(course, $any($event.target).checked)"
+                  />
+                  <div class="ob-course__body">
+                    <div class="ob-course__toprow">
+                      <span class="ob-course__code">{{ course.codigo }}</span>
+                      @if (selectedCourseIds.has(course.id)) {
+                        <span class="ob-course__check">✓ Elegido</span>
+                      }
+                    </div>
+                    <strong class="ob-course__name">{{ course.nombre }}</strong>
+                    <div class="ob-course__pills">
+                      <span>{{ course.creditos }} cr.</span>
+                      <span>{{ course.horasSemanales }} h/sem</span>
+                      @if (course.cicloReferencial) {
+                        <span>Ciclo {{ course.cicloReferencial }}</span>
+                      }
+                    </div>
+                    <span class="ob-course__mode">{{ course.modalidad }}</span>
+                  </div>
+                </label>
               }
+            </div>
+
+            @if (isCourseLoading) {
+              <div class="ob-state ob-state--loading">Cargando cursos...</div>
             }
           }
 
           @if (submitError) {
-            <div class="state state--error state--inline">{{ submitError }}</div>
+            <div class="ob-state ob-state--error">{{ submitError }}</div>
           }
 
-          <div class="actions">
-            @if (currentStep === 1) {
-              <button type="button" class="ghost-btn action-btn" (click)="nextStep()">Siguiente paso</button>
-            }
-            @if (currentStep === 2) {
-              <button type="button" class="ghost-btn action-btn" (click)="prevStep()">Atras</button>
-              <button type="submit" class="primary-btn action-btn action-btn--primary" [disabled]="isSubmitting">
-                {{ isSubmitting ? 'Guardando...' : 'Guardar onboarding' }}
+          <div class="ob-bar">
+            <div class="ob-bar__info">
+              <strong>{{ selectedCourseIds.size }}</strong>
+              <span>cursos seleccionados</span>
+              @if (selectedCredits > 0) {
+                <span class="ob-bar__sep">·</span>
+                <span>{{ selectedCredits }} créditos · {{ selectedWeeklyHours }} h/sem</span>
+              }
+            </div>
+            <div class="ob-bar__actions">
+              <button type="button" class="ob-btn ob-btn--ghost" (click)="prevStep()">Atrás</button>
+              <button type="submit" class="ob-btn ob-btn--primary" [disabled]="isSubmitting">
+                {{ isSubmitting ? 'Guardando...' : 'Guardar y continuar' }}
               </button>
-            }
-          </div>
-        </form>
-      </section>
-
-      <aside class="onboarding__support">
-        <div class="support-card support-card--manual">
-          <p class="support-card__label">Configuracion manual</p>
-          <h3>Base del ciclo</h3>
-          <p>Completa los datos base y luego marca los cursos que vas a llevar en este periodo.</p>
-
-          <div class="summary-grid">
-            <div class="summary-grid__item">
-              <span>Campus</span>
-              <strong>{{ selectedCampusLabel }}</strong>
-            </div>
-            <div class="summary-grid__item">
-              <span>Periodo</span>
-              <strong>{{ selectedPeriodLabel }}</strong>
-            </div>
-            <div class="summary-grid__item">
-              <span>Ciclo</span>
-              <strong>{{ selectedCycleLabel }}</strong>
-            </div>
-            <div class="summary-grid__item">
-              <span>Meta</span>
-              <strong>{{ targetScoreDisplay }} / 20</strong>
             </div>
           </div>
-        </div>
-      </aside>
-    </section>
 
+        }
+
+      </form>
+    </div>
   }
 </main>
