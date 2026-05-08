@@ -123,9 +123,9 @@
                 <span class="eyebrow">Del silabo</span>
                 <h2>Contexto academico</h2>
               </div>
-              @if (courseDetail?.silaboId) {
-                <button class="btn btn--ghost btn--sm" type="button" (click)="requestSilaboAnalysis()" [disabled]="isLoadingAnalysis">
-                  {{ isLoadingAnalysis ? 'Analizando...' : silaboAnalysis ? 'Reanalizar con IA' : 'Analizar con IA' }}
+              @if (courseDetail?.silaboId && !silaboAnalysis) {
+                <button class="btn btn--primary btn--sm" type="button" (click)="requestSilaboAnalysis()" [disabled]="isLoadingAnalysis">
+                  {{ isLoadingAnalysis ? 'Analizando...' : '✦ Analizar con IA' }}
                 </button>
               }
             </div>
