@@ -20,6 +20,11 @@
         @if (course.activo) {
           <span class="chip chip--ok">Activo</span>
         }
+        @if (hasDownloadableSyllabus) {
+          <button class="chip chip--action" type="button" (click)="downloadCurrentSyllabus()" [disabled]="isDownloadingCurrentSyllabus">
+            {{ isDownloadingCurrentSyllabus ? 'Descargando...' : '↓ PDF Sílabo' }}
+          </button>
+        }
       </div>
       <h1>{{ course.nombre }}</h1>
       @if (courseDetail) {
@@ -65,16 +70,6 @@
               <h2>Evaluaciones</h2>
             </div>
             <div class="card__head-actions">
-              @if (courseDetail?.silaboId) {
-                <button class="btn btn--ai btn--sm" type="button" (click)="requestSilaboAnalysis()" [disabled]="isLoadingAnalysis">
-                  {{ isLoadingAnalysis ? 'Analizando...' : silaboAnalysis ? 'Reanalizar IA' : 'Analizar con IA' }}
-                </button>
-              }
-              @if (hasDownloadableSyllabus) {
-                <button class="btn btn--ghost btn--sm" type="button" (click)="downloadCurrentSyllabus()" [disabled]="isDownloadingCurrentSyllabus">
-                  {{ isDownloadingCurrentSyllabus ? '...' : 'PDF Silabo' }}
-                </button>
-              }
               <a class="btn btn--primary btn--sm" routerLink="/app/notas">Registrar notas</a>
             </div>
           </div>
@@ -128,6 +123,11 @@
                 <span class="eyebrow">Del silabo</span>
                 <h2>Contexto academico</h2>
               </div>
+              @if (courseDetail?.silaboId) {
+                <button class="btn btn--ghost btn--sm" type="button" (click)="requestSilaboAnalysis()" [disabled]="isLoadingAnalysis">
+                  {{ isLoadingAnalysis ? 'Analizando...' : silaboAnalysis ? 'Reanalizar con IA' : 'Analizar con IA' }}
+                </button>
+              }
             </div>
             <div class="syllabus-body">
               @if (courseDetail.logroGeneral) {
@@ -154,19 +154,18 @@
 
         <!-- AI Syllabus Analysis -->
         @if (analysisError) {
-          <article class="card ai-analysis">
+          <article class="card" id="ai-analysis">
             <div class="ai-analysis__error">{{ analysisError }}</div>
           </article>
         }
 
         @if (silaboAnalysis && !analysisError) {
-          <article class="card ai-analysis">
+          <article class="card" id="ai-analysis">
             <div class="card__head">
               <div>
-                <span class="eyebrow">Inteligencia Artificial</span>
-                <h2>Análisis del sílabo</h2>
+                <span class="eyebrow">Análisis con IA</span>
+                <h2>Recursos y temas clave</h2>
               </div>
-              <span class="ai-badge">IA</span>
             </div>
 
             <p class="ai-analysis__resumen">{{ silaboAnalysis.resumen }}</p>

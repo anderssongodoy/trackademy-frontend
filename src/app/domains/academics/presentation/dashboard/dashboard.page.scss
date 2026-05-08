@@ -562,8 +562,6 @@ h1 {
 /* AI Promo Card */
 .ai-promo-card {
   grid-column: 1 / -1;
-  background: linear-gradient(135deg, rgba(124, 58, 237, 0.06) 0%, rgba(219, 39, 119, 0.06) 100%);
-  border: 1px solid rgba(124, 58, 237, 0.18);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -572,8 +570,6 @@ h1 {
 }
 
 .ai-promo__copy { display: grid; gap: 4px; min-width: 0; }
-
-.ai-promo__eyebrow { color: #7c3aed; }
 
 .ai-promo__copy strong {
   font-size: 1rem;
@@ -588,12 +584,13 @@ h1 {
   line-height: 1.5;
   max-width: 55ch;
 }
+.ai-promo__copy em { font-style: normal; font-weight: 700; color: var(--text-primary); }
 
 .ai-promo__btn {
   display: inline-block;
-  padding: 10px 18px;
+  padding: 9px 16px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #7c3aed, #db2777);
+  background: var(--brand-primary);
   color: #fff;
   font-size: 0.85rem;
   font-weight: 700;
@@ -602,7 +599,7 @@ h1 {
   flex-shrink: 0;
   transition: opacity 0.15s ease;
 }
-.ai-promo__btn:hover { opacity: 0.88; }
+.ai-promo__btn:hover { opacity: 0.85; }
 
 /* Quick actions */
 .quick-actions {

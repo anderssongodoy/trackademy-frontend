@@ -274,6 +274,9 @@ export class CourseDetailPage implements OnInit {
       next: (analysis) => {
         this.silaboAnalysis = analysis;
         this.isLoadingAnalysis = false;
+        setTimeout(() => {
+          document.getElementById('ai-analysis')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 80);
       },
       error: (err) => {
         if (err?.status === 404) {

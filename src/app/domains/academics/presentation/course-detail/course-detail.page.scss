@@ -56,6 +56,16 @@
 }
 .chip--brand { background: #f5e9e3; color: var(--brand-primary); }
 .chip--ok { background: rgba(22, 101, 52, 0.08); color: var(--state-success); }
+.chip--action {
+  background: var(--surface-container-high);
+  color: var(--text-secondary);
+  border: 1px solid var(--line-soft);
+  cursor: pointer;
+  font-weight: 700;
+  transition: background 0.15s;
+  &:hover { background: var(--surface-container-highest, var(--surface-container-high)); }
+  &:disabled { opacity: 0.55; cursor: not-allowed; }
+}
 
 h1 {
   @include ui.title-display(1.9rem, 3vw, 2.8rem, 1.1);
@@ -392,19 +402,6 @@ h1 {
 
 /* ── AI ANALYSIS ─────────────────────────────────────── */
 
-.ai-badge {
-  display: inline-block;
-  padding: 3px 8px;
-  border-radius: 6px;
-  background: linear-gradient(135deg, #7c3aed, #db2777);
-  color: #fff;
-  font-size: 0.68rem;
-  font-weight: 900;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  flex-shrink: 0;
-}
-
 .ai-analysis__error {
   padding: 10px 14px;
   border-radius: 10px;
@@ -505,19 +502,8 @@ h1 {
   border: 1px solid var(--line-soft);
   color: var(--text-secondary);
 }
-.btn--ai {
-  background: linear-gradient(135deg, #7c3aed, #db2777);
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: opacity 0.15s ease;
-}
-.btn--ai:hover { opacity: 0.88; }
 .btn--sm { font-size: 0.82rem; padding: 8px 14px; }
 .btn:disabled { @include ui.button-disabled(); }
-.btn--ai:disabled { opacity: 0.55; cursor: not-allowed; }
 
 /* ── FEEDBACK ────────────────────────────────────────── */
 
