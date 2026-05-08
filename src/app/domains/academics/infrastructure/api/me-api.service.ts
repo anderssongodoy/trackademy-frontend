@@ -187,6 +187,21 @@ export interface MyDashboardSummary {
   proximosEventosPeriodo: MyCalendarEvent[];
 }
 
+export interface SilaboAnalysisRecurso {
+  titulo: string;
+  tipo: string;
+  url: string;
+  descripcion: string;
+}
+
+export interface SilaboAnalysis {
+  silaboId: number;
+  resumen: string;
+  temas: string[];
+  recursos: SilaboAnalysisRecurso[];
+  generatedAt: string;
+}
+
 export interface AcademicRadarInsight {
   headline: string;
   summary: string;
@@ -424,5 +439,11 @@ export class MeApiService {
     }
 
     return this.http.get<MyEvaluationsResponse>(`${this.env.apiBaseUrl}/api/v1/me/evaluaciones`);
+  }
+
+  getSilaboAnalysis(usuarioPeriodoCursoId: number): Observable<SilaboAnalysis> {
+    return this.http.get<SilaboAnalysis>(
+      `${this.env.apiBaseUrl}/api/v1/me/cursos/${usuarioPeriodoCursoId}/silabo/analisis`
+    );
   }
 }

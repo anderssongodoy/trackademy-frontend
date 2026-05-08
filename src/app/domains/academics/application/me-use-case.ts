@@ -23,6 +23,7 @@ import {
   PeriodConfigurationUpdateRequest,
   ScheduleBlockRequest,
   ScheduleUpdateResponse,
+  SilaboAnalysis,
   TaskUpsertRequest
 } from '../infrastructure/api/me-api.service';
 
@@ -117,6 +118,10 @@ export class MeUseCase {
   getMyEvaluationsSummary(cursoId?: number): Observable<MyEvaluationsResponse> {
     return this.api.getMyEvaluationsSummary(cursoId);
   }
+
+  getSilaboAnalysis(usuarioPeriodoCursoId: number): Observable<SilaboAnalysis> {
+    return this.api.getSilaboAnalysis(usuarioPeriodoCursoId);
+  }
 }
 
 export type {
@@ -140,5 +145,6 @@ export type {
   PeriodConfigurationUpdateRequest,
   ScheduleBlockRequest,
   ScheduleUpdateResponse,
+  SilaboAnalysis,
   TaskUpsertRequest
 };

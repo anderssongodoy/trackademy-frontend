@@ -12,7 +12,7 @@ import {
   CatalogCourseUnit,
   CatalogUseCase
 } from '../../application/catalog-use-case';
-import { MeUseCase, MyCourse, MyEvaluation, MyEvaluationsResponse, MyScheduleEntry } from '../../application/me-use-case';
+import { MeUseCase, MyCourse, MyEvaluation, MyEvaluationsResponse, MyScheduleEntry, SilaboAnalysis } from '../../application/me-use-case';
 import { APP_ENV } from '../../../identity/infrastructure/config/app-environment.token';
 
 @Component({
@@ -47,6 +47,9 @@ export class CourseDetailPage implements OnInit {
   metadataSuccess = '';
   downloadError = '';
   isDownloadingCurrentSyllabus = false;
+  silaboAnalysis: SilaboAnalysis | null = null;
+  isLoadingAnalysis = false;
+  analysisError = '';
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
@@ -259,6 +262,39 @@ export class CourseDetailPage implements OnInit {
         this.isSavingMetadata = false;
       }
     });
+  }
+
+  requestSilaboAnalysis(): void {
+    if (!this.course || this.isLoadingAnalysis) return;
+
+    this.isLoadingAnalysis = true;
+    this.analysisError = '';
+
+    this.meUseCase.getSilaboAnalysis(this.course.usuarioPeriodoCursoId).subscribe({
+      next: (analysis) => {
+        this.silaboAnalysis = analysis;
+        this.isLoadingAnalysis = false;
+      },
+      error: (err) => {
+        if (err?.status === 404) {
+          this.analysisError = 'Este curso no tiene un sílabo disponible para analizar.';
+        } else {
+          this.analysisError = 'Esta función no está disponible en este momento. Inténtalo más tarde.';
+        }
+        this.isLoadingAnalysis = false;
+      }
+    });
+  }
+
+  resourceTypeLabel(tipo: string): string {
+    const labels: Record<string, string> = {
+      youtube: 'YouTube',
+      libro: 'Libro',
+      articulo: 'Artículo',
+      documentacion: 'Documentación',
+      curso: 'Curso'
+    };
+    return labels[tipo] ?? tipo;
   }
 
   downloadCurrentSyllabus(): void {
