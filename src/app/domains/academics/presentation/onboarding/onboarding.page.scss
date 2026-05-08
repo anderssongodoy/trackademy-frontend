@@ -47,8 +47,10 @@
   width: 18px;
   height: 18px;
   border-radius: 6px;
-  background: var(--brand-primary);
-  box-shadow: 0 6px 16px rgba(196, 87, 42, 0.30);
+  overflow: hidden;
+  flex-shrink: 0;
+
+  img { width: 37px; height: 37px; margin-top: -2px; margin-left: -10px; display: block; }
 }
 
 .ob-brand__text {
