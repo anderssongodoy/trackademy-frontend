@@ -47,11 +47,15 @@
 .brand-mark {
   width: 30px;
   height: 30px;
-  border-radius: 7px;
-  overflow: hidden;
+  display: grid;
+  place-items: center;
   flex-shrink: 0;
 
-  img { width: 61px; height: 61px; margin-top: -3px; margin-left: -16px; display: block; }
+  img {
+    width: 26px;
+    height: 26px;
+    display: block;
+  }
 }
 
 .brand-name { font-size: 0.97rem; }
@@ -333,6 +337,7 @@
 
 .footer__logo .brand-mark {
   background: rgba(255, 255, 255, 0.10);
+  border-radius: 8px;
 }
 
 .footer__logo .brand-name { color: rgba(255, 255, 255, 0.85); }

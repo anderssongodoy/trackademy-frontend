@@ -74,11 +74,17 @@
 .brand__mark {
   width: 36px;
   height: 36px;
-  border-radius: 9px;
-  overflow: hidden;
+  display: grid;
+  place-items: center;
+  border-radius: 10px;
+  background: #f7f4ef;
   flex-shrink: 0;
 
-  img { width: 73px; height: 73px; margin-top: -4px; margin-left: -19px; display: block; }
+  img {
+    width: 28px;
+    height: 28px;
+    display: block;
+  }
 }
 
 .brand__title {
