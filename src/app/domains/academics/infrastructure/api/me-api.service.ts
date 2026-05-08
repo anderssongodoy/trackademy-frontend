@@ -198,8 +198,10 @@ export interface SilaboAnalysis {
   silaboId: number;
   resumen: string;
   temas: string[];
-  recursos: SilaboAnalysisRecurso[];
   paraIrMasAlla: string[];
+  recursos: SilaboAnalysisRecurso[];
+  promptTokens: number | null;
+  completionTokens: number | null;
   generatedAt: string;
 }
 
