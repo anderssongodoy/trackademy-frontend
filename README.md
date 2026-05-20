@@ -1,45 +1,33 @@
 # Trackademy Frontend
 
-Frontend de Trackademy construido con Angular y una organización por dominios orientada a mantener separadas la UI, los casos de uso y la integración con APIs.
-
-## Resumen
-
-Trackademy busca centralizar la operación académica diaria del estudiante en una sola experiencia:
-
-- onboarding académico inicial
-- visualización del ciclo actual
-- cursos, horarios y calendario
-- registro de notas
-- tareas y recordatorios sobre data real
-- perfil académico editable
-
-El frontend consume el backend de Trackademy y prioriza datos reales sobre mocks o estados inventados.
+Frontend de Trackademy construido con Angular 20, organizado por dominios para mantener separadas UI, casos de uso e integracion con APIs.
 
 ## Stack
 
-- Angular 20
+- Angular 20 (standalone components)
 - TypeScript
 - RxJS
-- Angular Router
-- Angular Forms
+- Angular Router y Forms reactivas
 - SCSS
-- MSAL Browser para autenticación Microsoft
+- MSAL Browser (auth Microsoft)
+- Google Identity Services (auth Google)
+- Desplegado en Vercel
 
 ## Arquitectura
 
-El proyecto sigue una organización tipo DDD para frontend:
+Cada dominio sigue una organizacion tipo DDD:
 
 - `domain`: modelos y contratos puros
-- `application`: casos de uso y orquestación
-- `infrastructure`: adaptadores técnicos, APIs y config
-- `presentation`: páginas y componentes
+- `application`: casos de uso
+- `infrastructure`: servicios HTTP, guards, configuracion
+- `presentation`: paginas y componentes
 
-Dominios principales:
+Dominios:
 
-- `identity`: autenticación y sesión
-- `academics`: onboarding, dashboard, cursos, horario, notas, calendario, recordatorios y perfil
-- `marketing`: landing pública
-- `planning`: reservado para evolución futura
+- `identity`: autenticacion y sesion
+- `academics`: onboarding, dashboard, cursos, horario, notas, calendario, tareas, perfil, WhatsApp
+- `feedback`: reportes de bugs y sugerencias
+- `marketing`: landing publica, privacy policy, terms of service
 
 ## Estructura
 
@@ -49,141 +37,107 @@ src/
     domains/
       academics/
       identity/
+      feedback/
       marketing/
-      planning/
     shared/
     app.config.ts
     app.routes.ts
   environments/
 ```
 
-## Reglas de trabajo
+## Reglas
 
 - `presentation` no llama HTTP directamente
-- los endpoints se consumen a través de `application` e `infrastructure`
+- los endpoints se consumen a traves de `application` e `infrastructure`
 - no se cruzan dominios desde `presentation`
-- la UI debe reflejar data real del backend
-- los estados vacíos deben ser explícitos y útiles
+- la UI refleja data real del backend; estados vacios son explicitos
+
+## Rutas
+
+Publicas:
+- `/` — landing
+- `/privacy-policy`, `/terms-of-service`
+- `/auth/sign-in`, `/auth/callback`
+- `/feedback` — formulario publico de reportes
+
+Autenticadas:
+- `/onboarding`
+- `/app/dashboard`
+- `/app/cursos`, `/app/cursos/:id`, `/app/cursos/:id/horario`
+- `/app/horario`
+- `/app/calendario`
+- `/app/notas`
+- `/app/tareas` (incluye recordatorios manuales como subtipo)
+- `/app/recordatorios` — redirige a `/app/tareas`
+- `/app/perfil`
+- `/app/feedback/reportes`
+
+Wildcard `**` redirige a `/`.
+
+## Funcionalidad
+
+Implementado:
+
+- Login con Google y Microsoft
+- Onboarding academico con preview de PDF de matricula
+- Dashboard
+- Mis cursos y detalle del curso (incluye historial de silabos y descarga PDF)
+- Configuracion de horario por curso y vista de horario semanal
+- Calendario academico (combina eventos de periodo, evaluaciones y clases)
+- Notas con registro y actualizacion por evaluacion
+- **Tareas y recordatorios manuales** con CRUD real (kanban con drag-drop)
+- Perfil academico editable y reconfiguracion del ciclo
+- Integracion WhatsApp en el perfil (generar codigo, vincular, desvincular)
+- Reportes de feedback con upload de imagen y datos de contacto
+- Landing publica, privacy policy y terms of service
+
+## Configuracion
+
+Entornos:
+
+- `src/environments/environment.ts` (dev, `apiBaseUrl` apunta a produccion)
+- `src/environments/environment.production.ts` (`production: true`)
 
 ## Requisitos
 
 - Node.js 20 o superior
 - npm
-- backend de Trackademy disponible en `http://localhost:8080`
+- Backend disponible (local: `http://localhost:8080`, prod: `https://api.trackademy.trinitylabs.app`)
 
-## Variables y entorno
-
-Entornos principales:
-
-- `src/environments/environment.ts`
-- `src/environments/environment.production.ts`
-
-Verifica que `apiBaseUrl` apunte al backend correcto para tu entorno local.
-
-## Instalación
+## Ejecucion local
 
 ```powershell
-cd C:\Users\uu\Desktop\trackademy\trackademy-frontend
+cd C:\Users\uu\Desktop\trackademy-proyecto\trackademy-frontend
 npm install
-```
-
-## Ejecución local
-
-```powershell
-cd C:\Users\uu\Desktop\trackademy\trackademy-frontend
 npm run start
 ```
 
-Aplicación:
+Aplicacion: `http://localhost:4200`.
 
-- `http://localhost:4200`
-
-## Scripts útiles
+Validacion estatica y build:
 
 ```powershell
-npm run start
 npx tsc -p tsconfig.app.json --noEmit
 npx ng build
 ```
-
-## Validación recomendada
-
-Con el backend ya levantado:
-
-```powershell
-cd C:\Users\uu\Desktop\trackademy\trackademy-frontend
-npx tsc -p tsconfig.app.json --noEmit
-npx ng build
-npm run start
-```
-
-Checklist manual mínimo:
-
-1. iniciar sesión
-2. verificar bloqueo correcto del onboarding ya completado
-3. revisar dashboard
-4. revisar mis cursos
-5. abrir detalle de curso
-6. editar profesor y sección
-7. configurar horario
-8. registrar una nota
-9. revisar tareas, calendario y recordatorios
-10. revisar perfil y reconfiguración del ciclo
-
-## Estado actual del producto
-
-Hoy el frontend ya cubre:
-
-- login con Google y Microsoft
-- onboarding académico base
-- shell con sidebar y topbar
-- dashboard
-- mis cursos
-- detalle del curso
-- configuración de horario
-- horario semanal
-- notas
-- tareas derivadas de evaluaciones reales
-- calendario académico
-- recordatorios construidos desde calendario y evaluaciones
-- perfil académico editable
-- reconfiguración del ciclo actual
 
 ## Decisiones relevantes
 
-- `Notas` muestra por curso la primera evaluación pendiente como punto principal de acción
-- `Tareas` hoy se deriva de evaluaciones reales tipo entrega, laboratorio, proyecto, práctica o avance
-- `Recordatorios` hoy se construye con eventos reales de calendario y evaluaciones pendientes
-- `Campus` y `Carrera` se muestran por nombre, no por ID
-- `Perfil` no reabre el onboarding viejo; reconfigura el ciclo actual con reglas explícitas
+- `publicId` (UUID) se usa como identificador estable del curso en navegacion; `codigo` se muestra como dato academico visible.
+- `Notas` resalta por curso la primera evaluacion pendiente como accion principal.
+- `Tareas` permite crear, editar y borrar tareas manuales con tipos `tarea` y `recordatorio`. Reemplaza al enfoque anterior derivado de evaluaciones.
+- `Recordatorios` no es una pagina separada hoy; el subtipo vive dentro de Tareas (`/app/recordatorios` redirige).
+- `Campus` y `Carrera` se muestran por nombre, no por ID.
+- `Perfil` reconfigura el ciclo actual con reglas explicitas y recarga los cursos reales tras el cambio.
 
-## Próximas mejoras pensadas
+## Despliegue
 
-- tareas manuales creadas por el alumno
-- recordatorios manuales creados por el alumno
-- sincronización real con Outlook o Google Calendar
-- proyección y calculadora de notas
-- edición avanzada por sesión para `ubicacion` y `url_virtual`
-- QA manual cruzado en mobile y tablet
+Vercel toma el contenido de `dist/` al hacer push a `main`. Configuracion en `vercel.json`.
 
 ## Troubleshooting
 
-### El frontend levanta pero no carga datos
+**No carga datos:** verifica que el backend este corriendo y que `apiBaseUrl` apunte al entorno correcto. Confirma que tu sesion JWT siga viva.
 
-Verifica:
+**`ng build` falla:** revisa version de Node, dependencias instaladas y errores de typings.
 
-- backend corriendo en `http://localhost:8080`
-- sesión válida
-- `apiBaseUrl` correcto en `environment.ts`
-
-### `ng build` falla
-
-Revisa:
-
-- versión de Node
-- dependencias instaladas
-- cambios recientes en imports o standalone components
-
-### Cambié datos del ciclo y no veo efecto
-
-La vista de perfil ya recarga los cursos reales después de reconfigurar el ciclo. Si aún ves algo raro, refresca la sesión y valida que el backend haya persistido el cambio.
+**Cambie el ciclo y no veo efecto:** el perfil recarga cursos tras reconfigurar. Si persiste, refresca sesion.
